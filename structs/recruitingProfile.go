@@ -11,4 +11,18 @@ type RecruitingProfile struct {
 	ScholarshipsAvailable int
 	WeeklyPoints          int
 	BonusPoints           int
+	SpentPoints           int
+	Recruits              []RecruitingPoints `gorm:"foreignKey:ProfileID"`
+}
+
+func (r *RecruitingProfile) SubtractScholarshipsAvailable() {
+	r.ScholarshipsAvailable--
+}
+
+func (r *RecruitingProfile) ReallocateScholarship() {
+	r.ScholarshipsAvailable++
+}
+
+func (r *RecruitingProfile) AllocateSpentPoints(points int) {
+	r.SpentPoints += points
 }

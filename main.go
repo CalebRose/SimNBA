@@ -31,20 +31,48 @@ func InitialMigration() {
 
 	db.AutoMigrate(&structs.Player{})
 	db.AutoMigrate(&structs.Team{})
+	db.AutoMigrate(&structs.Request{})
+	db.AutoMigrate(&structs.RecruitingProfile{})
 
 }
 
 func handleRequests() {
 	myRouter := mux.NewRouter().StrictSlash(true)
 	myRouter.HandleFunc("/", helloWorld).Methods("GET")
-	myRouter.HandleFunc("/players", controller.AllPlayers).Methods("GET")
+	// Player Controls
 	myRouter.HandleFunc("/player/add/{firstname}/{lastname}", controller.NewPlayer).Methods("POST")
-	myRouter.HandleFunc("/player/remove/{ID}", controller.RemovePlayer).Methods("DELETE")
-	myRouter.HandleFunc("/player/update/{ID}", controller.UpdatePlayer).Methods("PUT")
+	myRouter.HandleFunc("/player/GetPlayer/{playerId}", controller.PlayerById).Methods("GET")
+	myRouter.HandleFunc("/player/SetRedshirting/{playerId}", controller.PlayerById).Methods("PUT")
+	myRouter.HandleFunc("/players", controller.AllPlayers).Methods("GET")
+	myRouter.HandleFunc("/players/{teamId}", controller.AllPlayersByTeamId).Methods("GET")
+	myRouter.HandleFunc("/players/college", controller.AllCollegePlayers).Methods("GET")
+	myRouter.HandleFunc("/players/college/recruits", controller.AllCollegeRecruits).Methods("GET")
+	myRouter.HandleFunc("/players/nba", controller.AllNBAPlayers).Methods("GET")
+	myRouter.HandleFunc("/players/nba/freeAgents", controller.AllNBAFreeAgents).Methods("GET")
+	// Recruit Controls
+	myRouter.HandleFunc("/recruit/croots/{profileId}", controller.AllRecruitsByProfileID).Methods("GET")
+	myRouter.HandleFunc("/recruit/profile/{teamId}", controller.RecruitingProfileByTeamID).Methods("GET")
+	myRouter.HandleFunc("/recruit/createRecruitingPointsProfile", controller.CreateRecruitingPointsProfileForRecruit).Methods("POST")
+	myRouter.HandleFunc("/recruit/allocatePoints", controller.AllocateRecruitingPointsForRecruit).Methods("PUT")
+	myRouter.HandleFunc("/recruit/sendScholarshipToRecruit", controller.SendScholarshipToRecruit).Methods("PUT")
+	myRouter.HandleFunc("/recruit/revokeScholarshipFromRecruit", controller.RevokeScholarshipFromRecruit).Methods("PUT")
+	// Request Controls
+	myRouter.HandleFunc("/requests/", controller.GetTeamRequests).Methods("GET")
+	myRouter.HandleFunc("/requests/createTeamRequest", controller.CreateTeamRequest).Methods("POST")
+	myRouter.HandleFunc("/requests/approveTeamRequest", controller.ApproveTeamRequest).Methods("PUT")
+	myRouter.HandleFunc("/requests/rejectTeamRequest", controller.RejectTeamRequest).Methods("DELETE")
+	// Stats Controls
+	// Team Controls
+	myRouter.HandleFunc("/team/{teamId}", controller.GetTeamByTeamID).Methods("GET")
+	myRouter.HandleFunc("/team/removeUserFromTeam/{teamId}", controller.RemoveUserFromTeam).Methods("PUT")
 	myRouter.HandleFunc("/teams", controller.AllTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/active", controller.AllActiveTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/available", controller.AllAvailableTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/coached", controller.AllCoachedTeams).Methods("GET")
+	myRouter.HandleFunc("/teams/college", controller.AllCollegeTeams).Methods("GET")
+	myRouter.HandleFunc("/teams/nba", controller.AllNBATeams).Methods("GET")
+	// Timestamp Controls
+	myRouter.HandleFunc("/timestamp", controller.GetCurrentTimestamp).Methods("GET")
 
 	handler := cors.AllowAll().Handler(myRouter)
 
