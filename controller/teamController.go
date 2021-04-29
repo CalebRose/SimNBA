@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/CalebRose/SimNBA/managers"
 	"github.com/CalebRose/SimNBA/structs"
+	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 )
-
-// var db *gorm.DB
-// var c = config.Config()
 
 func AllTeams(w http.ResponseWriter, r *http.Request) {
 	db, err := gorm.Open(c["db"], c["cs"])
@@ -68,18 +67,52 @@ func AllCoachedTeams(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(teams)
 }
 
-func GetTeam(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Get Team Endpoint Hit")
+func AllCollegeTeams(w http.ResponseWriter, r *http.Request) {
+	db, err := gorm.Open(c["db"], c["cs"])
+	if err != nil {
+		fmt.Println(err.Error())
+		panic("Failed to connect to DB")
+	}
+
+	defer db.Close()
+
+	var teams []structs.Team
+	db.Where("is_nba = ?", false).Order("team asc").Find(&teams)
+	json.NewEncoder(w).Encode(teams)
 }
 
-func NewTeam(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "New Team Endpoint Hit")
+func AllNBATeams(w http.ResponseWriter, r *http.Request) {
+	db, err := gorm.Open(c["db"], c["cs"])
+	if err != nil {
+		fmt.Println(err.Error())
+		panic("Failed to connect to DB")
+	}
+
+	defer db.Close()
+
+	var teams []structs.Team
+	db.Where("is_nba = ?", true).Order("team asc").Find(&teams)
+	json.NewEncoder(w).Encode(teams)
 }
 
-func RemoveTeam(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Delete Team Endpoint Hit")
+func GetTeamByTeamID(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	teamId := vars["teamId"]
+	if len(teamId) == 0 {
+		panic("User did not provide TeamID")
+	}
+	team := managers.GetTeamByTeamID(teamId)
+	json.NewEncoder(w).Encode(team)
 }
 
-func UpdateTeam(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Update Team Endpoint Hit")
+func RemoveUserFromTeam(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	teamId := vars["teamId"]
+	if len(teamId) == 0 {
+		panic("User did not provide TeamID")
+	}
+	team := managers.GetTeamByTeamID(teamId)
+	team.RemoveUser()
+	managers.RemoveUserFromTeam(team)
+	json.NewEncoder(w).Encode(team)
 }
