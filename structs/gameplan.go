@@ -4,7 +4,7 @@ package structs
 type Gameplan struct {
 	ID                   int
 	TeamID               int
-	Game                 int
+	Game                 string
 	Pace                 int
 	ThreePointProportion int
 	JumperProportion     int
