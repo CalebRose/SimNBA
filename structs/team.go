@@ -21,6 +21,7 @@ type Team struct {
 	FirstSeason       string
 	Coach             string
 	IsNBA             bool
+	Players           []Player          `gorm:"foriegnKey:TeamID"`
 	Gameplan          []Gameplan        `gorm:"foreignKey:TeamID"`
 	TeamStats         TeamStats         `gorm:"foreignKey:TeamID"`
 	RecruitingProfile RecruitingProfile `gorm:"foreignKey:TeamID"`
