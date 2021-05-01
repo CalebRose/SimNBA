@@ -31,6 +31,26 @@ func GetMatchesByTeamIdAndSeasonId(w http.ResponseWriter, r *http.Request) {
 	db.Where("team_id = ? AND season_id = ?", teamId, seasonId).Find(teamMatches)
 }
 
+func GetMatchByMatchId(w http.ResponseWriter, r *http.Request) {
+	db, err := gorm.Open(c["db"], c["cs"])
+	if err != nil {
+		fmt.Println(err.Error())
+		panic("Failed to connect to DB")
+	}
+
+	defer db.Close()
+
+	vars := mux.Vars(r)
+	matchId := vars["matchId"]
+	if len(matchId) == 0 {
+		panic("User did not provide a matchId")
+	}
+
+	var match structs.Match
+
+	db.Where("id = ?", matchId).Find(match)
+}
+
 func GetMatchesByWeekId(w http.ResponseWriter, r *http.Request) {
 	db, err := gorm.Open(c["db"], c["cs"])
 	if err != nil {
