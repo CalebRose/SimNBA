@@ -19,7 +19,9 @@ type PlayerStats struct {
 	FTA                int
 	FTPercent          float32
 	Points             int
-	Rebounds           int
+	TotalRebounds      int
+	OffRebounds        int
+	DefRebounds        int
 	Assists            int
 	Steals             int
 	Blocks             int
