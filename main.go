@@ -29,16 +29,29 @@ func InitialMigration() {
 
 	defer db.Close()
 
+	db.AutoMigrate(&structs.CollegeWeek{})
+	db.AutoMigrate(&structs.Gameplan{})
+	db.AutoMigrate(&structs.Match{})
+	db.AutoMigrate(&structs.NBAWeek{})
 	db.AutoMigrate(&structs.Player{})
-	db.AutoMigrate(&structs.Team{})
-	db.AutoMigrate(&structs.Request{})
+	db.AutoMigrate(&structs.PlayerStats{})
+	db.AutoMigrate(&structs.RecruitingPoints{})
 	db.AutoMigrate(&structs.RecruitingProfile{})
-
+	db.AutoMigrate(&structs.Request{})
+	db.AutoMigrate(&structs.Season{})
+	db.AutoMigrate(&structs.Team{})
+	db.AutoMigrate(&structs.TeamStats{})
+	db.AutoMigrate(&structs.Timestamp{})
 }
 
 func handleRequests() {
 	myRouter := mux.NewRouter().StrictSlash(true)
 	myRouter.HandleFunc("/", helloWorld).Methods("GET")
+	// Match Controls
+	myRouter.HandleFunc("/match/{matchId}", controller.GetMatchByMatchId).Methods("GET")
+	myRouter.HandleFunc("/match/team/{teamId}/season/{seasonId}", controller.GetMatchesByTeamIdAndSeasonId).Methods("GET")
+	myRouter.HandleFunc("/match/week/{weekId}", controller.GetMatchesByTeamIdAndSeasonId).Methods("GET")
+	myRouter.HandleFunc("/match/team/upcoming/{teamId}/season/{seasonId}", controller.GetUpcomingMatchesByTeamIdAndSeasonId).Methods("GET")
 	// Player Controls
 	myRouter.HandleFunc("/player/add/{firstname}/{lastname}", controller.NewPlayer).Methods("POST")
 	myRouter.HandleFunc("/player/GetPlayer/{playerId}", controller.PlayerById).Methods("GET")
@@ -62,6 +75,11 @@ func handleRequests() {
 	myRouter.HandleFunc("/requests/approveTeamRequest", controller.ApproveTeamRequest).Methods("PUT")
 	myRouter.HandleFunc("/requests/rejectTeamRequest", controller.RejectTeamRequest).Methods("DELETE")
 	// Stats Controls
+	myRouter.HandleFunc("/stats/player/{playerId}", controller.GetPlayerStats).Methods("GET")
+	myRouter.HandleFunc("/stats/player/{playerId}/match/{matchId}", controller.GetPlayerStatsByMatch).Methods("GET")
+	myRouter.HandleFunc("/stats/player/{playerId}/season/{seasonId}", controller.GetPlayerStatsBySeason).Methods("GET")
+	myRouter.HandleFunc("/stats/team/{teamId}/season/{seasonId}", controller.GetTeamStatsBySeason).Methods("GET")
+	myRouter.HandleFunc("/stats/team/{teamId}/match/{matchId}", controller.GetTeamStatsByMatch).Methods("GET")
 	// Team Controls
 	myRouter.HandleFunc("/team/{teamId}", controller.GetTeamByTeamID).Methods("GET")
 	myRouter.HandleFunc("/team/removeUserFromTeam/{teamId}", controller.RemoveUserFromTeam).Methods("PUT")
