@@ -19,6 +19,7 @@ var err error
 var c = config.Config()
 
 func InitialMigration() {
+	fmt.Println("Initializing...")
 	// 23.252.52.222
 	// 68.66.216.54
 	db, err := gorm.Open(c["db"], c["cs"])
