@@ -107,4 +107,6 @@ func main() {
 	InitialMigration()
 
 	handleRequests()
+
+	fmt.Println("Application Running")
 }
