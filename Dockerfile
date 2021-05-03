@@ -4,6 +4,8 @@ LABEL maintainer='@ctrose17 <>'
 
 WORKDIR /app
 
+EXPOSE 80
+
 COPY go.mod .
 
 COPY go.sum .
