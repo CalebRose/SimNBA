@@ -14,6 +14,7 @@ type RecruitingPoints struct {
 	ProfileID              int
 	TotalPointsSpent       int
 	CurrentPointsSpent     int
+	SpendingCount          int
 	Scholarship            bool
 	InterestLevel          string
 	InterestLevelThreshold int
