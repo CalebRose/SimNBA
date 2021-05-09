@@ -8,5 +8,4 @@ type Season struct {
 	Year         int
 	CollegeWeeks []CollegeWeek `gorm:"foreignKey:SeasonID"`
 	NBAWeeks     []NBAWeek     `gorm:"foreignKey:SeasonID"`
-	Accolades    []string
 }
