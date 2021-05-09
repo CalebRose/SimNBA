@@ -63,7 +63,7 @@ func AllCoachedTeams(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	var teams []structs.Team
-	db.Where("coach is not null").Order("team asc").Find(&teams)
+	db.Where("coach is not null AND coach NOT IN (?,?)", "", "AI").Order("team asc").Find(&teams)
 	json.NewEncoder(w).Encode(teams)
 }
 
