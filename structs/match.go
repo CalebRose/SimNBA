@@ -16,4 +16,6 @@ type Match struct {
 	AwayTeamScore int
 	IsNeutral     bool
 	IsNBAMatch    bool
+	IsConference  bool
+	IsDivisional  bool
 }
