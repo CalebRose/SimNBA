@@ -85,3 +85,16 @@ func GetTimestamp(db *gorm.DB) structs.Timestamp {
 	db.Find(&timeStamp)
 	return timeStamp
 }
+
+func GetPlayersByConference(db *gorm.DB, seasonId string, conference string) []structs.Player {
+	var players []structs.Player
+	db.Preload("PlayerStats", "season_id = ?", seasonId).Joins("Team").Where("Team.Conference = ?", conference).Find(&players)
+	return players
+}
+
+func GetTeamsInConference(db *gorm.DB, conference string) []structs.Team {
+	var teams []structs.Team
+	db.Where("conference = ?", conference).Find(&teams)
+
+	return teams
+}
