@@ -1,4 +1,4 @@
-FROM golang:latest
+FROM golang:alpine as base-builder
 
 LABEL maintainer='@ctrose17 <>'
 

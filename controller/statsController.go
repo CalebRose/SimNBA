@@ -66,16 +66,17 @@ func GetPlayerStatsInConferenceBySeason(w http.ResponseWriter, r *http.Request) 
 	defer db.Close()
 
 	vars := mux.Vars(r)
-	playerId := vars["playerId"]
 	seasonId := vars["seasonId"]
 	conference := vars["conference"]
-	if len(playerId) == 0 || len(seasonId) == 0 || len(conference) == 0 {
+	if len(seasonId) == 0 || len(conference) == 0 {
 		panic("User did not provide both a playerId and a Season Id")
 	}
 
 	var playerStats []structs.PlayerStats
 
-	db.Where("player_id = ? AND season_id = ? AND conference = ?", playerId, seasonId, conference).Find(playerStats)
+	// Get Teams, preload players, 
+
+	db.Where("season_id = ? AND conference = ?", seasonId, conference).Find(playerStats)
 	json.NewEncoder(w).Encode(playerStats)
 }
 
