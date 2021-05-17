@@ -54,3 +54,15 @@ func (p *Player) SetRedshirtStatus() {
 		p.IsRedshirt = true
 	}
 }
+
+func (p *Player) UpdateMinutesA(minutes int) {
+	p.MinutesA = minutes
+}
+
+func (p *Player) UpdateMinutesB(minutes int) {
+	p.MinutesB = minutes
+}
+
+func (p *Player) UpdateMinutesC(minutes int) {
+	p.MinutesC = minutes
+}

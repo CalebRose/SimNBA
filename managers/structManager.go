@@ -98,3 +98,17 @@ func GetTeamsInConference(db *gorm.DB, conference string) []structs.Team {
 
 	return teams
 }
+
+func GetGameplansByTeam(db *gorm.DB, teamId string) []structs.Gameplan {
+	var gameplans []structs.Gameplan
+	db.Where("team_id = ?", teamId).Order("game asc").Find(&gameplans)
+
+	return gameplans
+}
+
+func GetPlayersByTeamId(db *gorm.DB, teamId string) []structs.Player {
+	var players []structs.Player
+	db.Where("team_id = ?", teamId).Find(&players)
+
+	return players
+}

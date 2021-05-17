@@ -45,9 +45,8 @@ func AllPlayersByTeamId(w http.ResponseWriter, r *http.Request) {
 	if len(teamId) == 0 {
 		panic("User did not provide TeamID")
 	}
-	var players []structs.Player
+	var players = managers.GetPlayersByTeamId(db, teamId)
 
-	db.Where("team_id = ?", teamId).Find(&players)
 	json.NewEncoder(w).Encode(players)
 }
 

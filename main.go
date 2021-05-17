@@ -48,6 +48,10 @@ func InitialMigration() {
 func handleRequests() {
 	myRouter := mux.NewRouter().StrictSlash(true)
 	myRouter.HandleFunc("/", helloWorld).Methods("GET")
+	// Gameplan controls
+	myRouter.HandleFunc("/gameplans/{teamId}", controller.GetGameplansByTeamId).Methods("GET")
+	myRouter.HandleFunc("/gameplans/update", controller.UpdateGameplan).Methods("PUT")
+
 	// Match Controls
 	myRouter.HandleFunc("/match/{matchId}", controller.GetMatchByMatchId).Methods("GET")
 	myRouter.HandleFunc("/match/team/{teamId}/season/{seasonId}", controller.GetMatchesByTeamIdAndSeasonId).Methods("GET")
@@ -56,7 +60,7 @@ func handleRequests() {
 	// Player Controls
 	myRouter.HandleFunc("/player/add/{firstname}/{lastname}", controller.NewPlayer).Methods("POST")
 	myRouter.HandleFunc("/player/GetPlayer/{playerId}", controller.PlayerById).Methods("GET")
-	myRouter.HandleFunc("/player/SetRedshirting/{playerId}", controller.PlayerById).Methods("PUT")
+	myRouter.HandleFunc("/player/SetRedshirting/{playerId}", controller.SetRedshirtStatusByPlayerId).Methods("PUT")
 	myRouter.HandleFunc("/players", controller.AllPlayers).Methods("GET")
 	myRouter.HandleFunc("/players/{teamId}", controller.AllPlayersByTeamId).Methods("GET")
 	myRouter.HandleFunc("/players/college", controller.AllCollegePlayers).Methods("GET")
