@@ -19,4 +19,10 @@ ENV PORT 8081
 
 RUN go build
 
+FROM alpine:latest
+
+WORKDIR /home
+
+COPY --from=0 /app/SimNBA .
+
 CMD ["./SimNBA"]
