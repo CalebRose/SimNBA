@@ -11,6 +11,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/nelkinda/health-go"
+	"github.com/nelkinda/health-go/checks/sendgrid"
 	"github.com/rs/cors"
 )
 
@@ -51,6 +53,15 @@ func handleRequests() {
 	// Gameplan controls
 	myRouter.HandleFunc("/gameplans/{teamId}", controller.GetGameplansByTeamId).Methods("GET")
 	myRouter.HandleFunc("/gameplans/update", controller.UpdateGameplan).Methods("PUT")
+	// Health Controls
+	HealthCheck := health.New(
+		health.Health{
+			Version:   "1",
+			ReleaseID: "0.0.7-SNAPSHOT",
+		},
+		sendgrid.Health(),
+	)
+	myRouter.HandleFunc("/health", HealthCheck.Handler).Methods("GET")
 
 	// Match Controls
 	myRouter.HandleFunc("/match/{matchId}", controller.GetMatchByMatchId).Methods("GET")
