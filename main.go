@@ -101,6 +101,8 @@ func handleRequests() {
 	myRouter.HandleFunc("/team/removeUserFromTeam/{teamId}", controller.RemoveUserFromTeam).Methods("PUT")
 	myRouter.HandleFunc("/teams", controller.AllTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/active", controller.AllActiveTeams).Methods("GET")
+	myRouter.HandleFunc("/teams/active/college", controller.AllActiveCollegeTeams).Methods("GET")
+	myRouter.HandleFunc("/teams/active/nba", controller.AllActiveNBATeams).Methods("GET")
 	myRouter.HandleFunc("/teams/available", controller.AllAvailableTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/coached", controller.AllCoachedTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/college", controller.AllCollegeTeams).Methods("GET")

@@ -39,6 +39,34 @@ func AllActiveTeams(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(teams)
 }
 
+func AllActiveCollegeTeams(w http.ResponseWriter, r *http.Request) {
+	db, err := gorm.Open(c["db"], c["cs"])
+	if err != nil {
+		fmt.Println(err.Error())
+		panic("Failed to connect to DB")
+	}
+
+	defer db.Close()
+
+	var teams []structs.Team
+	db.Where("first_season is not null AND coach is not null and is_nba = ?", false).Order("team asc").Find(&teams)
+	json.NewEncoder(w).Encode(teams)
+}
+
+func AllActiveNBATeams(w http.ResponseWriter, r *http.Request) {
+	db, err := gorm.Open(c["db"], c["cs"])
+	if err != nil {
+		fmt.Println(err.Error())
+		panic("Failed to connect to DB")
+	}
+
+	defer db.Close()
+
+	var teams []structs.Team
+	db.Where("first_season is not null AND coach is not null and is_nba = ?", true).Order("team asc").Find(&teams)
+	json.NewEncoder(w).Encode(teams)
+}
+
 func AllAvailableTeams(w http.ResponseWriter, r *http.Request) {
 	db, err := gorm.Open(c["db"], c["cs"])
 	if err != nil {
