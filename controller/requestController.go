@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
+	"github.com/CalebRose/SimNBA/managers"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/jinzhu/gorm"
 )
@@ -18,8 +20,10 @@ func GetTeamRequests(w http.ResponseWriter, r *http.Request) {
 
 	defer db.Close()
 
-	var requests []structs.Request
-	db.Where("deleted_date is null AND is_approved = 0").Find(&requests)
+	var requests []structs.RequestDTO
+	db.Raw("SELECT requests.id, requests.team_id, teams.team, teams.abbr, requests.username, teams.conference, teams.is_nba, requests.is_approved FROM simfbaah_simnba.requests INNER JOIN simfbaah_simnba.teams on teams.id = requests.team_id WHERE requests.deleted_at is null AND requests.is_approved = 0").
+		Scan(&requests)
+	// db.Where("deleted_date is null AND is_approved = 0").Find(&requests)
 	json.NewEncoder(w).Encode(requests)
 }
 
@@ -61,13 +65,26 @@ func ApproveTeamRequest(w http.ResponseWriter, r *http.Request) {
 
 	var request structs.Request
 	err = json.NewDecoder(r.Body).Decode(&request)
-	if err != nil {
+	if err != nil || request.ID == 0 {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	request.ApproveTeamRequest()
 
-	db.Model(&request).Update("is_approved", request.IsApproved)
+	fmt.Println("Team Approved...")
+
+	db.Save(&request)
+
+	fmt.Println("Assigning team...")
+
+	// Assign Team
+	team := managers.GetTeamByTeamID(strconv.Itoa(request.TeamID))
+
+	team.AssignUserToTeam(request.Username)
+
+	db.Save(&team)
+
+	// db.Model(&team).Where("id = ?", request.TeamID).Update("coach", request.Username)
 
 	fmt.Fprintf(w, "Request: %+v", request)
 }

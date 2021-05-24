@@ -36,7 +36,7 @@ func RemoveUserFromTeam(team structs.Team) {
 
 	defer db.Close()
 
-	db.Model(&team).Update("coach", nil)
+	db.Save(&team)
 }
 
 // PLAYER Functions

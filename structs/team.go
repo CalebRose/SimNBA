@@ -32,6 +32,10 @@ func (t *Team) GetTeam(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(t)
 }
 
+func (t *Team) AssignUserToTeam(username string) {
+	t.Coach = username
+}
+
 func (t *Team) RemoveUser() {
 	t.Coach = ""
 }
