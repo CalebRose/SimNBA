@@ -19,6 +19,7 @@ type RecruitingPoints struct {
 	InterestLevel          string
 	InterestLevelThreshold int
 	Signed                 bool
+	Recruit                Player `gorm:"foreignKey:PlayerID"`
 }
 
 func (r *RecruitingPoints) AllocatePoints(points int) {

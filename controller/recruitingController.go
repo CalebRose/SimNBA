@@ -27,10 +27,10 @@ func AllRecruitsByProfileID(w http.ResponseWriter, r *http.Request) {
 	if len(profileID) == 0 {
 		panic("User did not provide a Recruiting Profile ID")
 	}
-	var players []structs.Player
+	var recruitPoints []structs.RecruitingPoints
 
-	db.Where("profile_id = ?", profileID).Find(&players)
-	json.NewEncoder(w).Encode(players)
+	db.Preload("Recruit").Where("profile_id = ?", profileID).Find(&recruitPoints)
+	json.NewEncoder(w).Encode(recruitPoints)
 }
 
 // RecruitingProfileByTeamID - Get Recruiting Profile by TeamID
@@ -83,6 +83,8 @@ func CreateRecruitingPointsProfileForRecruit(w http.ResponseWriter, r *http.Requ
 	}
 
 	db.Create(&recruitingPointProfile)
+
+	json.NewEncoder(w).Encode(recruitingPointProfile)
 
 	fmt.Fprintf(w, "New Recruiting Profile Created")
 }

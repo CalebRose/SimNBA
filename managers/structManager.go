@@ -69,7 +69,7 @@ func UpdatePlayer(p structs.Player) {
 
 func GetRecruitingProfileByTeamId(db *gorm.DB, teamId string) structs.RecruitingProfile {
 	var profile structs.RecruitingProfile
-	db.Preload("Recruits").Where("id = ?", teamId).Find(&profile)
+	db.Preload("Recruits.Recruit").Where("id = ?", teamId).Find(&profile)
 	return profile
 }
 
