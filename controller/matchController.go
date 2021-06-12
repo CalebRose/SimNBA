@@ -1,23 +1,16 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 
+	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/managers"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 )
 
 func GetMatchesByTeamIdAndSeasonId(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
+	db := dbprovider.GetInstance().GetDB()
 
 	vars := mux.Vars(r)
 	teamId := vars["teamId"]
@@ -32,13 +25,7 @@ func GetMatchesByTeamIdAndSeasonId(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetMatchByMatchId(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
+	db := dbprovider.GetInstance().GetDB()
 
 	vars := mux.Vars(r)
 	matchId := vars["matchId"]
@@ -52,13 +39,7 @@ func GetMatchByMatchId(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetMatchesByWeekId(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
+	db := dbprovider.GetInstance().GetDB()
 
 	vars := mux.Vars(r)
 	weekId := vars["weekId"]
@@ -72,13 +53,7 @@ func GetMatchesByWeekId(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUpcomingMatchesByTeamIdAndSeasonId(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
+	db := dbprovider.GetInstance().GetDB()
 
 	vars := mux.Vars(r)
 	teamId := vars["teamId"]

@@ -2,23 +2,16 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
+	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 )
 
 // GetPlayerStatsBySeason - Get Stats By PlayerId and SeasonId
 func GetPlayerStats(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
+	db := dbprovider.GetInstance().GetDB()
 
 	vars := mux.Vars(r)
 	playerId := vars["playerId"]
@@ -34,13 +27,7 @@ func GetPlayerStats(w http.ResponseWriter, r *http.Request) {
 
 // GetPlayerStatsBySeason - Get Stats By PlayerId and SeasonId
 func GetPlayerStatsBySeason(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
+	db := dbprovider.GetInstance().GetDB()
 
 	vars := mux.Vars(r)
 	playerId := vars["playerId"]
@@ -57,13 +44,7 @@ func GetPlayerStatsBySeason(w http.ResponseWriter, r *http.Request) {
 
 // GetPlayerStatsBySeason - Get Stats By PlayerId and SeasonId
 func GetPlayerStatsInConferenceBySeason(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
+	db := dbprovider.GetInstance().GetDB()
 
 	vars := mux.Vars(r)
 	seasonId := vars["seasonId"]
@@ -74,7 +55,7 @@ func GetPlayerStatsInConferenceBySeason(w http.ResponseWriter, r *http.Request) 
 
 	var playerStats []structs.PlayerStats
 
-	// Get Teams, preload players, 
+	// Get Teams, preload players,
 
 	db.Where("season_id = ? AND conference = ?", seasonId, conference).Find(playerStats)
 	json.NewEncoder(w).Encode(playerStats)
@@ -82,13 +63,7 @@ func GetPlayerStatsInConferenceBySeason(w http.ResponseWriter, r *http.Request) 
 
 // GetPlayerStatsByMatch - Get Player Stats by Match played
 func GetPlayerStatsByMatch(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
+	db := dbprovider.GetInstance().GetDB()
 
 	vars := mux.Vars(r)
 	playerId := vars["playerId"]
@@ -105,13 +80,7 @@ func GetPlayerStatsByMatch(w http.ResponseWriter, r *http.Request) {
 
 // GetTeamStatsBySeason - Get Stats By PlayerId and SeasonId
 func GetTeamStatsBySeason(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
+	db := dbprovider.GetInstance().GetDB()
 
 	vars := mux.Vars(r)
 	teamId := vars["teamId"]
@@ -128,14 +97,7 @@ func GetTeamStatsBySeason(w http.ResponseWriter, r *http.Request) {
 
 // GetTeamStatsByMatch - Get Player Stats by Match played
 func GetTeamStatsByMatch(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
-
+	db := dbprovider.GetInstance().GetDB()
 	vars := mux.Vars(r)
 	teamId := vars["teamId"]
 	matchId := vars["matchId"]

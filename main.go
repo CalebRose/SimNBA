@@ -4,47 +4,27 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
-	"github.com/CalebRose/SimNBA/config"
 	"github.com/CalebRose/SimNBA/controller"
-	"github.com/CalebRose/SimNBA/structs"
+	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/nelkinda/health-go"
 	"github.com/nelkinda/health-go/checks/sendgrid"
 	"github.com/rs/cors"
 )
 
-var db *gorm.DB
-var err error
-var c = config.Config()
+// var db *gorm.DB
+// var err error
+// var c = config.Config()
 
 func InitialMigration() {
-	fmt.Println("Initializing...")
-	// 23.252.52.222
-	// 68.66.216.54
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
+	initiate := dbprovider.GetInstance().InitDatabase()
+	if !initiate {
+		log.Println("Initiate pool failure... Ending application")
+		os.Exit(1)
 	}
-
-	defer db.Close()
-
-	db.AutoMigrate(&structs.CollegeWeek{})
-	db.AutoMigrate(&structs.Gameplan{})
-	db.AutoMigrate(&structs.Match{})
-	db.AutoMigrate(&structs.NBAWeek{})
-	db.AutoMigrate(&structs.Player{})
-	db.AutoMigrate(&structs.PlayerStats{})
-	db.AutoMigrate(&structs.RecruitingPoints{})
-	db.AutoMigrate(&structs.RecruitingProfile{})
-	db.AutoMigrate(&structs.Request{})
-	db.AutoMigrate(&structs.Season{})
-	db.AutoMigrate(&structs.Team{})
-	db.AutoMigrate(&structs.TeamStats{})
-	db.AutoMigrate(&structs.Timestamp{})
 }
 
 func handleRequests() {
@@ -120,8 +100,6 @@ func helloWorld(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	fmt.Println("GORM initiation")
-
 	InitialMigration()
 
 	handleRequests()

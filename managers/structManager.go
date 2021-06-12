@@ -1,88 +1,76 @@
 package managers
 
 import (
-	"fmt"
+	"log"
 
-	"github.com/CalebRose/SimNBA/config"
+	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/jinzhu/gorm"
 )
 
-var db *gorm.DB
-var c = config.Config()
-
 // TEAM Functions
 func GetTeamByTeamID(teamId string) structs.Team {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
-
 	var team structs.Team
-	db.Preload("RecruitingProfile").Where("id = ?", teamId).Find(&team)
-
+	db := dbprovider.GetInstance().GetDB()
+	err := db.Preload("RecruitingProfile").Where("id = ?", teamId).Find(&team).Error
+	if err != nil {
+		log.Fatal(err)
+	}
 	return team
 }
 
 func RemoveUserFromTeam(team structs.Team) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
-
+	db := dbprovider.GetInstance().GetDB()
 	db.Save(&team)
 }
 
 // PLAYER Functions
 func GetPlayerByPlayerId(playerId string) structs.Player {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
 	// Test
 	var player structs.Player
-	db.Where("id = ?", playerId).Find(&player)
-
+	db := dbprovider.GetInstance().GetDB()
+	err := db.Where("id = ?", playerId).Find(&player).Error
+	if err != nil {
+		log.Fatal(err)
+	}
 	return player
 }
 
 func UpdatePlayer(p structs.Player) {
-	db, err := gorm.Open(c["db"], c["cs"])
+	db := dbprovider.GetInstance().GetDB()
+	err := db.Save(&p).Error
 	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
+		log.Fatal(err)
 	}
-
-	defer db.Close()
-
-	db.Save(&p)
 }
 
-func GetRecruitingProfileByTeamId(db *gorm.DB, teamId string) structs.RecruitingProfile {
+func GetRecruitingProfileByTeamId(teamId string) structs.RecruitingProfile {
 	var profile structs.RecruitingProfile
-	db.Preload("Recruits.Recruit").Where("id = ?", teamId).Find(&profile)
+	db := dbprovider.GetInstance().GetDB()
+	err := db.Preload("Recruits.Recruit.RecruitingPoints", func(db *gorm.DB) *gorm.DB {
+		return db.Order("total_points_spent DESC")
+	}).Where("id = ?", teamId).Find(&profile).Error
+	if err != nil {
+		log.Fatal(err)
+	}
 	return profile
 }
 
 func GetRecruitingPointsProfileByPlayerId(db *gorm.DB, playerId string, profileId string) structs.RecruitingPoints {
 	var recruitingPoints structs.RecruitingPoints
-	db.Where("player_id = ? AND profile_id = ?", playerId, profileId).Find(&recruitingPoints)
-
+	err := db.Where("player_id = ? AND profile_id = ?", playerId, profileId).Find(&recruitingPoints).Error
+	if err != nil {
+		log.Fatal(err)
+	}
 	return recruitingPoints
 }
 
 func GetTimestamp(db *gorm.DB) structs.Timestamp {
 	var timeStamp structs.Timestamp
-	db.Find(&timeStamp)
+	err := db.Find(&timeStamp).Error
+	if err != nil {
+		log.Fatal(err)
+	}
 	return timeStamp
 }
 
@@ -94,7 +82,10 @@ func GetPlayersByConference(db *gorm.DB, seasonId string, conference string) []s
 
 func GetTeamsInConference(db *gorm.DB, conference string) []structs.Team {
 	var teams []structs.Team
-	db.Where("conference = ?", conference).Find(&teams)
+	err := db.Where("conference = ?", conference).Find(&teams).Error
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	return teams
 }

@@ -6,19 +6,13 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/managers"
 	"github.com/CalebRose/SimNBA/structs"
-	"github.com/jinzhu/gorm"
 )
 
 func GetTeamRequests(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
+	db := dbprovider.GetInstance().GetDB()
 
 	var requests []structs.RequestDTO
 	db.Raw("SELECT requests.id, requests.team_id, teams.team, teams.abbr, requests.username, teams.conference, teams.is_nba, requests.is_approved FROM simfbaah_simnba.requests INNER JOIN simfbaah_simnba.teams on teams.id = requests.team_id WHERE requests.deleted_at is null AND requests.is_approved = 0").
@@ -28,18 +22,10 @@ func GetTeamRequests(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateTeamRequest(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	fmt.Println("Booting Up DB")
-
-	defer db.Close()
+	db := dbprovider.GetInstance().GetDB()
 
 	var request structs.Request
-	err = json.NewDecoder(r.Body).Decode(&request)
+	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -53,18 +39,10 @@ func CreateTeamRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func ApproveTeamRequest(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	fmt.Println("Booting Up DB")
-
-	defer db.Close()
+	db := dbprovider.GetInstance().GetDB()
 
 	var request structs.Request
-	err = json.NewDecoder(r.Body).Decode(&request)
+	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil || request.ID == 0 {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -90,19 +68,11 @@ func ApproveTeamRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func RejectTeamRequest(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	fmt.Println("Booting Up DB")
-
-	defer db.Close()
+	db := dbprovider.GetInstance().GetDB()
 
 	var request structs.Request
 
-	err = json.NewDecoder(r.Body).Decode(&request)
+	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

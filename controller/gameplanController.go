@@ -6,42 +6,30 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/managers"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 )
 
 // GameplanController - For routes on Gameplans
 func GetGameplansByTeamId(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
+	db := dbprovider.GetInstance().GetDB()
 	vars := mux.Vars(r)
 	teamId := vars["teamId"]
 	if len(teamId) == 0 {
 		panic("User did not provide TeamID")
 	}
 
-	defer db.Close()
-
 	var gameplans = managers.GetGameplansByTeam(db, teamId)
 	json.NewEncoder(w).Encode(gameplans)
 }
 
 func UpdateGameplan(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
+	db := dbprovider.GetInstance().GetDB()
 
 	var updateGameplanDto structs.UpdateGameplanDto
-	err = json.NewDecoder(r.Body).Decode(&updateGameplanDto)
+	err := json.NewDecoder(r.Body).Decode(&updateGameplanDto)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}

@@ -2,23 +2,16 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
+	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/managers"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 )
 
 func AllTeams(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
+	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.Team
 	db.Order("team asc").Find(&teams)
@@ -26,13 +19,7 @@ func AllTeams(w http.ResponseWriter, r *http.Request) {
 }
 
 func AllActiveTeams(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
+	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.Team
 	db.Where("first_season is not null").Order("team asc").Find(&teams)
@@ -40,13 +27,7 @@ func AllActiveTeams(w http.ResponseWriter, r *http.Request) {
 }
 
 func AllActiveCollegeTeams(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
+	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.Team
 	db.Where("first_season is not null AND coach is not null and is_nba = ?", false).Order("team asc").Find(&teams)
@@ -54,13 +35,7 @@ func AllActiveCollegeTeams(w http.ResponseWriter, r *http.Request) {
 }
 
 func AllActiveNBATeams(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
+	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.Team
 	db.Where("first_season is not null AND coach is not null and is_nba = ?", true).Order("team asc").Find(&teams)
@@ -68,13 +43,7 @@ func AllActiveNBATeams(w http.ResponseWriter, r *http.Request) {
 }
 
 func AllAvailableTeams(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
+	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.Team
 	db.Where("first_season is not null AND coach is null OR coach = ?", "AI").Order("team asc").Find(&teams)
@@ -82,13 +51,7 @@ func AllAvailableTeams(w http.ResponseWriter, r *http.Request) {
 }
 
 func AllCoachedTeams(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
+	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.Team
 	db.Where("coach is not null AND coach NOT IN (?,?)", "", "AI").Order("team asc").Find(&teams)
@@ -96,13 +59,7 @@ func AllCoachedTeams(w http.ResponseWriter, r *http.Request) {
 }
 
 func AllCollegeTeams(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
+	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.Team
 	db.Where("is_nba = ?", false).Order("team asc").Find(&teams)
@@ -110,13 +67,7 @@ func AllCollegeTeams(w http.ResponseWriter, r *http.Request) {
 }
 
 func AllNBATeams(w http.ResponseWriter, r *http.Request) {
-	db, err := gorm.Open(c["db"], c["cs"])
-	if err != nil {
-		fmt.Println(err.Error())
-		panic("Failed to connect to DB")
-	}
-
-	defer db.Close()
+	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.Team
 	db.Where("is_nba = ?", true).Order("team asc").Find(&teams)
