@@ -14,5 +14,3 @@ type Contract struct {
 	IsActive       bool
 	// Do we want to keep track of the year?
 }
-
-var db *gorm.DB

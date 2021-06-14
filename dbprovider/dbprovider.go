@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/CalebRose/SimNBA/config"
+	"github.com/CalebRose/SimNBA/structs"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
@@ -33,19 +34,19 @@ func (p *Provider) InitDatabase() bool {
 		log.Fatal(err)
 		return false
 	}
-	// db.AutoMigrate(&structs.CollegeWeek{})
-	// db.AutoMigrate(&structs.Gameplan{})
-	// db.AutoMigrate(&structs.Match{})
-	// db.AutoMigrate(&structs.NBAWeek{})
-	// db.AutoMigrate(&structs.Player{})
-	// db.AutoMigrate(&structs.PlayerStats{})
-	// db.AutoMigrate(&structs.RecruitingPoints{})
-	// db.AutoMigrate(&structs.RecruitingProfile{})
-	// db.AutoMigrate(&structs.Request{})
-	// db.AutoMigrate(&structs.Season{})
-	// db.AutoMigrate(&structs.Team{})
-	// db.AutoMigrate(&structs.TeamStats{})
-	// db.AutoMigrate(&structs.Timestamp{})
+	db.AutoMigrate(&structs.CollegeWeek{})
+	db.AutoMigrate(&structs.Gameplan{})
+	db.AutoMigrate(&structs.Match{})
+	db.AutoMigrate(&structs.NBAWeek{})
+	db.AutoMigrate(&structs.Player{})
+	db.AutoMigrate(&structs.PlayerStats{})
+	db.AutoMigrate(&structs.RecruitingPoints{})
+	db.AutoMigrate(&structs.RecruitingProfile{})
+	db.AutoMigrate(&structs.Request{})
+	db.AutoMigrate(&structs.Season{})
+	db.AutoMigrate(&structs.Team{})
+	db.AutoMigrate(&structs.TeamStats{})
+	db.AutoMigrate(&structs.Timestamp{})
 	return true
 }
 

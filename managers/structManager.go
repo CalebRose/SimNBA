@@ -1,6 +1,7 @@
 package managers
 
 import (
+	"errors"
 	"log"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
@@ -26,7 +27,7 @@ func RemoveUserFromTeam(team structs.Team) {
 
 // PLAYER Functions
 func GetPlayerByPlayerId(playerId string) structs.Player {
-	// Test
+	//
 	var player structs.Player
 	db := dbprovider.GetInstance().GetDB()
 	err := db.Where("id = ?", playerId).Find(&player).Error
@@ -47,7 +48,7 @@ func UpdatePlayer(p structs.Player) {
 func GetRecruitingProfileByTeamId(teamId string) structs.RecruitingProfile {
 	var profile structs.RecruitingProfile
 	db := dbprovider.GetInstance().GetDB()
-	err := db.Preload("Recruits.Recruit.RecruitingPoints", func(db *gorm.DB) *gorm.DB {
+	err := db.Preload("Recruits", "removed_from_board = ?", false).Preload("Recruits.Recruit.RecruitingPoints", func(db *gorm.DB) *gorm.DB {
 		return db.Order("total_points_spent DESC")
 	}).Where("id = ?", teamId).Find(&profile).Error
 	if err != nil {
@@ -56,11 +57,39 @@ func GetRecruitingProfileByTeamId(teamId string) structs.RecruitingProfile {
 	return profile
 }
 
-func GetRecruitingPointsProfileByPlayerId(db *gorm.DB, playerId string, profileId string) structs.RecruitingPoints {
+func GetOnlyRecruitingProfileByTeamId(teamId string) structs.RecruitingProfile {
+	var profile structs.RecruitingProfile
+	db := dbprovider.GetInstance().GetDB()
+	err := db.Where("id = ?", teamId).Find(&profile).Error
+	if err != nil {
+		log.Fatal(err)
+	}
+	return profile
+}
+
+func GetRecruitingPointsProfileByPlayerId(playerId string, profileId string) structs.RecruitingPoints {
+	db := dbprovider.GetInstance().GetDB()
+
 	var recruitingPoints structs.RecruitingPoints
 	err := db.Where("player_id = ? AND profile_id = ?", playerId, profileId).Find(&recruitingPoints).Error
 	if err != nil {
-		log.Fatal(err)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return structs.RecruitingPoints{
+				SeasonID:               0,
+				PlayerID:               0,
+				ProfileID:              0,
+				TotalPointsSpent:       0,
+				CurrentPointsSpent:     0,
+				Scholarship:            false,
+				InterestLevel:          "None",
+				InterestLevelThreshold: 0,
+				Signed:                 false,
+				RemovedFromBoard:       false,
+			}
+		} else {
+			log.Fatal(err)
+		}
+
 	}
 	return recruitingPoints
 }
@@ -102,4 +131,25 @@ func GetPlayersByTeamId(db *gorm.DB, teamId string) []structs.Player {
 	db.Where("team_id = ?", teamId).Find(&players)
 
 	return players
+}
+
+func GetRecruitingPointsByTeamId(id string) []structs.RecruitingPoints {
+	db := dbprovider.GetInstance().GetDB()
+	var recruits []structs.RecruitingPoints
+	db.Where("profile_id = ? AND removed_from_board = ?", id, false).Find(&recruits)
+
+	return recruits
+}
+
+func GetRecruitFromRecruitsList(id int, recruits []structs.RecruitingPoints) structs.RecruitingPoints {
+	var recruit structs.RecruitingPoints
+
+	for i := 0; i < len(recruits); i++ {
+		if recruits[i].PlayerID == id {
+			recruit = recruits[i]
+			break
+		}
+	}
+
+	return recruit
 }

@@ -6,6 +6,7 @@ import "github.com/jinzhu/gorm"
 type RecruitingProfile struct {
 	gorm.Model
 	TeamID                int
+	Team                  string
 	State                 string
 	Region                string
 	ScholarshipsAvailable int
@@ -24,5 +25,5 @@ func (r *RecruitingProfile) ReallocateScholarship() {
 }
 
 func (r *RecruitingProfile) AllocateSpentPoints(points int) {
-	r.SpentPoints += points
+	r.SpentPoints = points
 }

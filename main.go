@@ -15,10 +15,6 @@ import (
 	"github.com/rs/cors"
 )
 
-// var db *gorm.DB
-// var err error
-// var c = config.Config()
-
 func InitialMigration() {
 	initiate := dbprovider.GetInstance().InitDatabase()
 	if !initiate {
@@ -65,6 +61,9 @@ func handleRequests() {
 	myRouter.HandleFunc("/recruit/allocatePoints", controller.AllocateRecruitingPointsForRecruit).Methods("PUT")
 	myRouter.HandleFunc("/recruit/sendScholarshipToRecruit", controller.SendScholarshipToRecruit).Methods("PUT")
 	myRouter.HandleFunc("/recruit/revokeScholarshipFromRecruit", controller.RevokeScholarshipFromRecruit).Methods("PUT")
+	myRouter.HandleFunc("/recruit/removeRecruit", controller.RemoveRecruitFromBoard).Methods("PUT")
+	myRouter.HandleFunc("/recruit/saveRecruitingBoard", controller.SaveRecruitingBoard).Methods("PUT")
+
 	// Request Controls
 	myRouter.HandleFunc("/requests/", controller.GetTeamRequests).Methods("GET")
 	myRouter.HandleFunc("/requests/createTeamRequest", controller.CreateTeamRequest).Methods("POST")
@@ -101,6 +100,7 @@ func helloWorld(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	InitialMigration()
+	fmt.Println("Database initialized.")
 
 	handleRequests()
 

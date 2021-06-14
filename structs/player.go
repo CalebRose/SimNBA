@@ -43,13 +43,13 @@ type Player struct {
 }
 
 func (p *Player) SetRedshirtingStatus() {
-	if p.IsRedshirt == false && p.IsRedshirting == false {
+	if !p.IsRedshirt && !p.IsRedshirting {
 		p.IsRedshirting = true
 	}
 }
 
 func (p *Player) SetRedshirtStatus() {
-	if p.IsRedshirting == true {
+	if p.IsRedshirting {
 		p.IsRedshirting = false
 		p.IsRedshirt = true
 	}

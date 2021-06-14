@@ -5,4 +5,5 @@ type CreateRecruitPointsDto struct {
 	ProfileId int
 	PlayerId  int
 	SeasonId  int
+	Team      string
 }

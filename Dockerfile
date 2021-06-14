@@ -7,22 +7,21 @@ WORKDIR /app
 EXPOSE 8081
 EXPOSE 80
 
-COPY go.mod .
-
-COPY go.sum .
+COPY go.mod go.sum ./
 
 RUN go mod download
 
 COPY . .
 
-ENV PORT 8081
-
 RUN go build
 
 FROM alpine:latest
 
-WORKDIR /home
+WORKDIR /root/
 
 COPY --from=0 /app/SimNBA .
+
+ENV PORT 8081
+EXPOSE 8081
 
 CMD ["./SimNBA"]

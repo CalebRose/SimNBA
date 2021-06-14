@@ -68,7 +68,7 @@ func UpdateGameplan(w http.ResponseWriter, r *http.Request) {
 		players[i].UpdateMinutesB(updatedPlayer.MinutesB)
 
 		// If player is an NBA player, update Minutes for C Game
-		if players[i].IsNBA == true {
+		if players[i].IsNBA {
 			players[i].UpdateMinutesC(updateGameplanDto.Players[i].MinutesC)
 		}
 		fmt.Printf("Saving Player " + players[i].FirstName + " " + players[i].LastName + "\n")

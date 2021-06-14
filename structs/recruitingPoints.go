@@ -1,8 +1,6 @@
 package structs
 
 import (
-	"fmt"
-
 	"github.com/jinzhu/gorm"
 )
 
@@ -16,17 +14,21 @@ type RecruitingPoints struct {
 	CurrentPointsSpent     int
 	SpendingCount          int
 	Scholarship            bool
+	Team                   string
 	InterestLevel          string
 	InterestLevelThreshold int
 	Signed                 bool
+	RemovedFromBoard       bool
 	Recruit                Player `gorm:"foreignKey:PlayerID"`
 }
 
 func (r *RecruitingPoints) AllocatePoints(points int) {
-	if r.Scholarship == true {
-		r.CurrentPointsSpent = points
-	} else {
-		fmt.Println("Cannot allocate points without offering a scholarship")
+	r.CurrentPointsSpent = points
+}
+
+func (r *RecruitingPoints) SignPlayer() {
+	if r.Scholarship {
+		r.Signed = true
 	}
 }
 
@@ -41,4 +43,12 @@ func (r *RecruitingPoints) AllocateScholarship() {
 
 func (r *RecruitingPoints) RevokeScholarship() {
 	r.Scholarship = false
+}
+
+func (r *RecruitingPoints) RemoveRecruitFromBoard() {
+	r.RemovedFromBoard = true
+}
+
+func (r *RecruitingPoints) ReplaceRecruitToBoard() {
+	r.RemovedFromBoard = false
 }
