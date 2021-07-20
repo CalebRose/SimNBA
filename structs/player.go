@@ -37,6 +37,8 @@ type Player struct {
 	IsNBA                 bool
 	IsRedshirt            bool
 	IsRedshirting         bool
+	IsSuperMaxQualified   bool
+	Age                   int
 	Contracts             []Contract         `gorm:"foreignKey:PlayerID"`
 	RecruitingPoints      []RecruitingPoints `gorm:"foreignKey:PlayerID"`
 	Stats                 []PlayerStats      `gorm:"foreignKey:PlayerID"`
