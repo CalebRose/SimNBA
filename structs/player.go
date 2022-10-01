@@ -39,9 +39,9 @@ type Player struct {
 	IsRedshirting         bool
 	IsSuperMaxQualified   bool
 	Age                   int
-	Contracts             []Contract         `gorm:"foreignKey:PlayerID"`
-	RecruitingPoints      []RecruitingPoints `gorm:"foreignKey:PlayerID"`
-	Stats                 []PlayerStats      `gorm:"foreignKey:PlayerID"`
+	Contracts             []Contract             `gorm:"foreignKey:PlayerID"`
+	RecruitingPoints      []PlayerRecruitProfile `gorm:"foreignKey:PlayerID"`
+	Stats                 []PlayerStats          `gorm:"foreignKey:PlayerID"`
 }
 
 func (p *Player) SetRedshirtingStatus() {

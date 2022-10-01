@@ -17,14 +17,14 @@ type Team struct {
 	State             string
 	Country           string
 	Conference        string
-	Division          string
 	FirstSeason       string
 	Coach             string
 	IsNBA             bool
-	Players           []Player          `gorm:"foriegnKey:TeamID"`
-	Gameplan          []Gameplan        `gorm:"foreignKey:TeamID"`
-	TeamStats         TeamStats         `gorm:"foreignKey:TeamID"`
-	RecruitingProfile RecruitingProfile `gorm:"foreignKey:TeamID"`
+	IsActive          bool
+	Players           []Player              `gorm:"foriegnKey:TeamID"`
+	Gameplan          []Gameplan            `gorm:"foreignKey:TeamID"`
+	TeamStats         TeamStats             `gorm:"foreignKey:TeamID"`
+	RecruitingProfile TeamRecruitingProfile `gorm:"foreignKey:TeamID"`
 }
 
 // GetTeam - retrieve team
