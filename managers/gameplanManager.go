@@ -37,22 +37,21 @@ func UpdateGameplan(updateGameplanDto structs.UpdateGameplanDto) {
 	}
 
 	// Get Players
-	var players = GetPlayersByTeamId(teamId)
+	var players = GetCollegePlayersByTeamId(teamId)
 
 	for i := 0; i < len(players); i++ {
 		updatedPlayer := updateGameplanDto.Players[i]
-		if players[i].MinutesA == updatedPlayer.MinutesA &&
-			players[i].MinutesB == updatedPlayer.MinutesB &&
-			players[i].MinutesC == updatedPlayer.MinutesC {
+		if players[i].Minutes == updatedPlayer.MinutesA &&
+			players[i].Minutes == updatedPlayer.MinutesB &&
+			players[i].Minutes == updatedPlayer.MinutesC {
 			continue
 		}
-		players[i].UpdateMinutesA(updatedPlayer.MinutesA)
-		players[i].UpdateMinutesB(updatedPlayer.MinutesB)
+		players[i].UpdateMinutes(updatedPlayer.MinutesA)
 
 		// If player is an NBA player, update Minutes for C Game
-		if players[i].IsNBA {
-			players[i].UpdateMinutesC(updateGameplanDto.Players[i].MinutesC)
-		}
+		// if players[i].IsNBA {
+		// 	players[i].UpdateMinutesC(updateGameplanDto.Players[i].MinutesC)
+		// }
 		fmt.Printf("Saving Player " + players[i].FirstName + " " + players[i].LastName + "\n")
 		db.Save(&players[i])
 	}

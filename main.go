@@ -39,6 +39,9 @@ func handleRequests() {
 	)
 	myRouter.HandleFunc("/health", HealthCheck.Handler).Methods("GET")
 
+	// Admin Controls
+	myRouter.HandleFunc("/admin/generateTeam", controller.GeneratePlayers).Methods("GET")
+
 	// Match Controls
 	myRouter.HandleFunc("/match/{matchId}", controller.GetMatchByMatchId).Methods("GET")
 	myRouter.HandleFunc("/match/team/{teamId}/season/{seasonId}", controller.GetMatchesByTeamIdAndSeasonId).Methods("GET")

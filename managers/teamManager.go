@@ -8,6 +8,19 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+func GetAllActiveCollegeTeams() []structs.Team {
+	db := dbprovider.GetInstance().GetDB()
+
+	var teams []structs.Team
+
+	err := db.Where("is_active = ? and is_nba = ?", true, false).
+		Find(&teams).Error
+	if err != nil {
+		log.Fatal(err)
+	}
+	return teams
+}
+
 func GetTeamByTeamID(teamId string) structs.Team {
 	var team structs.Team
 	db := dbprovider.GetInstance().GetDB()

@@ -10,12 +10,14 @@ type BasePlayer struct {
 	Country              string
 	Stars                int
 	Height               string
-	Shooting             int
+	Shooting2            int
+	Shooting3            int
 	Finishing            int
 	Ballwork             int
 	Rebounding           int
 	Defense              int
-	PotentialGrade       int
+	Potential            int
+	PotentialGrade       string
 	ProPotentialGrade    int
 	Stamina              int
 	PlaytimeExpectations int

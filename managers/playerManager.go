@@ -18,11 +18,14 @@ func GetAllPlayers() []structs.Player {
 	return players
 }
 
-func GetPlayersByTeamId(teamId string) []structs.Player {
+func GetCollegePlayersByTeamId(teamId string) []structs.CollegePlayer {
 	db := dbprovider.GetInstance().GetDB()
 
-	var players []structs.Player
-	db.Where("team_id = ?", teamId).Find(&players)
+	var players []structs.CollegePlayer
+	err := db.Order("team_id asc").Where("team_id = ?", teamId).Find(&players).Error
+	if err != nil {
+		// Do nothing
+	}
 
 	return players
 }
