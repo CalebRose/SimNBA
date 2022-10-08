@@ -74,8 +74,8 @@ func SendScholarshipToRecruit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	recruitingPointsProfile, recruitingProfile := managers.SendScholarshipToRecruit(updateRecruitPointsDto)
-	fmt.Printf("\nScholarship allocated to player " + strconv.Itoa(recruitingPointsProfile.RecruitID) + ". Record saved")
-	fmt.Printf("\nProfile: " + strconv.Itoa(recruitingProfile.TeamID) + " Saved")
+	fmt.Printf("\nScholarship allocated to player " + strconv.Itoa(int(recruitingPointsProfile.RecruitID)) + ". Record saved")
+	fmt.Printf("\nProfile: " + strconv.Itoa(int(recruitingProfile.TeamID)) + " Saved")
 }
 
 func RevokeScholarshipFromRecruit(w http.ResponseWriter, r *http.Request) {
@@ -88,8 +88,8 @@ func RevokeScholarshipFromRecruit(w http.ResponseWriter, r *http.Request) {
 
 	recruitingPointsProfile, recruitingProfile := managers.RevokeScholarshipFromRecruit(updateRecruitPointsDto)
 
-	fmt.Printf("\nScholarship revoked from player " + strconv.Itoa(recruitingPointsProfile.RecruitID) + ". Record saved")
-	fmt.Printf("\nProfile: " + strconv.Itoa(recruitingProfile.TeamID) + " Saved")
+	fmt.Printf("\nScholarship revoked from player " + strconv.Itoa(int(recruitingPointsProfile.RecruitID)) + ". Record saved")
+	fmt.Printf("\nProfile: " + strconv.Itoa(int(recruitingProfile.TeamID)) + " Saved")
 }
 
 func RemoveRecruitFromBoard(w http.ResponseWriter, r *http.Request) {
@@ -102,7 +102,7 @@ func RemoveRecruitFromBoard(w http.ResponseWriter, r *http.Request) {
 
 	recruitingPointsProfile := managers.RemoveRecruitFromBoard(updateRecruitPointsDto)
 
-	fmt.Printf("\nPlayer " + strconv.Itoa(recruitingPointsProfile.RecruitID) + " removed from board.")
+	fmt.Printf("\nPlayer " + strconv.Itoa(int(recruitingPointsProfile.RecruitID)) + " removed from board.")
 }
 
 func SaveRecruitingBoard(w http.ResponseWriter, r *http.Request) {
@@ -115,6 +115,6 @@ func SaveRecruitingBoard(w http.ResponseWriter, r *http.Request) {
 
 	recruitingProfile := managers.UpdateRecruitingProfile(updateRecruitingBoardDto)
 
-	fmt.Println("Updated Recruiting Profile " + strconv.Itoa(recruitingProfile.TeamID) + " and all associated players")
+	fmt.Println("Updated Recruiting Profile " + strconv.Itoa(int(recruitingProfile.TeamID)) + " and all associated players")
 	w.WriteHeader(http.StatusOK)
 }

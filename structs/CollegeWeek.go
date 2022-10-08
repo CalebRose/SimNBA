@@ -6,7 +6,7 @@ import "github.com/jinzhu/gorm"
 type CollegeWeek struct {
 	gorm.Model
 	WeekNumber  int
-	SeasonID    int
+	SeasonID    uint
 	IsOffseason bool
 	Games       []Match `gorm:"foreignKey:WeekID"`
 }

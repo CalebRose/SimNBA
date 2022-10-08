@@ -154,3 +154,51 @@ func GetFreeAgencyBias() string {
 
 	return PickFromStringList(list)
 }
+
+func GetOffenseGrade(rating int) string {
+	if rating > 37 {
+		return "A"
+	}
+	if rating > 35 {
+		return "B"
+	}
+	if rating > 33 {
+		return "C"
+	}
+	if rating > 30 {
+		return "D"
+	}
+	return "F"
+}
+
+func GetDefenseGrade(rating int) string {
+	if rating > 36 {
+		return "A"
+	}
+	if rating > 33 {
+		return "B"
+	}
+	if rating > 30 {
+		return "C"
+	}
+	if rating > 27 {
+		return "D"
+	}
+	return "F"
+}
+
+func GetOverallGrade(rating int) string {
+	if rating > 36 {
+		return "A"
+	}
+	if rating > 33 {
+		return "B"
+	}
+	if rating > 31 {
+		return "C"
+	}
+	if rating > 29 {
+		return "D"
+	}
+	return "F"
+}

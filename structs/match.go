@@ -5,11 +5,11 @@ import "github.com/jinzhu/gorm"
 // Match - The Data Structure for a Game
 type Match struct {
 	gorm.Model
-	WeekID        int
-	SeasonID      int
-	HomeTeamID    int
+	WeekID        uint
+	SeasonID      uint
+	HomeTeamID    uint
 	HomeTeam      string
-	AwayTeamID    int
+	AwayTeamID    uint
 	AwayTeam      string
 	MatchOfWeek   string
 	HomeTeamScore int

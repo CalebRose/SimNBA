@@ -46,7 +46,7 @@ func AllAvailableTeams(w http.ResponseWriter, r *http.Request) {
 	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.Team
-	db.Where("first_season is not null AND coach is null OR coach = ?", "AI").Order("team asc").Find(&teams)
+	db.Where("(coach = ? OR coach = ?) AND is_active = true", "AI", "").Order("team asc").Find(&teams)
 	json.NewEncoder(w).Encode(teams)
 }
 
@@ -62,7 +62,7 @@ func AllCollegeTeams(w http.ResponseWriter, r *http.Request) {
 	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.Team
-	db.Where("is_nba = ?", false).Order("team asc").Find(&teams)
+	db.Where("is_nba = ?, is_active = ?", false, true).Order("team asc").Find(&teams)
 	json.NewEncoder(w).Encode(teams)
 }
 
@@ -94,4 +94,17 @@ func RemoveUserFromTeam(w http.ResponseWriter, r *http.Request) {
 	team.RemoveUser()
 	managers.RemoveUserFromTeam(team)
 	json.NewEncoder(w).Encode(team)
+}
+
+func SyncTeamRatings(w http.ResponseWriter, r *http.Request) {
+	db := dbprovider.GetInstance().GetDB()
+
+	var teams []structs.Team
+	db.Where("is_nba = ? AND is_active = ?", false, true).Order("team asc").Find(&teams)
+
+	for _, team := range teams {
+		managers.GetTeamRatings(team)
+	}
+
+	json.NewEncoder(w).Encode("Team Ratings Sync Done!")
 }

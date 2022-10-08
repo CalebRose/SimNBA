@@ -1,11 +1,101 @@
 package managers
 
 import (
+	"fmt"
+	"log"
 	"math"
 	"math/rand"
+	"strconv"
+	"time"
 
+	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
 )
+
+func ProgressionMain() {
+	db := dbprovider.GetInstance().GetDB()
+	fmt.Println(time.Now().UnixNano())
+	rand.Seed(time.Now().UnixNano())
+
+	collegeTeams := GetAllActiveCollegeTeams()
+
+	for _, team := range collegeTeams {
+		// var graduatingPlayers []structs.NBADraftee
+		teamID := strconv.Itoa(int(team.ID))
+		// roster := GetAllCollegePlayersWithStatsByTeamID(teamID, SeasonID)
+		roster := GetCollegePlayersByTeamId(teamID)
+		// croots := GetSignedRecruitsByTeamProfileID(teamID)
+
+		for _, player := range roster {
+			if player.HasProgressed {
+				player.FixAge()
+				err := db.Save(&player).Error
+				if err != nil {
+					log.Panicln("Could not save player record")
+				}
+				continue
+			}
+			player = ProgressPlayer(player)
+			if player.IsRedshirting {
+				player.SetRedshirtStatus()
+			}
+
+			if (player.IsRedshirt && player.Year > 5) ||
+				(!player.IsRedshirt && player.Year > 4) {
+				player.GraduatePlayer()
+				// draftee := structs.NBADraftee{}
+				// draftee.Map(player)
+				// draftee.AssignPrimeAge(util.GenerateIntFromRange(25, 30))
+
+				// err := db.Save(&draftee).Error
+				// if err != nil {
+				// 	log.Panicln("Could not save historic player record!")
+				// }
+
+				hcp := (structs.HistoricCollegePlayer)(player)
+
+				err := db.Save(&hcp).Error
+				if err != nil {
+					log.Panicln("Could not save historic player record!")
+				}
+				// graduatingPlayers = append(graduatingPlayers, draftee)
+				// CollegePlayer record will be deleted, but record will be mapped to a GraduatedCollegePlayer struct, and then saved in that table, along side with NFL Draftees table
+				// GraduatedCollegePlayer will be a copy of the collegeplayers table, but only for historical players
+
+				err = db.Delete(&player).Error
+				if err != nil {
+					log.Panicln("Could not delete old college player record.")
+				}
+			} else {
+				err := db.Save(&player).Error
+				if err != nil {
+					log.Panicln("Could not save player record")
+				}
+			}
+
+		}
+
+		// for _, croot := range croots {
+		// 	// Convert to College Player Record
+		// 	cp := structs.CollegePlayer{}
+		// 	cp.MapFromRecruit(croot, team)
+
+		// 	// Save College Player Record
+		// 	err := db.Save(&cp).Error
+		// 	if err != nil {
+		// 		log.Panicln("Could not save new college player record")
+		// 	}
+
+		// 	// Delete Recruit Record
+		// }
+
+		// Graduating players
+		// err := db.CreateInBatches(&graduatingPlayers, len(graduatingPlayers)).Error
+		// if err != nil {
+		// 	log.Panicln("Could not save graduating players")
+		// }
+	}
+}
 
 func ProgressPlayer(cp structs.CollegePlayer) structs.CollegePlayer {
 	stats := cp.Stats

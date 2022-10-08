@@ -24,13 +24,23 @@ func GetCollegePlayersByTeamId(teamId string) []structs.CollegePlayer {
 	var players []structs.CollegePlayer
 	err := db.Order("team_id asc").Where("team_id = ?", teamId).Find(&players).Error
 	if err != nil {
-		// Do nothing
+		log.Fatalln("Could not retrieve players from CollegePlayer Table")
 	}
 
 	return players
 }
 
-func GetAllCollegePlayers() []structs.Player {
+func GetAllCollegePlayers() []structs.CollegePlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var players []structs.CollegePlayer
+
+	db.Find(&players)
+
+	return players
+}
+
+func GetAllCollegePlayersFromOldTable() []structs.Player {
 	db := dbprovider.GetInstance().GetDB()
 
 	var players []structs.Player

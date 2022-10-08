@@ -2,7 +2,9 @@ package managers
 
 import (
 	"log"
+	"math/rand"
 	"strconv"
+	"time"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
@@ -10,10 +12,10 @@ import (
 )
 
 func MigrateOldPlayerDataToNewTables() {
-
 	db := dbprovider.GetInstance().GetDB()
+	rand.Seed(time.Now().Unix())
 
-	Players := GetAllCollegePlayers()
+	Players := GetAllCollegePlayersFromOldTable()
 
 	for _, player := range Players {
 
@@ -21,7 +23,7 @@ func MigrateOldPlayerDataToNewTables() {
 
 		Shooting2 := util.GenerateIntFromRange(shooting-3, shooting+3)
 		diff := Shooting2 - shooting
-		Shooting3 := shooting + diff
+		Shooting3 := shooting - diff
 
 		personality := util.GetPersonality()
 		academicBias := util.GetAcademicBias()
@@ -31,12 +33,6 @@ func MigrateOldPlayerDataToNewTables() {
 
 		abbr := ""
 		teamId := 0
-
-		if teamId != player.TeamID {
-			teamId = player.TeamID
-			team := GetTeamByTeamID(strconv.Itoa(teamId))
-			abbr = team.Abbr
-		}
 
 		var base = structs.BasePlayer{
 			FirstName:            player.FirstName,
@@ -67,26 +63,51 @@ func MigrateOldPlayerDataToNewTables() {
 			AcademicBias:         academicBias,
 		}
 
-		var collegePlayer = structs.CollegePlayer{
-			BasePlayer:    base,
-			PlayerID:      int(player.ID),
-			TeamID:        player.TeamID,
-			TeamAbbr:      abbr,
-			IsRedshirt:    player.IsRedshirt,
-			IsRedshirting: player.IsRedshirting,
-			HasGraduated:  false,
+		if teamId != player.TeamID {
+			teamId = player.TeamID
+			team := GetTeamByTeamID(strconv.Itoa(teamId))
+			abbr = team.Abbr
+
+			var collegePlayer = structs.CollegePlayer{
+				BasePlayer:    base,
+				PlayerID:      player.ID,
+				TeamID:        uint(player.TeamID),
+				TeamAbbr:      abbr,
+				IsRedshirt:    player.IsRedshirt,
+				IsRedshirting: player.IsRedshirting,
+				HasGraduated:  false,
+			}
+
+			collegePlayer.SetID(player.ID)
+
+			err := db.Save(&collegePlayer).Error
+			if err != nil {
+				log.Fatal("Could not save College Player " + player.FirstName + " " + player.LastName + " " + abbr)
+			}
+		} else {
+			var recruit = structs.Recruit{
+				BasePlayer: base,
+				PlayerID:   player.ID,
+				IsTransfer: true,
+			}
+
+			recruit.SetID(player.ID)
+
+			err := db.Save(&recruit).Error
+			if err != nil {
+				log.Fatal("Could not save College Transfer " + player.FirstName + " " + player.LastName + " " + abbr)
+			}
 		}
 
 		var globalPlayer = structs.GlobalPlayer{
-			CollegePlayerID: int(player.ID),
+			CollegePlayerID: player.ID,
+			RecruitID:       player.ID,
+			NBAPlayerID:     player.ID,
 		}
 
-		err := db.Save(&collegePlayer).Error
-		if err != nil {
-			log.Fatal("Could not save College Player " + player.FirstName + " " + player.LastName + " " + abbr)
-		}
+		globalPlayer.SetID(player.ID)
 
-		err = db.Save(&globalPlayer).Error
+		err := db.Save(&globalPlayer).Error
 		if err != nil {
 			log.Fatal("Could not save global record for College Player " + player.FirstName + " " + player.LastName + " " + abbr)
 		}

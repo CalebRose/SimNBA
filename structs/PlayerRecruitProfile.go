@@ -7,9 +7,9 @@ import (
 // PlayerRecruitProfile - The points allocated to one player
 type PlayerRecruitProfile struct {
 	gorm.Model
-	SeasonID               int
-	RecruitID              int
-	ProfileID              int
+	SeasonID               uint
+	RecruitID              uint
+	ProfileID              uint
 	TotalPoints            int
 	CurrentWeeksPoints     int
 	SpendingCount          int
@@ -20,7 +20,8 @@ type PlayerRecruitProfile struct {
 	InterestLevelThreshold int
 	IsSigned               bool
 	RemovedFromBoard       bool
-	Recruit                Player `gorm:"foreignKey:PlayerID"`
+	Recruit                Recruit `gorm:"foreignKey:RecruitID"`
+	// RecruitPoints          []RecruitPointAllocation `gorm:"foreignKey:RecruitProfileID"`
 }
 
 func (r *PlayerRecruitProfile) AllocatePoints(points int) {

@@ -56,9 +56,9 @@ func CreateRecruitingPointsProfileForRecruit(recruitPointsDto structs.CreateRecr
 	}
 
 	recruitingPointProfile := structs.PlayerRecruitProfile{
-		SeasonID:               recruitPointsDto.SeasonId,
-		RecruitID:              recruitPointsDto.PlayerId,
-		ProfileID:              recruitPointsDto.ProfileId,
+		SeasonID:               uint(recruitPointsDto.SeasonId),
+		RecruitID:              uint(recruitPointsDto.PlayerId),
+		ProfileID:              uint(recruitPointsDto.ProfileId),
 		TeamAbbreviation:       recruitPointsDto.Team,
 		TotalPoints:            0,
 		CurrentWeeksPoints:     0,
@@ -113,7 +113,7 @@ func GetRecruitFromRecruitsList(id int, recruits []structs.PlayerRecruitProfile)
 	var recruit structs.PlayerRecruitProfile
 
 	for i := 0; i < len(recruits); i++ {
-		if recruits[i].RecruitID == id {
+		if recruits[i].RecruitID == uint(id) {
 			recruit = recruits[i]
 			break
 		}
@@ -160,7 +160,7 @@ func SendScholarshipToRecruit(updateRecruitPointsDto structs.UpdateRecruitPoints
 	)
 
 	if recruitingPointsProfile.Scholarship {
-		log.Fatalf("\nRecruit " + strconv.Itoa(recruitingPointsProfile.RecruitID) + "already has a scholarship")
+		log.Fatalf("\nRecruit " + strconv.Itoa(int(recruitingPointsProfile.RecruitID)) + "already has a scholarship")
 	}
 
 	recruitingPointsProfile.AllocateScholarship()
@@ -183,7 +183,7 @@ func RevokeScholarshipFromRecruit(updateRecruitPointsDto structs.UpdateRecruitPo
 	)
 
 	if recruitingPointsProfile.Scholarship {
-		fmt.Printf("\nCannot revoke an inexistant scholarship from Recruit " + strconv.Itoa(recruitingPointsProfile.RecruitID))
+		fmt.Printf("\nCannot revoke an inexistant scholarship from Recruit " + strconv.Itoa(int(recruitingPointsProfile.RecruitID)))
 		return recruitingPointsProfile, recruitingProfile
 	}
 
@@ -228,7 +228,7 @@ func UpdateRecruitingProfile(updateRecruitingBoardDto structs.UpdateRecruitingBo
 	currentPoints := 0
 
 	for i := 0; i < len(recruitingPoints); i++ {
-		updatedRecruit := GetRecruitFromRecruitsList(recruitingPoints[i].RecruitID, updatedRecruits)
+		updatedRecruit := GetRecruitFromRecruitsList(int(recruitingPoints[i].RecruitID), updatedRecruits)
 
 		if updatedRecruit.CurrentWeeksPoints > 0 &&
 			recruitingPoints[i].CurrentWeeksPoints != updatedRecruit.CurrentWeeksPoints {
@@ -239,10 +239,10 @@ func UpdateRecruitingProfile(updateRecruitingBoardDto structs.UpdateRecruitingBo
 			// If total not surpassed, allocate to the recruit and continue
 			if profile.SpentPoints <= profile.WeeklyPoints {
 				recruitingPoints[i].AllocatePoints(updatedRecruit.CurrentWeeksPoints)
-				fmt.Println("Saving recruit " + strconv.Itoa(recruitingPoints[i].RecruitID))
+				fmt.Println("Saving recruit " + strconv.Itoa(int(recruitingPoints[i].RecruitID)))
 				db.Save(&recruitingPoints[i])
 			} else {
-				panic("Error: Allocated more points for Profile " + strconv.Itoa(profile.TeamID) + " than what is allowed.")
+				panic("Error: Allocated more points for Profile " + strconv.Itoa(int(profile.TeamID)) + " than what is allowed.")
 			}
 		}
 	}

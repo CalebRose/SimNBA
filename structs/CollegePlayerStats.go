@@ -4,9 +4,9 @@ import "github.com/jinzhu/gorm"
 
 type CollegePlayerStats struct {
 	gorm.Model
-	PlayerID           int
-	MatchID            int
-	SeasonID           int
+	CollegePlayerID    uint
+	MatchID            uint
+	SeasonID           uint
 	Minutes            int
 	Possessions        int
 	FGM                int

@@ -5,9 +5,9 @@ import "github.com/jinzhu/gorm"
 // TeamStats -- Statistics related to the performance of a team during a match
 type TeamStats struct {
 	gorm.Model
-	TeamID             int
-	MatchID            int
-	SeasonID           int
+	TeamID             uint
+	MatchID            uint
+	SeasonID           uint
 	Points             int
 	Possessions        int
 	FGM                int

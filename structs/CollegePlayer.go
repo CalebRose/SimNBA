@@ -9,21 +9,22 @@ import (
 type CollegePlayer struct {
 	gorm.Model
 	BasePlayer
-	PlayerID      int
-	TeamID        int
+	PlayerID      uint
+	TeamID        uint
 	TeamAbbr      string
 	IsRedshirt    bool
 	IsRedshirting bool
 	HasGraduated  bool
-	Stats         []CollegePlayerStats
+	HasProgressed bool
+	Stats         []CollegePlayerStats `gorm:"foreignKey:CollegePlayerID"`
 }
 
 func (c *CollegePlayer) UpdateMinutes(newMinutes int) {
 	c.Minutes = newMinutes
 }
 
-func (c *CollegePlayer) SetID(id int) {
-	c.ID = uint(id)
+func (c *CollegePlayer) SetID(id uint) {
+	c.ID = id
 }
 
 func (cp *CollegePlayer) Progress(attr CollegePlayerProgressions) {
@@ -36,6 +37,7 @@ func (cp *CollegePlayer) Progress(attr CollegePlayerProgressions) {
 	cp.Defense = attr.Defense
 	cp.Rebounding = attr.Rebounding
 	cp.Overall = attr.Overall
+	cp.HasProgressed = true
 }
 
 func (cp *CollegePlayer) GetPotentialGrade() {
@@ -78,5 +80,63 @@ func (cp *CollegePlayer) GetPotentialGrade() {
 		cp.PotentialGrade = "D-"
 	} else {
 		cp.PotentialGrade = "F"
+	}
+}
+
+func (cp *CollegePlayer) MapFromRecruit(r Recruit, t Team) {
+	cp.ID = r.ID
+	cp.TeamID = t.ID
+	cp.TeamAbbr = t.Abbr
+	cp.PlayerID = r.PlayerID
+	cp.State = r.State
+	cp.Country = r.Country
+	cp.Year = r.Age - 18
+	cp.IsRedshirt = false
+	cp.IsRedshirting = false
+	cp.HasGraduated = false
+	cp.Age = r.Age + 1
+	cp.FirstName = r.FirstName
+	cp.LastName = r.LastName
+	cp.Position = r.Position
+	cp.Height = r.Height
+	cp.Stars = r.Stars
+	cp.Overall = r.Overall
+	cp.Shooting2 = r.Shooting2
+	cp.Shooting3 = r.Shooting3
+	cp.Finishing = r.Finishing
+	cp.Ballwork = r.Ballwork
+	cp.Rebounding = r.Rebounding
+	cp.Defense = r.Defense
+	cp.Stamina = r.Stamina
+	cp.Potential = r.Potential
+	cp.ProPotentialGrade = r.ProPotentialGrade
+	cp.PotentialGrade = r.PotentialGrade
+	cp.FreeAgency = r.FreeAgency
+	cp.Personality = r.Personality
+	cp.RecruitingBias = r.RecruitingBias
+	cp.WorkEthic = r.WorkEthic
+	cp.AcademicBias = r.AcademicBias
+}
+
+func (cp *CollegePlayer) GraduatePlayer() {
+	cp.HasGraduated = true
+}
+
+func (p *CollegePlayer) SetRedshirtStatus() {
+	if p.IsRedshirting {
+		p.IsRedshirting = false
+		p.IsRedshirt = true
+	}
+}
+
+func (p *CollegePlayer) SetProgressionStatus() {
+	p.HasProgressed = true
+}
+
+func (p *CollegePlayer) FixAge() {
+	p.Year++
+	p.Age = p.Year + 18
+	if p.IsRedshirt {
+		p.Age++
 	}
 }

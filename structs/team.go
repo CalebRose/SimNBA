@@ -19,9 +19,11 @@ type Team struct {
 	Conference        string
 	FirstSeason       string
 	Coach             string
+	OverallGrade      string
+	OffenseGrade      string
+	DefenseGrade      string
 	IsNBA             bool
 	IsActive          bool
-	Players           []Player              `gorm:"foriegnKey:TeamID"`
 	Gameplan          []Gameplan            `gorm:"foreignKey:TeamID"`
 	TeamStats         TeamStats             `gorm:"foreignKey:TeamID"`
 	RecruitingProfile TeamRecruitingProfile `gorm:"foreignKey:TeamID"`
@@ -38,4 +40,10 @@ func (t *Team) AssignUserToTeam(username string) {
 
 func (t *Team) RemoveUser() {
 	t.Coach = ""
+}
+
+func (t *Team) AssignRatings(off string, def string, ovr string) {
+	t.OffenseGrade = off
+	t.DefenseGrade = def
+	t.OverallGrade = ovr
 }

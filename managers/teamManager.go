@@ -2,9 +2,11 @@ package managers
 
 import (
 	"log"
+	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
+	"github.com/CalebRose/SimNBA/util"
 	"github.com/jinzhu/gorm"
 )
 
@@ -24,7 +26,8 @@ func GetAllActiveCollegeTeams() []structs.Team {
 func GetTeamByTeamID(teamId string) structs.Team {
 	var team structs.Team
 	db := dbprovider.GetInstance().GetDB()
-	err := db.Preload("RecruitingProfile").Where("id = ?", teamId).Find(&team).Error
+	// Preload("RecruitingProfile").
+	err := db.Where("id = ?", teamId).Find(&team).Error
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -44,4 +47,38 @@ func GetTeamsInConference(db *gorm.DB, conference string) []structs.Team {
 	}
 
 	return teams
+}
+
+func GetTeamRatings(t structs.Team) {
+	db := dbprovider.GetInstance().GetDB()
+	teamIDINT := int(t.ID)
+
+	players := GetCollegePlayersByTeamId(strconv.Itoa(teamIDINT))
+
+	offenseRating := 0
+	defenseRating := 0
+	overallRating := 0
+
+	offenseSum := 0
+	defenseSum := 0
+
+	for _, player := range players {
+		offenseSum += player.Shooting2 + player.Shooting3 + player.Finishing
+		defenseSum += player.Ballwork + player.Rebounding + player.Defense
+	}
+
+	offenseRating = offenseSum / len(players)
+	defenseRating = defenseSum / len(players)
+	overallRating = (offenseRating + defenseRating) / 2
+
+	offLetterGrade := util.GetOffenseGrade(offenseRating)
+	defLetterGrade := util.GetDefenseGrade(defenseRating)
+	ovrLetterGrade := util.GetOverallGrade(overallRating)
+
+	t.AssignRatings(offLetterGrade, defLetterGrade, ovrLetterGrade)
+
+	err := db.Save(&t).Error
+	if err != nil {
+		log.Fatalln("Could not save team rating for " + t.Abbr)
+	}
 }

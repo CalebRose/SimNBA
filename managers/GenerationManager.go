@@ -14,7 +14,7 @@ import (
 	"github.com/CalebRose/SimNBA/util"
 )
 
-func GenerateNewTeams() []structs.CollegePlayer {
+func GenerateNewTeams() {
 	db := dbprovider.GetInstance().GetDB()
 	rand.Seed(time.Now().Unix())
 
@@ -25,28 +25,61 @@ func GenerateNewTeams() []structs.CollegePlayer {
 		log.Fatalln("Could not grab last player record from players table...")
 	}
 
-	var playerList []structs.CollegePlayer
+	// var playerList []structs.CollegePlayer
 
 	newID := lastPlayerRecord.ID + 1
 
 	teams := GetAllActiveCollegeTeams()
 	firstNameMap, lastNameMap := getNameMaps()
 	var positionList []string = []string{"G", "F", "C"}
-	yearList := []int{4, 4, 4, 3, 3, 3, 2, 2, 2, 1, 1, 1, 1}
+
 	for _, team := range teams {
 		// Test Generation
-
+		yearList := []int{}
 		players := GetCollegePlayersByTeamId(strconv.Itoa(int(team.ID)))
-
-		requiredPlayers := 13
-		count := 0
-		if len(players) > 0 {
-			continue
-		}
-		var positionQueue []string
+		seniors := 3
+		juniors := 3
+		sophomores := 3
+		freshmen := 4
 		fCount := 0
 		gCount := 0
 		cCount := 0
+		requiredPlayers := 13
+		count := 0
+		if len(players) > 0 {
+			requiredPlayers -= len(players)
+			for _, player := range players {
+				if player.Year == 4 && !player.IsRedshirt {
+					seniors--
+				} else if player.Year == 3 || (player.Year == 4 && player.IsRedshirt) {
+					juniors--
+				} else if player.Year == 2 || (player.Year == 3 && player.IsRedshirt) {
+					sophomores--
+				} else {
+					freshmen--
+				}
+				if player.Position == "F" {
+					fCount++
+				} else if player.Position == "G" {
+					gCount++
+				} else {
+					cCount++
+				}
+			}
+		}
+		for i := 0; i < seniors; i++ {
+			yearList = append(yearList, 4)
+		}
+		for i := 0; i < juniors; i++ {
+			yearList = append(yearList, 3)
+		}
+		for i := 0; i < sophomores; i++ {
+			yearList = append(yearList, 2)
+		}
+		for i := 0; i < freshmen; i++ {
+			yearList = append(yearList, 1)
+		}
+		var positionQueue []string
 		for i := 0; i < requiredPlayers; i++ {
 			pickedPosition := util.PickFromStringList(positionList)
 			if pickedPosition == "F" && fCount > 3 {
@@ -75,20 +108,24 @@ func GenerateNewTeams() []structs.CollegePlayer {
 			pickedEthnicity := pickEthnicity()
 			pickedPosition := positionQueue[count]
 			year := yearList[count]
-			player := createCollegePlayer(team, pickedEthnicity, pickedPosition, year, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], int(newID))
-			playerList = append(playerList, player)
+			player := createCollegePlayer(team, pickedEthnicity, pickedPosition, year, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], newID)
+			// playerList = append(playerList, player)
+			err := db.Save(&player).Error
+			if err != nil {
+				log.Panicln("Could not save player record")
+			}
 			count++
 			newID++
 		}
 
 	}
-	return playerList
+	// return playerList
 }
 
 // Private Methods
-func createCollegePlayer(team structs.Team, ethnicity string, position string, year int, firstNameList [][]string, lastNameList [][]string, id int) structs.CollegePlayer {
-	fName := firstNameList[util.GenerateIntFromRange(1, len(firstNameList))][0]
-	lName := lastNameList[util.GenerateIntFromRange(1, len(lastNameList))][0]
+func createCollegePlayer(team structs.Team, ethnicity string, position string, year int, firstNameList [][]string, lastNameList [][]string, id uint) structs.CollegePlayer {
+	fName := getName(firstNameList)
+	lName := getName(lastNameList)
 
 	firstName := strings.Title(strings.ToLower(fName))
 	lastName := strings.Title(strings.ToLower(lName))
@@ -163,7 +200,7 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 	var collegePlayer = structs.CollegePlayer{
 		BasePlayer:    basePlayer,
 		PlayerID:      id,
-		TeamID:        int(team.ID),
+		TeamID:        team.ID,
 		TeamAbbr:      team.Abbr,
 		IsRedshirt:    false,
 		IsRedshirting: false,
@@ -823,4 +860,24 @@ func getPlaytimeExpectations(stars int, year int) int {
 	} else {
 		return util.GenerateIntFromRange(0, 5)
 	}
+}
+
+func getName(list [][]string) string {
+	endOfListWeight, err := strconv.Atoi(list[len(list)-1][1])
+	if err != nil {
+		log.Fatalln("Could not convert number from string")
+	}
+	name := ""
+	num := util.GenerateIntFromRange(1, endOfListWeight)
+	for i := 1; i < len(list); i++ {
+		weight, err := strconv.Atoi(list[i][1])
+		if err != nil {
+			log.Fatalln("Could not convert number from string in name generator")
+		}
+		if num < weight {
+			name = list[i][0]
+			break
+		}
+	}
+	return name
 }

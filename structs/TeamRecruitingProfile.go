@@ -5,7 +5,7 @@ import "github.com/jinzhu/gorm"
 // TeamRecruitingProfile - The profile for a team for recruiting
 type TeamRecruitingProfile struct {
 	gorm.Model
-	TeamID                int
+	TeamID                uint
 	TeamAbbr              string
 	State                 string
 	Region                string

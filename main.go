@@ -41,6 +41,8 @@ func handleRequests() {
 
 	// Admin Controls
 	myRouter.HandleFunc("/admin/generateTeam", controller.GeneratePlayers).Methods("GET")
+	// myRouter.HandleFunc("/admin/migrate/data", controller.MigratePlayers).Methods("GET")
+	myRouter.HandleFunc("/admin/migrate/progress", controller.ProgressPlayers).Methods("GET")
 
 	// Match Controls
 	myRouter.HandleFunc("/match/{matchId}", controller.GetMatchByMatchId).Methods("GET")
@@ -48,6 +50,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/match/week/{weekId}", controller.GetMatchesByTeamIdAndSeasonId).Methods("GET")
 	myRouter.HandleFunc("/match/team/upcoming/{teamId}/season/{seasonId}", controller.GetUpcomingMatchesByTeamIdAndSeasonId).Methods("GET")
 	// Player Controls
+	myRouter.HandleFunc("/player/AllPlayers", controller.AllCollegePlayers).Methods("GET")
 	myRouter.HandleFunc("/player/add/{firstname}/{lastname}", controller.NewPlayer).Methods("POST")
 	myRouter.HandleFunc("/player/GetPlayer/{playerId}", controller.PlayerById).Methods("GET")
 	myRouter.HandleFunc("/player/SetRedshirting/{playerId}", controller.SetRedshirtStatusByPlayerId).Methods("PUT")
@@ -86,6 +89,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/teams/active/college", controller.AllActiveCollegeTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/active/nba", controller.AllActiveNBATeams).Methods("GET")
 	myRouter.HandleFunc("/teams/available", controller.AllAvailableTeams).Methods("GET")
+	myRouter.HandleFunc("/teams/assign/ratings", controller.SyncTeamRatings).Methods("GET")
 	myRouter.HandleFunc("/teams/coached", controller.AllCoachedTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/college", controller.AllCollegeTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/nba", controller.AllNBATeams).Methods("GET")
