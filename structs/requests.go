@@ -5,7 +5,7 @@ import "github.com/jinzhu/gorm"
 // Request - A player request to sign for a team
 type Request struct {
 	gorm.Model
-	TeamID     int
+	TeamID     uint
 	Username   string
 	IsApproved bool
 }

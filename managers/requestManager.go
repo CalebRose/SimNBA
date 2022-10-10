@@ -38,9 +38,9 @@ func ApproveTeamRequest(request structs.Request) {
 	fmt.Println("Assigning team...")
 
 	// Assign Team
-	team := GetTeamByTeamID(strconv.Itoa(request.TeamID))
+	team := GetTeamByTeamID(strconv.Itoa(int(request.TeamID)))
 
-	standing := GetStandingsRecordByTeamID(strconv.Itoa(request.TeamID))
+	standing := GetStandingsRecordByTeamID(strconv.Itoa(int(request.TeamID)))
 
 	standing.UpdateCoach(request.Username)
 
