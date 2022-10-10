@@ -5,6 +5,7 @@ import (
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
+	"github.com/CalebRose/SimNBA/util"
 	"github.com/jinzhu/gorm"
 )
 
@@ -16,6 +17,64 @@ func GetAllPlayers() []structs.Player {
 	db.Find(&players)
 
 	return players
+}
+
+func GetTeamRosterForRosterPage(teamId string) []structs.CollegePlayerResponse {
+	db := dbprovider.GetInstance().GetDB()
+
+	var players []structs.CollegePlayer
+
+	var responseList []structs.CollegePlayerResponse
+	err := db.Order("team_id asc").Where("team_id = ?", teamId).Find(&players).Error
+	if err != nil {
+		log.Fatalln("Could not retrieve players from CollegePlayer Table")
+	}
+
+	for _, p := range players {
+		shooting2Grade := util.GetAttributeGrade(p.Shooting2)
+		shooting3Grade := util.GetAttributeGrade(p.Shooting3)
+		finishingGrade := util.GetAttributeGrade(p.Finishing)
+		reboundingGrade := util.GetAttributeGrade(p.Rebounding)
+		ballworkGrade := util.GetAttributeGrade(p.Ballwork)
+		defenseGrade := util.GetAttributeGrade(p.Defense)
+		potentialGrade := util.GetPotentialGrade(p.Potential)
+		overallGrade := util.GetPlayerOverallGrade(p.Overall)
+
+		res := structs.CollegePlayerResponse{
+			FirstName:            p.FirstName,
+			LastName:             p.LastName,
+			Position:             p.Position,
+			Age:                  p.Age,
+			Year:                 p.Year,
+			State:                p.State,
+			Country:              p.Country,
+			Stars:                p.Stars,
+			Height:               p.Height,
+			PotentialGrade:       potentialGrade,
+			Shooting2Grade:       shooting2Grade,
+			Shooting3Grade:       shooting3Grade,
+			FinishingGrade:       finishingGrade,
+			BallworkGrade:        ballworkGrade,
+			ReboundingGrade:      reboundingGrade,
+			DefenseGrade:         defenseGrade,
+			OverallGrade:         overallGrade,
+			Stamina:              p.Stamina,
+			PlaytimeExpectations: p.PlaytimeExpectations,
+			Minutes:              p.Minutes,
+			Potential:            p.Potential,
+			Personality:          p.Personality,
+			RecruitingBias:       p.RecruitingBias,
+			WorkEthic:            p.WorkEthic,
+			AcademicBias:         p.AcademicBias,
+			PlayerID:             p.PlayerID,
+			TeamID:               p.TeamID,
+			TeamAbbr:             p.TeamAbbr,
+		}
+
+		responseList = append(responseList, res)
+	}
+
+	return responseList
 }
 
 func GetCollegePlayersByTeamId(teamId string) []structs.CollegePlayer {

@@ -25,7 +25,7 @@ func AllPlayersByTeamId(w http.ResponseWriter, r *http.Request) {
 		panic("User did not provide TeamID")
 	}
 
-	var players = managers.GetCollegePlayersByTeamId(teamId)
+	var players = managers.GetTeamRosterForRosterPage(teamId)
 
 	json.NewEncoder(w).Encode(players)
 }

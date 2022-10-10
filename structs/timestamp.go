@@ -6,6 +6,7 @@ import "github.com/jinzhu/gorm"
 type Timestamp struct {
 	gorm.Model
 	SeasonID          int
+	Season            int
 	CollegeWeekID     int
 	NBAWeekID         int
 	CollegeWeek       int

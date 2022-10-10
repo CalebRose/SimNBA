@@ -14,26 +14,24 @@ func UpdateGameplan(updateGameplanDto structs.UpdateGameplanDto) {
 	var teamId = strconv.Itoa(updateGameplanDto.TeamID)
 
 	// Get Gameplans
-	var gameplans = GetGameplansByTeam(teamId)
+	var gameplan = GetGameplansByTeam(teamId)
 
-	for i := 0; i < len(gameplans); i++ {
-		updatedGameplan := updateGameplanDto.Gameplans[i]
+	updatedGameplan := updateGameplanDto.Gameplan
 
-		// If no changes made to gameplan
-		if gameplans[i].Pace == updatedGameplan.Pace &&
-			gameplans[i].ThreePointProportion == updatedGameplan.ThreePointProportion &&
-			gameplans[i].JumperProportion == updatedGameplan.JumperProportion &&
-			gameplans[i].PaintProportion == updatedGameplan.PaintProportion {
-			continue
-		}
-
+	// If no changes made to gameplan
+	if gameplan.Pace == updatedGameplan.Pace &&
+		gameplan.ThreePointProportion == updatedGameplan.ThreePointProportion &&
+		gameplan.JumperProportion == updatedGameplan.JumperProportion &&
+		gameplan.PaintProportion == updatedGameplan.PaintProportion {
+		// Do Nothing
+	} else {
 		// Otherwise, update the gameplan
-		gameplans[i].UpdatePace(updateGameplanDto.Gameplans[i].Pace)
-		gameplans[i].Update3PtProportion(updatedGameplan.ThreePointProportion)
-		gameplans[i].UpdateJumperProportion(updatedGameplan.JumperProportion)
-		gameplans[i].UpdatePaintProportion(updatedGameplan.PaintProportion)
+		gameplan.UpdatePace(updateGameplanDto.Gameplan.Pace)
+		gameplan.Update3PtProportion(updatedGameplan.ThreePointProportion)
+		gameplan.UpdateJumperProportion(updatedGameplan.JumperProportion)
+		gameplan.UpdatePaintProportion(updatedGameplan.PaintProportion)
 		fmt.Printf("Saving Gameplan for Team " + teamId + "\n")
-		db.Save(&gameplans[i])
+		db.Save(&gameplan)
 	}
 
 	// Get Players
@@ -41,12 +39,10 @@ func UpdateGameplan(updateGameplanDto structs.UpdateGameplanDto) {
 
 	for i := 0; i < len(players); i++ {
 		updatedPlayer := updateGameplanDto.Players[i]
-		if players[i].Minutes == updatedPlayer.MinutesA &&
-			players[i].Minutes == updatedPlayer.MinutesB &&
-			players[i].Minutes == updatedPlayer.MinutesC {
+		if players[i].Minutes == updatedPlayer.Minutes {
 			continue
 		}
-		players[i].UpdateMinutes(updatedPlayer.MinutesA)
+		players[i].UpdateMinutes(updatedPlayer.Minutes)
 
 		// If player is an NBA player, update Minutes for C Game
 		// if players[i].IsNBA {
@@ -57,10 +53,10 @@ func UpdateGameplan(updateGameplanDto structs.UpdateGameplanDto) {
 	}
 }
 
-func GetGameplansByTeam(teamId string) []structs.Gameplan {
+func GetGameplansByTeam(teamId string) structs.Gameplan {
 	db := dbprovider.GetInstance().GetDB()
 
-	var gameplans []structs.Gameplan
+	var gameplans structs.Gameplan
 
 	db.Where("team_id = ?", teamId).Order("game asc").Find(&gameplans)
 

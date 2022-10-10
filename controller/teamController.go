@@ -47,6 +47,7 @@ func AllAvailableTeams(w http.ResponseWriter, r *http.Request) {
 
 	var teams []structs.Team
 	db.Where("(coach = ? OR coach = ?) AND is_active = true", "AI", "").Order("team asc").Find(&teams)
+
 	json.NewEncoder(w).Encode(teams)
 }
 

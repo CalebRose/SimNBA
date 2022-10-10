@@ -26,9 +26,6 @@ func InitialMigration() {
 func handleRequests() {
 	myRouter := mux.NewRouter().StrictSlash(true)
 	myRouter.HandleFunc("/", helloWorld).Methods("GET")
-	// Gameplan controls
-	myRouter.HandleFunc("/gameplans/{teamId}", controller.GetGameplansByTeamId).Methods("GET")
-	myRouter.HandleFunc("/gameplans/update", controller.UpdateGameplan).Methods("PUT")
 	// Health Controls
 	HealthCheck := health.New(
 		health.Health{
@@ -40,9 +37,13 @@ func handleRequests() {
 	myRouter.HandleFunc("/health", HealthCheck.Handler).Methods("GET")
 
 	// Admin Controls
-	myRouter.HandleFunc("/admin/generateTeam", controller.GeneratePlayers).Methods("GET")
+	// myRouter.HandleFunc("/admin/generateTeam", controller.GeneratePlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/migrate/data", controller.MigratePlayers).Methods("GET")
-	myRouter.HandleFunc("/admin/migrate/progress", controller.ProgressPlayers).Methods("GET")
+	// myRouter.HandleFunc("/admin/migrate/progress", controller.ProgressPlayers).Methods("GET")
+
+	// Gameplan controls
+	myRouter.HandleFunc("/gameplans/{teamId}", controller.GetGameplansByTeamId).Methods("GET")
+	myRouter.HandleFunc("/gameplans/update", controller.UpdateGameplan).Methods("PUT")
 
 	// Match Controls
 	myRouter.HandleFunc("/match/{matchId}", controller.GetMatchByMatchId).Methods("GET")
@@ -81,6 +82,10 @@ func handleRequests() {
 	myRouter.HandleFunc("/stats/player/{playerId}/season/{seasonId}", controller.GetPlayerStatsBySeason).Methods("GET")
 	myRouter.HandleFunc("/stats/team/{teamId}/season/{seasonId}", controller.GetTeamStatsBySeason).Methods("GET")
 	myRouter.HandleFunc("/stats/team/{teamId}/match/{matchId}", controller.GetTeamStatsByMatch).Methods("GET")
+
+	// StandingsControls
+	myRouter.HandleFunc("/standings/college/conf/{conferenceId}/{seasonId}", controller.GetConferenceStandingsByConferenceID).Methods("GET")
+
 	// Team Controls
 	myRouter.HandleFunc("/team/{teamId}", controller.GetTeamByTeamID).Methods("GET")
 	myRouter.HandleFunc("/team/removeUserFromTeam/{teamId}", controller.RemoveUserFromTeam).Methods("PUT")
@@ -88,13 +93,13 @@ func handleRequests() {
 	myRouter.HandleFunc("/teams/active", controller.AllActiveTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/active/college", controller.AllActiveCollegeTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/active/nba", controller.AllActiveNBATeams).Methods("GET")
-	myRouter.HandleFunc("/teams/available", controller.AllAvailableTeams).Methods("GET")
+	myRouter.HandleFunc("/teams/college/available", controller.AllAvailableTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/assign/ratings", controller.SyncTeamRatings).Methods("GET")
 	myRouter.HandleFunc("/teams/coached", controller.AllCoachedTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/college", controller.AllCollegeTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/nba", controller.AllNBATeams).Methods("GET")
 	// Timestamp Controls
-	myRouter.HandleFunc("/timestamp", controller.GetCurrentTimestamp).Methods("GET")
+	myRouter.HandleFunc("/simbba/get/timestamp", controller.GetCurrentTimestamp).Methods("GET")
 
 	handler := cors.AllowAll().Handler(myRouter)
 

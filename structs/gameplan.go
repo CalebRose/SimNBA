@@ -5,7 +5,7 @@ import "github.com/jinzhu/gorm"
 // Gameplan - A team's strategy for their weekly gameplan
 type Gameplan struct {
 	gorm.Model
-	TeamID               int
+	TeamID               uint
 	Game                 string
 	Pace                 int
 	ThreePointProportion int

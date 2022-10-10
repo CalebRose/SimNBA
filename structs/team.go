@@ -16,6 +16,7 @@ type Team struct {
 	City              string
 	State             string
 	Country           string
+	ConferenceID      uint
 	Conference        string
 	FirstSeason       string
 	Coach             string

@@ -202,3 +202,72 @@ func GetOverallGrade(rating int) string {
 	}
 	return "F"
 }
+
+func GetAttributeGrade(rating int) string {
+	if rating > 15 {
+		return "A"
+	}
+	if rating > 10 {
+		return "B"
+	}
+	if rating > 5 {
+		return "C"
+	}
+	return "D"
+}
+
+func GetPlayerOverallGrade(rating int) string {
+	if rating > 69 {
+		return "A"
+	}
+	if rating > 56 {
+		return "B"
+	}
+	if rating > 48 {
+		return "C"
+	}
+	if rating > 36 {
+		return "D"
+	}
+	return "F"
+}
+
+func GetPotentialGrade(rating int) string {
+	if rating > 88 {
+		return "A+"
+	}
+	if rating > 80 {
+		return "A"
+	}
+	if rating > 74 {
+		return "A-"
+	}
+	if rating > 68 {
+		return "B+"
+	}
+	if rating > 62 {
+		return "B"
+	}
+	if rating > 56 {
+		return "B-"
+	}
+	if rating > 50 {
+		return "C+"
+	}
+	if rating > 44 {
+		return "C"
+	}
+	if rating > 38 {
+		return "C-"
+	}
+	if rating > 32 {
+		return "D+"
+	}
+	if rating > 26 {
+		return "D"
+	}
+	if rating > 20 {
+		return "D-"
+	}
+	return "F"
+}
