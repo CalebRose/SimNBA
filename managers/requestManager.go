@@ -21,7 +21,7 @@ func GetAllTeamRequests() []structs.RequestDTO {
 func CreateTeamRequest(request structs.Request) {
 	db := dbprovider.GetInstance().GetDB()
 
-	err := db.Create(&request).Error
+	err := db.Save(&request).Error
 	if err != nil {
 		log.Fatalln("Could not create record to DB:" + err.Error())
 	}
