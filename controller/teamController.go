@@ -91,9 +91,7 @@ func RemoveUserFromTeam(w http.ResponseWriter, r *http.Request) {
 	if len(teamId) == 0 {
 		panic("User did not provide TeamID")
 	}
-	team := managers.GetTeamByTeamID(teamId)
-	team.RemoveUser()
-	managers.RemoveUserFromTeam(team)
+	team := managers.RemoveUserFromTeam(teamId)
 	json.NewEncoder(w).Encode(team)
 }
 

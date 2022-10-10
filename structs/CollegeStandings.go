@@ -43,3 +43,7 @@ func (cs *CollegeStandings) UpdateCollegeStandings(game Match) {
 		cs.PointsAgainst += game.AwayTeamScore
 	}
 }
+
+func (cs *CollegeStandings) UpdateCoach(coach string) {
+	cs.Coach = coach
+}

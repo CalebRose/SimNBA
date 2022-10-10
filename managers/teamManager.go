@@ -34,9 +34,22 @@ func GetTeamByTeamID(teamId string) structs.Team {
 	return team
 }
 
-func RemoveUserFromTeam(team structs.Team) {
+func RemoveUserFromTeam(teamId string) structs.Team {
 	db := dbprovider.GetInstance().GetDB()
+
+	team := GetTeamByTeamID(teamId)
+
+	team.RemoveUser()
+
+	standings := GetStandingsRecordByTeamID(teamId)
+
+	standings.UpdateCoach("AI")
+
 	db.Save(&team)
+
+	db.Save(&standings)
+
+	return team
 }
 
 func GetTeamsInConference(db *gorm.DB, conference string) []structs.Team {

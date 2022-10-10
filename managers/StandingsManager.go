@@ -15,3 +15,13 @@ func GetConferenceStandingsByConferenceID(id string, seasonID string) []structs.
 
 	return standings
 }
+
+func GetStandingsRecordByTeamID(id string) structs.CollegeStandings {
+	db := dbprovider.GetInstance().GetDB()
+
+	var standing structs.CollegeStandings
+
+	db.Where("team_id = ?", id).Find(&standing)
+
+	return standing
+}

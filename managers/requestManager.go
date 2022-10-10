@@ -36,9 +36,15 @@ func ApproveTeamRequest(request structs.Request) {
 	// Assign Team
 	team := GetTeamByTeamID(strconv.Itoa(request.TeamID))
 
+	standing := GetStandingsRecordByTeamID(strconv.Itoa(request.TeamID))
+
+	standing.UpdateCoach(request.Username)
+
 	team.AssignUserToTeam(request.Username)
 
 	db.Save(&team)
+
+	db.Save(&standing)
 }
 
 func RejectTeamRequest(request structs.Request) {
