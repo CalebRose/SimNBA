@@ -2,6 +2,7 @@ package managers
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
@@ -20,7 +21,10 @@ func GetAllTeamRequests() []structs.RequestDTO {
 func CreateTeamRequest(request structs.Request) {
 	db := dbprovider.GetInstance().GetDB()
 
-	db.Create(&request)
+	err := db.Create(&request).Error
+	if err != nil {
+		log.Fatalln("Could not create record to DB:" + err.Error())
+	}
 }
 
 func ApproveTeamRequest(request structs.Request) {
