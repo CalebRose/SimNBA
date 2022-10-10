@@ -1,6 +1,6 @@
 package structs
 
-import "github.com/jinzhu/gorm"
+import "gorm.io/gorm"
 
 // Request - A player request to sign for a team
 type Request struct {
