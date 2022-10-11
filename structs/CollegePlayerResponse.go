@@ -29,4 +29,6 @@ type CollegePlayerResponse struct {
 	PlayerID             uint
 	TeamID               uint
 	TeamAbbr             string
+	IsRedshirting        bool
+	IsRedshirt           bool
 }
