@@ -13,6 +13,10 @@ type Recruit struct {
 	MedInterestThreshold  int
 	HighInterestThreshold int
 	ReadyToSignThreshold  int
+	TopRankModifier       float64
+	RivalsRank            float64
+	ESPNRank              float64
+	Rank247               float64
 	IsSigned              bool
 	IsTransfer            bool
 	PlayerRecruitProfiles []PlayerRecruitProfile `gorm:"foreignKey:RecruitID"`

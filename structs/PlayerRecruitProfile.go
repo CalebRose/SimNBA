@@ -19,6 +19,7 @@ type PlayerRecruitProfile struct {
 	InterestLevel          string
 	InterestLevelThreshold int
 	IsSigned               bool
+	IsLocked               bool
 	RemovedFromBoard       bool
 	Recruit                Recruit `gorm:"foreignKey:RecruitID"`
 	// RecruitPoints          []RecruitPointAllocation `gorm:"foreignKey:RecruitProfileID"`
@@ -53,4 +54,13 @@ func (r *PlayerRecruitProfile) RemoveRecruitFromBoard() {
 
 func (r *PlayerRecruitProfile) ReplaceRecruitToBoard() {
 	r.RemovedFromBoard = false
+}
+
+// Sorting Funcs
+type ByPoints []PlayerRecruitProfile
+
+func (rp ByPoints) Len() int      { return len(rp) }
+func (rp ByPoints) Swap(i, j int) { rp[i], rp[j] = rp[j], rp[i] }
+func (rp ByPoints) Less(i, j int) bool {
+	return rp[i].TotalPoints > rp[j].TotalPoints
 }

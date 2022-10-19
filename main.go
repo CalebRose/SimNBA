@@ -62,6 +62,9 @@ func handleRequests() {
 	myRouter.HandleFunc("/players/nba", controller.AllNBAPlayers).Methods("GET")
 	myRouter.HandleFunc("/players/nba/freeAgents", controller.AllNBAFreeAgents).Methods("GET")
 	// Recruit Controls
+	myRouter.HandleFunc("/recruiting/profile/dashboard/{teamID}/", controller.GetRecruitingDataForOverviewPage).Methods("GET")
+	myRouter.HandleFunc("/recruiting/profile/team/{teamID}/", controller.GetRecruitingDataForTeamBoardPage).Methods("GET")
+
 	myRouter.HandleFunc("/recruit/croots/{profileId}", controller.AllRecruitsByProfileID).Methods("GET")
 	myRouter.HandleFunc("/recruit/profile/{teamId}", controller.RecruitingProfileByTeamID).Methods("GET")
 	myRouter.HandleFunc("/recruit/createRecruitingPointsProfile", controller.CreateRecruitingPointsProfileForRecruit).Methods("POST")

@@ -11,6 +11,33 @@ import (
 	"github.com/gorilla/mux"
 )
 
+func GetRecruitingDataForOverviewPage(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	teamID := vars["teamID"]
+
+	if len(teamID) == 0 {
+		panic("User did not provide teamID")
+	}
+
+	var dashboardResponse structs.DashboardTeamProfileResponse
+
+	// recruitingProfile := managers.GetRecruitingProfileForDashboardByTeamID(teamID)
+
+	// dashboardResponse.SetTeamProfile(recruitingProfile)
+
+	// Get Team Needs
+	// teamNeeds := managers.GetRecruitingNeeds(teamID)
+
+	// dashboardResponse.SetTeamNeedsMap(teamNeeds)
+
+	json.NewEncoder(w).Encode(dashboardResponse)
+
+}
+
+func GetRecruitingDataForTeamBoardPage(w http.ResponseWriter, r *http.Request) {
+
+}
+
 // AllRecruitsByProfileID - Get all Recruits By A Team's Recruiting Profile
 func AllRecruitsByProfileID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
