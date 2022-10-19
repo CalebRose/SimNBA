@@ -140,3 +140,7 @@ func (p *CollegePlayer) FixAge() {
 		p.Age++
 	}
 }
+
+func (p *CollegePlayer) SetExpectations(val int) {
+	p.PlaytimeExpectations = val
+}

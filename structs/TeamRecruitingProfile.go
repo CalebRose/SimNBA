@@ -17,6 +17,7 @@ type TeamRecruitingProfile struct {
 	RecruitClassSize      int
 	IsAI                  bool
 	AIBehavior            string
+	AIQuality             string
 	ESPNScore             float64
 	RivalsScore           float64
 	Rank247Score          float64

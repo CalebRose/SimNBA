@@ -161,7 +161,7 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 			potential = 25
 		}
 	}
-	expectations := getPlaytimeExpectations(stars, year)
+	expectations := util.GetPlaytimeExpectations(stars, year)
 	personality := util.GetPersonality()
 	academicBias := util.GetAcademicBias()
 	workEthic := util.GetWorkEthic()
@@ -817,48 +817,6 @@ func getStarRating(overall int) int {
 		return 2
 	} else {
 		return 1
-	}
-}
-
-func getPlaytimeExpectations(stars int, year int) int {
-	if stars == 5 {
-		if year == 4 {
-			return util.GenerateIntFromRange(10, 29)
-		} else if year == 3 {
-			return util.GenerateIntFromRange(10, 25)
-		} else if year == 2 {
-			return util.GenerateIntFromRange(10, 20)
-		}
-		return util.GenerateIntFromRange(10, 15)
-	} else if stars == 4 {
-		if year == 4 {
-			return util.GenerateIntFromRange(10, 25)
-		} else if year == 3 {
-			return util.GenerateIntFromRange(9, 20)
-		} else if year == 2 {
-			return util.GenerateIntFromRange(5, 17)
-		}
-		return util.GenerateIntFromRange(5, 15)
-	} else if stars == 3 {
-		if year == 4 {
-			return util.GenerateIntFromRange(7, 21)
-		} else if year == 3 {
-			return util.GenerateIntFromRange(3, 17)
-		} else if year == 2 {
-			return util.GenerateIntFromRange(2, 13)
-		}
-		return util.GenerateIntFromRange(0, 10)
-	} else if stars == 2 {
-		if year == 4 {
-			return util.GenerateIntFromRange(0, 13)
-		} else if year == 3 {
-			return util.GenerateIntFromRange(0, 13)
-		} else if year == 2 {
-			return util.GenerateIntFromRange(0, 9)
-		}
-		return util.GenerateIntFromRange(0, 6)
-	} else {
-		return util.GenerateIntFromRange(0, 5)
 	}
 }
 

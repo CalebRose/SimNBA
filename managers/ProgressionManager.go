@@ -10,6 +10,7 @@ import (
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
+	"github.com/CalebRose/SimNBA/util"
 )
 
 func ProgressionMain() {
@@ -39,6 +40,8 @@ func ProgressionMain() {
 			if player.IsRedshirting {
 				player.SetRedshirtStatus()
 			}
+
+			player.SetExpectations(util.GetPlaytimeExpectations(player.Stars, player.Year))
 
 			if (player.IsRedshirt && player.Year > 5) ||
 				(!player.IsRedshirt && player.Year > 4) {
@@ -179,7 +182,7 @@ func PrimaryProgression(progression int, input int, position string, spg int, at
 	if !isRedshirting {
 		progress = ((1 - math.Pow((float64(input)/99.0), 15)) * math.Log10(float64(input)) * (0.3 + modifier)) * (1 + (float64(progression) / 70))
 	} else {
-		progress = ((1 - math.Pow((float64(input)/99), 15)) * math.Log10(float64(input)) * 1.125 * (1 + (float64(progression / 60))))
+		progress = ((1 - math.Pow((float64(input)/99), 15)) * math.Log10(float64(input)) * 1.115 * (1 + (float64(progression / 60))))
 	}
 
 	if progress+float64(input) > 20 {
@@ -195,7 +198,7 @@ func SecondaryProgression(progression int, input int) int {
 	num := rand.Intn(99)
 
 	if num < progression && input < 20 {
-		input = input + 1
+		input = input + util.GenerateIntFromRange(1, 4)
 		return input
 	} else {
 		return input
