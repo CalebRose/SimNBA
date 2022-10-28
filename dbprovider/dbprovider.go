@@ -40,8 +40,9 @@ func (p *Provider) InitDatabase() bool {
 	// db.AutoMigrate(&structs.HistoricCollegePlayer{})
 	// db.AutoMigrate(&structs.NBAPlayer{})
 	// db.AutoMigrate(&structs.RecruitPointAllocation{})
-	// db.AutoMigrate(&structs.PlayerRecruitProfile{})
 	// db.AutoMigrate(&structs.Recruit{})
+	// db.AutoMigrate(&structs.PlayerRecruitProfile{})
+
 	// db.AutoMigrate(&structs.NBADraftee{})
 	// db.AutoMigrate(&structs.CollegeWeek{})
 	// db.AutoMigrate(&structs.CollegeConference{})
@@ -52,6 +53,7 @@ func (p *Provider) InitDatabase() bool {
 	// db.AutoMigrate(&structs.Player{})
 	// db.AutoMigrate(&structs.PlayerStats{})
 	// db.AutoMigrate(&structs.TeamRecruitingProfile{})
+	// db.AutoMigrate(&structs.NewsLog{})
 	// db.AutoMigrate(&structs.Request{})
 	// db.AutoMigrate(&structs.Season{})
 	// db.AutoMigrate(&structs.TeamStats{})

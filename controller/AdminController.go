@@ -12,6 +12,21 @@ func GeneratePlayers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("GENERATION COMPLETE")
 }
 
+func GenerateCroots(w http.ResponseWriter, r *http.Request) {
+	managers.GenerateCroots()
+	json.NewEncoder(w).Encode("GENERATION COMPLETE")
+}
+
+func RankCroots(w http.ResponseWriter, r *http.Request) {
+	managers.AssignAllRecruitRanks()
+	json.NewEncoder(w).Encode("Ranking COMPLETE")
+}
+
+func GenerateGlobalPlayerRecords(w http.ResponseWriter, r *http.Request) {
+	managers.GenerateGlobalPlayerRecords()
+	json.NewEncoder(w).Encode("GENERATION COMPLETE")
+}
+
 func MigratePlayers(w http.ResponseWriter, r *http.Request) {
 	managers.MigrateOldPlayerDataToNewTables()
 	json.NewEncoder(w).Encode("DONE!")

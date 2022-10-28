@@ -40,6 +40,12 @@ func ApproveTeamRequest(request structs.Request) {
 	// Assign Team
 	team := GetTeamByTeamID(strconv.Itoa(int(request.TeamID)))
 
+	recruitingProfile := GetOnlyTeamRecruitingProfileByTeamID(strconv.Itoa(int(request.TeamID)))
+
+	recruitingProfile.ToggleAIBehavior(false)
+
+	db.Save(&recruitingProfile)
+
 	standing := GetStandingsRecordByTeamID(strconv.Itoa(int(request.TeamID)))
 
 	standing.UpdateCoach(request.Username)

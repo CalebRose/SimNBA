@@ -232,7 +232,55 @@ func GetPlayerOverallGrade(rating int) string {
 	return "F"
 }
 
+func GetWeightedPotentialGrade(rating int) string {
+	weightedRating := GenerateIntFromRange(rating-15, rating+15)
+	if weightedRating > 100 {
+		weightedRating = 99
+	} else if weightedRating < 0 {
+		weightedRating = 0
+	}
+
+	if weightedRating > 88 {
+		return "A+"
+	}
+	if weightedRating > 80 {
+		return "A"
+	}
+	if weightedRating > 74 {
+		return "A-"
+	}
+	if weightedRating > 68 {
+		return "B+"
+	}
+	if weightedRating > 62 {
+		return "B"
+	}
+	if weightedRating > 56 {
+		return "B-"
+	}
+	if weightedRating > 50 {
+		return "C+"
+	}
+	if weightedRating > 44 {
+		return "C"
+	}
+	if weightedRating > 38 {
+		return "C-"
+	}
+	if weightedRating > 32 {
+		return "D+"
+	}
+	if weightedRating > 26 {
+		return "D"
+	}
+	if weightedRating > 20 {
+		return "D-"
+	}
+	return "F"
+}
+
 func GetPotentialGrade(rating int) string {
+
 	if rating > 88 {
 		return "A+"
 	}

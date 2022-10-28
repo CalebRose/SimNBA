@@ -38,6 +38,9 @@ func handleRequests() {
 
 	// Admin Controls
 	// myRouter.HandleFunc("/admin/generateTeam", controller.GeneratePlayers).Methods("GET")
+	// myRouter.HandleFunc("/admin/generateCroots", controller.GenerateCroots).Methods("GET")
+	myRouter.HandleFunc("/admin/rankCroots", controller.RankCroots).Methods("GET")
+	// myRouter.HandleFunc("/admin/generateGlobalPlayers", controller.GenerateGlobalPlayerRecords).Methods("GET")
 	// myRouter.HandleFunc("/admin/migrate/data", controller.MigratePlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/migrate/progress", controller.ProgressPlayers).Methods("GET")
 
@@ -63,11 +66,10 @@ func handleRequests() {
 	myRouter.HandleFunc("/players/nba/freeAgents", controller.AllNBAFreeAgents).Methods("GET")
 	// Recruit Controls
 	myRouter.HandleFunc("/recruiting/profile/dashboard/{teamID}/", controller.GetRecruitingDataForOverviewPage).Methods("GET")
-	myRouter.HandleFunc("/recruiting/profile/team/{teamID}/", controller.GetRecruitingDataForTeamBoardPage).Methods("GET")
+	myRouter.HandleFunc("/recruiting/profile/team/{teamID}", controller.GetRecruitingDataForTeamBoardPage).Methods("GET")
+	myRouter.HandleFunc("/recruiting/profile/all/", controller.GetAllRecruitingProfiles).Methods("GET")
 
-	myRouter.HandleFunc("/recruit/croots/{profileId}", controller.AllRecruitsByProfileID).Methods("GET")
-	myRouter.HandleFunc("/recruit/profile/{teamId}", controller.RecruitingProfileByTeamID).Methods("GET")
-	myRouter.HandleFunc("/recruit/createRecruitingPointsProfile", controller.CreateRecruitingPointsProfileForRecruit).Methods("POST")
+	myRouter.HandleFunc("/recruit/createRecruitingPointsProfile", controller.AddRecruitToBoard).Methods("POST")
 	myRouter.HandleFunc("/recruit/allocatePoints", controller.AllocateRecruitingPointsForRecruit).Methods("PUT")
 	myRouter.HandleFunc("/recruit/sendScholarshipToRecruit", controller.SendScholarshipToRecruit).Methods("PUT")
 	myRouter.HandleFunc("/recruit/revokeScholarshipFromRecruit", controller.RevokeScholarshipFromRecruit).Methods("PUT")

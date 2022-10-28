@@ -2,11 +2,12 @@ package managers
 
 import (
 	"log"
+	"sort"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 func GetAllPlayers() []structs.Player {
@@ -91,6 +92,18 @@ func GetCollegePlayersByTeamId(teamId string) []structs.CollegePlayer {
 	return players
 }
 
+func GetCollegePlayerByPlayerID(playerID string) structs.CollegePlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var player structs.CollegePlayer
+	err := db.Where("id = ?", playerID).Find(&player).Error
+	if err != nil {
+		log.Fatalln("Could not retrieve players from CollegePlayer Table")
+	}
+
+	return player
+}
+
 func GetAllCollegePlayers() []structs.CollegePlayer {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -111,15 +124,29 @@ func GetAllCollegePlayersFromOldTable() []structs.Player {
 	return players
 }
 
-func GetAllCollegeRecruits() []structs.Player {
+func GetAllCollegeRecruits() []structs.Croot {
 	db := dbprovider.GetInstance().GetDB()
 
-	var recruits []structs.Player
-	db.Preload("RecruitingPoints", "total_points_spent > ?", 0, func(db *gorm.DB) *gorm.DB {
-		return db.Order("total_points_spent DESC")
-	}).Where("is_nba = ? AND team_id = 0", false).Find(&recruits)
+	var recruits []structs.Recruit
+	db.Preload("RecruitProfiles", "total_points > ?", 0, func(db *gorm.DB) *gorm.DB {
+		return db.Order("total_points DESC")
+	}).Find(&recruits)
 
-	return recruits
+	var croots []structs.Croot
+	for _, recruit := range recruits {
+		var croot structs.Croot
+		croot.Map(recruit)
+
+		overallGrade := util.GetOverallGrade(recruit.Overall)
+
+		croot.SetOverallGrade(overallGrade)
+
+		croots = append(croots, croot)
+	}
+
+	sort.Sort(structs.ByCrootRank(croots))
+
+	return croots
 }
 
 func GetAllJUCOCollegeRecruits() []structs.Player {

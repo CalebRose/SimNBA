@@ -45,9 +45,15 @@ func RemoveUserFromTeam(teamId string) structs.Team {
 
 	standings.UpdateCoach("AI")
 
+	recruitingProfile := GetOnlyTeamRecruitingProfileByTeamID(teamId)
+
+	recruitingProfile.ToggleAIBehavior(true)
+
 	db.Save(&team)
 
 	db.Save(&standings)
+
+	db.Save(&recruitingProfile)
 
 	return team
 }

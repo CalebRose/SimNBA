@@ -2,6 +2,7 @@ package managers
 
 import (
 	"encoding/csv"
+	"fmt"
 	"log"
 	"math/rand"
 	"os"
@@ -122,6 +123,135 @@ func GenerateNewTeams() {
 	// return playerList
 }
 
+func GenerateGlobalPlayerRecords() {
+	db := dbprovider.GetInstance().GetDB()
+	var lastPlayerRecord structs.GlobalPlayer
+
+	err := db.Last(&lastPlayerRecord).Error
+	if err != nil {
+		log.Fatalln("Could not grab last player record from players table...")
+	}
+	collegePlayerID := lastPlayerRecord.ID + 1
+
+	for collegePlayerID <= 2476 {
+		player := GetCollegePlayerByPlayerID(strconv.Itoa(int(collegePlayerID)))
+
+		if player.ID > 0 {
+			var globalPlayer structs.GlobalPlayer
+
+			err := db.Where("id = ?", strconv.Itoa(int(player.ID))).Find(&globalPlayer).Error
+			if err != nil {
+				// Check
+				fmt.Println("Record does not exist")
+			}
+
+			if globalPlayer.ID == 0 {
+				globalPlayer = structs.GlobalPlayer{
+					RecruitID:       collegePlayerID,
+					CollegePlayerID: collegePlayerID,
+					NBAPlayerID:     collegePlayerID,
+				}
+				globalPlayer.SetID(collegePlayerID)
+			}
+
+			err = db.Create(&globalPlayer).Error
+			if err != nil {
+				// Figure it out.
+				log.Fatalln(err.Error())
+			}
+		}
+		collegePlayerID++
+	}
+}
+
+func GenerateCroots() {
+	db := dbprovider.GetInstance().GetDB()
+
+	rand.Seed(time.Now().Unix())
+
+	var lastPlayerRecord structs.GlobalPlayer
+
+	err := db.Last(&lastPlayerRecord).Error
+	if err != nil {
+		log.Fatalln("Could not grab last player record from players table...")
+	}
+
+	// var playerList []structs.CollegePlayer
+
+	newID := lastPlayerRecord.ID + 1
+
+	firstNameMap, lastNameMap := getNameMaps()
+	var positionList []string = []string{"G", "F", "C"}
+
+	// Test Generation
+	requiredPlayers := util.GenerateIntFromRange(621, 860)
+	// 531 is the number of Seniors && Redshirt Seniors currently in the league
+	// Currently 172 teams. 172 * 5 = 860, the max number of recruits that can be signed.
+	// 172 * 3 = 516, the minimum required to sign.
+	// 531 + 89 recruits left over = 620.
+	count := 0
+
+	for count < requiredPlayers {
+		pickedPosition := util.PickFromStringList(positionList)
+		pickedEthnicity := pickEthnicity()
+		year := 1
+		player := createRecruit(pickedEthnicity, pickedPosition, year, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], newID)
+		// playerList = append(playerList, player)
+		err := db.Create(&player).Error
+		if err != nil {
+			log.Panicln("Could not save player record")
+		}
+
+		globalPlayer := structs.GlobalPlayer{
+			CollegePlayerID: newID,
+			RecruitID:       newID,
+			NBAPlayerID:     newID,
+		}
+
+		globalPlayer.SetID(newID)
+
+		db.Create(&globalPlayer)
+
+		count++
+		newID++
+	}
+
+	// return playerList
+}
+
+func CleanUpRecruits() {
+	db := dbprovider.GetInstance().GetDB()
+
+	croots := GetAllUnsignedRecruits()
+
+	for _, croot := range croots {
+		if croot.PotentialGrade != "" && croot.ProPotentialGrade > 0 && croot.RecruitModifier > 0 {
+			continue
+		}
+		potential := ""
+		proPotential := 0
+		recruitMod := 0
+		if croot.PotentialGrade == "" {
+			potential = util.GetWeightedPotentialGrade(croot.Potential)
+		}
+
+		if croot.ProPotentialGrade == 0 {
+			proPotential = util.GenerateIntFromRange(1, 100)
+		}
+
+		if croot.RecruitModifier == 0 {
+			recruitMod = getRecruitModifier(croot.Stars)
+		}
+
+		croot.FixRecruit(potential, proPotential, recruitMod)
+
+		err := db.Save(&croot).Error
+		if err != nil {
+			log.Panicln(err.Error())
+		}
+	}
+}
+
 // Private Methods
 func createCollegePlayer(team structs.Team, ethnicity string, position string, year int, firstNameList [][]string, lastNameList [][]string, id uint) structs.CollegePlayer {
 	fName := getName(firstNameList)
@@ -213,6 +343,84 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 	}
 
 	return collegePlayer
+}
+
+func createRecruit(ethnicity string, position string, year int, firstNameList [][]string, lastNameList [][]string, id uint) structs.Recruit {
+	fName := getName(firstNameList)
+	lName := getName(lastNameList)
+
+	firstName := strings.Title(strings.ToLower(fName))
+	lastName := strings.Title(strings.ToLower(lName))
+	age := 18
+	state := ""
+	country := pickCountry(ethnicity)
+	if country == "USA" {
+		state = pickState()
+	}
+	height := getHeight(position)
+	potential := util.GenerateIntFromRange(1, 100)
+	potentialGrade := util.GetWeightedPotentialGrade(potential)
+	proPotential := util.GenerateIntFromRange(1, 100)
+	stamina := util.GenerateIntFromRange(25, 38)
+	shooting2 := getAttribute(position, "Shooting2")
+	shooting3 := getAttribute(position, "Shooting3")
+	finishing := getAttribute(position, "Finishing")
+	ballwork := getAttribute(position, "Ballwork")
+	rebounding := getAttribute(position, "Rebounding")
+	defense := getAttribute(position, "Defense")
+
+	overall := (int((shooting2 + shooting3) / 2)) + finishing + ballwork + rebounding + defense
+	stars := getStarRating(overall)
+	recruitModifier := getRecruitModifier(stars)
+	expectations := util.GetPlaytimeExpectations(stars, year)
+	personality := util.GetPersonality()
+	academicBias := util.GetAcademicBias()
+	workEthic := util.GetWorkEthic()
+	recruitingBias := util.GetRecruitingBias()
+	freeAgency := util.GetFreeAgencyBias()
+
+	var basePlayer = structs.BasePlayer{
+		FirstName:            firstName,
+		LastName:             lastName,
+		Position:             position,
+		Age:                  age,
+		Year:                 year,
+		State:                state,
+		Country:              country,
+		Stars:                stars,
+		Height:               height,
+		Shooting2:            shooting2,
+		Shooting3:            shooting3,
+		Finishing:            finishing,
+		Ballwork:             ballwork,
+		Rebounding:           rebounding,
+		Defense:              defense,
+		Potential:            potential,
+		PotentialGrade:       potentialGrade,
+		ProPotentialGrade:    proPotential,
+		Stamina:              stamina,
+		PlaytimeExpectations: expectations,
+		Minutes:              0,
+		Overall:              overall,
+		Personality:          personality,
+		FreeAgency:           freeAgency,
+		RecruitingBias:       recruitingBias,
+		WorkEthic:            workEthic,
+		AcademicBias:         academicBias,
+	}
+
+	var croot = structs.Recruit{
+		BasePlayer:      basePlayer,
+		PlayerID:        id,
+		TeamID:          0,
+		TeamAbbr:        "",
+		RecruitModifier: recruitModifier,
+		IsSigned:        false,
+		IsTransfer:      false,
+	}
+	croot.SetID(id)
+
+	return croot
 }
 
 func getNameList(ethnicity string, isFirstName bool) [][]string {
@@ -317,9 +525,9 @@ func pickCountry(ethnicity string) string {
 	max := 10000
 	num := rand.Intn(max-min+1) + min
 
-	if num < 7000 {
+	if num < 7001 {
 		return "USA"
-	} else if num < 7100 {
+	} else if num < 7101 {
 		if ethnicity == "African" {
 			return "Dominican Republic"
 		} else if ethnicity == "Hispanic" {
@@ -331,7 +539,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Canada"
 		}
-	} else if num < 7200 {
+	} else if num < 7201 {
 		if ethnicity == "African" {
 			return "The Bahamas"
 		} else if ethnicity == "Hispanic" {
@@ -343,7 +551,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "United Kingdom"
 		}
-	} else if num < 7300 {
+	} else if num < 7301 {
 		if ethnicity == "African" {
 			return "Jamaica"
 		} else if ethnicity == "Hispanic" {
@@ -355,7 +563,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "France"
 		}
-	} else if num < 7400 {
+	} else if num < 7401 {
 		if ethnicity == "African" {
 			return "Democratic Republic of Congo"
 		} else if ethnicity == "Hispanic" {
@@ -367,7 +575,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Spain"
 		}
-	} else if num < 7500 {
+	} else if num < 7501 {
 		if ethnicity == "African" {
 			return "South Africa"
 		} else if ethnicity == "Hispanic" {
@@ -379,7 +587,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Ireland"
 		}
-	} else if num < 7600 {
+	} else if num < 7601 {
 		if ethnicity == "African" {
 			return "Haiti"
 		} else if ethnicity == "Hispanic" {
@@ -391,7 +599,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Spain"
 		}
-	} else if num < 7700 {
+	} else if num < 7701 {
 		if ethnicity == "African" {
 			return "Ethiopia"
 		} else if ethnicity == "Hispanic" {
@@ -403,7 +611,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Germany"
 		}
-	} else if num < 7800 {
+	} else if num < 7801 {
 		if ethnicity == "African" {
 			return "Chad"
 		} else if ethnicity == "Hispanic" {
@@ -415,7 +623,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Poland"
 		}
-	} else if num < 7900 {
+	} else if num < 7901 {
 		if ethnicity == "African" {
 			return "Ghana"
 		} else if ethnicity == "Hispanic" {
@@ -427,7 +635,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Sweden"
 		}
-	} else if num < 8000 {
+	} else if num < 8001 {
 		if ethnicity == "African" {
 			return "Guinea"
 		} else if ethnicity == "Hispanic" {
@@ -439,7 +647,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Norway"
 		}
-	} else if num < 8100 {
+	} else if num < 8101 {
 		if ethnicity == "African" {
 			return "Senegal"
 		} else if ethnicity == "Hispanic" {
@@ -451,7 +659,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Denmark"
 		}
-	} else if num < 8200 {
+	} else if num < 8201 {
 		if ethnicity == "African" {
 			return "Morocco"
 		} else if ethnicity == "Hispanic" {
@@ -463,7 +671,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Portugal"
 		}
-	} else if num < 8300 {
+	} else if num < 8301 {
 		if ethnicity == "African" {
 			return "Algeria"
 		} else if ethnicity == "Hispanic" {
@@ -475,7 +683,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Austria"
 		}
-	} else if num < 8400 {
+	} else if num < 8401 {
 		if ethnicity == "African" {
 			return "Nigeria"
 		} else if ethnicity == "Hispanic" {
@@ -487,7 +695,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Hungary"
 		}
-	} else if num < 8500 {
+	} else if num < 8501 {
 		if ethnicity == "African" {
 			return "Cameroon"
 		} else if ethnicity == "Hispanic" {
@@ -499,7 +707,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Croatia"
 		}
-	} else if num < 8600 {
+	} else if num < 8601 {
 		if ethnicity == "African" {
 			return "Egypt"
 		} else if ethnicity == "Hispanic" {
@@ -511,7 +719,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Greece"
 		}
-	} else if num < 8700 {
+	} else if num < 8701 {
 		if ethnicity == "African" {
 			return "Eritrea"
 		} else if ethnicity == "Hispanic" {
@@ -523,7 +731,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Israel"
 		}
-	} else if num < 8800 {
+	} else if num < 8801 {
 		if ethnicity == "African" {
 			return "Kenya"
 		} else if ethnicity == "Hispanic" {
@@ -535,7 +743,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Bulgaria"
 		}
-	} else if num < 8900 {
+	} else if num < 8901 {
 		if ethnicity == "African" {
 			return "Liberia"
 		} else if ethnicity == "Hispanic" {
@@ -547,7 +755,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Romania"
 		}
-	} else if num < 9000 {
+	} else if num < 9001 {
 		if ethnicity == "African" {
 			return "Tanzania"
 		} else if ethnicity == "Hispanic" {
@@ -559,7 +767,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Montenegro"
 		}
-	} else if num < 9100 {
+	} else if num < 9101 {
 		if ethnicity == "African" {
 			return "Zimbabwe"
 		} else if ethnicity == "Hispanic" {
@@ -571,7 +779,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Turkey"
 		}
-	} else if num < 9200 {
+	} else if num < 9201 {
 		if ethnicity == "African" {
 			return "Malawi"
 		} else if ethnicity == "Hispanic" {
@@ -583,7 +791,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Serbia"
 		}
-	} else if num < 9300 {
+	} else if num < 9301 {
 		if ethnicity == "African" {
 			return "Senegal"
 		} else if ethnicity == "Hispanic" {
@@ -595,7 +803,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Belgium"
 		}
-	} else if num < 9400 {
+	} else if num < 9401 {
 		if ethnicity == "African" {
 			return "Senegal"
 		} else if ethnicity == "Hispanic" {
@@ -607,7 +815,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Ukraine"
 		}
-	} else if num < 9500 {
+	} else if num < 9501 {
 		if ethnicity == "African" {
 			return "DCR"
 		} else if ethnicity == "Hispanic" {
@@ -619,7 +827,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Ukraine"
 		}
-	} else if num < 9600 {
+	} else if num < 9601 {
 		if ethnicity == "African" {
 			return "Nigeria"
 		} else if ethnicity == "Hispanic" {
@@ -631,7 +839,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Russia"
 		}
-	} else if num < 9700 {
+	} else if num < 9701 {
 		if ethnicity == "African" {
 			return "South Africa"
 		} else if ethnicity == "Hispanic" {
@@ -643,7 +851,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Russia"
 		}
-	} else if num < 9800 {
+	} else if num < 9801 {
 		if ethnicity == "African" {
 			return "South Africa"
 		} else if ethnicity == "Hispanic" {
@@ -655,7 +863,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Lithuania"
 		}
-	} else if num < 9900 {
+	} else if num < 9901 {
 		if ethnicity == "African" {
 			return "Uganda"
 		} else if ethnicity == "Hispanic" {
@@ -667,7 +875,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Estonia"
 		}
-	} else if num < 9950 {
+	} else if num < 9951 {
 		if ethnicity == "African" {
 			return "Zambia"
 		} else if ethnicity == "Hispanic" {
@@ -679,7 +887,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Finland"
 		}
-	} else if num < 9975 {
+	} else if num < 9976 {
 		if ethnicity == "African" {
 			return "Tunisia"
 		} else if ethnicity == "Hispanic" {
@@ -818,6 +1026,19 @@ func getStarRating(overall int) int {
 	} else {
 		return 1
 	}
+}
+
+func getRecruitModifier(stars int) int {
+	if stars == 5 {
+		return util.GenerateIntFromRange(80, 117)
+	} else if stars == 4 {
+		return util.GenerateIntFromRange(100, 125)
+	} else if stars == 3 {
+		return util.GenerateIntFromRange(117, 150)
+	} else if stars == 2 {
+		return util.GenerateIntFromRange(125, 200)
+	}
+	return util.GenerateIntFromRange(150, 250)
 }
 
 func getName(list [][]string) string {

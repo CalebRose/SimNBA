@@ -5,18 +5,21 @@ import "github.com/jinzhu/gorm"
 // Timestamp - The Global Timestamp for the Season
 type Timestamp struct {
 	gorm.Model
-	SeasonID          int
-	Season            int
-	CollegeWeekID     int
-	NBAWeekID         int
-	CollegeWeek       int
-	NBAWeek           int
-	GamesARan         bool
-	GamesBRan         bool
-	GamesCRan         bool
-	RecruitingSynced  bool
-	GMActionsComplete bool
-	IsOffSeason       bool
+	SeasonID                  uint
+	Season                    int
+	CollegeWeekID             uint
+	NBAWeekID                 uint
+	CollegeWeek               int
+	NBAWeek                   int
+	GamesARan                 bool
+	GamesBRan                 bool
+	GamesCRan                 bool
+	RecruitingSynced          bool
+	GMActionsComplete         bool
+	IsRecruitingLocked        bool
+	AIBoardsCreated           bool
+	AIPointAllocationComplete bool
+	IsOffSeason               bool
 }
 
 func (t *Timestamp) MoveUpWeekCollege() {

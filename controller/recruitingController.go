@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// GetRecruitingDataForOverviewPage - Returns all data needed for Recruiting Overview
 func GetRecruitingDataForOverviewPage(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	teamID := vars["teamID"]
@@ -21,58 +22,49 @@ func GetRecruitingDataForOverviewPage(w http.ResponseWriter, r *http.Request) {
 
 	var dashboardResponse structs.DashboardTeamProfileResponse
 
-	// recruitingProfile := managers.GetRecruitingProfileForDashboardByTeamID(teamID)
+	recruitingProfile := managers.GetRecruitingProfileForDashboardByTeamID(teamID)
 
-	// dashboardResponse.SetTeamProfile(recruitingProfile)
-
-	// Get Team Needs
-	// teamNeeds := managers.GetRecruitingNeeds(teamID)
-
-	// dashboardResponse.SetTeamNeedsMap(teamNeeds)
+	dashboardResponse.SetTeamProfile(recruitingProfile)
 
 	json.NewEncoder(w).Encode(dashboardResponse)
 
 }
 
+// GetRecruitingDataForTeamBoardPage - Returns all data needed for team board
 func GetRecruitingDataForTeamBoardPage(w http.ResponseWriter, r *http.Request) {
-
-}
-
-// AllRecruitsByProfileID - Get all Recruits By A Team's Recruiting Profile
-func AllRecruitsByProfileID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	profileID := vars["profileId"]
-	if len(profileID) == 0 {
-		panic("User did not provide a Recruiting Profile ID")
+	teamID := vars["teamID"]
+
+	if len(teamID) == 0 {
+		panic("User did not provide teamID")
 	}
 
-	var recruitPoints = managers.GetAllRecruitsByProfileID(profileID)
+	var teamBoardResponse structs.TeamBoardTeamProfileResponse
 
-	json.NewEncoder(w).Encode(recruitPoints)
+	recruitingProfile := managers.GetRecruitingProfileForTeamBoardByTeamID(teamID)
+
+	teamBoardResponse.SetTeamProfile(recruitingProfile)
+
+	json.NewEncoder(w).Encode(teamBoardResponse)
 }
 
-// RecruitingProfileByTeamID - Get Recruiting Profile by TeamID
-func RecruitingProfileByTeamID(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	teamId := vars["teamId"]
-	if len(teamId) == 0 {
-		panic("User did not provide TeamID")
-	}
+// GetAllRecruitingProfiles
+func GetAllRecruitingProfiles(w http.ResponseWriter, r *http.Request) {
+	recruitingProfiles := managers.GetRecruitingProfileForRecruitSync()
 
-	profile := managers.GetRecruitingProfileByTeamId(teamId)
-	json.NewEncoder(w).Encode(profile)
+	json.NewEncoder(w).Encode(recruitingProfiles)
 }
 
-func CreateRecruitingPointsProfileForRecruit(w http.ResponseWriter, r *http.Request) {
+func AddRecruitToBoard(w http.ResponseWriter, r *http.Request) {
 
-	var recruitPointsDto structs.CreateRecruitPointsDto
+	var recruitPointsDto structs.CreateRecruitProfileDto
 	err := json.NewDecoder(r.Body).Decode(&recruitPointsDto)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	recruitingProfile := managers.CreateRecruitingPointsProfileForRecruit(recruitPointsDto)
+	recruitingProfile := managers.AddRecruitToTeamBoard(recruitPointsDto)
 
 	json.NewEncoder(w).Encode(recruitingProfile)
 
