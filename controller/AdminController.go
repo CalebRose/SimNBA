@@ -36,3 +36,13 @@ func ProgressPlayers(w http.ResponseWriter, r *http.Request) {
 	managers.ProgressionMain()
 	json.NewEncoder(w).Encode("DONE!")
 }
+
+func FillAIBoards(w http.ResponseWriter, r *http.Request) {
+	managers.FillAIRecruitingBoards()
+	json.NewEncoder(w).Encode("AI recruiting boards complete!")
+}
+
+func SyncAIBoards(w http.ResponseWriter, r *http.Request) {
+	managers.AllocatePointsToAIBoards()
+	json.NewEncoder(w).Encode("AI recruiting boards Synced!")
+}

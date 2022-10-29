@@ -295,7 +295,10 @@ func FillAIRecruitingBoards() {
 		}
 
 		for _, croot := range UnsignedRecruits {
-			if count == 25 || croot.Stars == 5 ||
+			if count == 40 {
+				break
+			}
+			if croot.Stars == 5 ||
 				(croot.Stars == 4 && team.AIQuality != "Blue Blood") ||
 				(croot.Stars > 2) && team.AIQuality == "Bottom Feeder" {
 				continue
@@ -306,7 +309,7 @@ func FillAIRecruitingBoards() {
 			// 	continue
 			// }
 
-			odds := 10
+			odds := 5
 
 			if croot.Country == "USA" {
 				if regionMap[croot.State] == team.Region {
@@ -318,13 +321,15 @@ func FillAIRecruitingBoards() {
 			}
 
 			if team.AIQuality == "Offense" && util.IsPlayerOffensivelyStrong(croot) {
-				odds = 50
+				odds += 50
 			} else if team.AIQuality == "Defense" && util.IsPlayerDefensivelyStrong(croot) {
-				odds = 50
+				odds += 50
 			} else if team.AIQuality == "Cinderella" && util.IsPlayerHighPotential(croot) {
-				odds = 50
+				odds += 50
 			} else if team.AIQuality == "Blue Blood" && croot.Stars == 4 {
-				odds = 50
+				odds += 50
+			} else if team.AIQuality == "Bottom Feeder" && croot.Stars < 3 {
+				odds += 40
 			}
 
 			chance := util.GenerateIntFromRange(1, 100)
@@ -406,7 +411,7 @@ func AllocatePointsToAIBoards() {
 					}
 					pointsRemaining := team.WeeklyPoints - team.SpentPoints
 
-					min := 0
+					min := 1
 					max := 0
 
 					if team.AIBehavior == "Conservative" {
@@ -420,7 +425,7 @@ func AllocatePointsToAIBoards() {
 					}
 
 					num = util.GenerateIntFromRange(min, max)
-					if num > pointsRemaining {
+					if num >= pointsRemaining {
 						num = pointsRemaining
 					}
 					// Check to see if other teams are contending
@@ -440,11 +445,13 @@ func AllocatePointsToAIBoards() {
 			}
 			// Allocate points and save
 			croot.AllocatePoints(num)
-			team.AllocateSpentPoints(num)
+			team.AIAllocateSpentPoints(num)
 			// Save croot
 			db.Save(&croot)
+			fmt.Println(team.TeamAbbr + " allocating " + strconv.Itoa(num) + " points to " + croot.Recruit.FirstName + " " + croot.Recruit.LastName)
 		}
 		// Save Team Profile after iterating through recruits
+		fmt.Println("Saved " + team.TeamAbbr + " Recruiting Board!")
 		db.Save(&team)
 	}
 }

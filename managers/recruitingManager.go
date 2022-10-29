@@ -119,7 +119,9 @@ func GetAllRecruitsByProfileID(profileID string) []structs.PlayerRecruitProfile 
 
 	var recruitPoints []structs.PlayerRecruitProfile
 
-	db.Preload("Recruit").Where("profile_id = ? AND removed_from_board = ?", profileID, false).Find(&recruitPoints)
+	db.Preload("Recruit", func(db *gorm.DB) *gorm.DB {
+		return db.Order("stars DESC")
+	}).Where("profile_id = ? AND removed_from_board = ?", profileID, false).Order("total_points DESC").Order("").Find(&recruitPoints)
 
 	return recruitPoints
 }
@@ -129,7 +131,7 @@ func GetAllUnsignedRecruits() []structs.Recruit {
 
 	var croots []structs.Recruit
 
-	db.Where("is_signed = ?", false).Find(&croots)
+	db.Order("stars DESC").Order("overall DESC").Where("is_signed = ?", false).Find(&croots)
 
 	return croots
 }

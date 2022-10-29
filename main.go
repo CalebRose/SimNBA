@@ -40,6 +40,8 @@ func handleRequests() {
 	// myRouter.HandleFunc("/admin/generateTeam", controller.GeneratePlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/generateCroots", controller.GenerateCroots).Methods("GET")
 	myRouter.HandleFunc("/admin/rankCroots", controller.RankCroots).Methods("GET")
+	myRouter.HandleFunc("/admin/ai/fill/boards", controller.FillAIBoards).Methods("GET")
+	myRouter.HandleFunc("/admin/ai/sync/boards", controller.SyncAIBoards).Methods("GET")
 	// myRouter.HandleFunc("/admin/generateGlobalPlayers", controller.GenerateGlobalPlayerRecords).Methods("GET")
 	// myRouter.HandleFunc("/admin/migrate/data", controller.MigratePlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/migrate/progress", controller.ProgressPlayers).Methods("GET")
