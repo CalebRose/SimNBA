@@ -46,6 +46,10 @@ func (t *Timestamp) ToggleRecruiting() {
 	t.RecruitingSynced = !t.RecruitingSynced
 }
 
+func (t *Timestamp) ToggleLockRecruiting() {
+	t.IsRecruitingLocked = !t.IsRecruitingLocked
+}
+
 func (t *Timestamp) ToggleGMActions() {
 	t.GMActionsComplete = !t.GMActionsComplete
 }

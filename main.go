@@ -42,6 +42,10 @@ func handleRequests() {
 	myRouter.HandleFunc("/admin/rankCroots", controller.RankCroots).Methods("GET")
 	myRouter.HandleFunc("/admin/ai/fill/boards", controller.FillAIBoards).Methods("GET")
 	myRouter.HandleFunc("/admin/ai/sync/boards", controller.SyncAIBoards).Methods("GET")
+	myRouter.HandleFunc("/admin/recruiting/sync", controller.SyncRecruiting).Methods("GET")
+	myRouter.HandleFunc("/admin/lock/recruiting", controller.LockRecruiting).Methods("GET")
+	myRouter.HandleFunc("/admin/recruit/create", controller.CreateRecruit).Methods("POST")
+
 	// myRouter.HandleFunc("/admin/generateGlobalPlayers", controller.GenerateGlobalPlayerRecords).Methods("GET")
 	// myRouter.HandleFunc("/admin/migrate/data", controller.MigratePlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/migrate/progress", controller.ProgressPlayers).Methods("GET")
@@ -67,16 +71,16 @@ func handleRequests() {
 	myRouter.HandleFunc("/players/nba", controller.AllNBAPlayers).Methods("GET")
 	myRouter.HandleFunc("/players/nba/freeAgents", controller.AllNBAFreeAgents).Methods("GET")
 	// Recruit Controls
-	myRouter.HandleFunc("/recruiting/profile/dashboard/{teamID}/", controller.GetRecruitingDataForOverviewPage).Methods("GET")
-	myRouter.HandleFunc("/recruiting/profile/team/{teamID}", controller.GetRecruitingDataForTeamBoardPage).Methods("GET")
+	myRouter.HandleFunc("/recruiting/dashboard/{teamID}/", controller.GetRecruitingDataForOverviewPage).Methods("GET")
+	myRouter.HandleFunc("/recruiting/profile/teamboard/{teamID}", controller.GetRecruitingDataForTeamBoardPage).Methods("GET")
 	myRouter.HandleFunc("/recruiting/profile/all/", controller.GetAllRecruitingProfiles).Methods("GET")
 
 	myRouter.HandleFunc("/recruit/createRecruitingPointsProfile", controller.AddRecruitToBoard).Methods("POST")
 	myRouter.HandleFunc("/recruit/allocatePoints", controller.AllocateRecruitingPointsForRecruit).Methods("PUT")
-	myRouter.HandleFunc("/recruit/sendScholarshipToRecruit", controller.SendScholarshipToRecruit).Methods("PUT")
-	myRouter.HandleFunc("/recruit/revokeScholarshipFromRecruit", controller.RevokeScholarshipFromRecruit).Methods("PUT")
+	myRouter.HandleFunc("/recruit/toggleScholarship", controller.SendScholarshipToRecruit).Methods("POST")
+	// myRouter.HandleFunc("/recruit/revokeScholarshipFromRecruit", controller.RevokeScholarshipFromRecruit).Methods("PUT")
 	myRouter.HandleFunc("/recruit/removeRecruit", controller.RemoveRecruitFromBoard).Methods("PUT")
-	myRouter.HandleFunc("/recruit/saveRecruitingBoard", controller.SaveRecruitingBoard).Methods("PUT")
+	myRouter.HandleFunc("/recruit/saveRecruitingBoard", controller.SaveRecruitingBoard).Methods("POST")
 
 	// Request Controls
 	myRouter.HandleFunc("/requests/", controller.GetTeamRequests).Methods("GET")

@@ -6,6 +6,7 @@ type UpdateRecruitPointsDto struct {
 	ProfileId         int
 	PlayerId          int
 	SpentPoints       int
+	Team              string
 	RewardScholarship bool
 	RevokeScholarship bool
 }

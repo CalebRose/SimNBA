@@ -141,7 +141,10 @@ func IsPlayerHighPotential(r structs.Recruit) bool {
 	return r.Potential > 55
 }
 
-func IsAITeamContendingForCroot(num int, totalPoints float64, profiles []structs.PlayerRecruitProfile) bool {
+func IsAITeamContendingForCroot(profiles []structs.PlayerRecruitProfile) int {
+	if len(profiles) == 0 {
+		return 0
+	}
 	leadingVal := 0
 	for _, profile := range profiles {
 		if profile.TotalPoints != 0 && profile.TotalPoints > float64(leadingVal) {
@@ -149,10 +152,7 @@ func IsAITeamContendingForCroot(num int, totalPoints float64, profiles []structs
 		}
 	}
 
-	if leadingVal == 0 {
-		return true
-	}
-	return num+int(totalPoints) < (leadingVal / 2)
+	return leadingVal
 }
 
 func RivalsModifiers() []int {

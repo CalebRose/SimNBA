@@ -19,3 +19,16 @@ func GetTimestamp() structs.Timestamp {
 
 	return timeStamp
 }
+
+func LockRecruiting() {
+	db := dbprovider.GetInstance().GetDB()
+
+	ts := GetTimestamp()
+
+	ts.ToggleLockRecruiting()
+
+	err := db.Save(&ts).Error
+	if err != nil {
+		log.Fatal(err)
+	}
+}

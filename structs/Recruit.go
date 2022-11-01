@@ -21,8 +21,42 @@ type Recruit struct {
 	RecruitModifier       int
 	IsSigned              bool
 	IsTransfer            bool
+	IsCustomCroot         bool
+	CreatedFor            string
 	RecruitProfiles       []PlayerRecruitProfile `gorm:"foreignKey:RecruitID"`
 	// RecruitPoints         []RecruitPointAllocation `gorm:"foreignKey:RecruitID"`
+}
+
+func (r *Recruit) Map(createRecruitDTO CreateRecruitDTO, lastPlayerID uint, expectations int) {
+	r.ID = lastPlayerID
+	r.FirstName = createRecruitDTO.FirstName
+	r.LastName = createRecruitDTO.LastName
+	r.Position = createRecruitDTO.Position
+	r.Age = 18
+	r.Height = createRecruitDTO.Height
+	r.State = createRecruitDTO.State
+	r.Country = createRecruitDTO.Country
+	r.Stars = createRecruitDTO.Stars
+	r.Overall = createRecruitDTO.Overall
+	r.Stamina = createRecruitDTO.Stamina
+	r.Ballwork = createRecruitDTO.Ballwork
+	r.Defense = createRecruitDTO.Defense
+	r.Finishing = createRecruitDTO.Finishing
+	r.Rebounding = createRecruitDTO.Rebounding
+	r.Shooting2 = createRecruitDTO.Shooting2
+	r.Shooting3 = createRecruitDTO.Shooting3
+	r.Potential = createRecruitDTO.Potential
+	r.PotentialGrade = createRecruitDTO.PotentialGrade
+	r.PlaytimeExpectations = expectations
+	r.WorkEthic = createRecruitDTO.WorkEthic
+	r.FreeAgency = createRecruitDTO.FreeAgency
+	r.Personality = createRecruitDTO.Personality
+	r.RecruitingBias = createRecruitDTO.RecruitingBias
+	r.AcademicBias = createRecruitDTO.AcademicBias
+	r.IsSigned = false
+	r.IsCustomCroot = true
+	r.CreatedFor = createRecruitDTO.CreatedFor
+	r.SigningStatus = "Not Ready"
 }
 
 func (r *Recruit) SetID(id uint) {
@@ -68,7 +102,7 @@ func (r *Recruit) AssignRankValues(rank247 float64, espnRank float64, rivalsRank
 func (r *Recruit) ApplySigningStatus(num float64, threshold float64) {
 	percentage := num / threshold
 
-	if percentage < 0.26 {
+	if threshold == 0 || num == 0 || percentage < 0.26 {
 		r.SigningStatus = "Not Ready"
 	} else if percentage < 0.51 {
 		r.SigningStatus = "Hearing Offers"

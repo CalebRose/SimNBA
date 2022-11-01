@@ -47,8 +47,9 @@ func (r *PlayerRecruitProfile) AllocateTotalPoints(points float64) {
 	r.CurrentWeeksPoints = 0
 }
 
-func (r *PlayerRecruitProfile) AllocateScholarship() {
-	r.Scholarship = true
+func (r *PlayerRecruitProfile) ToggleScholarship(reward bool, revoke bool) {
+	r.Scholarship = reward
+	r.ScholarshipRevoked = revoke
 }
 
 func (r *PlayerRecruitProfile) RevokeScholarship() {

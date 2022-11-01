@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -55,6 +56,22 @@ func GetAllRecruitingProfiles(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(recruitingProfiles)
 }
 
+func CreateRecruit(w http.ResponseWriter, r *http.Request) {
+	var dto structs.CreateRecruitDTO
+	err := json.NewDecoder(r.Body).Decode(&dto)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	// validate info from DTO
+	if len(dto.FirstName) == 0 || len(dto.LastName) == 0 || dto.Overall == 0 {
+		log.Fatalln("ERROR: Did not provide all information for recruit.")
+	}
+
+	managers.CreateRecruit(dto)
+	fmt.Println(w, "New Recruit Created")
+}
+
 func AddRecruitToBoard(w http.ResponseWriter, r *http.Request) {
 
 	var recruitPointsDto structs.CreateRecruitProfileDto
@@ -94,20 +111,6 @@ func SendScholarshipToRecruit(w http.ResponseWriter, r *http.Request) {
 
 	recruitingPointsProfile, recruitingProfile := managers.SendScholarshipToRecruit(updateRecruitPointsDto)
 	fmt.Printf("\nScholarship allocated to player " + strconv.Itoa(int(recruitingPointsProfile.RecruitID)) + ". Record saved")
-	fmt.Printf("\nProfile: " + strconv.Itoa(int(recruitingProfile.TeamID)) + " Saved")
-}
-
-func RevokeScholarshipFromRecruit(w http.ResponseWriter, r *http.Request) {
-	var updateRecruitPointsDto structs.UpdateRecruitPointsDto
-	err := json.NewDecoder(r.Body).Decode(&updateRecruitPointsDto)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	recruitingPointsProfile, recruitingProfile := managers.RevokeScholarshipFromRecruit(updateRecruitPointsDto)
-
-	fmt.Printf("\nScholarship revoked from player " + strconv.Itoa(int(recruitingPointsProfile.RecruitID)) + ". Record saved")
 	fmt.Printf("\nProfile: " + strconv.Itoa(int(recruitingProfile.TeamID)) + " Saved")
 }
 

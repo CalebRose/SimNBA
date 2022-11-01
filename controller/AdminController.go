@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/CalebRose/SimNBA/managers"
 )
@@ -42,7 +43,20 @@ func FillAIBoards(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("AI recruiting boards complete!")
 }
 
+func LockRecruiting(w http.ResponseWriter, r *http.Request) {
+	managers.LockRecruiting()
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode("Recruiting Locked")
+}
+
 func SyncAIBoards(w http.ResponseWriter, r *http.Request) {
 	managers.AllocatePointsToAIBoards()
 	json.NewEncoder(w).Encode("AI recruiting boards Synced!")
+}
+
+func SyncRecruiting(w http.ResponseWriter, r *http.Request) {
+	ts := managers.GetTimestamp()
+	managers.SyncRecruiting(ts)
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode("Recruiting Synced for Week " + strconv.Itoa(ts.CollegeWeek))
 }

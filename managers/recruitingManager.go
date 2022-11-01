@@ -4,11 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math/rand"
 	"sort"
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
+	"github.com/CalebRose/SimNBA/util"
 	"gorm.io/gorm"
 )
 
@@ -33,7 +35,7 @@ func GetRecruitingProfileForTeamBoardByTeamID(TeamID string) structs.SimTeamBoar
 
 	var profile structs.TeamRecruitingProfile
 
-	err := db.Preload("Recruits.PlayerRecruit.PlayerRecruitProfiles", func(db *gorm.DB) *gorm.DB {
+	err := db.Preload("Recruits.Recruit.RecruitProfiles", func(db *gorm.DB) *gorm.DB {
 		return db.Order("total_points DESC").Where("total_points > 0")
 	}).Where("id = ?", TeamID).Find(&profile).Error
 	if err != nil {
@@ -114,6 +116,15 @@ func GetOnlyAITeamRecruitingProfiles() []structs.TeamRecruitingProfile {
 	return AIProfiles
 }
 
+func GetRecruitByRecruitID(RecruitID string) structs.Recruit {
+	db := dbprovider.GetInstance().GetDB()
+	var recruit structs.Recruit
+
+	db.Where("id = ?", RecruitID).Find(&recruit)
+
+	return recruit
+}
+
 func GetAllRecruitsByProfileID(profileID string) []structs.PlayerRecruitProfile {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -160,7 +171,7 @@ func GetRecruitPlayerProfilesByRecruitId(recruitID string) []structs.PlayerRecru
 	db := dbprovider.GetInstance().GetDB()
 
 	var croots []structs.PlayerRecruitProfile
-	err := db.Where("recruit_id = ?", recruitID).Order("total_points desc").Find(&croots).Error
+	err := db.Where("recruit_id = ? AND (total_points > 0 OR current_weeks_points > 0) AND removed_from_board = false", recruitID).Order("total_points desc").Find(&croots).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return []structs.PlayerRecruitProfile{}
@@ -258,8 +269,8 @@ func GetRecruitingPointsByTeamId(id string) []structs.PlayerRecruitProfile {
 	return recruits
 }
 
-func GetRecruitFromRecruitsList(id int, recruits []structs.PlayerRecruitProfile) structs.PlayerRecruitProfile {
-	var recruit structs.PlayerRecruitProfile
+func GetRecruitFromRecruitsList(id int, recruits []structs.CrootProfile) structs.CrootProfile {
+	var recruit structs.CrootProfile
 
 	for i := 0; i < len(recruits); i++ {
 		if recruits[i].RecruitID == uint(id) {
@@ -297,28 +308,58 @@ func AllocateRecruitingPointsForRecruit(updateRecruitPointsDto structs.UpdateRec
 func SendScholarshipToRecruit(updateRecruitPointsDto structs.UpdateRecruitPointsDto) (structs.PlayerRecruitProfile, structs.TeamRecruitingProfile) {
 	db := dbprovider.GetInstance().GetDB()
 
-	recruitingProfile := GetRecruitingProfileByTeamId(strconv.Itoa(updateRecruitPointsDto.ProfileId))
+	recruitingProfile := GetOnlyTeamRecruitingProfileByTeamID(strconv.Itoa(updateRecruitPointsDto.ProfileId))
 
 	if recruitingProfile.ScholarshipsAvailable == 0 {
 		log.Fatalf("\nTeamId: " + strconv.Itoa(updateRecruitPointsDto.ProfileId) + " does not have any availabe scholarships")
 	}
 
-	recruitingPointsProfile := GetPlayerRecruitProfileByPlayerId(
+	crootProfile := GetPlayerRecruitProfileByPlayerId(
 		strconv.Itoa(updateRecruitPointsDto.PlayerId),
 		strconv.Itoa(updateRecruitPointsDto.ProfileId),
 	)
 
-	if recruitingPointsProfile.Scholarship {
-		log.Fatalf("\nRecruit " + strconv.Itoa(int(recruitingPointsProfile.RecruitID)) + "already has a scholarship")
+	crootProfile.ToggleScholarship(updateRecruitPointsDto.RewardScholarship, updateRecruitPointsDto.RevokeScholarship)
+	if crootProfile.Scholarship {
+		recruitingProfile.SubtractScholarshipsAvailable()
+
+		ts := GetTimestamp()
+		recruit := GetRecruitByRecruitID(strconv.Itoa(int(updateRecruitPointsDto.PlayerId)))
+
+		stars := recruit.Stars
+
+		location := ""
+
+		if len(recruit.State) == 0 {
+			location = recruit.Country
+		} else {
+			location = recruit.State + ", " + recruit.Country
+		}
+
+		if stars >= 4 {
+			message := recruit.FirstName + " " + recruit.LastName + ", " + strconv.Itoa(stars) + " star " + recruit.Position + " from " + location + " has received an offer from " + updateRecruitPointsDto.Team
+			newLog := structs.NewsLog{
+				WeekID:      ts.CollegeWeekID,
+				Week:        uint(ts.CollegeWeek),
+				SeasonID:    ts.SeasonID,
+				MessageType: "Recruiting",
+				Message:     message,
+			}
+
+			err := db.Create(&newLog).Error
+			if err != nil {
+				fmt.Println(err.Error())
+				log.Fatalln("ERROR! Could not save news log for scholarship on " + recruit.FirstName + " " + recruit.LastName + " " + strconv.Itoa(int(recruit.ID)))
+			}
+		}
+	} else {
+		recruitingProfile.ReallocateScholarship()
 	}
 
-	recruitingPointsProfile.AllocateScholarship()
-	recruitingProfile.SubtractScholarshipsAvailable()
-
-	db.Save(&recruitingPointsProfile)
+	db.Save(&crootProfile)
 	db.Save(&recruitingProfile)
 
-	return recruitingPointsProfile, recruitingProfile
+	return crootProfile, recruitingProfile
 }
 
 func RevokeScholarshipFromRecruit(updateRecruitPointsDto structs.UpdateRecruitPointsDto) (structs.PlayerRecruitProfile, structs.TeamRecruitingProfile) {
@@ -400,4 +441,37 @@ func UpdateRecruitingProfile(updateRecruitingBoardDto structs.UpdateRecruitingBo
 	db.Save(&profile)
 
 	return profile
+}
+
+func CreateRecruit(dto structs.CreateRecruitDTO) {
+	db := dbprovider.GetInstance().GetDB()
+
+	var lastPlayerRecord structs.GlobalPlayer
+
+	err := db.Last(&lastPlayerRecord).Error
+	if err != nil {
+		log.Fatalln("Could not grab last player record from players table...")
+	}
+
+	newID := lastPlayerRecord.ID + 1
+	threshold := GetRecruitModifier(dto.Stars)
+	expectations := util.GetPlaytimeExpectations(dto.Stars, 1)
+	rankMod := 0.95 + rand.Float64()*(1.05-0.95)
+
+	collegeRecruit := &structs.Recruit{
+		RecruitModifier: threshold,
+		TopRankModifier: rankMod,
+	}
+	collegeRecruit.Map(dto, newID, expectations)
+
+	playerRecord := structs.GlobalPlayer{
+		RecruitID:       newID,
+		CollegePlayerID: newID,
+		NBAPlayerID:     newID,
+	}
+	playerRecord.SetID(newID)
+	// Create Player Record
+	db.Create(&playerRecord)
+	// Save Recruit
+	db.Create(&collegeRecruit)
 }

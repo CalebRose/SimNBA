@@ -240,7 +240,7 @@ func CleanUpRecruits() {
 		}
 
 		if croot.RecruitModifier == 0 {
-			recruitMod = getRecruitModifier(croot.Stars)
+			recruitMod = GetRecruitModifier(croot.Stars)
 		}
 
 		croot.FixRecruit(potential, proPotential, recruitMod)
@@ -371,7 +371,7 @@ func createRecruit(ethnicity string, position string, year int, firstNameList []
 
 	overall := (int((shooting2 + shooting3) / 2)) + finishing + ballwork + rebounding + defense
 	stars := getStarRating(overall)
-	recruitModifier := getRecruitModifier(stars)
+	recruitModifier := GetRecruitModifier(stars)
 	expectations := util.GetPlaytimeExpectations(stars, year)
 	personality := util.GetPersonality()
 	academicBias := util.GetAcademicBias()
@@ -1028,7 +1028,7 @@ func getStarRating(overall int) int {
 	}
 }
 
-func getRecruitModifier(stars int) int {
+func GetRecruitModifier(stars int) int {
 	if stars == 5 {
 		return util.GenerateIntFromRange(80, 117)
 	} else if stars == 4 {

@@ -6,6 +6,7 @@ type SimTeamBoardResponse struct {
 	Team                  string
 	TeamAbbreviation      string
 	State                 string
+	Region                string
 	ScholarshipsAvailable int
 	WeeklyPoints          int
 	SpentPoints           int
@@ -25,6 +26,7 @@ func (stbr *SimTeamBoardResponse) Map(rtp TeamRecruitingProfile, c []CrootProfil
 	stbr.TeamID = rtp.TeamID
 	stbr.TeamAbbreviation = rtp.TeamAbbr
 	stbr.State = rtp.State
+	stbr.Region = rtp.Region
 	stbr.ScholarshipsAvailable = rtp.ScholarshipsAvailable
 	stbr.WeeklyPoints = rtp.WeeklyPoints
 	stbr.SpentPoints = rtp.SpentPoints

@@ -28,10 +28,15 @@ type Croot struct {
 	WorkEthic      string
 	State          string
 	Country        string
+	ESPNRank       float64
+	RivalsRank     float64
+	Rank247        float64
 	IsSigned       bool
 	OverallGrade   string
 	TotalRank      float64
 	SigningStatus  string
+	IsCustomCroot  bool
+	CreatedFor     string
 	LeadingTeams   []LeadingTeams
 }
 
@@ -75,6 +80,11 @@ func (c *Croot) Map(r Recruit) {
 	c.College = r.TeamAbbr
 	c.IsSigned = r.IsSigned
 	c.SigningStatus = r.SigningStatus
+	c.ESPNRank = r.ESPNRank
+	c.RivalsRank = r.RivalsRank
+	c.Rank247 = r.Rank247
+	c.IsCustomCroot = r.IsCustomCroot
+	c.CreatedFor = r.CreatedFor
 
 	mod := r.TopRankModifier
 	if mod == 0 {
@@ -94,7 +104,7 @@ func (c *Croot) Map(r Recruit) {
 			continue
 		}
 		if runningThreshold == 0 {
-			runningThreshold = float64(recruitProfile.TotalPoints) * 0.5
+			runningThreshold = float64(recruitProfile.TotalPoints) * 0.66
 		}
 
 		if float64(recruitProfile.TotalPoints) >= runningThreshold {
