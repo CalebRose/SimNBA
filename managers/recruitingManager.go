@@ -205,6 +205,8 @@ func AddRecruitToTeamBoard(recruitProfileDto structs.CreateRecruitProfileDto) st
 		InterestLevel:      "None",
 		IsSigned:           false,
 		RemovedFromBoard:   false,
+		HasStateBonus:      recruitProfileDto.HasStateBonus,
+		HasRegionBonus:     recruitProfileDto.HasRegionBonus,
 	}
 
 	db.Create(&newProfileForRecruit)

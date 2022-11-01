@@ -22,6 +22,8 @@ type PlayerRecruitProfile struct {
 	RecruitModifier       int
 	IsSigned              bool
 	IsLocked              bool
+	HasStateBonus         bool
+	HasRegionBonus        bool
 	RemovedFromBoard      bool
 	Recruit               Recruit `gorm:"foreignKey:RecruitID"`
 	// RecruitPoints          []RecruitPointAllocation `gorm:"foreignKey:RecruitProfileID"`
