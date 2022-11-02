@@ -15,12 +15,12 @@ type Croot struct {
 	Archetype      string
 	Height         string
 	Stars          int
-	Shooting2      int
-	Shooting3      int
-	Finishing      int
-	Ballwork       int
-	Rebounding     int
-	Defense        int
+	Shooting2      string
+	Shooting3      string
+	Finishing      string
+	Ballwork       string
+	Rebounding     string
+	Defense        string
 	PotentialGrade string
 	Personality    string
 	RecruitingBias string
@@ -64,12 +64,12 @@ func (c *Croot) Map(r Recruit) {
 	c.Position = r.Position
 	c.Height = r.Height
 	c.Stars = r.Stars
-	c.Shooting2 = r.Shooting2
-	c.Shooting3 = r.Shooting3
-	c.Finishing = r.Finishing
-	c.Ballwork = r.Ballwork
-	c.Rebounding = r.Rebounding
-	c.Defense = r.Defense
+	c.Shooting2 = attributeMapper(r.Shooting2)
+	c.Shooting3 = attributeMapper(r.Shooting3)
+	c.Finishing = attributeMapper(r.Finishing)
+	c.Ballwork = attributeMapper(r.Ballwork)
+	c.Rebounding = attributeMapper(r.Rebounding)
+	c.Defense = attributeMapper(r.Defense)
 	c.PotentialGrade = r.PotentialGrade
 	c.Personality = r.Personality
 	c.RecruitingBias = r.RecruitingBias
@@ -141,4 +141,17 @@ func (c ByCrootRank) Len() int      { return len(c) }
 func (c ByCrootRank) Swap(i, j int) { c[i], c[j] = c[j], c[i] }
 func (c ByCrootRank) Less(i, j int) bool {
 	return c[i].TotalRank > c[j].TotalRank || c[i].Stars > c[j].Stars
+}
+
+func attributeMapper(val int) string {
+	if val > 16 {
+		return "A"
+	} else if val > 13 {
+		return "B"
+	} else if val > 10 {
+		return "C"
+	} else if val > 7 {
+		return "D"
+	}
+	return "F"
 }

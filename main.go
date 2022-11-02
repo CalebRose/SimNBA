@@ -81,6 +81,7 @@ func handleRequests() {
 	// myRouter.HandleFunc("/recruit/revokeScholarshipFromRecruit", controller.RevokeScholarshipFromRecruit).Methods("PUT")
 	myRouter.HandleFunc("/recruit/removeRecruit", controller.RemoveRecruitFromBoard).Methods("POST")
 	myRouter.HandleFunc("/recruit/saveRecruitingBoard", controller.SaveRecruitingBoard).Methods("POST")
+	myRouter.HandleFunc("/croots/export/all", controller.ExportCroots).Methods("GET")
 
 	// Request Controls
 	myRouter.HandleFunc("/requests/", controller.GetTeamRequests).Methods("GET")

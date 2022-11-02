@@ -140,3 +140,8 @@ func SaveRecruitingBoard(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Updated Recruiting Profile " + strconv.Itoa(int(recruitingProfile.TeamID)) + " and all associated players")
 	w.WriteHeader(http.StatusOK)
 }
+
+func ExportCroots(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/csv")
+	managers.ExportCroots(w)
+}
