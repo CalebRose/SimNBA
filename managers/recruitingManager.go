@@ -422,8 +422,7 @@ func UpdateRecruitingProfile(updateRecruitingBoardDto structs.UpdateRecruitingBo
 	for i := 0; i < len(recruitingPoints); i++ {
 		updatedRecruit := GetRecruitFromRecruitsList(int(recruitingPoints[i].RecruitID), updatedRecruits)
 
-		if updatedRecruit.CurrentWeeksPoints > 0 &&
-			recruitingPoints[i].CurrentWeeksPoints != updatedRecruit.CurrentWeeksPoints {
+		if recruitingPoints[i].CurrentWeeksPoints != updatedRecruit.CurrentWeeksPoints {
 
 			// Allocate Points to Profile
 			currentPoints += updatedRecruit.CurrentWeeksPoints
@@ -432,10 +431,10 @@ func UpdateRecruitingProfile(updateRecruitingBoardDto structs.UpdateRecruitingBo
 			if profile.SpentPoints <= profile.WeeklyPoints {
 				recruitingPoints[i].AllocatePoints(updatedRecruit.CurrentWeeksPoints)
 				fmt.Println("Saving recruit " + strconv.Itoa(int(recruitingPoints[i].RecruitID)))
-				db.Save(&recruitingPoints[i])
 			} else {
 				panic("Error: Allocated more points for Profile " + strconv.Itoa(int(profile.TeamID)) + " than what is allowed.")
 			}
+			db.Save(&recruitingPoints[i])
 		}
 	}
 
