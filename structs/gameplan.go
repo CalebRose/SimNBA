@@ -7,14 +7,14 @@ type Gameplan struct {
 	gorm.Model
 	TeamID               uint
 	Game                 string
-	Pace                 int
+	Pace                 string
 	ThreePointProportion int
 	JumperProportion     int
 	PaintProportion      int
 }
 
 // UpdatePace - Update the Pace of the Gameplan
-func (g *Gameplan) UpdatePace(pace int) {
+func (g *Gameplan) UpdatePace(pace string) {
 	g.Pace = pace
 }
 
