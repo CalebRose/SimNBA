@@ -37,11 +37,13 @@ func GetTeamByTeamID(teamId string) structs.Team {
 func RemoveUserFromTeam(teamId string) structs.Team {
 	db := dbprovider.GetInstance().GetDB()
 
+	ts := GetTimestamp()
+
 	team := GetTeamByTeamID(teamId)
 
 	team.RemoveUser()
 
-	standings := GetStandingsRecordByTeamID(teamId)
+	standings := GetStandingsRecordByTeamID(teamId, strconv.Itoa(int(ts.SeasonID)))
 
 	standings.UpdateCoach("AI")
 
@@ -100,4 +102,14 @@ func GetTeamRatings(t structs.Team) {
 	if err != nil {
 		log.Fatalln("Could not save team rating for " + t.Abbr)
 	}
+}
+
+func GetCBBTeamByAbbreviation(abbr string) structs.Team {
+	var team structs.Team
+	db := dbprovider.GetInstance().GetDB()
+	err := db.Where("abbr = ?", abbr).Find(&team).Error
+	if err != nil {
+		log.Fatal(err)
+	}
+	return team
 }

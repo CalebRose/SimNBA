@@ -2,6 +2,7 @@ package managers
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
@@ -61,4 +62,44 @@ func GetGameplansByTeam(teamId string) structs.Gameplan {
 	db.Where("team_id = ?", teamId).Order("game asc").Find(&gameplans)
 
 	return gameplans
+}
+
+func SetAIGameplans() bool {
+	db := dbprovider.GetInstance().GetDB()
+
+	teams := GetAllActiveCollegeTeams()
+
+	for _, team := range teams {
+		if !team.IsActive || (len(team.Coach) > 0 || (len(team.Coach) > 0 && team.Coach != "AI")) {
+			continue
+		}
+
+		roster := GetCollegePlayersByTeamId(strconv.Itoa(int(team.ID)))
+		sort.Sort(structs.ByPlayerOverall(roster))
+		for idx, player := range roster {
+			if idx < 5 {
+				player.SetMinutes(25)
+			} else if idx < 7 {
+				player.SetMinutes(20)
+			} else if idx == 7 {
+				player.SetMinutes(8)
+			} else if idx == 8 {
+				player.SetMinutes(7)
+			} else if idx < 13 {
+				player.SetMinutes(5)
+			} else {
+				continue
+			}
+			db.Save(&player)
+		}
+
+		gameplan := GetGameplansByTeam(strconv.Itoa(int(team.ID)))
+		gameplan.Update3PtProportion(20)
+		gameplan.UpdateJumperProportion(40)
+		gameplan.UpdatePaintProportion(40)
+
+		db.Save(&gameplan)
+	}
+
+	return true
 }

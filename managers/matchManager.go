@@ -1,6 +1,8 @@
 package managers
 
 import (
+	"fmt"
+
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
 )
@@ -20,17 +22,20 @@ func GetMatchByMatchId(matchId string) structs.Match {
 
 	var match structs.Match
 
-	db.Where("id = ?", matchId).Find(match)
+	err := db.Where("id = ?", matchId).Find(&match).Error
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 
 	return match
 }
 
-func GetMatchesByWeekId(weekId string) []structs.Match {
+func GetMatchesByWeekId(weekId string, seasonID string) []structs.Match {
 	db := dbprovider.GetInstance().GetDB()
 
 	var teamMatches []structs.Match
 
-	db.Where("week_id = ?", weekId).Find(teamMatches)
+	db.Where("week_id = ? AND season_id = ?", weekId, seasonID).Find(teamMatches)
 
 	return teamMatches
 }

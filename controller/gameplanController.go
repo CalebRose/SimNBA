@@ -41,3 +41,14 @@ func UpdateGameplan(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Updated Gameplans and Players")
 	w.WriteHeader(http.StatusOK)
 }
+
+func SetAIGameplans(w http.ResponseWriter, r *http.Request) {
+	ping := managers.SetAIGameplans()
+	if ping {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode("AI Gameplans Set.")
+	} else {
+		w.WriteHeader(http.StatusExpectationFailed)
+		json.NewEncoder(w).Encode("AI Gameplans failed to set")
+	}
+}

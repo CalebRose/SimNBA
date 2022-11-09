@@ -40,9 +40,9 @@ func GetMatchesByWeekId(w http.ResponseWriter, r *http.Request) {
 		panic("User did not provide both a teamId and a Season Id")
 	}
 
-	teamMatches := managers.GetMatchesByWeekId(weekId)
+	// teamMatches := managers.GetMatchesByWeekId(weekId)
 
-	json.NewEncoder(w).Encode(teamMatches)
+	// json.NewEncoder(w).Encode(teamMatches)
 }
 
 func GetUpcomingMatchesByTeamIdAndSeasonId(w http.ResponseWriter, r *http.Request) {

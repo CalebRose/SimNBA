@@ -32,3 +32,16 @@ func LockRecruiting() {
 		log.Fatal(err)
 	}
 }
+
+func SyncToNextWeek() {
+	db := dbprovider.GetInstance().GetDB()
+
+	ts := GetTimestamp()
+	UpdateStandings(ts)
+	UpdateSeasonStats(ts)
+	ts.SyncToNextWeek()
+	err := db.Save(&ts).Error
+	if err != nil {
+		log.Fatalln("Could not save timestamp and sync week")
+	}
+}

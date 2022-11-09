@@ -11,13 +11,13 @@ type CollegePlayerStats struct {
 	Possessions        int
 	FGM                int
 	FGA                int
-	FGPercent          float32
+	FGPercent          float64
 	ThreePointsMade    int
 	ThreePointAttempts int
-	ThreePointPercent  float32
+	ThreePointPercent  float64
 	FTM                int
 	FTA                int
-	FTPercent          float32
+	FTPercent          float64
 	Points             int
 	TotalRebounds      int
 	OffRebounds        int
@@ -26,4 +26,5 @@ type CollegePlayerStats struct {
 	Steals             int
 	Blocks             int
 	Turnovers          int
+	Fouls              int
 }

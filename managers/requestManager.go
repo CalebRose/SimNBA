@@ -46,7 +46,9 @@ func ApproveTeamRequest(request structs.Request) {
 
 	db.Save(&recruitingProfile)
 
-	standing := GetStandingsRecordByTeamID(strconv.Itoa(int(request.TeamID)))
+	ts := GetTimestamp()
+
+	standing := GetStandingsRecordByTeamID(strconv.Itoa(int(request.TeamID)), strconv.Itoa(int(ts.SeasonID)))
 
 	standing.UpdateCoach(request.Username)
 

@@ -328,7 +328,7 @@ func FillAIRecruitingBoards() {
 			if count == boardCount {
 				break
 			}
-			if croot.Stars == 5 ||
+			if croot.Stars == 5 || croot.IsCustomCroot ||
 				(croot.Stars == 4 && team.AIQuality != "Blue Blood") ||
 				(croot.Stars > 2 && team.AIQuality == "Bottom Feeder") {
 				continue

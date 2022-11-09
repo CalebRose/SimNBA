@@ -24,6 +24,7 @@ type Timestamp struct {
 
 func (t *Timestamp) MoveUpWeekCollege() {
 	t.CollegeWeekID++
+	t.CollegeWeek++
 }
 
 func (t *Timestamp) MoveUpWeekNBA() {
@@ -46,6 +47,10 @@ func (t *Timestamp) ToggleRecruiting() {
 	t.RecruitingSynced = !t.RecruitingSynced
 }
 
+func (t *Timestamp) ToggleAIRecruiting() {
+	t.AIPointAllocationComplete = !t.AIPointAllocationComplete
+}
+
 func (t *Timestamp) ToggleLockRecruiting() {
 	t.IsRecruitingLocked = !t.IsRecruitingLocked
 }
@@ -58,9 +63,10 @@ func (t *Timestamp) SyncToNextWeek() {
 	t.MoveUpWeekCollege()
 	t.MoveUpWeekNBA()
 	// Reset Toggles
-	t.ToggleGamesARan()
-	t.ToggleGamesBRan()
-	t.ToggleGamesCRan()
-	t.ToggleRecruiting()
-	t.ToggleGMActions()
+	// t.ToggleGamesARan()
+	// t.ToggleGamesBRan()
+	// t.ToggleGamesCRan()
+	t.RecruitingSynced = false
+	t.AIPointAllocationComplete = false
+	// t.ToggleGMActions()
 }

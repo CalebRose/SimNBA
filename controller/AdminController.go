@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/managers"
+	"github.com/CalebRose/SimNBA/structs"
 )
 
 func GeneratePlayers(w http.ResponseWriter, r *http.Request) {
@@ -59,4 +60,21 @@ func SyncRecruiting(w http.ResponseWriter, r *http.Request) {
 	managers.SyncRecruiting(ts)
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode("Recruiting Synced for Week " + strconv.Itoa(ts.CollegeWeek))
+}
+
+func ImportMatchResults(w http.ResponseWriter, r *http.Request) {
+	var dto structs.ImportMatchResultsDTO
+	err := json.NewDecoder(r.Body).Decode(&dto)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+
+	managers.ImportMatchResultsToDB(dto)
+	w.WriteHeader(http.StatusOK)
+}
+
+func SyncToNextWeek(w http.ResponseWriter, r *http.Request) {
+	managers.SyncToNextWeek()
+	w.WriteHeader(http.StatusOK)
+
 }

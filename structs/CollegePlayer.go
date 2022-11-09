@@ -144,3 +144,16 @@ func (p *CollegePlayer) FixAge() {
 func (p *CollegePlayer) SetExpectations(val int) {
 	p.PlaytimeExpectations = val
 }
+
+func (p *CollegePlayer) SetMinutes(val int) {
+	p.Minutes = val
+}
+
+// Sorting Funcs
+type ByPlayerOverall []CollegePlayer
+
+func (cp ByPlayerOverall) Len() int      { return len(cp) }
+func (cp ByPlayerOverall) Swap(i, j int) { cp[i], cp[j] = cp[j], cp[i] }
+func (cp ByPlayerOverall) Less(i, j int) bool {
+	return cp[i].Overall > cp[j].Overall
+}
