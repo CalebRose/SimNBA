@@ -188,10 +188,10 @@ func GetAllNBAFreeAgents() []structs.Player {
 	return players
 }
 
-func GetPlayerByPlayerId(playerId string) structs.Player {
+func GetCollegePlayerByPlayerId(playerId string) structs.CollegePlayer {
 	db := dbprovider.GetInstance().GetDB()
 
-	var player structs.Player
+	var player structs.CollegePlayer
 
 	err := db.Where("id = ?", playerId).Find(&player).Error
 	if err != nil {
@@ -201,8 +201,8 @@ func GetPlayerByPlayerId(playerId string) structs.Player {
 	return player
 }
 
-func SetRedshirtStatusForPlayer(playerId string) structs.Player {
-	player := GetPlayerByPlayerId(playerId)
+func SetRedshirtStatusForPlayer(playerId string) structs.CollegePlayer {
+	player := GetCollegePlayerByPlayerId(playerId)
 
 	player.SetRedshirtingStatus()
 
@@ -211,7 +211,7 @@ func SetRedshirtStatusForPlayer(playerId string) structs.Player {
 	return player
 }
 
-func UpdatePlayer(p structs.Player) {
+func UpdatePlayer(p structs.CollegePlayer) {
 	db := dbprovider.GetInstance().GetDB()
 	err := db.Save(&p).Error
 	if err != nil {

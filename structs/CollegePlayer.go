@@ -19,6 +19,10 @@ type CollegePlayer struct {
 	Stats         []CollegePlayerStats `gorm:"foreignKey:CollegePlayerID"`
 }
 
+func (c *CollegePlayer) SetRedshirtingStatus() {
+	c.IsRedshirting = true
+}
+
 func (c *CollegePlayer) UpdateMinutes(newMinutes int) {
 	c.Minutes = newMinutes
 }

@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/CalebRose/SimNBA/managers"
+	"github.com/CalebRose/SimNBA/structs"
 	"github.com/gorilla/mux"
 )
 
@@ -68,19 +70,19 @@ func PlayerById(w http.ResponseWriter, r *http.Request) {
 		panic("User did not provide PlayerID")
 	}
 
-	player := managers.GetPlayerByPlayerId(playerId)
+	player := managers.GetCollegePlayerByPlayerId(playerId)
 	json.NewEncoder(w).Encode(player)
 }
 
-func SetRedshirtStatusByPlayerId(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-
-	playerId := vars["playerId"]
-	if len(playerId) == 0 {
-		panic("User did not provide PlayerID")
+func AssignRedshirtForCollegePlayer(w http.ResponseWriter, r *http.Request) {
+	var redshirtDTO structs.RedshirtDTO
+	err := json.NewDecoder(r.Body).Decode(&redshirtDTO)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
-	var player = managers.SetRedshirtStatusForPlayer(playerId)
+	var player = managers.SetRedshirtStatusForPlayer(strconv.Itoa(redshirtDTO.PlayerID))
 
 	json.NewEncoder(w).Encode(player)
 }

@@ -65,9 +65,10 @@ func handleRequests() {
 	myRouter.HandleFunc("/cbb/match/data/{homeTeamAbbr}/{awayTeamAbbr}", controller.GetMatchData).Methods("GET")
 	// Player Controls
 	myRouter.HandleFunc("/player/AllPlayers", controller.AllCollegePlayers).Methods("GET")
-	myRouter.HandleFunc("/player/add/{firstname}/{lastname}", controller.NewPlayer).Methods("POST")
+	// myRouter.HandleFunc("/player/add/{firstname}/{lastname}", controller.NewPlayer).Methods("POST")
+	myRouter.HandleFunc("/cbb/player/assign/redshirt/", controller.AssignRedshirtForCollegePlayer).Methods("POST")
 	myRouter.HandleFunc("/player/GetPlayer/{playerId}", controller.PlayerById).Methods("GET")
-	myRouter.HandleFunc("/player/SetRedshirting/{playerId}", controller.SetRedshirtStatusByPlayerId).Methods("PUT")
+	// myRouter.HandleFunc("/player/SetRedshirting/{playerId}", controller.SetRedshirtStatusByPlayerId).Methods("PUT")
 	myRouter.HandleFunc("/players", controller.AllPlayers).Methods("GET")
 	myRouter.HandleFunc("/players/{teamId}", controller.AllPlayersByTeamId).Methods("GET")
 	myRouter.HandleFunc("/players/college", controller.AllCollegePlayers).Methods("GET")
