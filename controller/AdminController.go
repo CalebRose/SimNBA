@@ -78,3 +78,15 @@ func SyncToNextWeek(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 }
+
+func ShowAGames(w http.ResponseWriter, r *http.Request) {
+	managers.ShowAGames()
+	w.WriteHeader(http.StatusOK)
+
+}
+
+func ShowBGames(w http.ResponseWriter, r *http.Request) {
+	managers.ShowBGames()
+	w.WriteHeader(http.StatusOK)
+
+}

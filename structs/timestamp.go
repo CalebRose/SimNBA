@@ -66,6 +66,8 @@ func (t *Timestamp) SyncToNextWeek() {
 	// t.ToggleGamesARan()
 	// t.ToggleGamesBRan()
 	// t.ToggleGamesCRan()
+	t.GamesARan = false
+	t.GamesBRan = false
 	t.RecruitingSynced = false
 	t.AIPointAllocationComplete = false
 	// t.ToggleGMActions()

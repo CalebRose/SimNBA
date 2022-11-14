@@ -2,6 +2,7 @@ package managers
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
@@ -12,7 +13,17 @@ func GetMatchesByTeamIdAndSeasonId(teamId string, seasonId string) []structs.Mat
 
 	var teamMatches []structs.Match
 
-	db.Where("team_id = ? AND season_id = ?", teamId, seasonId).Find(teamMatches)
+	db.Where("(home_team_id = ? OR away_team_id = ?) AND season_id = ?", teamId, teamId, seasonId).Find(&teamMatches)
+
+	return teamMatches
+}
+
+func GetMatchesBySeasonID(seasonId string) []structs.Match {
+	db := dbprovider.GetInstance().GetDB()
+
+	var teamMatches []structs.Match
+
+	db.Where("season_id = ?", seasonId).Find(&teamMatches)
 
 	return teamMatches
 }
@@ -28,6 +39,22 @@ func GetMatchByMatchId(matchId string) structs.Match {
 	}
 
 	return match
+}
+
+func GetMatchResultsByMatchID(matchId string) structs.MatchResultsResponse {
+	match := GetMatchByMatchId(matchId)
+
+	homePlayers := GetCollegePlayersWithMatchStatsByTeamId(strconv.Itoa(int(match.HomeTeamID)), matchId)
+	awayPlayers := GetCollegePlayersWithMatchStatsByTeamId(strconv.Itoa(int(match.AwayTeamID)), matchId)
+	homeStats := GetTeamStatsByMatch(strconv.Itoa(int(match.HomeTeamID)), matchId)
+	awayStats := GetTeamStatsByMatch(strconv.Itoa(int(match.AwayTeamID)), matchId)
+
+	return structs.MatchResultsResponse{
+		HomePlayers: homePlayers,
+		AwayPlayers: awayPlayers,
+		HomeStats:   homeStats,
+		AwayStats:   awayStats,
+	}
 }
 
 func GetMatchesByWeekId(weekId string, seasonID string) []structs.Match {

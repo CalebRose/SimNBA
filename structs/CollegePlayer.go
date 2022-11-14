@@ -161,3 +161,19 @@ func (cp ByPlayerOverall) Swap(i, j int) { cp[i], cp[j] = cp[j], cp[i] }
 func (cp ByPlayerOverall) Less(i, j int) bool {
 	return cp[i].Overall > cp[j].Overall
 }
+
+type ByPlayedMinutes []CollegePlayer
+
+func (c ByPlayedMinutes) Len() int      { return len(c) }
+func (c ByPlayedMinutes) Swap(i, j int) { c[i], c[j] = c[j], c[i] }
+func (c ByPlayedMinutes) Less(i, j int) bool {
+	iMinutes := 0
+	jMinutes := 0
+	if len(c[i].Stats) > 0 {
+		iMinutes = c[i].Stats[0].Minutes
+	}
+	if len(c[j].Stats) > 0 {
+		jMinutes = c[j].Stats[0].Minutes
+	}
+	return iMinutes > jMinutes
+}

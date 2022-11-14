@@ -21,6 +21,18 @@ func GetMatchesByTeamIdAndSeasonId(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(teamMatches)
 }
 
+func GetMatchesBySeasonID(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	seasonId := vars["seasonID"]
+	if len(seasonId) == 0 {
+		panic("User did not provide both a teamId and a Season Id")
+	}
+
+	teamMatches := managers.GetMatchesBySeasonID(seasonId)
+
+	json.NewEncoder(w).Encode(teamMatches)
+}
+
 func GetMatchByMatchId(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	matchId := vars["matchId"]
@@ -29,6 +41,18 @@ func GetMatchByMatchId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	match := managers.GetMatchByMatchId(matchId)
+
+	json.NewEncoder(w).Encode(match)
+}
+
+func GetMatchResultByMatchID(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	matchId := vars["matchId"]
+	if len(matchId) == 0 {
+		panic("User did not provide a matchId")
+	}
+
+	match := managers.GetMatchResultsByMatchID(matchId)
 
 	json.NewEncoder(w).Encode(match)
 }

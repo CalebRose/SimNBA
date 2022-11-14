@@ -44,6 +44,7 @@ type TeamStatsDTO struct {
 	LargestLead        int
 	FirstHalfScore     int
 	SecondHalfScore    int
+	OvertimeScore      int
 	Fouls              int
 }
 
@@ -86,7 +87,7 @@ type CollegePlayerStatsDTO struct {
 	Possessions        int
 	FGM                int
 	FGA                int
-	FGAPercent         float64
+	FGPercent          float64
 	ThreePointsMade    int
 	ThreePointAttempts int
 	ThreePointPercent  float64

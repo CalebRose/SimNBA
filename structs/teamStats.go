@@ -30,6 +30,7 @@ type TeamStats struct {
 	LargestLead               int
 	FirstHalfScore            int
 	SecondHalfScore           int
+	OvertimeScore             int
 	Fouls                     int
 	PointsAgainst             int
 	FGMAgainst                int

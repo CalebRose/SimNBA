@@ -52,6 +52,13 @@ func ApproveTeamRequest(request structs.Request) {
 
 	standing.UpdateCoach(request.Username)
 
+	matches := GetMatchesByTeamIdAndSeasonId(strconv.Itoa(int(request.TeamID)), strconv.Itoa(int(ts.SeasonID)))
+
+	for _, match := range matches {
+		match.UpdateCoach(int(request.TeamID), request.Username)
+		db.Save(&match)
+	}
+
 	team.AssignUserToTeam(request.Username)
 
 	db.Save(&team)

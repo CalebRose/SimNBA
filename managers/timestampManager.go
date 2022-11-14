@@ -45,3 +45,25 @@ func SyncToNextWeek() {
 		log.Fatalln("Could not save timestamp and sync week")
 	}
 }
+
+func ShowAGames() {
+	db := dbprovider.GetInstance().GetDB()
+
+	ts := GetTimestamp()
+	ts.ToggleGamesARan()
+	err := db.Save(&ts).Error
+	if err != nil {
+		log.Fatalln("Could not save timestamp and sync week")
+	}
+}
+
+func ShowBGames() {
+	db := dbprovider.GetInstance().GetDB()
+
+	ts := GetTimestamp()
+	ts.ToggleGamesBRan()
+	err := db.Save(&ts).Error
+	if err != nil {
+		log.Fatalln("Could not save timestamp and sync week")
+	}
+}

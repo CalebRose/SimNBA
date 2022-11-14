@@ -70,12 +70,21 @@ func SetAIGameplans() bool {
 	teams := GetAllActiveCollegeTeams()
 
 	for _, team := range teams {
-		if !team.IsActive || (len(team.Coach) > 0 || (len(team.Coach) > 0 && team.Coach != "AI")) {
+		if !team.IsActive {
 			continue
 		}
 
 		roster := GetCollegePlayersByTeamId(strconv.Itoa(int(team.ID)))
 		sort.Sort(structs.ByPlayerOverall(roster))
+		totalMinutes := 0
+		for _, player := range roster {
+			totalMinutes += player.Minutes
+		}
+
+		if totalMinutes == 200 {
+			continue
+		}
+
 		for idx, player := range roster {
 			if idx < 5 {
 				player.SetMinutes(25)

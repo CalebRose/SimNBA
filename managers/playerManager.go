@@ -92,6 +92,20 @@ func GetCollegePlayersByTeamId(teamId string) []structs.CollegePlayer {
 	return players
 }
 
+func GetCollegePlayersWithMatchStatsByTeamId(teamId string, matchID string) []structs.CollegePlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var players []structs.CollegePlayer
+	err := db.Preload("Stats", func(db *gorm.DB) *gorm.DB {
+		return db.Where("match_id = ?", matchID)
+	}).Where("team_id = ?", teamId).Find(&players).Error
+	if err != nil {
+		log.Fatalln("Could not retrieve players from CollegePlayer Table")
+	}
+	sort.Sort(structs.ByPlayedMinutes(players))
+	return players
+}
+
 func GetCollegePlayerByPlayerID(playerID string) structs.CollegePlayer {
 	db := dbprovider.GetInstance().GetDB()
 
