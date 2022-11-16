@@ -71,8 +71,11 @@ func SyncRecruiting(timestamp structs.Timestamp) {
 			var curr float64 = 0
 
 			// Region / State bonus
-
-			curr = float64(recruitProfiles[i].CurrentWeeksPoints) // include the bonus
+			if recruitProfiles[i].HasRegionBonus {
+				curr = float64(recruitProfiles[i].CurrentWeeksPoints) * 1.1
+			} else if recruitProfiles[i].HasStateBonus {
+				curr = float64(recruitProfiles[i].CurrentWeeksPoints) * 1.2
+			}
 			// Bonus Points value when saving
 
 			if recruitProfiles[i].CurrentWeeksPoints < 0 || recruitProfiles[i].CurrentWeeksPoints > 20 {
