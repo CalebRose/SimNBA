@@ -60,6 +60,7 @@ func (r *PlayerRecruitProfile) RevokeScholarship() {
 
 func (r *PlayerRecruitProfile) RemoveRecruitFromBoard() {
 	r.RemovedFromBoard = true
+	r.CurrentWeeksPoints = 0
 }
 
 func (r *PlayerRecruitProfile) ReplaceRecruitToBoard() {

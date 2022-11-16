@@ -407,7 +407,7 @@ func AllocatePointsToAIBoards() {
 	AITeams := GetOnlyAITeamRecruitingProfiles()
 
 	for _, team := range AITeams {
-		if team.SpentPoints == team.WeeklyPoints {
+		if team.SpentPoints >= team.WeeklyPoints {
 			continue
 		}
 
@@ -415,7 +415,7 @@ func AllocatePointsToAIBoards() {
 
 		for _, croot := range teamRecruits {
 			// If a team has no more points to spend, break the loop
-			if team.SpentPoints == team.WeeklyPoints {
+			if team.SpentPoints >= team.WeeklyPoints {
 				break
 			}
 			// If a croot was signed OR has points already placed on the croot, move on to the next croot
@@ -439,7 +439,7 @@ func AllocatePointsToAIBoards() {
 					// If the allocation to be placed keeps the team in the lead, or if the lead is by 11 points or less
 					if float64(croot.PreviouslySpentPoints)+croot.TotalPoints >= float64(leadingTeamVal)*0.66 || leadingTeamVal < 11 {
 						num = croot.PreviouslySpentPoints
-						if num > pointsRemaining {
+						if num >= pointsRemaining {
 							num = pointsRemaining
 						}
 					} else {
