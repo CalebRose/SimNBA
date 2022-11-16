@@ -6,9 +6,11 @@ type CollegeStandings struct {
 	gorm.Model
 	TeamID               uint
 	TeamName             string
+	TeamAbbr             string
 	SeasonID             uint
 	Season               int
 	ConferenceID         uint
+	ConferenceName       string
 	PostSeasonStatus     string
 	IsConferenceChampion bool
 	BaseStandings

@@ -106,6 +106,7 @@ func handleRequests() {
 
 	// StandingsControls
 	myRouter.HandleFunc("/standings/college/conf/{conferenceId}/{seasonId}", controller.GetConferenceStandingsByConferenceID).Methods("GET")
+	myRouter.HandleFunc("/standings/college/season/{seasonId}", controller.GetAllConferenceStandings).Methods("GET")
 
 	// Team Controls
 	myRouter.HandleFunc("/team/{teamId}", controller.GetTeamByTeamID).Methods("GET")

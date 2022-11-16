@@ -20,3 +20,15 @@ func GetConferenceStandingsByConferenceID(w http.ResponseWriter, r *http.Request
 
 	json.NewEncoder(w).Encode(conferenceStandings)
 }
+
+func GetAllConferenceStandings(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	seasonID := vars["seasonId"]
+	if len(seasonID) == 0 {
+		panic("User did not provide seasonID")
+	}
+
+	conferenceStandings := managers.GetAllConferenceStandingsBySeasonID(seasonID)
+
+	json.NewEncoder(w).Encode(conferenceStandings)
+}
