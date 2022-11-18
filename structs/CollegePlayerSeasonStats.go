@@ -47,23 +47,27 @@ type CollegePlayerSeasonStats struct {
 }
 
 func (s *CollegePlayerSeasonStats) AddStatsToSeasonRecord(stat CollegePlayerStats) {
-	s.GamesPlayed++
+	if stat.Minutes > 0 {
+		s.GamesPlayed++
+	}
+	s.CollegePlayerID = stat.CollegePlayerID
+	s.SeasonID = stat.SeasonID
 	s.Minutes += stat.Minutes
 	s.Possessions += stat.Possessions
 	s.FGM += stat.FGM
 	s.FGA += stat.FGA
 	if s.FGA > 0 {
-		s.FGPercent = float64(s.FGM / s.FGA)
+		s.FGPercent = float64(s.FGM) / float64(s.FGA)
 	}
 	s.ThreePointsMade += stat.ThreePointsMade
 	s.ThreePointAttempts += stat.ThreePointAttempts
 	if s.ThreePointAttempts > 0 {
-		s.ThreePointPercent = float64(s.ThreePointsMade / s.ThreePointAttempts)
+		s.ThreePointPercent = float64(s.ThreePointsMade) / float64(s.ThreePointAttempts)
 	}
 	s.FTM += stat.FTM
 	s.FTA += stat.FTA
 	if s.FTA > 0 {
-		s.FTPercent = float64(s.FTM / s.FTA)
+		s.FTPercent = float64(s.FTM) / float64(s.FTA)
 	}
 	s.Points += stat.Points
 	s.TotalRebounds += stat.TotalRebounds

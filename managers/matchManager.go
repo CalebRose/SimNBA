@@ -62,7 +62,7 @@ func GetMatchesByWeekId(weekId string, seasonID string) []structs.Match {
 
 	var teamMatches []structs.Match
 
-	db.Where("week_id = ? AND season_id = ?", weekId, seasonID).Find(teamMatches)
+	db.Where("week_id = ? AND season_id = ?", weekId, seasonID).Find(&teamMatches)
 
 	return teamMatches
 }

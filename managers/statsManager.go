@@ -14,7 +14,7 @@ func GetPlayerStatsByPlayerId(playerId string) []structs.PlayerStats {
 
 	var playerStats []structs.PlayerStats
 
-	db.Where("player_id = ?", playerId).Find(playerStats)
+	db.Where("player_id = ?", playerId).Find(&playerStats)
 
 	return playerStats
 }
@@ -24,7 +24,7 @@ func GetPlayerStatsBySeason(playerId string, seasonId string) []structs.PlayerSt
 
 	var playerStats []structs.PlayerStats
 
-	db.Where("player_id = ? AND season_id = ?", playerId, seasonId).Find(playerStats)
+	db.Where("player_id = ? AND season_id = ?", playerId, seasonId).Find(&playerStats)
 
 	return playerStats
 }
@@ -34,7 +34,7 @@ func GetPlayerStatsInConferenceBySeason(seasonId string, conference string) []st
 
 	var playerStats []structs.PlayerStats
 
-	db.Where("season_id = ? AND conference = ?", seasonId, conference).Find(playerStats)
+	db.Where("season_id = ? AND conference = ?", seasonId, conference).Find(&playerStats)
 
 	return playerStats
 }
@@ -44,7 +44,7 @@ func GetPlayerStatsByMatch(matchId string) []structs.CollegePlayerStats {
 
 	var playerStats []structs.CollegePlayerStats
 
-	db.Where("match_id = ?", matchId).Find(playerStats)
+	db.Where("match_id = ?", matchId).Find(&playerStats)
 
 	return playerStats
 }
@@ -54,7 +54,7 @@ func GetTeamStatsBySeason(teamId string, seasonId string) []structs.PlayerStats 
 
 	var playerStats []structs.PlayerStats
 
-	db.Where("team_id = ? AND season_id = ?", teamId, seasonId).Find(playerStats)
+	db.Where("team_id = ? AND season_id = ?", teamId, seasonId).Find(&playerStats)
 
 	return playerStats
 }
@@ -129,8 +129,10 @@ func UpdateSeasonStats(ts structs.Timestamp) {
 		playerStats := GetPlayerStatsByMatch(strconv.Itoa(int(match.ID)))
 
 		for _, stat := range playerStats {
+			if stat.Minutes <= 0 {
+				continue
+			}
 			playerSeasonStats := GetPlayerSeasonStatsByPlayerID(strconv.Itoa(int(stat.CollegePlayerID)), seasonId)
-
 			playerSeasonStats.AddStatsToSeasonRecord(stat)
 
 			err = db.Save(&playerSeasonStats).Error

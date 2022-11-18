@@ -37,7 +37,7 @@ func SyncToNextWeek() {
 	db := dbprovider.GetInstance().GetDB()
 
 	ts := GetTimestamp()
-	UpdateStandings(ts)
+	// UpdateStandings(ts)
 	UpdateSeasonStats(ts)
 	ts.SyncToNextWeek()
 	err := db.Save(&ts).Error
