@@ -37,8 +37,6 @@ func SyncToNextWeek() {
 	db := dbprovider.GetInstance().GetDB()
 
 	ts := GetTimestamp()
-	// UpdateStandings(ts)
-	UpdateSeasonStats(ts)
 	ts.SyncToNextWeek()
 	err := db.Save(&ts).Error
 	if err != nil {
@@ -50,6 +48,8 @@ func ShowAGames() {
 	db := dbprovider.GetInstance().GetDB()
 
 	ts := GetTimestamp()
+	UpdateStandings(ts, "A")
+	UpdateSeasonStats(ts, "A")
 	ts.ToggleGamesARan()
 	err := db.Save(&ts).Error
 	if err != nil {
@@ -61,6 +61,8 @@ func ShowBGames() {
 	db := dbprovider.GetInstance().GetDB()
 
 	ts := GetTimestamp()
+	UpdateStandings(ts, "B")
+	UpdateSeasonStats(ts, "B")
 	ts.ToggleGamesBRan()
 	err := db.Save(&ts).Error
 	if err != nil {

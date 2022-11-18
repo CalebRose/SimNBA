@@ -40,10 +40,10 @@ func GetStandingsRecordByTeamID(id string, seasonID string) structs.CollegeStand
 	return standing
 }
 
-func UpdateStandings(ts structs.Timestamp) {
+func UpdateStandings(ts structs.Timestamp, MatchType string) {
 	db := dbprovider.GetInstance().GetDB()
 
-	games := GetMatchesByWeekId(strconv.Itoa(int(ts.CollegeWeekID)), strconv.Itoa(int(ts.SeasonID)))
+	games := GetMatchesByWeekId(strconv.Itoa(int(ts.CollegeWeekID)), strconv.Itoa(int(ts.SeasonID)), MatchType)
 
 	for i := 0; i < len(games); i++ {
 		HomeID := games[i].HomeTeamID

@@ -95,13 +95,13 @@ func GetTeamSeasonStatsByTeamID(teamID string, seasonID string) structs.TeamSeas
 	return seasonStats
 }
 
-func UpdateSeasonStats(ts structs.Timestamp) {
+func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 	db := dbprovider.GetInstance().GetDB()
 
 	weekId := strconv.Itoa(int(ts.CollegeWeekID))
 	seasonId := strconv.Itoa(int(ts.SeasonID))
 
-	matches := GetMatchesByWeekId(weekId, seasonId)
+	matches := GetMatchesByWeekId(weekId, seasonId, MatchType)
 
 	for _, match := range matches {
 		homeTeamStats := GetTeamStatsByMatch(strconv.Itoa(int(match.HomeTeamID)), strconv.Itoa(int(match.ID)))

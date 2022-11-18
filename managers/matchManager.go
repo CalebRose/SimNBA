@@ -57,12 +57,12 @@ func GetMatchResultsByMatchID(matchId string) structs.MatchResultsResponse {
 	}
 }
 
-func GetMatchesByWeekId(weekId string, seasonID string) []structs.Match {
+func GetMatchesByWeekId(weekId string, seasonID string, matchType string) []structs.Match {
 	db := dbprovider.GetInstance().GetDB()
 
 	var teamMatches []structs.Match
 
-	db.Where("week_id = ? AND season_id = ?", weekId, seasonID).Find(&teamMatches)
+	db.Where("week_id = ? AND season_id = ? AND match_of_week = ?", weekId, seasonID, matchType).Find(&teamMatches)
 
 	return teamMatches
 }
