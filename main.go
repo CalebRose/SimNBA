@@ -47,7 +47,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/admin/recruit/create", controller.CreateRecruit).Methods("POST")
 	myRouter.HandleFunc("/admin/ai/gameplans/", controller.SetAIGameplans).Methods("GET")
 	myRouter.HandleFunc("/admin/results/import/", controller.ImportMatchResults).Methods("POST")
-	myRouter.HandleFunc("/admin/week/sync/", controller.SyncToNextWeek).Methods("GET")
+	myRouter.HandleFunc("/cbb/news/all/{seasonID}/", controller.GetAllNewsInASeason).Methods("GET")
 	myRouter.HandleFunc("/admin/show/a", controller.ShowAGames).Methods("GET")
 	myRouter.HandleFunc("/admin/show/b", controller.ShowBGames).Methods("GET")
 

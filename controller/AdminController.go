@@ -7,6 +7,7 @@ import (
 
 	"github.com/CalebRose/SimNBA/managers"
 	"github.com/CalebRose/SimNBA/structs"
+	"github.com/gorilla/mux"
 )
 
 func GeneratePlayers(w http.ResponseWriter, r *http.Request) {
@@ -89,4 +90,13 @@ func ShowBGames(w http.ResponseWriter, r *http.Request) {
 	managers.ShowBGames()
 	w.WriteHeader(http.StatusOK)
 
+}
+
+func GetAllNewsInASeason(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	seasonID := vars["seasonID"]
+
+	newsLogs := managers.GetAllNewsLogs(seasonID)
+
+	json.NewEncoder(w).Encode(newsLogs)
 }
