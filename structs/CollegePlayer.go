@@ -16,7 +16,8 @@ type CollegePlayer struct {
 	IsRedshirting bool
 	HasGraduated  bool
 	HasProgressed bool
-	Stats         []CollegePlayerStats `gorm:"foreignKey:CollegePlayerID"`
+	Stats         []CollegePlayerStats     `gorm:"foreignKey:CollegePlayerID"`
+	SeasonStats   CollegePlayerSeasonStats `gorm:"foreignKey:CollegePlayerID"`
 }
 
 func (c *CollegePlayer) SetRedshirtingStatus() {

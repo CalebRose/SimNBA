@@ -144,7 +144,7 @@ func (s *TeamSeasonStats) AddStatsToSeasonRecord(stat TeamStats) {
 	s.BlocksPerGame = float64(s.Blocks) / float64(s.GamesPlayed)
 	s.TurnoversPerGame = float64(s.TotalTurnovers) / float64(s.GamesPlayed)
 	s.FoulsPerGame = float64(s.Fouls) / float64(s.GamesPlayed)
-	s.PAPG = float64(s.Points) / float64(s.GamesPlayed)
+	s.PAPG = float64(s.PointsAgainst) / float64(s.GamesPlayed)
 	s.FGMAPG = float64(s.FGMAgainst) / float64(s.GamesPlayed)
 	s.FGAAPG = float64(s.FGAAgainst) / float64(s.GamesPlayed)
 	s.TPMAPG = float64(s.ThreePointsMadeAgainst) / float64(s.GamesPlayed)

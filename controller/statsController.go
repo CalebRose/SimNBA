@@ -8,6 +8,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// GetStatsPageData - Get Stats Page Data
+func GetStatsPageData(w http.ResponseWriter, r *http.Request) {
+	response := managers.GetStatsPageData()
+
+	json.NewEncoder(w).Encode(response)
+}
+
 // GetPlayerStatsBySeason - Get Stats By PlayerId and SeasonId
 func GetPlayerStats(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)

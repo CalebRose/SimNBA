@@ -23,6 +23,19 @@ func GetAllActiveCollegeTeams() []structs.Team {
 	return teams
 }
 
+func GetAllActiveCollegeTeamsWithSeasonStats() []structs.Team {
+	db := dbprovider.GetInstance().GetDB()
+
+	var teams []structs.Team
+
+	err := db.Preload("TeamSeasonStats").Where("is_active = ? and is_nba = ?", true, false).
+		Find(&teams).Error
+	if err != nil {
+		log.Fatal(err)
+	}
+	return teams
+}
+
 func GetTeamByTeamID(teamId string) structs.Team {
 	var team structs.Team
 	db := dbprovider.GetInstance().GetDB()

@@ -31,4 +31,5 @@ type CollegePlayerResponse struct {
 	TeamAbbr             string
 	IsRedshirting        bool
 	IsRedshirt           bool
+	SeasonStats          CollegePlayerSeasonStats
 }

@@ -128,6 +128,16 @@ func GetAllCollegePlayers() []structs.CollegePlayer {
 	return players
 }
 
+func GetAllCollegePlayersWithSeasonStats() []structs.CollegePlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var players []structs.CollegePlayer
+
+	db.Preload("SeasonStats").Find(&players)
+
+	return players
+}
+
 func GetAllCollegePlayersFromOldTable() []structs.Player {
 	db := dbprovider.GetInstance().GetDB()
 

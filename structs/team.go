@@ -26,7 +26,8 @@ type Team struct {
 	IsNBA             bool
 	IsActive          bool
 	Gameplan          []Gameplan            `gorm:"foreignKey:TeamID"`
-	TeamStats         TeamStats             `gorm:"foreignKey:TeamID"`
+	TeamStats         []TeamStats           `gorm:"foreignKey:TeamID"`
+	TeamSeasonStats   TeamSeasonStats       `gorm:"foreignKey:TeamID"`
 	RecruitingProfile TeamRecruitingProfile `gorm:"foreignKey:TeamID"`
 }
 
