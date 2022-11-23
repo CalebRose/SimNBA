@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/managers"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/gorilla/mux"
@@ -99,4 +100,28 @@ func GetAllNewsInASeason(w http.ResponseWriter, r *http.Request) {
 	newsLogs := managers.GetAllNewsLogs(seasonID)
 
 	json.NewEncoder(w).Encode(newsLogs)
+}
+
+// Collusion Button
+func CollusionButton(w http.ResponseWriter, r *http.Request) {
+	db := dbprovider.GetInstance().GetDB()
+	var collusionButton structs.CollusionDto
+
+	ts := managers.GetTimestamp()
+
+	err := json.NewDecoder(r.Body).Decode(&collusionButton)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	newsLog := structs.NewsLog{
+		WeekID:      uint(collusionButton.WeekID),
+		SeasonID:    uint(collusionButton.SeasonID),
+		Week:        uint(ts.CollegeWeek),
+		MessageType: "Collusion",
+		Message:     collusionButton.Message,
+	}
+
+	db.Create(&newsLog)
 }

@@ -124,6 +124,8 @@ func handleRequests() {
 	// Timestamp Controls
 	myRouter.HandleFunc("/simbba/get/timestamp", controller.GetCurrentTimestamp).Methods("GET")
 
+	myRouter.HandleFunc("/cbb/easter/egg/collude/", controller.CollusionButton).Methods("POST")
+
 	handler := cors.AllowAll().Handler(myRouter)
 
 	log.Fatal(http.ListenAndServe(":8081", handler))

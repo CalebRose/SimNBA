@@ -138,7 +138,7 @@ func SyncRecruiting(timestamp structs.Timestamp) {
 				for i := 0; i < len(recruitProfilesWithScholarship); i++ {
 					// If a team has no available scholarships or if a team has 25 commitments, continue
 					currentProbability += recruitProfilesWithScholarship[i].TotalPoints
-					if currentProbability >= float64(percentageOdds) {
+					if currentProbability <= float64(percentageOdds) {
 						// WINNING TEAM
 						winningTeamID = recruitProfilesWithScholarship[i].ProfileID
 						odds = float64(recruitProfilesWithScholarship[i].TotalPoints) / float64(totalPointsOnRecruit) * 100
