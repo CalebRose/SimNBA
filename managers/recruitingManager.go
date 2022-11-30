@@ -435,6 +435,9 @@ func UpdateRecruitingProfile(updateRecruitingBoardDto structs.UpdateRecruitingBo
 				panic("Error: Allocated more points for Profile " + strconv.Itoa(int(profile.TeamID)) + " than what is allowed.")
 			}
 			db.Save(&recruitingPoints[i])
+		} else {
+			currentPoints += recruitingPoints[i].CurrentWeeksPoints
+			profile.AllocateSpentPoints(currentPoints)
 		}
 	}
 

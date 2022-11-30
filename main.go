@@ -50,6 +50,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/cbb/news/all/{seasonID}/", controller.GetAllNewsInASeason).Methods("GET")
 	myRouter.HandleFunc("/admin/show/a", controller.ShowAGames).Methods("GET")
 	myRouter.HandleFunc("/admin/show/b", controller.ShowBGames).Methods("GET")
+	myRouter.HandleFunc("/admin/week/sync", controller.SyncToNextWeek).Methods("GET")
 
 	// myRouter.HandleFunc("/admin/generateGlobalPlayers", controller.GenerateGlobalPlayerRecords).Methods("GET")
 	// myRouter.HandleFunc("/admin/migrate/data", controller.MigratePlayers).Methods("GET")

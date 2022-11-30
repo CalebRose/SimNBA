@@ -98,6 +98,10 @@ func SyncRecruiting(timestamp structs.Timestamp) {
 		sort.Sort(structs.ByPoints(recruitProfiles))
 
 		for i := 0; i < len(recruitProfiles); i++ {
+			recruitTeamProfile := GetOnlyTeamRecruitingProfileByTeamID(strconv.Itoa(int(recruitProfiles[i].ProfileID)))
+			if recruitTeamProfile.TotalCommitments >= recruitTeamProfile.RecruitClassSize {
+				continue
+			}
 			if eligiblePointThreshold == 0 && recruitProfiles[i].Scholarship {
 				eligiblePointThreshold = float64(recruitProfiles[i].TotalPoints) * 0.66
 			}
@@ -138,7 +142,7 @@ func SyncRecruiting(timestamp structs.Timestamp) {
 				for i := 0; i < len(recruitProfilesWithScholarship); i++ {
 					// If a team has no available scholarships or if a team has 25 commitments, continue
 					currentProbability += recruitProfilesWithScholarship[i].TotalPoints
-					if currentProbability <= float64(percentageOdds) {
+					if float64(percentageOdds) <= currentProbability {
 						// WINNING TEAM
 						winningTeamID = recruitProfilesWithScholarship[i].ProfileID
 						odds = float64(recruitProfilesWithScholarship[i].TotalPoints) / float64(totalPointsOnRecruit) * 100
@@ -149,6 +153,7 @@ func SyncRecruiting(timestamp structs.Timestamp) {
 				if winningTeamID > 0 {
 					recruitTeamProfile := GetOnlyTeamRecruitingProfileByTeamID(strconv.Itoa(int(winningTeamID)))
 					if recruitTeamProfile.TotalCommitments < recruitTeamProfile.RecruitClassSize {
+						recruitTeamProfile.IncreaseCommitCount()
 						teamAbbreviation := recruitTeamProfile.TeamAbbr
 						recruit.AssignCollege(teamAbbreviation)
 
@@ -163,6 +168,9 @@ func SyncRecruiting(timestamp structs.Timestamp) {
 
 						db.Create(&newsLog)
 						fmt.Println("Created new log!")
+
+						db.Save(&recruitTeamProfile)
+						fmt.Println("Saved " + recruitTeamProfile.TeamAbbr + " profile.")
 
 						for i := 0; i < len(recruitProfiles); i++ {
 							if recruitProfiles[i].ProfileID == winningTeamID {
