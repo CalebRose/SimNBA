@@ -171,7 +171,7 @@ func GetRecruitPlayerProfilesByRecruitId(recruitID string) []structs.PlayerRecru
 	db := dbprovider.GetInstance().GetDB()
 
 	var croots []structs.PlayerRecruitProfile
-	err := db.Where("recruit_id = ? AND (total_points > 0 OR current_weeks_points > 0) AND removed_from_board = false", recruitID).Order("total_points desc").Find(&croots).Error
+	err := db.Where("recruit_id = ? AND removed_from_board = false", recruitID).Order("total_points desc").Find(&croots).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return []structs.PlayerRecruitProfile{}

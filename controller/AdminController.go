@@ -53,6 +53,7 @@ func LockRecruiting(w http.ResponseWriter, r *http.Request) {
 }
 
 func SyncAIBoards(w http.ResponseWriter, r *http.Request) {
+	managers.ResetAIBoardsForCompletedTeams()
 	managers.AllocatePointsToAIBoards()
 	json.NewEncoder(w).Encode("AI recruiting boards Synced!")
 }
@@ -117,7 +118,7 @@ func CollusionButton(w http.ResponseWriter, r *http.Request) {
 
 	newsLog := structs.NewsLog{
 		WeekID:      uint(collusionButton.WeekID),
-		SeasonID:    uint(collusionButton.SeasonID),
+		SeasonID:    uint(ts.SeasonID),
 		Week:        uint(ts.CollegeWeek),
 		MessageType: "Collusion",
 		Message:     collusionButton.Message,

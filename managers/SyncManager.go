@@ -323,7 +323,7 @@ func FillAIRecruitingBoards() {
 
 	for _, team := range AITeams {
 		count := 0
-		if !team.IsAI {
+		if !team.IsAI || team.TotalCommitments == team.RecruitClassSize {
 			continue
 		}
 
@@ -418,7 +418,7 @@ func AllocatePointsToAIBoards() {
 	AITeams := GetOnlyAITeamRecruitingProfiles()
 
 	for _, team := range AITeams {
-		if team.SpentPoints >= team.WeeklyPoints {
+		if team.SpentPoints >= team.WeeklyPoints || team.TotalCommitments >= team.RecruitClassSize {
 			continue
 		}
 
@@ -521,5 +521,31 @@ func AllocatePointsToAIBoards() {
 		// Save Team Profile after iterating through recruits
 		fmt.Println("Saved " + team.TeamAbbr + " Recruiting Board!")
 		db.Save(&team)
+	}
+}
+
+func ResetAIBoardsForCompletedTeams() {
+	db := dbprovider.GetInstance().GetDB()
+
+	AITeams := GetOnlyAITeamRecruitingProfiles()
+
+	for _, team := range AITeams {
+		// If a team already has the maximum allowed for their recruiting class, take all Recruit Profiles for that team where the recruit hasn't signed, and reset their total points.
+		// This is so that these unsigned recruits can be recruited for and will allow the AI to put points onto those recruits.
+
+		if team.TotalCommitments >= team.RecruitClassSize {
+			teamRecruits := GetAllRecruitsByProfileID(strconv.Itoa(int(team.ID)))
+
+			for _, croot := range teamRecruits {
+				if croot.IsSigned || croot.IsLocked {
+					continue
+				}
+				resetPoints := croot.TotalPoints * -1
+				croot.AllocateTotalPoints(resetPoints)
+				db.Save(&croot)
+			}
+			team.ResetSpentPoints()
+			db.Save(&team)
+		}
 	}
 }

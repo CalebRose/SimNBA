@@ -170,12 +170,12 @@ func ProgressPlayer(cp structs.CollegePlayer) structs.CollegePlayer {
 	return cp
 }
 
-func PrimaryProgression(progression int, input int, position string, spg int, attribute string, isRedshirting bool) int {
+func PrimaryProgression(progression int, input int, position string, mpg int, attribute string, isRedshirting bool) int {
 	if input == 0 {
 		return 1
 	}
 
-	modifier := GetModifiers(position, spg, attribute)
+	modifier := GetModifiers(position, mpg, attribute)
 
 	var progress float64 = 0
 
