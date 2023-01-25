@@ -1,6 +1,7 @@
 package managers
 
 import (
+	"fmt"
 	"log"
 	"sort"
 
@@ -203,15 +204,6 @@ func GetAllNBAPlayers() []structs.Player {
 	return players
 }
 
-func GetAllNBAFreeAgents() []structs.Player {
-	db := dbprovider.GetInstance().GetDB()
-
-	var players []structs.Player
-	db.Where("is_nba = ? AND team_id is null", true).Find(&players)
-
-	return players
-}
-
 func GetCollegePlayerByPlayerId(playerId string) structs.CollegePlayer {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -255,4 +247,26 @@ func CreateNewPlayer(firstName string, lastName string) {
 		IsRedshirt: false, IsRedshirting: false}
 
 	db.Create(&player)
+}
+
+func GetNBADrafteeByNameAndCollege(firstName string, lastName string, college string) structs.HistoricCollegePlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var player structs.HistoricCollegePlayer
+
+	err := db.Where("first_name = ? and last_name = ? and team_abbr = ?", firstName, lastName, college).Find(&player)
+	if err != nil {
+		fmt.Println("Could not find player in historics DB")
+	}
+
+	return player
+}
+
+func GetAllNBAPlayersByTeamID(teamID string) []structs.NBAPlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var players []structs.NBAPlayer
+
+	db.Where("team_id = ?", teamID).Find(&players)
+	return players
 }

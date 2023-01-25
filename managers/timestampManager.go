@@ -69,3 +69,16 @@ func ShowBGames() {
 		log.Fatalln("Could not save timestamp and sync week")
 	}
 }
+
+func RegressGames(match string) {
+	db := dbprovider.GetInstance().GetDB()
+
+	ts := GetTimestamp()
+	RegressStandings(ts, match)
+	RegressSeasonStats(ts, match)
+	ts.ToggleGamesBRan()
+	err := db.Save(&ts).Error
+	if err != nil {
+		log.Fatalln("Could not save timestamp and sync week")
+	}
+}

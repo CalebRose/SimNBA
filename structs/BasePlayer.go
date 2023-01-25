@@ -13,9 +13,12 @@ type BasePlayer struct {
 	Shooting2            int
 	Shooting3            int
 	Finishing            int
+	FreeThrow            int
 	Ballwork             int
 	Rebounding           int
 	Defense              int
+	InteriorDefense      int
+	PerimeterDefense     int
 	Potential            int
 	PotentialGrade       string
 	ProPotentialGrade    int

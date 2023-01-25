@@ -320,3 +320,51 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 		}
 	}
 }
+
+func RegressSeasonStats(ts structs.Timestamp, MatchType string) {
+	db := dbprovider.GetInstance().GetDB()
+
+	weekId := strconv.Itoa(int(ts.CollegeWeekID))
+	seasonId := strconv.Itoa(int(ts.SeasonID))
+
+	matches := GetMatchesByWeekId(weekId, seasonId, MatchType)
+
+	for _, match := range matches {
+		homeTeamStats := GetTeamStatsByMatch(strconv.Itoa(int(match.HomeTeamID)), strconv.Itoa(int(match.ID)))
+
+		homeSeasonStats := GetTeamSeasonStatsByTeamID(strconv.Itoa(int(match.HomeTeamID)), seasonId)
+
+		homeSeasonStats.RemoveStatsToSeasonRecord(homeTeamStats)
+
+		err := db.Save(&homeSeasonStats).Error
+		if err != nil {
+			log.Fatalln("Could not save season stats for " + strconv.Itoa(int(match.HomeTeamID)))
+		}
+
+		awayTeamStats := GetTeamStatsByMatch(strconv.Itoa(int(match.AwayTeamID)), strconv.Itoa(int(match.ID)))
+
+		awaySeasonStats := GetTeamSeasonStatsByTeamID(strconv.Itoa(int(match.AwayTeamID)), seasonId)
+
+		awaySeasonStats.RemoveStatsToSeasonRecord(awayTeamStats)
+
+		err = db.Save(&awaySeasonStats).Error
+		if err != nil {
+			log.Fatalln("Could not save season stats for " + strconv.Itoa(int(match.AwayTeamID)))
+		}
+
+		playerStats := GetPlayerStatsByMatch(strconv.Itoa(int(match.ID)))
+
+		for _, stat := range playerStats {
+			if stat.Minutes <= 0 {
+				continue
+			}
+			playerSeasonStats := GetPlayerSeasonStatsByPlayerID(strconv.Itoa(int(stat.CollegePlayerID)), seasonId)
+			playerSeasonStats.RemoveStatsToSeasonRecord(stat)
+
+			err = db.Save(&playerSeasonStats).Error
+			if err != nil {
+				log.Fatalln("Could not save season stats for " + strconv.Itoa(int(playerSeasonStats.CollegePlayerID)))
+			}
+		}
+	}
+}

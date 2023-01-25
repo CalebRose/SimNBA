@@ -1,6 +1,11 @@
 package util
 
-import "math/rand"
+import (
+	"fmt"
+	"log"
+	"math/rand"
+	"strconv"
+)
 
 func GenerateIntFromRange(min int, max int) int {
 	return rand.Intn(max-min+1) + min
@@ -279,6 +284,35 @@ func GetWeightedPotentialGrade(rating int) string {
 	return "F"
 }
 
+func GetNBAProgressionRatingFromGrade(grade string) int {
+	if grade == "A+" {
+		return GenerateIntFromRange(88, 100)
+	} else if grade == "A" {
+		return GenerateIntFromRange(81, 88)
+	} else if grade == "A-" {
+		return GenerateIntFromRange(75, 80)
+	} else if grade == "B+" {
+		return GenerateIntFromRange(69, 74)
+	} else if grade == "B" {
+		return GenerateIntFromRange(63, 68)
+	} else if grade == "B-" {
+		return GenerateIntFromRange(57, 62)
+	} else if grade == "C+" {
+		return GenerateIntFromRange(51, 56)
+	} else if grade == "C" {
+		return GenerateIntFromRange(45, 50)
+	} else if grade == "C-" {
+		return GenerateIntFromRange(39, 44)
+	} else if grade == "D+" {
+		return GenerateIntFromRange(33, 38)
+	} else if grade == "D" {
+		return GenerateIntFromRange(27, 32)
+	} else if grade == "D-" {
+		return GenerateIntFromRange(21, 26)
+	}
+	return GenerateIntFromRange(1, 20)
+}
+
 func GetPotentialGrade(rating int) string {
 
 	if rating > 88 {
@@ -360,4 +394,55 @@ func GetPlaytimeExpectations(stars int, year int) int {
 	} else {
 		return GenerateIntFromRange(0, 5)
 	}
+}
+
+func ConvertStringToBool(str string) bool {
+	return str == "TRUE"
+}
+
+func ConvertStringToInt(num string) int {
+	val, err := strconv.Atoi(num)
+	if err != nil {
+		log.Fatalln("Could not convert string to int")
+	}
+
+	return val
+}
+
+func ConvertStringToFloat(num string) float64 {
+	floatNum, error := strconv.ParseFloat(num, 64)
+	if error != nil {
+		fmt.Println("Could not convert string to float 64, resetting as 0.")
+		return 0
+	}
+	return floatNum
+}
+
+func WillPlayerRetire(age int, overall int) bool {
+	if age > 25 && overall < 60 {
+		return true
+	}
+	if age > 29 && overall < 80 {
+		odds := 5
+		if age == 31 {
+			odds = 15
+		} else if age == 32 {
+			odds = 25
+		} else if age == 33 {
+			odds = 35
+		} else if age == 34 {
+			odds = 45
+		} else if age == 35 {
+			odds = 55
+		} else if age == 36 {
+			odds = 65
+		} else if age > 36 {
+			odds = 75
+		}
+		chance := GenerateIntFromRange(1, 100)
+		if chance < odds {
+			return true
+		}
+	}
+	return false
 }

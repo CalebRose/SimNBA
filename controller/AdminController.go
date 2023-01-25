@@ -94,6 +94,16 @@ func ShowBGames(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func RegressBGamesByOneWeek(w http.ResponseWriter, r *http.Request) {
+	managers.RegressGames("B")
+	w.WriteHeader(http.StatusOK)
+}
+
+func RegressAGamesByOneWeek(w http.ResponseWriter, r *http.Request) {
+	managers.RegressGames("A")
+	w.WriteHeader(http.StatusOK)
+}
+
 func GetAllNewsInASeason(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	seasonID := vars["seasonID"]
@@ -125,4 +135,18 @@ func CollusionButton(w http.ResponseWriter, r *http.Request) {
 	}
 
 	db.Create(&newsLog)
+}
+
+func MigrateNBAPlayersToTables(w http.ResponseWriter, r *http.Request) {
+
+	managers.MigrateNBAPlayersToTables()
+
+	json.NewEncoder(w).Encode("Migration Complete")
+}
+
+func ProgressNBAPlayers(w http.ResponseWriter, r *http.Request) {
+
+	managers.ProgressNBAPlayers()
+
+	json.NewEncoder(w).Encode("Migration Complete")
 }

@@ -85,3 +85,30 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 		// }
 	}
 }
+
+func RegressStandings(ts structs.Timestamp, MatchType string) {
+	db := dbprovider.GetInstance().GetDB()
+
+	games := GetMatchesByWeekId(strconv.Itoa(int(ts.CollegeWeekID)), strconv.Itoa(int(ts.SeasonID)), MatchType)
+
+	for i := 0; i < len(games); i++ {
+		HomeID := games[i].HomeTeamID
+		AwayID := games[i].AwayTeamID
+
+		homeStandings := GetStandingsRecordByTeamID(strconv.Itoa(int(HomeID)), strconv.Itoa(int(ts.SeasonID)))
+		awayStandings := GetStandingsRecordByTeamID(strconv.Itoa(int(AwayID)), strconv.Itoa(int(ts.SeasonID)))
+
+		homeStandings.RegressCollegeStandings(games[i])
+		awayStandings.RegressCollegeStandings(games[i])
+
+		err := db.Save(&homeStandings).Error
+		if err != nil {
+			log.Panicln("Could not save standings for team " + strconv.Itoa(int(HomeID)))
+		}
+
+		err = db.Save(&awayStandings).Error
+		if err != nil {
+			log.Panicln("Could not save standings for team " + strconv.Itoa(int(AwayID)))
+		}
+	}
+}

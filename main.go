@@ -50,11 +50,15 @@ func handleRequests() {
 	myRouter.HandleFunc("/cbb/news/all/{seasonID}/", controller.GetAllNewsInASeason).Methods("GET")
 	myRouter.HandleFunc("/admin/show/a", controller.ShowAGames).Methods("GET")
 	myRouter.HandleFunc("/admin/show/b", controller.ShowBGames).Methods("GET")
+	// myRouter.HandleFunc("/admin/regress/a", controller.RegressAGamesByOneWeek).Methods("GET")
+	// myRouter.HandleFunc("/admin/regress/b", controller.RegressBGamesByOneWeek).Methods("GET")
 	myRouter.HandleFunc("/admin/week/sync", controller.SyncToNextWeek).Methods("GET")
 
 	// myRouter.HandleFunc("/admin/generateGlobalPlayers", controller.GenerateGlobalPlayerRecords).Methods("GET")
 	// myRouter.HandleFunc("/admin/migrate/data", controller.MigratePlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/migrate/progress", controller.ProgressPlayers).Methods("GET")
+	// myRouter.HandleFunc("/admin/migrate/nba/players", controller.MigrateNBAPlayersToTables).Methods("GET")
+	myRouter.HandleFunc("/admin/progress/nba/players", controller.ProgressNBAPlayers).Methods("GET")
 
 	// Gameplan controls
 	myRouter.HandleFunc("/gameplans/{teamId}", controller.GetGameplansByTeamId).Methods("GET")
@@ -84,6 +88,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/recruiting/dashboard/{teamID}/", controller.GetRecruitingDataForOverviewPage).Methods("GET")
 	myRouter.HandleFunc("/recruiting/profile/teamboard/{teamID}", controller.GetRecruitingDataForTeamBoardPage).Methods("GET")
 	myRouter.HandleFunc("/recruiting/profile/all/", controller.GetAllRecruitingProfiles).Methods("GET")
+	myRouter.HandleFunc("/recruiting/class/{teamID}/", controller.GetRecruitingClassByTeamID).Methods("GET")
 
 	myRouter.HandleFunc("/recruit/createRecruitingPointsProfile", controller.AddRecruitToBoard).Methods("POST")
 	myRouter.HandleFunc("/recruit/allocatePoints", controller.AllocateRecruitingPointsForRecruit).Methods("PUT")

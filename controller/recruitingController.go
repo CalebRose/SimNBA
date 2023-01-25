@@ -49,6 +49,20 @@ func GetRecruitingDataForTeamBoardPage(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(teamBoardResponse)
 }
 
+// GetRecruitingDataForTeamBoardPage - Returns all data needed for team board
+func GetRecruitingClassByTeamID(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	teamID := vars["teamID"]
+
+	if len(teamID) == 0 {
+		panic("User did not provide teamID")
+	}
+
+	class := managers.GetRecruitingClassByTeamID(teamID)
+
+	json.NewEncoder(w).Encode(class)
+}
+
 // GetAllRecruitingProfiles
 func GetAllRecruitingProfiles(w http.ResponseWriter, r *http.Request) {
 	recruitingProfiles := managers.GetRecruitingProfileForRecruitSync()

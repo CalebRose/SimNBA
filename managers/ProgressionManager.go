@@ -36,7 +36,7 @@ func ProgressionMain() {
 				}
 				continue
 			}
-			player = ProgressPlayer(player)
+			player = ProgressCollegePlayer(player)
 			if player.IsRedshirting {
 				player.SetRedshirtStatus()
 			}
@@ -100,7 +100,102 @@ func ProgressionMain() {
 	}
 }
 
-func ProgressPlayer(cp structs.CollegePlayer) structs.CollegePlayer {
+func ProgressNBAPlayers() {
+	db := dbprovider.GetInstance().GetDB()
+	fmt.Println(time.Now().UnixNano())
+	rand.Seed(time.Now().UnixNano())
+
+	nbaTeams := GetAllActiveNBATeams()
+	// Append empty team object to the end for Free Agents
+	nbaTeams = append(nbaTeams, structs.Team{})
+
+	for _, team := range nbaTeams {
+		teamID := strconv.Itoa(int(team.ID))
+
+		roster := GetAllNBAPlayersByTeamID(teamID)
+
+		for _, player := range roster {
+			playerID := strconv.Itoa(int(player.ID))
+			player = ProgressNBAPlayer(player)
+
+			contract := GetNBAContractsByPlayerID(playerID)
+			// Retiring Logic
+			willPlayerRetire := util.WillPlayerRetire(player.Age, player.Overall)
+			if willPlayerRetire {
+				player.SetRetiringStatus()
+				retiringPlayer := (structs.RetiredPlayer)(player)
+				contract.RetireContract()
+				db.Save(&contract)
+				db.Create(&retiringPlayer)
+				db.Delete(&player)
+			} else {
+				if player.IsMVP || player.IsDPOY || player.IsFirstTeamANBA {
+					player.QualifyForSuperMax()
+				} else if player.Overall > 100 {
+					player.QualifiesForMax()
+				}
+				contract.ProgressContract()
+				if contract.YearsRemaining == 0 && !contract.IsActive {
+					player.BecomeFreeAgent()
+				}
+
+				// db.Save(&contract)
+				db.Save(&player)
+			}
+		}
+
+	}
+}
+
+func ProgressNBAPlayer(np structs.NBAPlayer) structs.NBAPlayer {
+	// stats := cp.Stats
+	// totalMinutes := 0
+
+	// for _, stat := range stats {
+	// 	totalMinutes += stat.Minutes
+	// }
+
+	// var MinutesPerGame int = 0
+	// if len(stats) > 0 {
+	// 	MinutesPerGame = totalMinutes / len(stats)
+	// }
+	age := np.Age + 1
+	ageDifference := np.Age - int(np.PrimeAge)
+	if ageDifference < 0 {
+		ageDifference = 0
+	}
+
+	shooting2 := PlayerProgression(np.Potential, np.Shooting2, ageDifference)
+	shooting3 := PlayerProgression(np.Potential, np.Shooting3, ageDifference)
+	freeThrow := PlayerProgression(np.Potential, np.FreeThrow, ageDifference)
+	ballwork := PlayerProgression(np.Potential, np.Ballwork, ageDifference)
+	rebounding := PlayerProgression(np.Potential, np.Rebounding, ageDifference)
+	interiorDefense := PlayerProgression(np.Potential, np.InteriorDefense, ageDifference)
+	perimeterDefense := PlayerProgression(np.Potential, np.PerimeterDefense, ageDifference)
+	finishing := PlayerProgression(np.Potential, np.Finishing, ageDifference)
+	stamina := ProgressStamina(np.Stamina, ageDifference)
+	overall := int((shooting2+shooting3+freeThrow)/3) + ballwork + finishing + rebounding + int((perimeterDefense+interiorDefense)/2)
+
+	progressions := structs.NBAPlayerProgressions{
+		Shooting2:        shooting2,
+		Shooting3:        shooting3,
+		Ballwork:         ballwork,
+		Finishing:        finishing,
+		Rebounding:       rebounding,
+		InteriorDefense:  interiorDefense,
+		PerimeterDefense: perimeterDefense,
+		FreeThrow:        freeThrow,
+		Overall:          overall,
+		Age:              age,
+		Stamina:          stamina,
+	}
+
+	np.Progress(progressions)
+
+	return np
+}
+
+func ProgressCollegePlayer(cp structs.CollegePlayer) structs.CollegePlayer {
 	stats := cp.Stats
 	totalMinutes := 0
 
@@ -168,6 +263,46 @@ func ProgressPlayer(cp structs.CollegePlayer) structs.CollegePlayer {
 	cp.Progress(progressions)
 
 	return cp
+}
+
+func PlayerProgression(progression int, input int, ageDifference int) int {
+	min := -1
+	max := 1
+	if progression > 74 {
+		max = 4
+	} else if progression > 56 {
+		max = 3
+	} else if progression > 38 {
+		max = 2
+	}
+
+	regressionMax := 0
+	if ageDifference > 0 && ageDifference < 4 {
+		regressionMax = ageDifference
+	} else if ageDifference > 3 {
+		regressionMax = 4
+	}
+	max = max - regressionMax
+	min = min - regressionMax
+
+	return input + util.GenerateIntFromRange(min, max)
+}
+
+func ProgressStamina(stamina int, ageDifference int) int {
+	min := -1
+	max := 2
+	if ageDifference > 0 && ageDifference < 3 {
+		min = -2
+		max = 1
+	} else if ageDifference > 2 && ageDifference < 7 {
+		min = -3
+		max = 0
+	} else if ageDifference > 6 {
+		min = -5
+		max = 0
+	}
+
+	return stamina + util.GenerateIntFromRange(min, max)
 }
 
 func PrimaryProgression(progression int, input int, position string, mpg int, attribute string, isRedshirting bool) int {

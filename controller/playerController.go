@@ -57,7 +57,7 @@ func AllNBAPlayers(w http.ResponseWriter, r *http.Request) {
 }
 
 func AllNBAFreeAgents(w http.ResponseWriter, r *http.Request) {
-	var players = managers.GetAllNBAFreeAgents()
+	players := managers.GetAllNBAPlayersByTeamID("0")
 
 	json.NewEncoder(w).Encode(players)
 }

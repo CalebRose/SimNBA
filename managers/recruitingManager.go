@@ -479,3 +479,22 @@ func CreateRecruit(dto structs.CreateRecruitDTO) {
 	// Save Recruit
 	db.Create(&collegeRecruit)
 }
+
+func GetRecruitingClassByTeamID(id string) []structs.Croot {
+	db := dbprovider.GetInstance().GetDB()
+
+	var class []structs.Recruit
+	var recruitingClass []structs.Croot
+
+	db.Where("is_signed = true AND team_id = ?", id).Find(&class)
+
+	for i := 0; i < len(class); i++ {
+		var croot structs.Croot
+
+		croot.Map(class[i])
+
+		recruitingClass = append(recruitingClass, croot)
+	}
+
+	return recruitingClass
+}

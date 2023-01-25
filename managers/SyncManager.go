@@ -26,6 +26,14 @@ func SyncRecruiting(timestamp structs.Timestamp) {
 
 	recruitProfilePointsMap := make(map[string]int)
 
+	teamRecruitingProfiles := GetTeamRecruitingProfilesForRecruitSync()
+
+	teamMap := make(map[string]*structs.TeamRecruitingProfile)
+
+	for i := 0; i < len(teamRecruitingProfiles); i++ {
+		teamMap[strconv.Itoa(int(teamRecruitingProfiles[i].ID))] = &teamRecruitingProfiles[i]
+	}
+
 	var modifier1 float64 = 75
 	var modifierFor5Star float64 = 125
 	weeksOfRecruiting := 15
@@ -98,7 +106,8 @@ func SyncRecruiting(timestamp structs.Timestamp) {
 		sort.Sort(structs.ByPoints(recruitProfiles))
 
 		for i := 0; i < len(recruitProfiles); i++ {
-			recruitTeamProfile := GetOnlyTeamRecruitingProfileByTeamID(strconv.Itoa(int(recruitProfiles[i].ProfileID)))
+			recruitTeamProfile := teamMap[(strconv.Itoa(int(recruitProfiles[i].ProfileID)))]
+
 			if recruitTeamProfile.TotalCommitments >= recruitTeamProfile.RecruitClassSize {
 				continue
 			}
@@ -151,7 +160,7 @@ func SyncRecruiting(timestamp structs.Timestamp) {
 				}
 
 				if winningTeamID > 0 {
-					recruitTeamProfile := GetOnlyTeamRecruitingProfileByTeamID(strconv.Itoa(int(winningTeamID)))
+					recruitTeamProfile := teamMap[(strconv.Itoa(int(winningTeamID)))]
 					if recruitTeamProfile.TotalCommitments < recruitTeamProfile.RecruitClassSize {
 						recruitTeamProfile.IncreaseCommitCount()
 						teamAbbreviation := recruitTeamProfile.TeamAbbr
@@ -178,7 +187,7 @@ func SyncRecruiting(timestamp structs.Timestamp) {
 							} else {
 								recruitProfiles[i].LockPlayer()
 								if recruitProfiles[i].Scholarship {
-									tp := GetOnlyTeamRecruitingProfileByTeamID(strconv.Itoa(int(recruitProfiles[i].ProfileID)))
+									tp := teamMap[(strconv.Itoa(int(recruitProfiles[i].ProfileID)))]
 
 									tp.ReallocateScholarship()
 									err := db.Save(&tp).Error
@@ -233,11 +242,12 @@ func SyncRecruiting(timestamp structs.Timestamp) {
 	}
 
 	// Update rank system for all teams
-	teamRecruitingProfiles := GetTeamRecruitingProfilesForRecruitSync()
-
-	var totalESPNScore float64 = 0
-	var total247Score float64 = 0
-	var totalRivalsScore float64 = 0
+	var maxESPNScore float64 = 0
+	var minESPNScore float64 = 100000
+	var maxRivalsScore float64 = 0
+	var minRivalsScore float64 = 100000
+	var max247Score float64 = 0
+	var min247Score float64 = 100000
 
 	for i := 0; i < len(teamRecruitingProfiles); i++ {
 
@@ -250,19 +260,33 @@ func SyncRecruiting(timestamp structs.Timestamp) {
 		teamRivalsRank := util.GetRivalsTeamRanking(teamRecruitingProfiles[i], signedRecruits)
 
 		teamRecruitingProfiles[i].Assign247Rank(team247Rank)
-		total247Score += team247Rank
 		teamRecruitingProfiles[i].AssignESPNRank(teamESPNRank)
-		totalESPNScore += teamESPNRank
 		teamRecruitingProfiles[i].AssignRivalsRank(teamRivalsRank)
-		totalRivalsScore += teamRivalsRank
-
+		if teamESPNRank > maxESPNScore {
+			maxESPNScore = teamESPNRank
+		}
+		if teamESPNRank < minESPNScore {
+			minESPNScore = teamESPNRank
+		}
+		if teamRivalsRank > maxRivalsScore {
+			maxRivalsScore = teamRivalsRank
+		}
+		if teamRivalsRank < minRivalsScore {
+			minRivalsScore = teamRivalsRank
+		}
+		if team247Rank > max247Score {
+			max247Score = team247Rank
+		}
+		if team247Rank < min247Score {
+			min247Score = team247Rank
+		}
 		fmt.Println("Setting Recruiting Ranks for " + teamRecruitingProfiles[i].TeamAbbr)
 
 	}
 
-	averageESPNScore := totalESPNScore / 130
-	average247score := total247Score / 130
-	averageRivalScore := totalRivalsScore / 130
+	espnDivisor := (maxESPNScore - minESPNScore)
+	divisor247 := (max247Score - min247Score)
+	rivalsDivisor := (maxRivalsScore - minRivalsScore)
 
 	for _, rp := range teamRecruitingProfiles {
 		if recruitProfilePointsMap[rp.TeamAbbr] > rp.WeeklyPoints {
@@ -270,12 +294,12 @@ func SyncRecruiting(timestamp structs.Timestamp) {
 		}
 
 		var avg float64 = 0
-		if averageESPNScore > 0 && average247score > 0 && averageRivalScore > 0 {
-			distributionESPN := rp.ESPNScore / averageESPNScore
-			distribution247 := rp.Rank247Score / average247score
-			distributionRivals := rp.RivalsScore / averageRivalScore
+		if espnDivisor > 0 && divisor247 > 0 && rivalsDivisor > 0 {
+			distributionESPN := (rp.ESPNScore - minESPNScore) / espnDivisor
+			distribution247 := (rp.Rank247Score - min247Score) / divisor247
+			distributionRivals := (rp.RivalsScore - minRivalsScore) / rivalsDivisor
 
-			avg = (distributionESPN + distribution247 + distributionRivals) / 3
+			avg = (distributionESPN + distribution247 + distributionRivals)
 
 			rp.AssignCompositeRank(avg)
 		}
@@ -318,7 +342,7 @@ func FillAIRecruitingBoards() {
 	boardCount := 40
 
 	if ts.CollegeWeek > 3 {
-		boardCount = 15
+		boardCount = 50
 	}
 
 	for _, team := range AITeams {
@@ -346,7 +370,7 @@ func FillAIRecruitingBoards() {
 			}
 
 			crootProfile := GetPlayerRecruitProfileByPlayerId(strconv.Itoa(int(croot.ID)), strconv.Itoa(int(team.ID)))
-			if crootProfile.RemovedFromBoard || crootProfile.IsLocked {
+			if crootProfile.ID > 0 || crootProfile.RemovedFromBoard || crootProfile.IsLocked {
 				continue
 			}
 
@@ -359,12 +383,16 @@ func FillAIRecruitingBoards() {
 
 			odds := 5
 
+			if ts.CollegeWeek > 5 {
+				odds = 15
+			}
+
 			if croot.Country == "USA" {
 				if regionMap[croot.State] == team.Region {
-					odds = 25
+					odds += 25
 				}
 				if croot.State == team.State {
-					odds = 33
+					odds += 33
 				}
 			}
 
@@ -434,10 +462,13 @@ func AllocatePointsToAIBoards() {
 				continue
 			}
 			pointsRemaining := team.WeeklyPoints - team.SpentPoints
+			if pointsRemaining <= 0 {
+				break
+			}
 			removeCrootFromBoard := false
 			num := 0
 			// If a croot is locked and signed with a different team, remove from the team board and continue
-			if croot.IsLocked && croot.TeamAbbreviation != team.TeamAbbr {
+			if croot.IsLocked && croot.TeamAbbreviation != croot.Recruit.TeamAbbr {
 				removeCrootFromBoard = true
 			}
 
@@ -450,7 +481,7 @@ func AllocatePointsToAIBoards() {
 					// If the allocation to be placed keeps the team in the lead, or if the lead is by 11 points or less
 					if float64(croot.PreviouslySpentPoints)+croot.TotalPoints >= float64(leadingTeamVal)*0.66 || leadingTeamVal < 11 {
 						num = croot.PreviouslySpentPoints
-						if num >= pointsRemaining {
+						if num > pointsRemaining {
 							num = pointsRemaining
 						}
 					} else {
@@ -482,7 +513,7 @@ func AllocatePointsToAIBoards() {
 					}
 
 					num = util.GenerateIntFromRange(min, max)
-					if num >= pointsRemaining {
+					if num > pointsRemaining {
 						num = pointsRemaining
 					}
 					// Check to see if other teams are contending

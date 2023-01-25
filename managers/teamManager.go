@@ -126,3 +126,16 @@ func GetCBBTeamByAbbreviation(abbr string) structs.Team {
 	}
 	return team
 }
+
+func GetAllActiveNBATeams() []structs.Team {
+	db := dbprovider.GetInstance().GetDB()
+
+	var teams []structs.Team
+
+	err := db.Where("is_active = ? and is_nba = ?", true, true).
+		Find(&teams).Error
+	if err != nil {
+		log.Fatal(err)
+	}
+	return teams
+}

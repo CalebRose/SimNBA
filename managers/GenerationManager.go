@@ -339,7 +339,7 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 	collegePlayer.SetID(id)
 
 	for i := 0; i < year && year > 1; i++ {
-		collegePlayer = ProgressPlayer(collegePlayer)
+		collegePlayer = ProgressCollegePlayer(collegePlayer)
 	}
 
 	return collegePlayer

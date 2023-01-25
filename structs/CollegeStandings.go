@@ -46,6 +46,36 @@ func (cs *CollegeStandings) UpdateCollegeStandings(game Match) {
 	}
 }
 
+func (cs *CollegeStandings) RegressCollegeStandings(game Match) {
+	isAway := cs.TeamID == game.AwayTeamID
+	winner := (!isAway && game.HomeTeamWin) || (isAway && game.AwayTeamWin)
+	if winner {
+		cs.TotalWins -= 1
+		if isAway {
+			cs.AwayWins -= 1
+		} else {
+			cs.HomeWins -= 1
+		}
+		if game.IsConference {
+			cs.ConferenceWins -= 1
+		}
+		cs.Streak -= 1
+	} else {
+		cs.TotalLosses -= 1
+		cs.Streak = 0
+		if game.IsConference {
+			cs.ConferenceLosses -= 1
+		}
+	}
+	if isAway {
+		cs.PointsFor -= game.AwayTeamScore
+		cs.PointsAgainst -= game.HomeTeamScore
+	} else {
+		cs.PointsFor -= game.HomeTeamScore
+		cs.PointsAgainst -= game.AwayTeamScore
+	}
+}
+
 func (cs *CollegeStandings) UpdateCoach(coach string) {
 	cs.Coach = coach
 }
