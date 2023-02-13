@@ -11,6 +11,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+}
+
 func GeneratePlayers(w http.ResponseWriter, r *http.Request) {
 	managers.GenerateNewTeams()
 	json.NewEncoder(w).Encode("GENERATION COMPLETE")

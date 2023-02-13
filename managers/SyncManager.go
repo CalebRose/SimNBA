@@ -342,12 +342,12 @@ func FillAIRecruitingBoards() {
 	boardCount := 40
 
 	if ts.CollegeWeek > 3 {
-		boardCount = 50
+		boardCount = 25
 	}
 
 	for _, team := range AITeams {
 		count := 0
-		if !team.IsAI || team.TotalCommitments == team.RecruitClassSize {
+		if !team.IsAI || team.TotalCommitments >= team.RecruitClassSize {
 			continue
 		}
 
@@ -410,7 +410,15 @@ func FillAIRecruitingBoards() {
 
 			chance := util.GenerateIntFromRange(1, 100)
 
-			if chance <= odds {
+			var teamsWithBoards []structs.PlayerRecruitProfile
+
+			for _, team := range crootProfiles {
+				if !team.RemovedFromBoard {
+					teamsWithBoards = append(teamsWithBoards, team)
+				}
+			}
+
+			if chance <= odds && len(teamsWithBoards) < 5 {
 				playerProfile := structs.PlayerRecruitProfile{
 					RecruitID:          croot.ID,
 					ProfileID:          team.ID,

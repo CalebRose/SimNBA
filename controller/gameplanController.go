@@ -12,7 +12,7 @@ import (
 
 // GameplanController - For routes on Gameplans
 func GetGameplansByTeamId(w http.ResponseWriter, r *http.Request) {
-
+	enableCors(&w)
 	vars := mux.Vars(r)
 
 	teamId := vars["teamId"]
@@ -27,7 +27,7 @@ func GetGameplansByTeamId(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateGameplan(w http.ResponseWriter, r *http.Request) {
-
+	enableCors(&w)
 	var updateGameplanDto structs.UpdateGameplanDto
 
 	err := json.NewDecoder(r.Body).Decode(&updateGameplanDto)
@@ -43,6 +43,7 @@ func UpdateGameplan(w http.ResponseWriter, r *http.Request) {
 }
 
 func SetAIGameplans(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	ping := managers.SetAIGameplans()
 	if ping {
 		w.WriteHeader(http.StatusOK)

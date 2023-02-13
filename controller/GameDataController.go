@@ -11,6 +11,7 @@ import (
 )
 
 func GetMatchData(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	vars := mux.Vars(r)
 	homeTeamAbbr := vars["homeTeamAbbr"]
 	awayTeamAbbr := vars["awayTeamAbbr"]

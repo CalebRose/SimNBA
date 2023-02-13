@@ -14,6 +14,7 @@ import (
 
 // GetRecruitingDataForOverviewPage - Returns all data needed for Recruiting Overview
 func GetRecruitingDataForOverviewPage(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	vars := mux.Vars(r)
 	teamID := vars["teamID"]
 
@@ -33,6 +34,7 @@ func GetRecruitingDataForOverviewPage(w http.ResponseWriter, r *http.Request) {
 
 // GetRecruitingDataForTeamBoardPage - Returns all data needed for team board
 func GetRecruitingDataForTeamBoardPage(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	vars := mux.Vars(r)
 	teamID := vars["teamID"]
 
@@ -51,6 +53,7 @@ func GetRecruitingDataForTeamBoardPage(w http.ResponseWriter, r *http.Request) {
 
 // GetRecruitingDataForTeamBoardPage - Returns all data needed for team board
 func GetRecruitingClassByTeamID(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	vars := mux.Vars(r)
 	teamID := vars["teamID"]
 
@@ -65,12 +68,14 @@ func GetRecruitingClassByTeamID(w http.ResponseWriter, r *http.Request) {
 
 // GetAllRecruitingProfiles
 func GetAllRecruitingProfiles(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	recruitingProfiles := managers.GetRecruitingProfileForRecruitSync()
 
 	json.NewEncoder(w).Encode(recruitingProfiles)
 }
 
 func CreateRecruit(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	var dto structs.CreateRecruitDTO
 	err := json.NewDecoder(r.Body).Decode(&dto)
 	if err != nil {
@@ -87,7 +92,7 @@ func CreateRecruit(w http.ResponseWriter, r *http.Request) {
 }
 
 func AddRecruitToBoard(w http.ResponseWriter, r *http.Request) {
-
+	enableCors(&w)
 	var recruitPointsDto structs.CreateRecruitProfileDto
 	err := json.NewDecoder(r.Body).Decode(&recruitPointsDto)
 	if err != nil {
@@ -103,6 +108,7 @@ func AddRecruitToBoard(w http.ResponseWriter, r *http.Request) {
 }
 
 func AllocateRecruitingPointsForRecruit(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	var updateRecruitPointsDto structs.UpdateRecruitPointsDto
 	err := json.NewDecoder(r.Body).Decode(&updateRecruitPointsDto)
 	if err != nil {
@@ -116,6 +122,7 @@ func AllocateRecruitingPointsForRecruit(w http.ResponseWriter, r *http.Request) 
 }
 
 func SendScholarshipToRecruit(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	var updateRecruitPointsDto structs.UpdateRecruitPointsDto
 	err := json.NewDecoder(r.Body).Decode(&updateRecruitPointsDto)
 	if err != nil {
@@ -129,6 +136,7 @@ func SendScholarshipToRecruit(w http.ResponseWriter, r *http.Request) {
 }
 
 func RemoveRecruitFromBoard(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	var updateRecruitPointsDto structs.UpdateRecruitPointsDto
 	err := json.NewDecoder(r.Body).Decode(&updateRecruitPointsDto)
 	if err != nil {
@@ -142,6 +150,7 @@ func RemoveRecruitFromBoard(w http.ResponseWriter, r *http.Request) {
 }
 
 func SaveRecruitingBoard(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	var updateRecruitingBoardDto structs.UpdateRecruitingBoardDto
 	err := json.NewDecoder(r.Body).Decode(&updateRecruitingBoardDto)
 	if err != nil {
@@ -156,6 +165,7 @@ func SaveRecruitingBoard(w http.ResponseWriter, r *http.Request) {
 }
 
 func ExportCroots(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	w.Header().Set("Content-Type", "text/csv")
 	managers.ExportCroots(w)
 }

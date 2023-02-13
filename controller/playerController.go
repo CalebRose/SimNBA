@@ -13,12 +13,14 @@ import (
 )
 
 func AllPlayers(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	var players = managers.GetAllPlayers()
 
 	json.NewEncoder(w).Encode(players)
 }
 
 func AllPlayersByTeamId(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	vars := mux.Vars(r)
 
 	teamId := vars["teamId"]
@@ -33,36 +35,42 @@ func AllPlayersByTeamId(w http.ResponseWriter, r *http.Request) {
 }
 
 func AllCollegePlayers(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	var players = managers.GetAllCollegePlayers()
 
 	json.NewEncoder(w).Encode(players)
 }
 
 func AllCollegeRecruits(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	var recruits = managers.GetAllCollegeRecruits()
 
 	json.NewEncoder(w).Encode(recruits)
 }
 
 func AllJUCOCollegeRecruits(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	var recruits = managers.GetAllJUCOCollegeRecruits()
 
 	json.NewEncoder(w).Encode(recruits)
 }
 
 func AllNBAPlayers(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	var players = managers.GetAllNBAPlayers()
 
 	json.NewEncoder(w).Encode(players)
 }
 
 func AllNBAFreeAgents(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	players := managers.GetAllNBAPlayersByTeamID("0")
 
 	json.NewEncoder(w).Encode(players)
 }
 
 func PlayerById(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	vars := mux.Vars(r)
 
 	playerId := vars["playerId"]
@@ -75,6 +83,7 @@ func PlayerById(w http.ResponseWriter, r *http.Request) {
 }
 
 func AssignRedshirtForCollegePlayer(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	var redshirtDTO structs.RedshirtDTO
 	err := json.NewDecoder(r.Body).Decode(&redshirtDTO)
 	if err != nil {
@@ -89,6 +98,7 @@ func AssignRedshirtForCollegePlayer(w http.ResponseWriter, r *http.Request) {
 
 // Old Method -- Not for official use
 func NewPlayer(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	vars := mux.Vars(r)
 
 	firstName := vars["firstname"]

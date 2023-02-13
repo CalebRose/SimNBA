@@ -10,6 +10,7 @@ import (
 
 // GetStatsPageData - Get Stats Page Data
 func GetStatsPageData(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	response := managers.GetStatsPageData()
 
 	json.NewEncoder(w).Encode(response)
@@ -17,6 +18,7 @@ func GetStatsPageData(w http.ResponseWriter, r *http.Request) {
 
 // GetPlayerStatsBySeason - Get Stats By PlayerId and SeasonId
 func GetPlayerStats(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	vars := mux.Vars(r)
 	playerId := vars["playerId"]
 	if len(playerId) == 0 {
@@ -30,6 +32,7 @@ func GetPlayerStats(w http.ResponseWriter, r *http.Request) {
 
 // GetPlayerStatsBySeason - Get Stats By PlayerId and SeasonId
 func GetPlayerStatsBySeason(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	vars := mux.Vars(r)
 
 	playerId := vars["playerId"]
@@ -45,6 +48,7 @@ func GetPlayerStatsBySeason(w http.ResponseWriter, r *http.Request) {
 
 // GetPlayerStatsBySeason - Get Stats By PlayerId and SeasonId
 func GetPlayerStatsInConferenceBySeason(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	vars := mux.Vars(r)
 
 	seasonId := vars["seasonId"]
@@ -60,6 +64,7 @@ func GetPlayerStatsInConferenceBySeason(w http.ResponseWriter, r *http.Request) 
 
 // GetPlayerStatsByMatch - Get Player Stats by Match played | NOTE: Will revise this func for later
 func GetPlayerStatsByMatch(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	vars := mux.Vars(r)
 	playerId := vars["playerId"]
 	matchId := vars["matchId"]
@@ -74,6 +79,7 @@ func GetPlayerStatsByMatch(w http.ResponseWriter, r *http.Request) {
 
 // GetTeamStatsBySeason - Get Stats By PlayerId and SeasonId
 func GetTeamStatsBySeason(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	vars := mux.Vars(r)
 	teamId := vars["teamId"]
 	seasonId := vars["seasonId"]
@@ -88,6 +94,7 @@ func GetTeamStatsBySeason(w http.ResponseWriter, r *http.Request) {
 
 // GetTeamStatsByMatch - Get Player Stats by Match played
 func GetTeamStatsByMatch(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	vars := mux.Vars(r)
 
 	teamId := vars["teamId"]
