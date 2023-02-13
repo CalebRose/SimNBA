@@ -211,9 +211,11 @@ func ProgressCollegePlayer(cp structs.CollegePlayer) structs.CollegePlayer {
 	shooting2 := 0
 	shooting3 := 0
 	finishing := 0
+	freeThrow := 0
 	ballwork := 0
 	rebounding := 0
-	defense := 0
+	interiorDefense := 0
+	perimeterDefense := 0
 
 	if cp.Position == "G" {
 		// Primary Progressions
@@ -222,8 +224,10 @@ func ProgressCollegePlayer(cp structs.CollegePlayer) structs.CollegePlayer {
 		ballwork = PrimaryProgression(cp.Potential, cp.Ballwork, cp.Position, MinutesPerGame, "Ballwork", cp.IsRedshirting)
 
 		// Secondary
+		freeThrow = SecondaryProgression(cp.Potential, cp.FreeThrow)
 		rebounding = SecondaryProgression(cp.Potential, cp.Rebounding)
-		defense = SecondaryProgression(cp.Potential, cp.Defense)
+		interiorDefense = SecondaryProgression(cp.Potential, cp.InteriorDefense)
+		perimeterDefense = SecondaryProgression(cp.Potential, cp.PerimeterDefense)
 		finishing = SecondaryProgression(cp.Potential, cp.Finishing)
 
 	} else if cp.Position == "F" {
@@ -231,33 +235,38 @@ func ProgressCollegePlayer(cp structs.CollegePlayer) structs.CollegePlayer {
 		shooting2 = PrimaryProgression(cp.Potential, cp.Shooting2, cp.Position, MinutesPerGame, "Shooting2", cp.IsRedshirting)
 		rebounding = PrimaryProgression(cp.Potential, cp.Rebounding, cp.Position, MinutesPerGame, "Rebounding", cp.IsRedshirting)
 		finishing = PrimaryProgression(cp.Potential, cp.Finishing, cp.Position, MinutesPerGame, "Finishing", cp.IsRedshirting)
+		freeThrow = PrimaryProgression(cp.Potential, cp.FreeThrow, cp.Position, MinutesPerGame, "FreeThrow", cp.IsRedshirting)
+		perimeterDefense = PrimaryProgression(cp.Potential, cp.PerimeterDefense, cp.Position, MinutesPerGame, "Perimeter Defense", cp.IsRedshirting)
 		// Secondary
-		defense = SecondaryProgression(cp.Potential, cp.Defense)
+		interiorDefense = SecondaryProgression(cp.Potential, cp.InteriorDefense)
 		shooting3 = SecondaryProgression(cp.Potential, cp.Shooting3)
 		ballwork = SecondaryProgression(cp.Potential, cp.Ballwork)
 
 	} else if cp.Position == "C" {
 		// Primary
 		rebounding = PrimaryProgression(cp.Potential, cp.Rebounding, cp.Position, MinutesPerGame, "Rebounding", cp.IsRedshirting)
-		defense = PrimaryProgression(cp.Potential, cp.Defense, cp.Position, MinutesPerGame, "Defense", cp.IsRedshirting)
+		interiorDefense = PrimaryProgression(cp.Potential, cp.InteriorDefense, cp.Position, MinutesPerGame, "Interior Defense", cp.IsRedshirting)
 		finishing = PrimaryProgression(cp.Potential, cp.Finishing, cp.Position, MinutesPerGame, "Finishing", cp.IsRedshirting)
 
 		// Secondary
 		shooting2 = SecondaryProgression(cp.Potential, cp.Shooting2)
 		shooting3 = SecondaryProgression(cp.Potential, cp.Shooting3)
 		ballwork = SecondaryProgression(cp.Potential, cp.Ballwork)
+		freeThrow = SecondaryProgression(cp.Potential, cp.FreeThrow)
 	}
 
-	overall := int((shooting2+shooting3)/2) + ballwork + finishing + rebounding + defense
+	overall := (int((shooting2 + shooting3 + freeThrow) / 3)) + finishing + ballwork + rebounding + int((interiorDefense+perimeterDefense)/2)
 
 	progressions := structs.CollegePlayerProgressions{
-		Shooting2:  shooting2,
-		Shooting3:  shooting3,
-		Ballwork:   ballwork,
-		Finishing:  finishing,
-		Rebounding: rebounding,
-		Defense:    defense,
-		Overall:    overall,
+		Shooting2:        shooting2,
+		Shooting3:        shooting3,
+		Ballwork:         ballwork,
+		FreeThrow:        freeThrow,
+		Finishing:        finishing,
+		Rebounding:       rebounding,
+		InteriorDefense:  interiorDefense,
+		PerimeterDefense: perimeterDefense,
+		Overall:          overall,
 	}
 
 	cp.Progress(progressions)

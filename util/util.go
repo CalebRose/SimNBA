@@ -15,6 +15,26 @@ func PickFromStringList(list []string) string {
 	return list[rand.Intn(len(list))]
 }
 
+func GeneratePotential() int {
+	num := GenerateIntFromRange(1, 100)
+
+	if num < 10 {
+		return GenerateIntFromRange(1, 20)
+	} else if num < 20 {
+		return GenerateIntFromRange(21, 40)
+	} else if num < 80 {
+		return GenerateIntFromRange(41, 55)
+	} else if num < 85 {
+		return GenerateIntFromRange(56, 65)
+	} else if num < 90 {
+		return GenerateIntFromRange(66, 75)
+	} else if num < 95 {
+		return GenerateIntFromRange(76, 85)
+	} else {
+		return GenerateIntFromRange(86, 99)
+	}
+}
+
 func GetPersonality() string {
 	chance := GenerateIntFromRange(1, 3)
 	if chance < 3 {
@@ -357,16 +377,16 @@ func GetPotentialGrade(rating int) string {
 func GetPlaytimeExpectations(stars int, year int) int {
 	if stars == 5 {
 		if year == 4 {
-			return GenerateIntFromRange(10, 29)
+			return GenerateIntFromRange(15, 29)
 		} else if year == 3 {
 			return GenerateIntFromRange(10, 25)
 		} else if year == 2 {
 			return GenerateIntFromRange(10, 20)
 		}
-		return GenerateIntFromRange(10, 15)
+		return GenerateIntFromRange(10, 20)
 	} else if stars == 4 {
 		if year == 4 {
-			return GenerateIntFromRange(10, 25)
+			return GenerateIntFromRange(15, 25)
 		} else if year == 3 {
 			return GenerateIntFromRange(9, 20)
 		} else if year == 2 {

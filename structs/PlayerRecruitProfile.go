@@ -25,6 +25,7 @@ type PlayerRecruitProfile struct {
 	HasStateBonus         bool
 	HasRegionBonus        bool
 	RemovedFromBoard      bool
+	TeamReachedMax        bool
 	Recruit               Recruit `gorm:"foreignKey:RecruitID"`
 	// RecruitPoints          []RecruitPointAllocation `gorm:"foreignKey:RecruitProfileID"`
 }
@@ -47,6 +48,11 @@ func (r *PlayerRecruitProfile) AllocateTotalPoints(points float64) {
 	r.TotalPoints += points
 	r.PreviouslySpentPoints = r.CurrentWeeksPoints
 	r.CurrentWeeksPoints = 0
+}
+
+func (r *PlayerRecruitProfile) ResetTotalPoints() {
+	r.TotalPoints = 0
+	r.TeamReachedMax = true
 }
 
 func (r *PlayerRecruitProfile) ToggleScholarship(reward bool, revoke bool) {

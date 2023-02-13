@@ -38,8 +38,10 @@ func (cp *CollegePlayer) Progress(attr CollegePlayerProgressions) {
 	cp.Ballwork = attr.Ballwork
 	cp.Shooting2 = attr.Shooting2
 	cp.Shooting3 = attr.Shooting3
+	cp.FreeThrow = attr.FreeThrow
 	cp.Finishing = attr.Finishing
-	cp.Defense = attr.Defense
+	cp.InteriorDefense = attr.InteriorDefense
+	cp.PerimeterDefense = attr.PerimeterDefense
 	cp.Rebounding = attr.Rebounding
 	cp.Overall = attr.Overall
 	cp.HasProgressed = true

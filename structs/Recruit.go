@@ -80,9 +80,11 @@ func (r *Recruit) ProgressUnsignedRecruit(attr CollegePlayerProgressions) {
 	r.Age++
 	r.Shooting2 = attr.Shooting2
 	r.Shooting3 = attr.Shooting3
+	r.FreeThrow = attr.FreeThrow
 	r.Rebounding = attr.Rebounding
 	r.Ballwork = attr.Ballwork
-	r.Defense = attr.Defense
+	r.InteriorDefense = attr.InteriorDefense
+	r.PerimeterDefense = attr.PerimeterDefense
 	r.Finishing = attr.Finishing
 }
 

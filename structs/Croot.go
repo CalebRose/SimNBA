@@ -100,7 +100,7 @@ func (c *Croot) Map(r Recruit) {
 	sort.Sort(ByPoints(sortedProfiles))
 
 	for _, recruitProfile := range sortedProfiles {
-		if !recruitProfile.Scholarship && r.TeamAbbr == "" {
+		if (!recruitProfile.Scholarship && r.TeamAbbr == "") || recruitProfile.TeamReachedMax {
 			continue
 		}
 		if runningThreshold == 0 {
@@ -114,7 +114,7 @@ func (c *Croot) Map(r Recruit) {
 	}
 
 	for i := 0; i < len(sortedProfiles); i++ {
-		if !sortedProfiles[i].Scholarship && r.TeamAbbr == "" {
+		if (!sortedProfiles[i].Scholarship && r.TeamAbbr == "") || sortedProfiles[i].TeamReachedMax {
 			continue
 		}
 		var odds float64 = 0

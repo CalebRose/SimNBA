@@ -579,8 +579,7 @@ func ResetAIBoardsForCompletedTeams() {
 				if croot.IsSigned || croot.IsLocked {
 					continue
 				}
-				resetPoints := croot.TotalPoints * -1
-				croot.AllocateTotalPoints(resetPoints)
+				croot.ResetTotalPoints()
 				db.Save(&croot)
 			}
 			team.ResetSpentPoints()

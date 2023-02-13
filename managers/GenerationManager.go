@@ -273,24 +273,27 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 		state = pickState()
 	}
 	height := getHeight(position)
-	potential := util.GenerateIntFromRange(25, 100)
-	proPotential := util.GenerateIntFromRange(15, 100)
+	potential := util.GeneratePotential()
+	proPotential := util.GeneratePotential()
 	stamina := util.GenerateIntFromRange(25, 38)
-	shooting2 := getAttribute(position, "Shooting2")
-	shooting3 := getAttribute(position, "Shooting3")
-	finishing := getAttribute(position, "Finishing")
-	ballwork := getAttribute(position, "Ballwork")
-	rebounding := getAttribute(position, "Rebounding")
-	defense := getAttribute(position, "Defense")
+	shooting2 := getAttribute(position, "Shooting2", true)
+	shooting3 := getAttribute(position, "Shooting3", true)
+	finishing := getAttribute(position, "Finishing", true)
+	freeThrow := getAttribute(position, "FreeThrow", true)
+	ballwork := getAttribute(position, "Ballwork", true)
+	rebounding := getAttribute(position, "Rebounding", true)
+	interiorDefense := getAttribute(position, "Interior Defense", true)
+	perimeterDefense := getAttribute(position, "Perimeter Defense", true)
 
-	overall := (int((shooting2 + shooting3) / 2)) + finishing + ballwork + rebounding + defense
+	overall := (int((shooting2 + shooting3 + freeThrow) / 3)) + finishing + ballwork + rebounding + int((interiorDefense+perimeterDefense)/2)
 	stars := getStarRating(overall)
-	if stars == 5 {
-		potential -= 25
-		if potential < 0 {
-			potential = 25
-		}
+
+	potential -= util.GenerateIntFromRange(20, 30)
+
+	if potential < 0 {
+		potential = util.GenerateIntFromRange(5, 25)
 	}
+
 	expectations := util.GetPlaytimeExpectations(stars, year)
 	personality := util.GetPersonality()
 	academicBias := util.GetAcademicBias()
@@ -310,10 +313,12 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 		Height:               height,
 		Shooting2:            shooting2,
 		Shooting3:            shooting3,
+		FreeThrow:            freeThrow,
 		Finishing:            finishing,
 		Ballwork:             ballwork,
 		Rebounding:           rebounding,
-		Defense:              defense,
+		InteriorDefense:      interiorDefense,
+		PerimeterDefense:     perimeterDefense,
 		Potential:            potential,
 		ProPotentialGrade:    proPotential,
 		Stamina:              stamina,
@@ -358,18 +363,20 @@ func createRecruit(ethnicity string, position string, year int, firstNameList []
 		state = pickState()
 	}
 	height := getHeight(position)
-	potential := util.GenerateIntFromRange(1, 100)
+	potential := util.GeneratePotential()
 	potentialGrade := util.GetWeightedPotentialGrade(potential)
-	proPotential := util.GenerateIntFromRange(1, 100)
+	proPotential := util.GeneratePotential()
 	stamina := util.GenerateIntFromRange(25, 38)
-	shooting2 := getAttribute(position, "Shooting2")
-	shooting3 := getAttribute(position, "Shooting3")
-	finishing := getAttribute(position, "Finishing")
-	ballwork := getAttribute(position, "Ballwork")
-	rebounding := getAttribute(position, "Rebounding")
-	defense := getAttribute(position, "Defense")
+	shooting2 := getAttribute(position, "Shooting2", false)
+	shooting3 := getAttribute(position, "Shooting3", false)
+	finishing := getAttribute(position, "Finishing", false)
+	freeThrow := getAttribute(position, "FreeThrow", false)
+	ballwork := getAttribute(position, "Ballwork", false)
+	rebounding := getAttribute(position, "Rebounding", false)
+	interiorDefense := getAttribute(position, "Interior Defense", false)
+	perimeterDefense := getAttribute(position, "Perimeter Defense", false)
 
-	overall := (int((shooting2 + shooting3) / 2)) + finishing + ballwork + rebounding + defense
+	overall := (int((shooting2 + shooting3 + freeThrow) / 3)) + finishing + ballwork + rebounding + int((interiorDefense+perimeterDefense)/2)
 	stars := getStarRating(overall)
 	recruitModifier := GetRecruitModifier(stars)
 	expectations := util.GetPlaytimeExpectations(stars, year)
@@ -391,10 +398,12 @@ func createRecruit(ethnicity string, position string, year int, firstNameList []
 		Height:               height,
 		Shooting2:            shooting2,
 		Shooting3:            shooting3,
+		FreeThrow:            freeThrow,
 		Finishing:            finishing,
 		Ballwork:             ballwork,
 		Rebounding:           rebounding,
-		Defense:              defense,
+		InteriorDefense:      interiorDefense,
+		PerimeterDefense:     perimeterDefense,
 		Potential:            potential,
 		PotentialGrade:       potentialGrade,
 		ProPotentialGrade:    proPotential,
@@ -961,7 +970,10 @@ func getHeight(position string) string {
 	return height
 }
 
-func getAttribute(position string, attribute string) int {
+func getAttribute(position string, attribute string, isGeneration bool) int {
+	if isGeneration {
+		return util.GenerateIntFromRange(1, 11)
+	}
 	if position == "G" {
 		if attribute == "Shooting2" {
 			return util.GenerateIntFromRange(7, 17)
@@ -969,11 +981,15 @@ func getAttribute(position string, attribute string) int {
 			return util.GenerateIntFromRange(7, 17)
 		} else if attribute == "Finishing" {
 			return util.GenerateIntFromRange(4, 14)
+		} else if attribute == "FreeThrow" {
+			return util.GenerateIntFromRange(4, 14)
 		} else if attribute == "Ballwork" {
 			return util.GenerateIntFromRange(7, 17)
 		} else if attribute == "Rebounding" {
 			return util.GenerateIntFromRange(1, 11)
-		} else if attribute == "Defense" {
+		} else if attribute == "Interior Defense" {
+			return util.GenerateIntFromRange(1, 11)
+		} else if attribute == "Perimeter Defense" {
 			return util.GenerateIntFromRange(1, 11)
 		} else {
 			return 1
@@ -983,13 +999,17 @@ func getAttribute(position string, attribute string) int {
 			return util.GenerateIntFromRange(4, 14)
 		} else if attribute == "Shooting3" {
 			return util.GenerateIntFromRange(1, 11)
+		} else if attribute == "FreeThrow" {
+			return util.GenerateIntFromRange(4, 14)
 		} else if attribute == "Finishing" {
 			return util.GenerateIntFromRange(6, 16)
 		} else if attribute == "Ballwork" {
 			return util.GenerateIntFromRange(4, 14)
 		} else if attribute == "Rebounding" {
 			return util.GenerateIntFromRange(4, 14)
-		} else if attribute == "Defense" {
+		} else if attribute == "Interior Defense" {
+			return util.GenerateIntFromRange(4, 14)
+		} else if attribute == "Perimeter Defense" {
 			return util.GenerateIntFromRange(4, 14)
 		} else {
 			return 1
@@ -999,13 +1019,17 @@ func getAttribute(position string, attribute string) int {
 			return util.GenerateIntFromRange(1, 11)
 		} else if attribute == "Shooting3" {
 			return util.GenerateIntFromRange(1, 11)
+		} else if attribute == "FreeThrow" {
+			return util.GenerateIntFromRange(1, 11)
 		} else if attribute == "Finishing" {
 			return util.GenerateIntFromRange(6, 16)
 		} else if attribute == "Ballwork" {
 			return util.GenerateIntFromRange(1, 11)
 		} else if attribute == "Rebounding" {
 			return util.GenerateIntFromRange(6, 16)
-		} else if attribute == "Defense" {
+		} else if attribute == "Interior Defense" {
+			return util.GenerateIntFromRange(6, 16)
+		} else if attribute == "Perimeter Defense" {
 			return util.GenerateIntFromRange(6, 16)
 		} else {
 			return 1
