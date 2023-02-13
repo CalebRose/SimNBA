@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func enableCors(w *http.ResponseWriter) {
+func EnableCors(w *http.ResponseWriter) {
 	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }
 

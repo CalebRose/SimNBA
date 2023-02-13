@@ -9,7 +9,7 @@ import (
 )
 
 func GetConferenceStandingsByConferenceID(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	EnableCors(&w)
 	vars := mux.Vars(r)
 	conferenceID := vars["conferenceId"]
 	seasonID := vars["seasonId"]
@@ -23,7 +23,7 @@ func GetConferenceStandingsByConferenceID(w http.ResponseWriter, r *http.Request
 }
 
 func GetAllConferenceStandings(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	EnableCors(&w)
 	vars := mux.Vars(r)
 	seasonID := vars["seasonId"]
 	if len(seasonID) == 0 {

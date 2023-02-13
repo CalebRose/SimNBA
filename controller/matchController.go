@@ -9,7 +9,7 @@ import (
 )
 
 func GetMatchesByTeamIdAndSeasonId(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	EnableCors(&w)
 	vars := mux.Vars(r)
 	teamId := vars["teamId"]
 	seasonId := vars["seasonId"]
@@ -23,7 +23,7 @@ func GetMatchesByTeamIdAndSeasonId(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetMatchesBySeasonID(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	EnableCors(&w)
 	vars := mux.Vars(r)
 	seasonId := vars["seasonID"]
 	if len(seasonId) == 0 {
@@ -48,7 +48,7 @@ func GetMatchByMatchId(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetMatchResultByMatchID(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	EnableCors(&w)
 	vars := mux.Vars(r)
 	matchId := vars["matchId"]
 	if len(matchId) == 0 {
@@ -61,7 +61,7 @@ func GetMatchResultByMatchID(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetMatchesByWeekId(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	EnableCors(&w)
 	vars := mux.Vars(r)
 	weekId := vars["weekId"]
 	if len(weekId) == 0 {
@@ -74,7 +74,7 @@ func GetMatchesByWeekId(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUpcomingMatchesByTeamIdAndSeasonId(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	EnableCors(&w)
 	vars := mux.Vars(r)
 
 	teamId := vars["teamId"]

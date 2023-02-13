@@ -11,7 +11,7 @@ import (
 )
 
 func AllTeams(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	EnableCors(&w)
 	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.Team
@@ -20,7 +20,7 @@ func AllTeams(w http.ResponseWriter, r *http.Request) {
 }
 
 func AllActiveTeams(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	EnableCors(&w)
 	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.Team
@@ -29,7 +29,7 @@ func AllActiveTeams(w http.ResponseWriter, r *http.Request) {
 }
 
 func AllActiveCollegeTeams(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	EnableCors(&w)
 	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.Team
@@ -38,7 +38,7 @@ func AllActiveCollegeTeams(w http.ResponseWriter, r *http.Request) {
 }
 
 func AllActiveNBATeams(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	EnableCors(&w)
 	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.Team
@@ -47,7 +47,7 @@ func AllActiveNBATeams(w http.ResponseWriter, r *http.Request) {
 }
 
 func AllAvailableTeams(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	EnableCors(&w)
 	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.Team
@@ -57,7 +57,7 @@ func AllAvailableTeams(w http.ResponseWriter, r *http.Request) {
 }
 
 func AllCoachedTeams(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	EnableCors(&w)
 	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.Team
@@ -66,7 +66,7 @@ func AllCoachedTeams(w http.ResponseWriter, r *http.Request) {
 }
 
 func AllCollegeTeams(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	EnableCors(&w)
 	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.Team
@@ -75,7 +75,7 @@ func AllCollegeTeams(w http.ResponseWriter, r *http.Request) {
 }
 
 func AllNBATeams(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	EnableCors(&w)
 	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.Team
@@ -84,7 +84,7 @@ func AllNBATeams(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetTeamByTeamID(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	EnableCors(&w)
 	vars := mux.Vars(r)
 	teamId := vars["teamId"]
 	if len(teamId) == 0 {
@@ -95,7 +95,7 @@ func GetTeamByTeamID(w http.ResponseWriter, r *http.Request) {
 }
 
 func RemoveUserFromTeam(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	EnableCors(&w)
 	vars := mux.Vars(r)
 	teamId := vars["teamId"]
 	if len(teamId) == 0 {
@@ -106,7 +106,7 @@ func RemoveUserFromTeam(w http.ResponseWriter, r *http.Request) {
 }
 
 func SyncTeamRatings(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	EnableCors(&w)
 	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.Team

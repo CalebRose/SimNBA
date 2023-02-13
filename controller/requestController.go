@@ -10,14 +10,14 @@ import (
 )
 
 func GetTeamRequests(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	EnableCors(&w)
 	requests := managers.GetAllTeamRequests()
 
 	json.NewEncoder(w).Encode(requests)
 }
 
 func CreateTeamRequest(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	EnableCors(&w)
 	var request structs.Request
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
@@ -31,7 +31,7 @@ func CreateTeamRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func ApproveTeamRequest(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	EnableCors(&w)
 	var request structs.Request
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil || request.ID == 0 {
@@ -45,7 +45,7 @@ func ApproveTeamRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func RejectTeamRequest(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
+	EnableCors(&w)
 	var request structs.Request
 
 	err := json.NewDecoder(r.Body).Decode(&request)
