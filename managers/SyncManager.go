@@ -57,6 +57,8 @@ func SyncRecruiting(timestamp structs.Timestamp) {
 
 		eligibleTeams := 0
 
+		pointsPlaced := false
+
 		var totalPointsOnRecruit float64 = 0
 
 		var eligiblePointThreshold float64 = 0
@@ -67,6 +69,8 @@ func SyncRecruiting(timestamp structs.Timestamp) {
 
 			if recruitProfiles[i].CurrentWeeksPoints == 0 {
 				continue
+			} else {
+				pointsPlaced = true
 			}
 
 			rpa := structs.RecruitPointAllocation{
@@ -103,9 +107,14 @@ func SyncRecruiting(timestamp structs.Timestamp) {
 			}
 		}
 
+		if !pointsPlaced {
+			fmt.Println("Skipping over " + recruit.FirstName + " " + recruit.LastName)
+			continue
+		}
+
 		sort.Sort(structs.ByPoints(recruitProfiles))
 
-		for i := 0; i < len(recruitProfiles); i++ {
+		for i := 0; i < len(recruitProfiles) && pointsPlaced; i++ {
 			recruitTeamProfile := teamMap[(strconv.Itoa(int(recruitProfiles[i].ProfileID)))]
 
 			if recruitTeamProfile.TotalCommitments >= recruitTeamProfile.RecruitClassSize {
@@ -140,7 +149,7 @@ func SyncRecruiting(timestamp structs.Timestamp) {
 		signThreshold = firstMod * secondMod * thirdMod
 		recruit.ApplySigningStatus(totalPointsOnRecruit, signThreshold)
 		// Change logic to withold teams without available scholarships
-		if totalPointsOnRecruit > signThreshold && eligibleTeams > 0 {
+		if totalPointsOnRecruit > signThreshold && eligibleTeams > 0 && pointsPlaced {
 			var winningTeamID uint = 0
 			var odds float64 = 0
 
@@ -203,20 +212,18 @@ func SyncRecruiting(timestamp structs.Timestamp) {
 					} else {
 						recruitProfilesWithScholarship = util.FilterOutRecruitingProfile(recruitProfilesWithScholarship, int(winningTeamID))
 						// If there are no longer any teams contending due to reaching the max class size, break the loop
+						winningTeamID = 0
 						if len(recruitProfilesWithScholarship) == 0 {
 							break
 						}
-						winningTeamID = 0
 
 						totalPointsOnRecruit = 0
 						for _, rp := range recruitProfilesWithScholarship {
 							totalPointsOnRecruit += rp.TotalPoints
 						}
 					}
-
 				}
 			}
-
 			recruit.UpdateTeamID(winningTeamID)
 		}
 
@@ -462,16 +469,14 @@ func AllocatePointsToAIBoards() {
 
 		for _, croot := range teamRecruits {
 			// If a team has no more points to spend, break the loop
-			if team.SpentPoints >= team.WeeklyPoints {
-				break
-			}
-			// If a croot was signed OR has points already placed on the croot, move on to the next croot
-			if croot.IsSigned || croot.CurrentWeeksPoints > 0 {
-				continue
-			}
 			pointsRemaining := team.WeeklyPoints - team.SpentPoints
-			if pointsRemaining <= 0 {
+			if team.SpentPoints >= team.WeeklyPoints || pointsRemaining <= 0 || (pointsRemaining < 1 && pointsRemaining > 0) {
 				break
+			}
+
+			// If a croot was signed OR has points already placed on the croot, move on to the next croot
+			if croot.IsSigned || croot.CurrentWeeksPoints > 0 || croot.ScholarshipRevoked {
+				continue
 			}
 			removeCrootFromBoard := false
 			num := 0
@@ -508,7 +513,7 @@ func AllocatePointsToAIBoards() {
 					}
 
 					min := 1
-					max := 0
+					max := 12
 
 					if team.AIBehavior == "Conservative" {
 						max = 10
@@ -546,6 +551,12 @@ func AllocatePointsToAIBoards() {
 				db.Save(&croot)
 				continue
 			}
+
+			// If final week, do a spread of points
+			if ts.CollegeWeek == 14 {
+				num = 5
+			}
+
 			// Allocate points and save
 			croot.AllocatePoints(num)
 			if !croot.Scholarship && team.ScholarshipsAvailable > 0 {
@@ -566,7 +577,7 @@ func AllocatePointsToAIBoards() {
 func ResetAIBoardsForCompletedTeams() {
 	db := dbprovider.GetInstance().GetDB()
 
-	AITeams := GetOnlyAITeamRecruitingProfiles()
+	AITeams := GetTeamRecruitingProfilesForRecruitSync()
 
 	for _, team := range AITeams {
 		// If a team already has the maximum allowed for their recruiting class, take all Recruit Profiles for that team where the recruit hasn't signed, and reset their total points.
@@ -576,10 +587,13 @@ func ResetAIBoardsForCompletedTeams() {
 			teamRecruits := GetAllRecruitsByProfileID(strconv.Itoa(int(team.ID)))
 
 			for _, croot := range teamRecruits {
-				if croot.IsSigned || croot.IsLocked {
+				if croot.IsSigned || croot.IsLocked || croot.TotalPoints == 0 {
 					continue
 				}
 				croot.ResetTotalPoints()
+				if team.IsAI {
+					croot.ToggleTotalMax()
+				}
 				db.Save(&croot)
 			}
 			team.ResetSpentPoints()

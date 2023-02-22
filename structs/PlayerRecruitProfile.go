@@ -52,6 +52,9 @@ func (r *PlayerRecruitProfile) AllocateTotalPoints(points float64) {
 
 func (r *PlayerRecruitProfile) ResetTotalPoints() {
 	r.TotalPoints = 0
+}
+
+func (r *PlayerRecruitProfile) ToggleTotalMax() {
 	r.TeamReachedMax = true
 }
 
