@@ -110,11 +110,20 @@ func RegressAGamesByOneWeek(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func GetAllNewsInASeason(w http.ResponseWriter, r *http.Request) {
+func GetAllCBBNewsInASeason(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	seasonID := vars["seasonID"]
 
-	newsLogs := managers.GetAllNewsLogs(seasonID)
+	newsLogs := managers.GetAllCBBNewsLogs(seasonID)
+
+	json.NewEncoder(w).Encode(newsLogs)
+}
+
+func GetAllNBANewsInASeason(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	seasonID := vars["seasonID"]
+
+	newsLogs := managers.GetAllCBBNewsLogs(seasonID)
 
 	json.NewEncoder(w).Encode(newsLogs)
 }

@@ -10,4 +10,5 @@ type NewsLog struct {
 	Season      uint
 	MessageType string
 	Message     string
+	League      string
 }

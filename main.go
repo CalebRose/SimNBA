@@ -47,7 +47,6 @@ func handleRequests() {
 	myRouter.HandleFunc("/admin/recruit/create", controller.CreateRecruit).Methods("POST")
 	myRouter.HandleFunc("/admin/ai/gameplans/", controller.SetAIGameplans).Methods("GET")
 	myRouter.HandleFunc("/admin/results/import/", controller.ImportMatchResults).Methods("POST")
-	myRouter.HandleFunc("/cbb/news/all/{seasonID}/", controller.GetAllNewsInASeason).Methods("GET")
 	myRouter.HandleFunc("/admin/show/a", controller.ShowAGames).Methods("GET")
 	myRouter.HandleFunc("/admin/show/b", controller.ShowBGames).Methods("GET")
 	// myRouter.HandleFunc("/admin/regress/a", controller.RegressAGamesByOneWeek).Methods("GET")
@@ -72,6 +71,11 @@ func handleRequests() {
 	myRouter.HandleFunc("/match/season/{seasonID}", controller.GetMatchesBySeasonID).Methods("GET")
 	myRouter.HandleFunc("/match/team/upcoming/{teamId}/season/{seasonId}", controller.GetUpcomingMatchesByTeamIdAndSeasonId).Methods("GET")
 	myRouter.HandleFunc("/cbb/match/data/{homeTeamAbbr}/{awayTeamAbbr}", controller.GetMatchData).Methods("GET")
+
+	// News Controls
+	myRouter.HandleFunc("/cbb/news/all/{seasonID}/", controller.GetAllCBBNewsInASeason).Methods("GET")
+	myRouter.HandleFunc("/nba/news/all/{seasonID}/", controller.GetAllNBANewsInASeason).Methods("GET")
+
 	// Player Controls
 	myRouter.HandleFunc("/player/AllPlayers", controller.AllCollegePlayers).Methods("GET")
 	// myRouter.HandleFunc("/player/add/{firstname}/{lastname}", controller.NewPlayer).Methods("POST")
