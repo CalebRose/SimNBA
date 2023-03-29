@@ -7,10 +7,10 @@ import (
 	"github.com/CalebRose/SimNBA/structs"
 )
 
-func GetNBACapsheetByTeamID(teamID string) structs.NBACapSheet {
+func GetNBACapsheetByTeamID(teamID string) structs.NBACapsheet {
 	db := dbprovider.GetInstance().GetDB()
 
-	var capsheet structs.NBACapSheet
+	var capsheet structs.NBACapsheet
 
 	db.Where("team_id = ?", teamID).Find(&capsheet)
 	return capsheet

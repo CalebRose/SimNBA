@@ -18,6 +18,7 @@ type Team struct {
 	Country           string
 	ConferenceID      uint
 	Conference        string
+	Arena             string
 	FirstSeason       string
 	Coach             string
 	OverallGrade      string

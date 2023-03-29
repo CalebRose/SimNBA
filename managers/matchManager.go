@@ -46,8 +46,8 @@ func GetMatchResultsByMatchID(matchId string) structs.MatchResultsResponse {
 
 	homePlayers := GetCollegePlayersWithMatchStatsByTeamId(strconv.Itoa(int(match.HomeTeamID)), matchId)
 	awayPlayers := GetCollegePlayersWithMatchStatsByTeamId(strconv.Itoa(int(match.AwayTeamID)), matchId)
-	homeStats := GetTeamStatsByMatch(strconv.Itoa(int(match.HomeTeamID)), matchId)
-	awayStats := GetTeamStatsByMatch(strconv.Itoa(int(match.AwayTeamID)), matchId)
+	homeStats := GetCBBTeamStatsByMatch(strconv.Itoa(int(match.HomeTeamID)), matchId)
+	awayStats := GetCBBTeamStatsByMatch(strconv.Itoa(int(match.AwayTeamID)), matchId)
 
 	return structs.MatchResultsResponse{
 		HomePlayers: homePlayers,

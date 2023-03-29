@@ -5,3 +5,9 @@ type StatsPageResponse struct {
 	CollegePlayers     []CollegePlayerResponse
 	CollegeTeams       []CollegeTeamResponse
 }
+
+type NBAStatsPageResponse struct {
+	NBAConferences []NBAConference
+	NBAPlayers     []NBAPlayerResponse
+	NBATeams       []NBATeamResponse
+}

@@ -35,44 +35,48 @@ func GetTeamRosterForRosterPage(teamId string) []structs.CollegePlayerResponse {
 	for _, p := range players {
 		shooting2Grade := util.GetAttributeGrade(p.Shooting2)
 		shooting3Grade := util.GetAttributeGrade(p.Shooting3)
+		freeThrowGrade := util.GetAttributeGrade(p.FreeThrow)
 		finishingGrade := util.GetAttributeGrade(p.Finishing)
 		reboundingGrade := util.GetAttributeGrade(p.Rebounding)
 		ballworkGrade := util.GetAttributeGrade(p.Ballwork)
-		defenseGrade := util.GetAttributeGrade(p.Defense)
+		interiorDefenseGrade := util.GetAttributeGrade(p.InteriorDefense)
+		perimeterDefenseGrade := util.GetAttributeGrade(p.PerimeterDefense)
 		potentialGrade := util.GetPotentialGrade(p.Potential)
 		overallGrade := util.GetPlayerOverallGrade(p.Overall)
 
 		res := structs.CollegePlayerResponse{
-			FirstName:            p.FirstName,
-			LastName:             p.LastName,
-			Position:             p.Position,
-			Age:                  p.Age,
-			Year:                 p.Year,
-			State:                p.State,
-			Country:              p.Country,
-			Stars:                p.Stars,
-			Height:               p.Height,
-			PotentialGrade:       potentialGrade,
-			Shooting2Grade:       shooting2Grade,
-			Shooting3Grade:       shooting3Grade,
-			FinishingGrade:       finishingGrade,
-			BallworkGrade:        ballworkGrade,
-			ReboundingGrade:      reboundingGrade,
-			DefenseGrade:         defenseGrade,
-			OverallGrade:         overallGrade,
-			Stamina:              p.Stamina,
-			PlaytimeExpectations: p.PlaytimeExpectations,
-			Minutes:              p.Minutes,
-			Potential:            p.Potential,
-			Personality:          p.Personality,
-			RecruitingBias:       p.RecruitingBias,
-			WorkEthic:            p.WorkEthic,
-			AcademicBias:         p.AcademicBias,
-			PlayerID:             p.PlayerID,
-			TeamID:               p.TeamID,
-			TeamAbbr:             p.TeamAbbr,
-			IsRedshirting:        p.IsRedshirting,
-			IsRedshirt:           p.IsRedshirt,
+			FirstName:             p.FirstName,
+			LastName:              p.LastName,
+			Position:              p.Position,
+			Age:                   p.Age,
+			Year:                  p.Year,
+			State:                 p.State,
+			Country:               p.Country,
+			Stars:                 p.Stars,
+			Height:                p.Height,
+			PotentialGrade:        potentialGrade,
+			Shooting2Grade:        shooting2Grade,
+			Shooting3Grade:        shooting3Grade,
+			FreeThrowGrade:        freeThrowGrade,
+			FinishingGrade:        finishingGrade,
+			BallworkGrade:         ballworkGrade,
+			ReboundingGrade:       reboundingGrade,
+			InteriorDefenseGrade:  interiorDefenseGrade,
+			PerimeterDefenseGrade: perimeterDefenseGrade,
+			OverallGrade:          overallGrade,
+			Stamina:               p.Stamina,
+			PlaytimeExpectations:  p.PlaytimeExpectations,
+			Minutes:               p.Minutes,
+			Potential:             p.Potential,
+			Personality:           p.Personality,
+			RecruitingBias:        p.RecruitingBias,
+			WorkEthic:             p.WorkEthic,
+			AcademicBias:          p.AcademicBias,
+			PlayerID:              p.PlayerID,
+			TeamID:                p.TeamID,
+			TeamAbbr:              p.TeamAbbr,
+			IsRedshirting:         p.IsRedshirting,
+			IsRedshirt:            p.IsRedshirt,
 		}
 
 		responseList = append(responseList, res)
@@ -139,6 +143,16 @@ func GetAllCollegePlayersWithSeasonStats() []structs.CollegePlayer {
 	return players
 }
 
+func GetAllNBAPlayersWithSeasonStats() []structs.NBAPlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var players []structs.NBAPlayer
+
+	db.Preload("SeasonStats").Find(&players)
+
+	return players
+}
+
 func GetAllCollegePlayersFromOldTable() []structs.Player {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -147,6 +161,15 @@ func GetAllCollegePlayersFromOldTable() []structs.Player {
 	db.Where("is_nba = ?", false).Find(&players)
 
 	return players
+}
+
+func GetAllRecruitRecords() []structs.Recruit {
+	db := dbprovider.GetInstance().GetDB()
+
+	var recruits []structs.Recruit
+	db.Find(&recruits)
+
+	return recruits
 }
 
 func GetAllCollegeRecruits() []structs.Croot {
@@ -194,12 +217,12 @@ func GetPlayersByConference(seasonId string, conference string) []structs.Player
 	return players
 }
 
-func GetAllNBAPlayers() []structs.Player {
+func GetAllNBAPlayers() []structs.NBAPlayer {
 	db := dbprovider.GetInstance().GetDB()
 
-	var players []structs.Player
+	var players []structs.NBAPlayer
 
-	db.Where("is_nba = ?", true).Find(&players)
+	db.Find(&players)
 
 	return players
 }
@@ -268,5 +291,35 @@ func GetAllNBAPlayersByTeamID(teamID string) []structs.NBAPlayer {
 	var players []structs.NBAPlayer
 
 	db.Where("team_id = ?", teamID).Find(&players)
+	return players
+}
+
+func GetNBAPlayersWithContractsByTeamID(TeamID string) []structs.NBAPlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var players []structs.NBAPlayer
+
+	db.Preload("Contract").Where("team_id = ?", TeamID).Find(&players)
+
+	return players
+}
+
+func GetNBAPlayerRecord(playerID string) structs.NBAPlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var player structs.NBAPlayer
+
+	db.Preload("Contract").Where("id = ?", playerID).Find(&player)
+
+	return player
+}
+
+func GetTradableNBAPlayersByTeamID(TeamID string) []structs.NBAPlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var players []structs.NBAPlayer
+
+	db.Preload("Contract").Where("team_id = ? AND is_on_trade_block = ?", TeamID, true).Find(&players)
+
 	return players
 }

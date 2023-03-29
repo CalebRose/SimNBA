@@ -10,6 +10,8 @@ type NBAContract struct {
 	Team           string
 	OriginalTeamID uint
 	OriginalTeam   string
+	PreviousTeamID uint
+	PreviousTeam   string
 	YearsRemaining uint
 	ContractType   string
 	TotalRemaining float64
@@ -18,6 +20,7 @@ type NBAContract struct {
 	Year3Total     float64
 	Year4Total     float64
 	Year5Total     float64
+	ContractValue  float64
 	Year1Opt       bool
 	Year2Opt       bool
 	Year3Opt       bool
@@ -26,7 +29,8 @@ type NBAContract struct {
 	IsDeadCap      bool
 	IsActive       bool
 	IsComplete     bool
-	// Do we want to kep track of the year?
+	IsExtended     bool
+	// Do we want to keep track of the year?
 }
 
 func (n *NBAContract) ProgressContract() {
@@ -72,4 +76,22 @@ func (n *NBAContract) MapFromOffer(o NBAContractOffer) {
 	n.Year5Opt = o.Year5Opt
 	n.Year5Total = o.Year5Total
 	n.IsActive = true
+}
+
+func (c *NBAContract) CalculateContract() {
+	// Calculate Value
+	y1BonusVal := c.Year1Total * 1
+	y2BonusVal := c.Year2Total * 0.9
+	y3BonusVal := c.Year3Total * 0.8
+	y4BonusVal := c.Year4Total * 0.7
+	y5BonusVal := c.Year5Total * 0.6
+	c.ContractValue = y1BonusVal + y2BonusVal + y3BonusVal + y4BonusVal + y5BonusVal
+}
+
+func (c *NBAContract) TradePlayer(TeamID uint, Team string, percentage float64) {
+	c.PreviousTeamID = c.TeamID
+	c.PreviousTeam = c.Team
+	c.TeamID = TeamID
+	c.Team = Team
+	c.Year1Total = c.Year1Total * percentage
 }

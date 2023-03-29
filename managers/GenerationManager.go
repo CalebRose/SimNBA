@@ -166,7 +166,6 @@ func GenerateGlobalPlayerRecords() {
 
 func GenerateCroots() {
 	db := dbprovider.GetInstance().GetDB()
-
 	rand.Seed(time.Now().Unix())
 
 	var lastPlayerRecord structs.GlobalPlayer
@@ -215,7 +214,6 @@ func GenerateCroots() {
 		count++
 		newID++
 	}
-
 	// return playerList
 }
 
@@ -248,6 +246,46 @@ func CleanUpRecruits() {
 		err := db.Save(&croot).Error
 		if err != nil {
 			log.Panicln(err.Error())
+		}
+	}
+}
+
+func GenerateAttributeSpecs() {
+	db := dbprovider.GetInstance().GetDB()
+	rand.Seed(time.Now().Unix())
+
+	collegePlayers := GetAllCollegePlayers()
+	croots := GetAllRecruitRecords()
+	nbaPlayers := GetAllNBAPlayers()
+
+	for _, cp := range collegePlayers {
+		// Specialties
+		specs := util.GetSpecialties(cp.Position)
+		for _, spec := range specs {
+			cp.ToggleSpecialties(spec)
+		}
+		if len(specs) > 0 {
+			db.Save(&cp)
+		}
+	}
+
+	for _, r := range croots {
+		specs := util.GetSpecialties(r.Position)
+		for _, spec := range specs {
+			r.ToggleSpecialties(spec)
+		}
+		if len(specs) > 0 {
+			db.Save(&r)
+		}
+	}
+
+	for _, n := range nbaPlayers {
+		specs := util.GetSpecialties(n.Position)
+		for _, spec := range specs {
+			n.ToggleSpecialties(spec)
+		}
+		if len(specs) > 0 {
+			db.Save(&n)
 		}
 	}
 }
@@ -343,6 +381,12 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 	}
 	collegePlayer.SetID(id)
 
+	// Specialties
+	specs := util.GetSpecialties(collegePlayer.Position)
+	for _, spec := range specs {
+		collegePlayer.ToggleSpecialties(spec)
+	}
+
 	for i := 0; i < year && year > 1; i++ {
 		collegePlayer = ProgressCollegePlayer(collegePlayer)
 	}
@@ -427,6 +471,13 @@ func createRecruit(ethnicity string, position string, year int, firstNameList []
 		IsSigned:        false,
 		IsTransfer:      false,
 	}
+
+	// Specialties
+	specs := util.GetSpecialties(croot.Position)
+	for _, spec := range specs {
+		croot.ToggleSpecialties(spec)
+	}
+
 	croot.SetID(id)
 
 	return croot

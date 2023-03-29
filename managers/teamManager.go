@@ -36,8 +36,32 @@ func GetAllActiveCollegeTeamsWithSeasonStats() []structs.Team {
 	return teams
 }
 
+func GetAllActiveNBATeamsWithSeasonStats() []structs.NBATeam {
+	db := dbprovider.GetInstance().GetDB()
+
+	var teams []structs.NBATeam
+
+	err := db.Preload("TeamSeasonStats").Where("is_active = ?", true).
+		Find(&teams).Error
+	if err != nil {
+		log.Fatal(err)
+	}
+	return teams
+}
+
 func GetTeamByTeamID(teamId string) structs.Team {
 	var team structs.Team
+	db := dbprovider.GetInstance().GetDB()
+	// Preload("RecruitingProfile").
+	err := db.Where("id = ?", teamId).Find(&team).Error
+	if err != nil {
+		log.Fatal(err)
+	}
+	return team
+}
+
+func GetNBATeamByTeamID(teamId string) structs.NBATeam {
+	var team structs.NBATeam
 	db := dbprovider.GetInstance().GetDB()
 	// Preload("RecruitingProfile").
 	err := db.Where("id = ?", teamId).Find(&team).Error
@@ -117,6 +141,40 @@ func GetTeamRatings(t structs.Team) {
 	}
 }
 
+func GetNBATeamRatings(t structs.NBATeam) {
+	db := dbprovider.GetInstance().GetDB()
+	teamIDINT := int(t.ID)
+
+	players := GetNBAPlayersWithContractsByTeamID(strconv.Itoa(teamIDINT))
+
+	offenseRating := 0
+	defenseRating := 0
+	overallRating := 0
+
+	offenseSum := 0
+	defenseSum := 0
+
+	for _, player := range players {
+		offenseSum += player.Shooting2 + player.Shooting3 + player.Finishing + player.FreeThrow
+		defenseSum += player.Ballwork + player.Rebounding + player.InteriorDefense + player.PerimeterDefense
+	}
+
+	offenseRating = offenseSum / len(players)
+	defenseRating = defenseSum / len(players)
+	overallRating = (offenseRating + defenseRating) / 2
+
+	offLetterGrade := util.GetOffenseGrade(offenseRating)
+	defLetterGrade := util.GetDefenseGrade(defenseRating)
+	ovrLetterGrade := util.GetOverallGrade(overallRating)
+
+	t.AssignRatings(offLetterGrade, defLetterGrade, ovrLetterGrade)
+
+	err := db.Save(&t).Error
+	if err != nil {
+		log.Fatalln("Could not save team rating for " + t.Abbr)
+	}
+}
+
 func GetCBBTeamByAbbreviation(abbr string) structs.Team {
 	var team structs.Team
 	db := dbprovider.GetInstance().GetDB()
@@ -127,15 +185,25 @@ func GetCBBTeamByAbbreviation(abbr string) structs.Team {
 	return team
 }
 
-func GetAllActiveNBATeams() []structs.Team {
+func GetAllActiveNBATeams() []structs.NBATeam {
 	db := dbprovider.GetInstance().GetDB()
 
-	var teams []structs.Team
+	var teams []structs.NBATeam
 
-	err := db.Where("is_active = ? and is_nba = ?", true, true).
-		Find(&teams).Error
+	err := db.Find(&teams).Error
 	if err != nil {
 		log.Fatal(err)
 	}
 	return teams
+}
+
+// GetTeamByTeamID - straightforward
+func GetNBATeamWithCapsheetByTeamID(teamId string) structs.NBATeam {
+	var team structs.NBATeam
+	db := dbprovider.GetInstance().GetDB()
+	err := db.Preload("Capsheet").Where("id = ?", teamId).Find(&team).Error
+	if err != nil {
+		log.Fatal(err)
+	}
+	return team
 }

@@ -7,6 +7,7 @@ import (
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
+	"github.com/CalebRose/SimNBA/util"
 )
 
 func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
@@ -241,4 +242,80 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 		}
 	}
 	fmt.Println("Finished Import for all games")
+}
+
+func ImportNBATeamsAndArenas() {
+	db := dbprovider.GetInstance().GetDB()
+	path := "C:\\Users\\ctros\\go\\src\\github.com\\CalebRose\\SimNBA\\data\\NBATeams.csv"
+	arenapath := "C:\\Users\\ctros\\go\\src\\github.com\\CalebRose\\SimNBA\\data\\Arenas.csv"
+	nbaTeamsCSV := util.ReadCSV(path)
+
+	for idx, row := range nbaTeamsCSV {
+		if idx < 2 {
+			continue
+		}
+
+		id := util.ConvertStringToInt(row[0])
+		team := row[1]
+		nickname := row[2]
+		abbr := row[3]
+		city := row[4]
+		state := row[5]
+		country := row[6]
+		conferenceID := util.ConvertStringToInt(row[7])
+		conference := row[8]
+		divisionID := util.ConvertStringToInt(row[9])
+		division := row[10]
+		arenaID := util.ConvertStringToInt(row[11])
+		arena := row[12]
+
+		nbaTeam := structs.NBATeam{
+			Team:         team,
+			Nickname:     nickname,
+			Abbr:         abbr,
+			City:         city,
+			State:        state,
+			Country:      country,
+			ConferenceID: uint(conferenceID),
+			Conference:   conference,
+			DivisionID:   uint(divisionID),
+			Division:     division,
+			ArenaID:      uint(arenaID),
+			Arena:        arena,
+			IsActive:     true,
+		}
+
+		nbaTeam.AssignID(uint(id))
+
+		db.Create(&nbaTeam)
+	}
+
+	arenasCSV := util.ReadCSV(arenapath)
+
+	for idx, row := range arenasCSV {
+		if idx < 1 {
+			continue
+		}
+
+		id := util.ConvertStringToInt(row[0])
+		name := row[1]
+		city := row[2]
+		state := row[3]
+		country := row[4]
+		capacity := util.ConvertStringToInt(row[5])
+		hometeam := row[6]
+
+		arena := structs.Arena{
+			ArenaName: name,
+			City:      city,
+			State:     state,
+			Country:   country,
+			Capacity:  uint(capacity),
+			HomeTeam:  hometeam,
+		}
+
+		arena.AssignID(uint(id))
+
+		db.Create(&arena)
+	}
 }

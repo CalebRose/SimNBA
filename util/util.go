@@ -1,11 +1,29 @@
 package util
 
 import (
+	"encoding/csv"
 	"fmt"
 	"log"
 	"math/rand"
+	"os"
 	"strconv"
 )
+
+func ReadCSV(path string) [][]string {
+	f, err := os.Open(path)
+	if err != nil {
+		log.Fatal("Unable to read input file "+path, err)
+	}
+	defer f.Close()
+
+	csvReader := csv.NewReader(f)
+	rows, err := csvReader.ReadAll()
+	if err != nil {
+		log.Fatal("Unable to parse file as CSV for "+path, err)
+	}
+
+	return rows
+}
 
 func GenerateIntFromRange(min int, max int) int {
 	return rand.Intn(max-min+1) + min
@@ -155,6 +173,91 @@ func GetWorkEthic() string {
 		"Streams too much",
 		"Trolls on Discord"}
 	return PickFromStringList(list)
+}
+
+func GetSpecialties(pos string) []string {
+	chance := GenerateIntFromRange(0, 9)
+	if chance < 2 {
+		return []string{}
+	}
+
+	list := []string{}
+	mod := 0
+	diceRoll := 0
+
+	// S2
+	diceRoll = GenerateIntFromRange(1, 20)
+	if pos == "G" || pos == "F" {
+		mod = 3
+	}
+	if diceRoll+mod > 15 {
+		list = append(list, "SpecShooting2")
+	}
+
+	// S3
+	diceRoll = GenerateIntFromRange(1, 20)
+	if pos == "G" {
+		mod = 3
+	}
+	if diceRoll+mod > 15 {
+		list = append(list, "SpecShooting3")
+	}
+	// FT
+	diceRoll = GenerateIntFromRange(1, 20)
+	if pos == "G" || pos == "F" {
+		mod = 3
+	} else {
+		mod = -1
+	}
+	if diceRoll+mod > 15 {
+		list = append(list, "SpecFreeThrow")
+	}
+
+	// FN
+	diceRoll = GenerateIntFromRange(1, 20)
+	if pos == "F" || pos == "C" {
+		mod = 3
+	}
+	if diceRoll > 15 {
+		list = append(list, "SpecFinishing")
+	}
+
+	// BW
+	diceRoll = GenerateIntFromRange(1, 20)
+	if pos == "G" {
+		mod = 4
+	}
+	if diceRoll+mod > 15 {
+		list = append(list, "SpecBallwork")
+	}
+
+	// RB
+	diceRoll = GenerateIntFromRange(1, 20)
+	if pos == "C" || pos == "F" {
+		mod = 4
+	}
+	if diceRoll+mod > 15 {
+		list = append(list, "SpecRebounding")
+	}
+
+	// ID
+	diceRoll = GenerateIntFromRange(1, 20)
+	if pos == "C" || pos == "F" {
+		mod = 3
+	}
+	if diceRoll+mod > 15 {
+		list = append(list, "SpecInteriorDefense")
+	}
+
+	// PD
+	diceRoll = GenerateIntFromRange(1, 20)
+	if pos == "G" || pos == "F" {
+		mod = 3
+	}
+	if diceRoll+mod > 15 {
+		list = append(list, "SpecPerimeterDefense")
+	}
+	return list
 }
 
 func GetFreeAgencyBias() string {
@@ -465,4 +568,21 @@ func WillPlayerRetire(age int, overall int) bool {
 		}
 	}
 	return false
+}
+
+func GetRoundAbbreviation(str string) string {
+	if str == "1" {
+		return "1st Round"
+	} else if str == "2" {
+		return "2nd Round"
+	} else if str == "3" {
+		return "3rd Round"
+	} else if str == "4" {
+		return "4th Round"
+	} else if str == "5" {
+		return "5th Round"
+	} else if str == "6" {
+		return "6th Round"
+	}
+	return "7th Round"
 }

@@ -76,7 +76,7 @@ func RegressGames(match string) {
 	ts := GetTimestamp()
 	RegressStandings(ts, match)
 	RegressSeasonStats(ts, match)
-	ts.ToggleGamesBRan()
+	ts.ToggleGamesARan()
 	err := db.Save(&ts).Error
 	if err != nil {
 		log.Fatalln("Could not save timestamp and sync week")

@@ -20,6 +20,15 @@ type Timestamp struct {
 	AIBoardsCreated           bool
 	AIPointAllocationComplete bool
 	IsOffSeason               bool
+	IsNBAOffseason            bool
+	IsFreeAgencyLocked        bool
+	IsDraftTime               bool
+	Y1Capspace                float64
+	Y2Capspace                float64
+	Y3Capspace                float64
+	Y4Capspace                float64
+	Y5Capspace                float64
+	FreeAgencyRound           uint
 }
 
 func (t *Timestamp) MoveUpWeekCollege() {
@@ -71,4 +80,18 @@ func (t *Timestamp) SyncToNextWeek() {
 	t.RecruitingSynced = false
 	t.AIPointAllocationComplete = false
 	// t.ToggleGMActions()
+}
+
+func (t *Timestamp) MoveUpFreeAgencyRound() {
+	t.FreeAgencyRound++
+	if t.FreeAgencyRound > 10 {
+		t.FreeAgencyRound = 0
+		t.IsFreeAgencyLocked = true
+		t.IsDraftTime = true
+	}
+}
+
+func (t *Timestamp) DraftIsOver() {
+	t.IsDraftTime = false
+	t.IsNBAOffseason = false
 }

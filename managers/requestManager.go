@@ -18,6 +18,16 @@ func GetAllTeamRequests() []structs.RequestDTO {
 	return requests
 }
 
+func GetAllNBATeamRequests() []structs.NBARequest {
+	db := dbprovider.GetInstance().GetDB()
+	var NBATeamRequests []structs.NBARequest
+
+	//NBA Team Requests
+	db.Where("is_approved = false").Find(&NBATeamRequests)
+
+	return NBATeamRequests
+}
+
 func CreateTeamRequest(request structs.Request) {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -25,6 +35,23 @@ func CreateTeamRequest(request structs.Request) {
 	if err != nil {
 		log.Fatalln("Could not create record to DB:" + err.Error())
 	}
+}
+
+func CreateNBATeamRequest(request structs.NBARequest) {
+	db := dbprovider.GetInstance().GetDB()
+
+	var existingRequest structs.NBARequest
+	err := db.Where("username = ? AND nba_team_id = ? AND is_owner = ? AND is_manager = ? AND is_coach = ? AND is_assistant = ? AND is_approved = false AND deleted_at is null", request.Username, request.NBATeamID, request.IsOwner, request.IsManager, request.IsCoach, request.IsAssistant).Find(&existingRequest).Error
+	if err != nil {
+		// Then there's no existing record, I guess? Which is fine.
+		fmt.Println("Creating Team Request for TEAM " + strconv.Itoa(int(request.NBATeamID)))
+	}
+	if existingRequest.ID != 0 {
+		// There is already an existing record.
+		log.Fatalln("There is already an existing request in place for the user. Please be patient while admin approves your formal request. If there is an issue, please reach out to TuscanSota.")
+	}
+
+	db.Create(&request)
 }
 
 func ApproveTeamRequest(request structs.Request) {
@@ -72,4 +99,116 @@ func RejectTeamRequest(request structs.Request) {
 	request.RejectTeamRequest()
 
 	db.Delete(&request)
+}
+
+func ApproveNBATeamRequest(request structs.NBARequest) structs.NBARequest {
+	db := dbprovider.GetInstance().GetDB()
+
+	timestamp := GetTimestamp()
+
+	// Approve Request
+	request.ApproveTeamRequest()
+
+	fmt.Println("Team Approved...")
+
+	db.Save(&request)
+
+	// Assign Team
+	fmt.Println("Assigning team...")
+
+	team := GetNBATeamByTeamID(strconv.Itoa(int(request.NBATeamID)))
+
+	coach := GetNBAUserByUsername(request.Username)
+
+	coach.SetTeam(request)
+
+	team.AssignNBAUserToTeam(request, coach)
+
+	// seasonalGames := GetCollegeGamesByTeamIdAndSeasonId(strconv.Itoa(request.TeamID), strconv.Itoa(timestamp.CollegeSeasonID))
+
+	// for _, game := range seasonalGames {
+	// 	if game.Week >= timestamp.CollegeWeek {
+	// 		game.UpdateCoach(int(request.NBATeamID), request.Username)
+	// 		db.Save(&game)
+	// 	}
+	// }
+
+	db.Save(&team)
+
+	db.Save(&coach)
+
+	newsLog := structs.NewsLog{
+		WeekID:      timestamp.NBAWeekID,
+		SeasonID:    timestamp.SeasonID,
+		Week:        uint(timestamp.NBAWeek),
+		MessageType: "CoachJob",
+		League:      "NBA",
+		Message:     "Breaking News! The " + team.Team + " " + team.Nickname + " have hired " + coach.Username + " to their staff for the " + strconv.Itoa(timestamp.Season) + " season!",
+	}
+
+	db.Create(&newsLog)
+
+	return request
+}
+
+func RejectNBATeamRequest(request structs.NBARequest) {
+	db := dbprovider.GetInstance().GetDB()
+
+	request.RejectTeamRequest()
+
+	err := db.Delete(&request).Error
+	if err != nil {
+		log.Fatalln("Could not delete request: " + err.Error())
+	}
+}
+
+func RemoveUserFromNBATeam(request structs.NBARequest) {
+	db := dbprovider.GetInstance().GetDB()
+
+	teamID := strconv.Itoa(int(request.NBATeamID))
+
+	team := GetNBATeamByTeamID(teamID)
+
+	user := GetNBAUserByUsername(request.Username)
+
+	message := ""
+
+	if request.IsOwner {
+		user.RemoveOwnership()
+		message = request.Username + " has decided to step down as Owner of the " + team.Team + " " + team.Nickname + "!"
+	}
+
+	if request.IsManager {
+		user.RemoveManagerPosition()
+		message = request.Username + " has decided to step down as Manager of the " + team.Team + " " + team.Nickname + "!"
+	}
+
+	if request.IsCoach {
+		user.RemoveCoachPosition()
+		message = request.Username + " has decided to step down as Head Coach of the " + team.Team + " " + team.Nickname + "!"
+	}
+
+	if request.IsAssistant {
+		user.RemoveAssistantPosition()
+		message = request.Username + " has decided to step down as an Assistant of the " + team.Team + " " + team.Nickname + "!"
+	}
+
+	team.RemoveUser(user.Username)
+
+	db.Save(&team)
+
+	db.Save(&user)
+
+	timestamp := GetTimestamp()
+
+	newsLog := structs.NewsLog{
+		WeekID:      timestamp.NBAWeekID,
+		SeasonID:    timestamp.SeasonID,
+		Week:        uint(timestamp.NBAWeek),
+		MessageType: "CoachJob",
+		Message:     message,
+		League:      "NBA",
+	}
+
+	db.Create(&newsLog)
 }

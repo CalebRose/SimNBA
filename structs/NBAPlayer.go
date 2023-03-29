@@ -11,9 +11,12 @@ type NBAPlayer struct {
 	CollegeID            uint
 	College              string
 	DraftPickID          uint
+	DraftedRound         uint
 	DraftPick            uint
 	DraftedTeamID        uint
 	DraftedTeamAbbr      string
+	PreviousTeamID       uint
+	PreviousTeam         string
 	PrimeAge             uint
 	IsNBA                bool
 	MaxRequested         bool
@@ -28,6 +31,11 @@ type NBAPlayer struct {
 	IsMVP                bool
 	IsInternational      bool
 	IsRetiring           bool
+	IsAcceptingOffers    bool
+	IsNegotiating        bool
+	MinimumValue         float64
+	SigningRound         uint
+	NegotiationRound     uint
 	PositionOne          string
 	PositionTwo          string
 	PositionThree        string
@@ -37,9 +45,21 @@ type NBAPlayer struct {
 	InsidePercentage     uint
 	MidPercentage        uint
 	ThreePointPercentage uint
-	// Contracts           []NBAContract
-	// NBAPlayerStats
-	// NBASeasonStats
+	Contract             NBAContract          `gorm:"foreignKey:PlayerID"`
+	Stats                []NBAPlayerStats     `gorm:"foreignKey:NBAPlayerID"`
+	SeasonStats          NBAPlayerSeasonStats `gorm:"foreignKey:NBAPlayerID"`
+}
+
+type ByTotalContract []NBAPlayer
+
+func (rp ByTotalContract) Len() int      { return len(rp) }
+func (rp ByTotalContract) Swap(i, j int) { rp[i], rp[j] = rp[j], rp[i] }
+func (rp ByTotalContract) Less(i, j int) bool {
+	p1 := rp[i].Contract
+	p2 := rp[j].Contract
+	p1Total := p1.Year1Total + p1.Year2Total + p1.Year3Total + p1.Year4Total + p1.Year5Total
+	p2Total := p2.Year1Total + p2.Year2Total + p2.Year3Total + p2.Year4Total + p2.Year5Total
+	return p1Total > p2Total
 }
 
 func (n *NBAPlayer) SetID(id uint) {
@@ -53,6 +73,8 @@ func (n *NBAPlayer) SetRetiringStatus() {
 func (n *NBAPlayer) BecomeFreeAgent() {
 	n.TeamAbbr = "FA"
 	n.TeamID = 0
+	n.IsFreeAgent = true
+	n.IsOnTradeBlock = false
 }
 
 func (n *NBAPlayer) SignWithTeam(teamID uint, team string) {
@@ -84,4 +106,42 @@ func (n *NBAPlayer) QualifyForSuperMax() {
 
 func (n *NBAPlayer) QualifiesForMax() {
 	n.MaxRequested = true
+}
+
+func (n *NBAPlayer) ToggleIsNegotiating() {
+	n.IsNegotiating = true
+}
+
+func (np *NBAPlayer) ToggleTradeBlock() {
+	np.IsOnTradeBlock = !np.IsOnTradeBlock
+}
+
+func (np *NBAPlayer) RemoveFromTradeBlock() {
+	np.IsOnTradeBlock = false
+}
+
+func (np *NBAPlayer) WaivePlayer() {
+	np.TeamID = 0
+	np.TeamAbbr = ""
+	np.IsWaived = true
+	np.IsOnTradeBlock = false
+}
+
+func (np *NBAPlayer) ConvertWaivedPlayerToFA() {
+	np.IsWaived = false
+	np.IsFreeAgent = true
+	np.IsAcceptingOffers = true
+}
+
+func (np *NBAPlayer) AssignFAPreferences(negotiation uint, signing uint) {
+	np.NegotiationRound = negotiation
+	np.SigningRound = signing
+}
+
+func (np *NBAPlayer) TradePlayer(id uint, team string) {
+	np.PreviousTeam = np.TeamAbbr
+	np.PreviousTeamID = uint(np.TeamID)
+	np.TeamID = id
+	np.TeamAbbr = team
+	np.IsOnTradeBlock = false
 }

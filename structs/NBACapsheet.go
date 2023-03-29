@@ -2,7 +2,7 @@ package structs
 
 import "github.com/jinzhu/gorm"
 
-type NBACapSheet struct {
+type NBACapsheet struct {
 	gorm.Model
 	TeamID               uint
 	CurrentSeason        uint
@@ -30,7 +30,19 @@ type NBACapSheet struct {
 	// Contracts            []NBAContract
 }
 
-func (cs *NBACapSheet) SyncTotals(year1 float64, year2 float64, year3 float64, year4 float64, year5 float64) {
+func (cs *NBACapsheet) AssignID(id uint) {
+	cs.ID = id
+}
+
+func (cs *NBACapsheet) ResetCapsheet() {
+	cs.Year1Total = 0
+	cs.Year2Total = 0
+	cs.Year3Total = 0
+	cs.Year4Total = 0
+	cs.Year5Total = 0
+}
+
+func (cs *NBACapsheet) SyncTotals(year1 float64, year2 float64, year3 float64, year4 float64, year5 float64) {
 	cs.Year1Total = year1 + cs.Year1CashTransferred - cs.Year1CashReceived
 	cs.Year2Total = year2 + cs.Year2CashTransferred - cs.Year2CashReceived
 	cs.Year3Total = year3 + cs.Year3CashTransferred - cs.Year3CashReceived
@@ -38,7 +50,7 @@ func (cs *NBACapSheet) SyncTotals(year1 float64, year2 float64, year3 float64, y
 	cs.Year5Total = year5 + cs.Year5CashTransferred - cs.Year5CashReceived
 }
 
-func (cs *NBACapSheet) SyncByYear() {
+func (cs *NBACapsheet) SyncByYear() {
 	cs.Year1CashReceived = cs.Year2CashReceived
 	cs.Year1CashTransferred = cs.Year2CashTransferred
 	cs.Year2CashReceived = cs.Year3CashReceived
@@ -54,4 +66,29 @@ func (cs *NBACapSheet) SyncByYear() {
 	cs.Year3Cap = cs.Year4Cap
 	cs.Year4Cap = cs.Year5Cap
 	cs.Year5Cap = cs.Year5Cap * 1.12
+}
+
+func (nc *NBACapsheet) SubtractFromCapsheetViaTrade(contract NBAContract) {
+	nc.Year1Cap += contract.Year1Total
+	nc.Year1Total -= contract.Year1Total
+	nc.Year2Total -= contract.Year2Total
+	nc.Year3Total -= contract.Year3Total
+	nc.Year4Total -= contract.Year4Total
+	nc.Year5Total -= contract.Year5Total
+}
+
+func (nc *NBACapsheet) NegotiateSalaryDifference(SalaryDifference float64, CapHit float64) {
+	nc.Year1Total -= SalaryDifference
+	nc.Year1CashTransferred += SalaryDifference
+	nc.Year1Cap += CapHit
+}
+
+func (nc *NBACapsheet) AddContractViaTrade(contract NBAContract, differenceValue float64) {
+	// nc.Y1Bonus += contract.Y1Bonus
+	nc.Year1CashReceived += differenceValue
+	nc.Year1Total += differenceValue
+	nc.Year2Total += contract.Year2Total
+	nc.Year3Total += contract.Year3Total
+	nc.Year4Total += contract.Year4Total
+	nc.Year5Total += contract.Year5Total
 }

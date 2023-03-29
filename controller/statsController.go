@@ -8,10 +8,18 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// GetStatsPageData - Get Stats Page Data
-func GetStatsPageData(w http.ResponseWriter, r *http.Request) {
+// GetCBBStatsPageData - Get Stats Page Data
+func GetCBBStatsPageData(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
-	response := managers.GetStatsPageData()
+	response := managers.GetCBBStatsPageData()
+
+	json.NewEncoder(w).Encode(response)
+}
+
+// GetNBAStatsPageData - Get Stats Page Data
+func GetNBAStatsPageData(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	response := managers.GetNBAStatsPageData()
 
 	json.NewEncoder(w).Encode(response)
 }
@@ -77,6 +85,20 @@ func GetPlayerStatsByMatch(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(playerStats)
 }
 
+// GetPlayerStatsByMatch - Get Player Stats by Match played | NOTE: Will revise this func for later
+func GetNBAPlayerStatsByMatch(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	vars := mux.Vars(r)
+	matchId := vars["matchId"]
+	if len(matchId) == 0 {
+		panic("User did not provide both a playerId and a Match Id")
+	}
+
+	playerStats := managers.GetPlayerStatsByMatch(matchId)
+
+	json.NewEncoder(w).Encode(playerStats)
+}
+
 // GetTeamStatsBySeason - Get Stats By PlayerId and SeasonId
 func GetTeamStatsBySeason(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
@@ -92,8 +114,8 @@ func GetTeamStatsBySeason(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(playerStats)
 }
 
-// GetTeamStatsByMatch - Get Player Stats by Match played
-func GetTeamStatsByMatch(w http.ResponseWriter, r *http.Request) {
+// GetCBBTeamStatsByMatch - Get Player Stats by Match played
+func GetCBBTeamStatsByMatch(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	vars := mux.Vars(r)
 
@@ -103,7 +125,23 @@ func GetTeamStatsByMatch(w http.ResponseWriter, r *http.Request) {
 		panic("User did not provide both a teamId and a Match Id")
 	}
 
-	playerStats := managers.GetTeamStatsByMatch(teamId, matchId)
+	playerStats := managers.GetCBBTeamStatsByMatch(teamId, matchId)
+
+	json.NewEncoder(w).Encode(playerStats)
+}
+
+// GetNBATeamStatsByMatch - Get Player Stats by Match played
+func GetNBATeamStatsByMatch(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	vars := mux.Vars(r)
+
+	teamId := vars["teamId"]
+	matchId := vars["matchId"]
+	if len(teamId) == 0 || len(matchId) == 0 {
+		panic("User did not provide both a teamId and a Match Id")
+	}
+
+	playerStats := managers.GetNBATeamStatsByMatch(teamId, matchId)
 
 	json.NewEncoder(w).Encode(playerStats)
 }

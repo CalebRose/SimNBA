@@ -37,15 +37,6 @@ func AllActiveCollegeTeams(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(teams)
 }
 
-func AllActiveNBATeams(w http.ResponseWriter, r *http.Request) {
-	EnableCors(&w)
-	db := dbprovider.GetInstance().GetDB()
-
-	var teams []structs.Team
-	db.Where("first_season is not null AND coach is not null and is_nba = ?", true).Order("team asc").Find(&teams)
-	json.NewEncoder(w).Encode(teams)
-}
-
 func AllAvailableTeams(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	db := dbprovider.GetInstance().GetDB()
@@ -78,8 +69,8 @@ func AllNBATeams(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	db := dbprovider.GetInstance().GetDB()
 
-	var teams []structs.Team
-	db.Where("is_nba = ?", true).Order("team asc").Find(&teams)
+	var teams []structs.NBATeam
+	db.Order("team asc").Find(&teams)
 	json.NewEncoder(w).Encode(teams)
 }
 
@@ -91,6 +82,17 @@ func GetTeamByTeamID(w http.ResponseWriter, r *http.Request) {
 		panic("User did not provide TeamID")
 	}
 	team := managers.GetTeamByTeamID(teamId)
+	json.NewEncoder(w).Encode(team)
+}
+
+func GetNBATeamByTeamID(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	vars := mux.Vars(r)
+	teamId := vars["teamId"]
+	if len(teamId) == 0 {
+		panic("User did not provide TeamID")
+	}
+	team := managers.GetNBATeamByTeamID(teamId)
 	json.NewEncoder(w).Encode(team)
 }
 
@@ -114,6 +116,20 @@ func SyncTeamRatings(w http.ResponseWriter, r *http.Request) {
 
 	for _, team := range teams {
 		managers.GetTeamRatings(team)
+	}
+
+	json.NewEncoder(w).Encode("Team Ratings Sync Done!")
+}
+
+func SyncNBATeamRatings(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	db := dbprovider.GetInstance().GetDB()
+
+	var teams []structs.NBATeam
+	db.Order("team asc").Find(&teams)
+
+	for _, team := range teams {
+		managers.GetNBATeamRatings(team)
 	}
 
 	json.NewEncoder(w).Encode("Team Ratings Sync Done!")

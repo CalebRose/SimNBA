@@ -9,6 +9,7 @@ import (
 	"github.com/CalebRose/SimNBA/structs"
 )
 
+// UpdateGameplan -- Need to update
 func UpdateGameplan(updateGameplanDto structs.UpdateGameplanDto) {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -54,6 +55,7 @@ func UpdateGameplan(updateGameplanDto structs.UpdateGameplanDto) {
 	}
 }
 
+// GetGameplansByTeam
 func GetGameplansByTeam(teamId string) structs.Gameplan {
 	db := dbprovider.GetInstance().GetDB()
 

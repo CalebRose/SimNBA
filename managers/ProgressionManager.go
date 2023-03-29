@@ -3,7 +3,6 @@ package managers
 import (
 	"fmt"
 	"log"
-	"math"
 	"math/rand"
 	"strconv"
 	"time"
@@ -29,11 +28,11 @@ func ProgressionMain() {
 
 		for _, player := range roster {
 			if player.HasProgressed {
-				player.FixAge()
-				err := db.Save(&player).Error
-				if err != nil {
-					log.Panicln("Could not save player record")
-				}
+				// player.FixAge()
+				// err := db.Save(&player).Error
+				// if err != nil {
+				// 	log.Panicln("Could not save player record")
+				// }
 				continue
 			}
 			player = ProgressCollegePlayer(player)
@@ -46,14 +45,16 @@ func ProgressionMain() {
 			if (player.IsRedshirt && player.Year > 5) ||
 				(!player.IsRedshirt && player.Year > 4) {
 				player.GraduatePlayer()
-				// draftee := structs.NBADraftee{}
-				// draftee.Map(player)
-				// draftee.AssignPrimeAge(util.GenerateIntFromRange(25, 30))
+				if player.Overall > 69 {
+					draftee := structs.NBADraftee{}
+					draftee.Map(player)
+					draftee.AssignPrimeAge(util.GenerateIntFromRange(25, 30))
 
-				// err := db.Save(&draftee).Error
-				// if err != nil {
-				// 	log.Panicln("Could not save historic player record!")
-				// }
+					err := db.Save(&draftee).Error
+					if err != nil {
+						log.Panicln("Could not save historic player record!")
+					}
+				}
 
 				hcp := (structs.HistoricCollegePlayer)(player)
 
@@ -107,7 +108,7 @@ func ProgressNBAPlayers() {
 
 	nbaTeams := GetAllActiveNBATeams()
 	// Append empty team object to the end for Free Agents
-	nbaTeams = append(nbaTeams, structs.Team{})
+	nbaTeams = append(nbaTeams, structs.NBATeam{})
 
 	for _, team := range nbaTeams {
 		teamID := strconv.Itoa(int(team.ID))
@@ -148,31 +149,31 @@ func ProgressNBAPlayers() {
 }
 
 func ProgressNBAPlayer(np structs.NBAPlayer) structs.NBAPlayer {
-	// stats := cp.Stats
-	// totalMinutes := 0
+	stats := np.Stats
+	totalMinutes := 0
 
-	// for _, stat := range stats {
-	// 	totalMinutes += stat.Minutes
-	// }
+	for _, stat := range stats {
+		totalMinutes += stat.Minutes
+	}
 
-	// var MinutesPerGame int = 0
-	// if len(stats) > 0 {
-	// 	MinutesPerGame = totalMinutes / len(stats)
-	// }
+	var MinutesPerGame int = 0
+	if len(stats) > 0 {
+		MinutesPerGame = totalMinutes / len(stats)
+	}
 	age := np.Age + 1
 	ageDifference := np.Age - int(np.PrimeAge)
 	if ageDifference < 0 {
 		ageDifference = 0
 	}
 
-	shooting2 := PlayerProgression(np.Potential, np.Shooting2, ageDifference)
-	shooting3 := PlayerProgression(np.Potential, np.Shooting3, ageDifference)
-	freeThrow := PlayerProgression(np.Potential, np.FreeThrow, ageDifference)
-	ballwork := PlayerProgression(np.Potential, np.Ballwork, ageDifference)
-	rebounding := PlayerProgression(np.Potential, np.Rebounding, ageDifference)
-	interiorDefense := PlayerProgression(np.Potential, np.InteriorDefense, ageDifference)
-	perimeterDefense := PlayerProgression(np.Potential, np.PerimeterDefense, ageDifference)
-	finishing := PlayerProgression(np.Potential, np.Finishing, ageDifference)
+	shooting2 := PlayerProgression(np.Potential, np.Shooting2, ageDifference, np.SpecShooting2, MinutesPerGame, np.PlaytimeExpectations, np.IsGLeague)
+	shooting3 := PlayerProgression(np.Potential, np.Shooting3, ageDifference, np.SpecShooting3, MinutesPerGame, np.PlaytimeExpectations, np.IsGLeague)
+	freeThrow := PlayerProgression(np.Potential, np.FreeThrow, ageDifference, np.SpecFreeThrow, MinutesPerGame, np.PlaytimeExpectations, np.IsGLeague)
+	ballwork := PlayerProgression(np.Potential, np.Ballwork, ageDifference, np.SpecBallwork, MinutesPerGame, np.PlaytimeExpectations, np.IsGLeague)
+	rebounding := PlayerProgression(np.Potential, np.Rebounding, ageDifference, np.SpecRebounding, MinutesPerGame, np.PlaytimeExpectations, np.IsGLeague)
+	interiorDefense := PlayerProgression(np.Potential, np.InteriorDefense, ageDifference, np.SpecInteriorDefense, MinutesPerGame, np.PlaytimeExpectations, np.IsGLeague)
+	perimeterDefense := PlayerProgression(np.Potential, np.PerimeterDefense, ageDifference, np.SpecPerimeterDefense, MinutesPerGame, np.PlaytimeExpectations, np.IsGLeague)
+	finishing := PlayerProgression(np.Potential, np.Finishing, ageDifference, np.SpecFinishing, MinutesPerGame, np.PlaytimeExpectations, np.IsGLeague)
 	stamina := ProgressStamina(np.Stamina, ageDifference)
 	overall := int((shooting2+shooting3+freeThrow)/3) + ballwork + finishing + rebounding + int((perimeterDefense+interiorDefense)/2)
 
@@ -208,52 +209,15 @@ func ProgressCollegePlayer(cp structs.CollegePlayer) structs.CollegePlayer {
 		MinutesPerGame = totalMinutes / len(stats)
 	}
 
-	shooting2 := 0
-	shooting3 := 0
-	finishing := 0
-	freeThrow := 0
-	ballwork := 0
-	rebounding := 0
-	interiorDefense := 0
-	perimeterDefense := 0
-
-	if cp.Position == "G" {
-		// Primary Progressions
-		shooting2 = PrimaryProgression(cp.Potential, cp.Shooting2, cp.Position, MinutesPerGame, "Shooting2", cp.IsRedshirting)
-		shooting3 = PrimaryProgression(cp.Potential, cp.Shooting3, cp.Position, MinutesPerGame, "Shooting3", cp.IsRedshirting)
-		ballwork = PrimaryProgression(cp.Potential, cp.Ballwork, cp.Position, MinutesPerGame, "Ballwork", cp.IsRedshirting)
-
-		// Secondary
-		freeThrow = SecondaryProgression(cp.Potential, cp.FreeThrow)
-		rebounding = SecondaryProgression(cp.Potential, cp.Rebounding)
-		interiorDefense = SecondaryProgression(cp.Potential, cp.InteriorDefense)
-		perimeterDefense = SecondaryProgression(cp.Potential, cp.PerimeterDefense)
-		finishing = SecondaryProgression(cp.Potential, cp.Finishing)
-
-	} else if cp.Position == "F" {
-		// Primary
-		shooting2 = PrimaryProgression(cp.Potential, cp.Shooting2, cp.Position, MinutesPerGame, "Shooting2", cp.IsRedshirting)
-		rebounding = PrimaryProgression(cp.Potential, cp.Rebounding, cp.Position, MinutesPerGame, "Rebounding", cp.IsRedshirting)
-		finishing = PrimaryProgression(cp.Potential, cp.Finishing, cp.Position, MinutesPerGame, "Finishing", cp.IsRedshirting)
-		freeThrow = PrimaryProgression(cp.Potential, cp.FreeThrow, cp.Position, MinutesPerGame, "FreeThrow", cp.IsRedshirting)
-		perimeterDefense = PrimaryProgression(cp.Potential, cp.PerimeterDefense, cp.Position, MinutesPerGame, "Perimeter Defense", cp.IsRedshirting)
-		// Secondary
-		interiorDefense = SecondaryProgression(cp.Potential, cp.InteriorDefense)
-		shooting3 = SecondaryProgression(cp.Potential, cp.Shooting3)
-		ballwork = SecondaryProgression(cp.Potential, cp.Ballwork)
-
-	} else if cp.Position == "C" {
-		// Primary
-		rebounding = PrimaryProgression(cp.Potential, cp.Rebounding, cp.Position, MinutesPerGame, "Rebounding", cp.IsRedshirting)
-		interiorDefense = PrimaryProgression(cp.Potential, cp.InteriorDefense, cp.Position, MinutesPerGame, "Interior Defense", cp.IsRedshirting)
-		finishing = PrimaryProgression(cp.Potential, cp.Finishing, cp.Position, MinutesPerGame, "Finishing", cp.IsRedshirting)
-
-		// Secondary
-		shooting2 = SecondaryProgression(cp.Potential, cp.Shooting2)
-		shooting3 = SecondaryProgression(cp.Potential, cp.Shooting3)
-		ballwork = SecondaryProgression(cp.Potential, cp.Ballwork)
-		freeThrow = SecondaryProgression(cp.Potential, cp.FreeThrow)
-	}
+	// Primary Progressions
+	shooting2 := CollegePlayerProgression(cp.Potential, cp.Shooting2, cp.Position, MinutesPerGame, cp.PlaytimeExpectations, "Shooting2", cp.SpecShooting2, cp.IsRedshirting)
+	shooting3 := CollegePlayerProgression(cp.Potential, cp.Shooting3, cp.Position, MinutesPerGame, cp.PlaytimeExpectations, "Shooting3", cp.SpecShooting3, cp.IsRedshirting)
+	freeThrow := CollegePlayerProgression(cp.Potential, cp.FreeThrow, cp.Position, MinutesPerGame, cp.PlaytimeExpectations, "FreeThrow", cp.SpecFreeThrow, cp.IsRedshirting)
+	ballwork := CollegePlayerProgression(cp.Potential, cp.Ballwork, cp.Position, MinutesPerGame, cp.PlaytimeExpectations, "Ballwork", cp.SpecBallwork, cp.IsRedshirting)
+	rebounding := CollegePlayerProgression(cp.Potential, cp.Rebounding, cp.Position, MinutesPerGame, cp.PlaytimeExpectations, "Rebounding", cp.SpecRebounding, cp.IsRedshirting)
+	finishing := CollegePlayerProgression(cp.Potential, cp.Finishing, cp.Position, MinutesPerGame, cp.PlaytimeExpectations, "Finishing", cp.SpecFinishing, cp.IsRedshirting)
+	interiorDefense := CollegePlayerProgression(cp.Potential, cp.InteriorDefense, cp.Position, MinutesPerGame, cp.PlaytimeExpectations, "Interior Defense", cp.SpecInteriorDefense, cp.IsRedshirting)
+	perimeterDefense := CollegePlayerProgression(cp.Potential, cp.PerimeterDefense, cp.Position, MinutesPerGame, cp.PlaytimeExpectations, "Perimeter Defense", cp.SpecPerimeterDefense, cp.IsRedshirting)
 
 	overall := (int((shooting2 + shooting3 + freeThrow) / 3)) + finishing + ballwork + rebounding + int((interiorDefense+perimeterDefense)/2)
 
@@ -274,9 +238,10 @@ func ProgressCollegePlayer(cp structs.CollegePlayer) structs.CollegePlayer {
 	return cp
 }
 
-func PlayerProgression(progression int, input int, ageDifference int) int {
+func PlayerProgression(progression int, input int, ageDifference int, spec bool, mpg int, mr int, isGleague bool) int {
 	min := -1
 	max := 1
+	specBonus := 0
 	if progression > 74 {
 		max = 4
 	} else if progression > 56 {
@@ -285,16 +250,34 @@ func PlayerProgression(progression int, input int, ageDifference int) int {
 		max = 2
 	}
 
+	if spec {
+		specBonus = 1
+	}
+
 	regressionMax := 0
 	if ageDifference > 0 && ageDifference < 4 {
 		regressionMax = ageDifference
 	} else if ageDifference > 3 {
 		regressionMax = 4
 	}
+	if mpg < mr && !isGleague {
+		minutesDifference := mr - mpg
+		if minutesDifference > 19 {
+			regressionMax += 5
+		} else if minutesDifference > 14 {
+			regressionMax += 4
+		} else if minutesDifference > 9 {
+			regressionMax += 3
+		} else if minutesDifference > 4 {
+			regressionMax += 2
+		} else {
+			regressionMax += 1
+		}
+	}
 	max = max - regressionMax
 	min = min - regressionMax
 
-	return input + util.GenerateIntFromRange(min, max)
+	return input + util.GenerateIntFromRange(min, max) + specBonus
 }
 
 func ProgressStamina(stamina int, ageDifference int) int {
@@ -314,39 +297,68 @@ func ProgressStamina(stamina int, ageDifference int) int {
 	return stamina + util.GenerateIntFromRange(min, max)
 }
 
-func PrimaryProgression(progression int, input int, position string, mpg int, attribute string, isRedshirting bool) int {
+func CollegePlayerProgression(progression int, input int, position string, mpg int, mr int, attribute string, spec bool, isRedshirting bool) int {
 	if input == 0 {
 		return 1
 	}
 
-	modifier := GetModifiers(position, mpg, attribute)
-
-	var progress float64 = 0
-
-	if !isRedshirting {
-		progress = ((1 - math.Pow((float64(input)/99.0), 15)) * math.Log10(float64(input)) * (0.3 + modifier)) * (1 + (float64(progression) / 70))
-	} else {
-		progress = ((1 - math.Pow((float64(input)/99), 15)) * math.Log10(float64(input)) * 1.115 * (1 + (float64(progression / 60))))
+	min := -1
+	max := 1
+	specBonus := 0
+	if progression > 74 {
+		max = 4
+	} else if progression > 56 {
+		max = 3
+	} else if progression > 38 {
+		max = 2
 	}
 
-	if progress+float64(input) > 20 {
-		progress = 20
-	} else {
-		progress = progress + float64(input)
+	if spec && progression > 80 {
+		specBonus = util.GenerateIntFromRange(1, 2)
+	} else if spec {
+		specBonus = 1
 	}
 
-	return int(math.Round(progress))
-}
+	if mpg < mr && !isRedshirting {
+		diff := mr - mpg
+		regressionMax := 0
+		if diff >= 10 {
+			regressionMax = 3
+		} else if diff > 5 {
+			regressionMax = 2
+		} else if diff > 1 {
+			regressionMax = 1
+		}
 
-func SecondaryProgression(progression int, input int) int {
-	num := rand.Intn(99)
-
-	if num < progression && input < 20 {
-		input = input + util.GenerateIntFromRange(1, 4)
-		return input
-	} else {
-		return input
+		max = max - regressionMax
+		min = min - regressionMax
 	}
+	if spec && min < 0 {
+		min = 0
+	}
+	if spec && max < 0 {
+		max = 0
+	}
+
+	return input + util.GenerateIntFromRange(min, max) + specBonus
+
+	// modifier := GetModifiers(position, mpg, attribute)
+
+	// var progress float64 = 0
+
+	// if !isRedshirting {
+	// 	progress = ((1 - math.Pow((float64(input)/99.0), 15)) * math.Log10(float64(input)) * (0.3 + modifier)) * (1 + (float64(progression) / 70))
+	// } else {
+	// 	progress = ((1 - math.Pow((float64(input)/99), 15)) * math.Log10(float64(input)) * 1.115 * (1 + (float64(progression / 60))))
+	// }
+
+	// if progress+float64(input) > 20 {
+	// 	progress = 20
+	// } else {
+	// 	progress = progress + float64(input)
+	// }
+
+	// return int(math.Round(progress))
 }
 
 func GetModifiers(position string, mpg int, attrib string) float64 {

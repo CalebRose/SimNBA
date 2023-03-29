@@ -59,9 +59,24 @@ func handleRequests() {
 	// myRouter.HandleFunc("/admin/migrate/nba/players", controller.MigrateNBAPlayersToTables).Methods("GET")
 	myRouter.HandleFunc("/admin/progress/nba/players", controller.ProgressNBAPlayers).Methods("GET")
 
+	// Capsheet Controls
+	myRouter.HandleFunc("/nba/capsheet/generate", controller.GenerateCapsheets).Methods("GET")
+	myRouter.HandleFunc("/nba/contracts/get/value", controller.CalculateContracts).Methods("GET")
+
+	// Free Agency Controls
+	myRouter.HandleFunc("/nba/freeagency/available/{teamID}", controller.FreeAgencyAvailablePlayers).Methods("GET")
+	myRouter.HandleFunc("/nba/freeagency/create/offer", controller.CreateFreeAgencyOffer).Methods("POST")
+	myRouter.HandleFunc("/nba/freeagency/cancel/offer", controller.CancelFreeAgencyOffer).Methods("POST")
+
 	// Gameplan controls
 	myRouter.HandleFunc("/gameplans/{teamId}", controller.GetGameplansByTeamId).Methods("GET")
 	myRouter.HandleFunc("/gameplans/update", controller.UpdateGameplan).Methods("PUT")
+
+	// Generation Controls
+	// myRouter.HandleFunc("/generate/specs", controller.GenerateAttributeSpecsForCollegeAndRecruits).Methods("GET")
+
+	// Import
+	// myRouter.HandleFunc("/import/nba", controller.ImportNBATeamsAndArenas).Methods("GET")
 
 	// Match Controls
 	myRouter.HandleFunc("/match/{matchId}", controller.GetMatchByMatchId).Methods("GET")
@@ -88,6 +103,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/players/college/recruits", controller.AllCollegeRecruits).Methods("GET")
 	myRouter.HandleFunc("/players/nba", controller.AllNBAPlayers).Methods("GET")
 	myRouter.HandleFunc("/players/nba/freeAgents", controller.AllNBAFreeAgents).Methods("GET")
+
 	// Recruit Controls
 	myRouter.HandleFunc("/recruiting/dashboard/{teamID}/", controller.GetRecruitingDataForOverviewPage).Methods("GET")
 	myRouter.HandleFunc("/recruiting/profile/teamboard/{teamID}", controller.GetRecruitingDataForTeamBoardPage).Methods("GET")
@@ -107,30 +123,55 @@ func handleRequests() {
 	myRouter.HandleFunc("/requests/createTeamRequest", controller.CreateTeamRequest).Methods("POST")
 	myRouter.HandleFunc("/requests/approveTeamRequest", controller.ApproveTeamRequest).Methods("PUT")
 	myRouter.HandleFunc("/requests/rejectTeamRequest", controller.RejectTeamRequest).Methods("DELETE")
+	myRouter.HandleFunc("/nba/requests/all/", controller.GetNBATeamRequests).Methods("GET")
+	myRouter.HandleFunc("/nba/requests/create/", controller.CreateNBATeamRequest).Methods("POST")
+	myRouter.HandleFunc("/nba/requests/approve/", controller.ApproveNBATeamRequest).Methods("POST")
+	myRouter.HandleFunc("/nba/requests/reject/", controller.RejectNBATeamRequest).Methods("DELETE")
+	myRouter.HandleFunc("/nba/requests/remove/{teamID}", controller.RemoveNBAUserFromNBATeam).Methods("POST")
+
 	// Stats Controls
 	myRouter.HandleFunc("/stats/player/{playerId}", controller.GetPlayerStats).Methods("GET")
 	myRouter.HandleFunc("/stats/player/{playerId}/match/{matchId}", controller.GetPlayerStatsByMatch).Methods("GET")
 	myRouter.HandleFunc("/stats/player/{playerId}/season/{seasonId}", controller.GetPlayerStatsBySeason).Methods("GET")
 	myRouter.HandleFunc("/stats/team/{teamId}/season/{seasonId}", controller.GetTeamStatsBySeason).Methods("GET")
-	myRouter.HandleFunc("/stats/team/{teamId}/match/{matchId}", controller.GetTeamStatsByMatch).Methods("GET")
-	myRouter.HandleFunc("/stats/cbb/page", controller.GetStatsPageData).Methods("GET")
+	myRouter.HandleFunc("/stats/team/{teamId}/match/{matchId}", controller.GetCBBTeamStatsByMatch).Methods("GET")
+	myRouter.HandleFunc("/stats/cbb/page", controller.GetCBBStatsPageData).Methods("GET")
+	myRouter.HandleFunc("/stats/nba/page", controller.GetCBBStatsPageData).Methods("GET")
+	myRouter.HandleFunc("/stats/nba/team/{teamId}/match/{matchId}", controller.GetNBATeamStatsByMatch).Methods("GET")
+	myRouter.HandleFunc("/stats/nba/match/{matchId}", controller.GetPlayerStatsByMatch).Methods("GET")
 
 	// StandingsControls
 	myRouter.HandleFunc("/standings/college/conf/{conferenceId}/{seasonId}", controller.GetConferenceStandingsByConferenceID).Methods("GET")
+	myRouter.HandleFunc("/standings/nba/conf/{conferenceId}/{seasonId}", controller.GetNBAConferenceStandingsByConferenceID).Methods("GET")
 	myRouter.HandleFunc("/standings/college/season/{seasonId}", controller.GetAllConferenceStandings).Methods("GET")
+	myRouter.HandleFunc("/standings/nba/season/{seasonId}", controller.GetAllNBAConferenceStandings).Methods("GET")
 
 	// Team Controls
 	myRouter.HandleFunc("/team/{teamId}", controller.GetTeamByTeamID).Methods("GET")
+	myRouter.HandleFunc("/team/nba/{teamId}", controller.GetNBATeamByTeamID).Methods("GET")
 	myRouter.HandleFunc("/team/removeUserFromTeam/{teamId}", controller.RemoveUserFromTeam).Methods("PUT")
+	myRouter.HandleFunc("/team/nba/removeUserFromTeam/{teamId}", controller.RemoveUserFromTeam).Methods("PUT")
 	myRouter.HandleFunc("/teams", controller.AllTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/active", controller.AllActiveTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/active/college", controller.AllActiveCollegeTeams).Methods("GET")
-	myRouter.HandleFunc("/teams/active/nba", controller.AllActiveNBATeams).Methods("GET")
 	myRouter.HandleFunc("/teams/college/available", controller.AllAvailableTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/assign/ratings", controller.SyncTeamRatings).Methods("GET")
+	myRouter.HandleFunc("/teams/nba/assign/ratings", controller.SyncNBATeamRatings).Methods("GET")
 	myRouter.HandleFunc("/teams/coached", controller.AllCoachedTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/college", controller.AllCollegeTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/nba", controller.AllNBATeams).Methods("GET")
+
+	// Trade Controls
+	myRouter.HandleFunc("/trades/nba/all/accepted", controller.GetAllAcceptedTrades).Methods("GET")
+	myRouter.HandleFunc("/trades/nba/all/rejected", controller.GetAllRejectedTrades).Methods("GET")
+	myRouter.HandleFunc("/trades/nba/block/{teamID}", controller.GetNBATradeBlockDataByTeamID).Methods("GET")
+	myRouter.HandleFunc("/trades/nba/place/block/{playerID}", controller.PlaceNBAPlayerOnTradeBlock).Methods("GET")
+	myRouter.HandleFunc("/trades/nba/preferences/update", controller.UpdateTradePreferences).Methods("POST")
+	myRouter.HandleFunc("/trades/nba/create/proposal", controller.CreateNBATradeProposal).Methods("POST")
+	myRouter.HandleFunc("/trades/nba/proposal/accept/{proposalID}", controller.AcceptTradeOffer).Methods("GET")
+	myRouter.HandleFunc("/trades/nba/proposal/reject/{proposalID}", controller.RejectTradeOffer).Methods("GET")
+	myRouter.HandleFunc("/trades/nba/proposal/cancel/{proposalID}", controller.CancelTradeOffer).Methods("GET")
+
 	// Timestamp Controls
 	myRouter.HandleFunc("/simbba/get/timestamp", controller.GetCurrentTimestamp).Methods("GET")
 
