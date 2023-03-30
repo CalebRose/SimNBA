@@ -127,7 +127,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/nba/requests/create/", controller.CreateNBATeamRequest).Methods("POST")
 	myRouter.HandleFunc("/nba/requests/approve/", controller.ApproveNBATeamRequest).Methods("POST")
 	myRouter.HandleFunc("/nba/requests/reject/", controller.RejectNBATeamRequest).Methods("DELETE")
-	myRouter.HandleFunc("/nba/requests/remove/{teamID}", controller.RemoveNBAUserFromNBATeam).Methods("POST")
+	myRouter.HandleFunc("/nba/requests/revoke/", controller.RemoveNBAUserFromNBATeam).Methods("POST")
 
 	// Stats Controls
 	myRouter.HandleFunc("/stats/player/{playerId}", controller.GetPlayerStats).Methods("GET")
