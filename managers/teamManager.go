@@ -64,7 +64,7 @@ func GetNBATeamByTeamID(teamId string) structs.NBATeam {
 	var team structs.NBATeam
 	db := dbprovider.GetInstance().GetDB()
 	// Preload("RecruitingProfile").
-	err := db.Where("id = ?", teamId).Find(&team).Error
+	err := db.Preload("Capsheet").Where("id = ?", teamId).Find(&team).Error
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -154,18 +154,21 @@ func GetNBATeamRatings(t structs.NBATeam) {
 	offenseSum := 0
 	defenseSum := 0
 
-	for _, player := range players {
+	for idx, player := range players {
+		if idx > 9 {
+			break
+		}
 		offenseSum += player.Shooting2 + player.Shooting3 + player.Finishing + player.FreeThrow
 		defenseSum += player.Ballwork + player.Rebounding + player.InteriorDefense + player.PerimeterDefense
 	}
 
-	offenseRating = offenseSum / len(players)
-	defenseRating = defenseSum / len(players)
+	offenseRating = offenseSum / 9
+	defenseRating = defenseSum / 9
 	overallRating = (offenseRating + defenseRating) / 2
 
-	offLetterGrade := util.GetOffenseGrade(offenseRating)
-	defLetterGrade := util.GetDefenseGrade(defenseRating)
-	ovrLetterGrade := util.GetOverallGrade(overallRating)
+	offLetterGrade := util.GetNBATeamGrade(offenseRating)
+	defLetterGrade := util.GetNBATeamGrade(defenseRating)
+	ovrLetterGrade := util.GetNBATeamGrade(overallRating)
 
 	t.AssignRatings(offLetterGrade, defLetterGrade, ovrLetterGrade)
 

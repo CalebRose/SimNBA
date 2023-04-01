@@ -299,7 +299,7 @@ func GetNBAPlayersWithContractsByTeamID(TeamID string) []structs.NBAPlayer {
 
 	var players []structs.NBAPlayer
 
-	db.Preload("Contract").Where("team_id = ?", TeamID).Find(&players)
+	db.Preload("Contract").Where("team_id = ?", TeamID).Order("overall desc").Find(&players)
 
 	return players
 }

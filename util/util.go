@@ -331,6 +331,40 @@ func GetOverallGrade(rating int) string {
 	return "F"
 }
 
+func GetNBATeamGrade(rating int) string {
+	if rating > 74 {
+		return "A+"
+	}
+	if rating > 70 {
+		return "A"
+	}
+	if rating > 65 {
+		return "A-"
+	}
+	if rating > 60 {
+		return "B+"
+	}
+	if rating > 55 {
+		return "B"
+	}
+	if rating > 50 {
+		return "B-"
+	}
+	if rating > 45 {
+		return "C+"
+	}
+	if rating > 40 {
+		return "C"
+	}
+	if rating > 35 {
+		return "C-"
+	}
+	if rating > 30 {
+		return "D"
+	}
+	return "F"
+}
+
 func GetAttributeGrade(rating int) string {
 	if rating > 15 {
 		return "A"

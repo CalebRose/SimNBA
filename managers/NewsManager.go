@@ -7,12 +7,12 @@ import (
 	"github.com/CalebRose/SimNBA/structs"
 )
 
-func GetAllCBBNewsLogs(seasonID string) []structs.NewsLog {
+func GetAllCBBNewsLogs() []structs.NewsLog {
 	db := dbprovider.GetInstance().GetDB()
 
 	var logs []structs.NewsLog
 
-	err := db.Where("season_id = ? AND league = ?", seasonID, "CBB").Find(&logs).Error
+	err := db.Where("league = ?", "CBB").Find(&logs).Error
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -20,12 +20,12 @@ func GetAllCBBNewsLogs(seasonID string) []structs.NewsLog {
 	return logs
 }
 
-func GetAllNBANewsLogs(seasonID string) []structs.NewsLog {
+func GetAllNBANewsLogs() []structs.NewsLog {
 	db := dbprovider.GetInstance().GetDB()
 
 	var logs []structs.NewsLog
 
-	err := db.Where("season_id = ? AND league = ?", seasonID, "NBA").Find(&logs).Error
+	err := db.Where("league = ?", "NBA").Find(&logs).Error
 	if err != nil {
 		fmt.Println(err)
 	}

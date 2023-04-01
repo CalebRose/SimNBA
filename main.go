@@ -57,7 +57,7 @@ func handleRequests() {
 	// myRouter.HandleFunc("/admin/migrate/data", controller.MigratePlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/migrate/progress", controller.ProgressPlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/migrate/nba/players", controller.MigrateNBAPlayersToTables).Methods("GET")
-	myRouter.HandleFunc("/admin/progress/nba/players", controller.ProgressNBAPlayers).Methods("GET")
+	// myRouter.HandleFunc("/admin/progress/nba/players", controller.ProgressNBAPlayers).Methods("GET")
 
 	// Capsheet Controls
 	myRouter.HandleFunc("/nba/capsheet/generate", controller.GenerateCapsheets).Methods("GET")
@@ -88,8 +88,8 @@ func handleRequests() {
 	myRouter.HandleFunc("/cbb/match/data/{homeTeamAbbr}/{awayTeamAbbr}", controller.GetMatchData).Methods("GET")
 
 	// News Controls
-	myRouter.HandleFunc("/cbb/news/all/{seasonID}/", controller.GetAllCBBNewsInASeason).Methods("GET")
-	myRouter.HandleFunc("/nba/news/all/{seasonID}/", controller.GetAllNBANewsInASeason).Methods("GET")
+	myRouter.HandleFunc("/cbb/news/all/", controller.GetAllCBBNewsInASeason).Methods("GET")
+	myRouter.HandleFunc("/nba/news/all/", controller.GetAllNBANewsInASeason).Methods("GET")
 
 	// Player Controls
 	myRouter.HandleFunc("/player/AllPlayers", controller.AllCollegePlayers).Methods("GET")
@@ -103,6 +103,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/players/college/recruits", controller.AllCollegeRecruits).Methods("GET")
 	myRouter.HandleFunc("/players/nba", controller.AllNBAPlayers).Methods("GET")
 	myRouter.HandleFunc("/players/nba/freeAgents", controller.AllNBAFreeAgents).Methods("GET")
+	myRouter.HandleFunc("/nba/players/{teamId}", controller.GetNBARosterByTeamID).Methods("GET")
 
 	// Recruit Controls
 	myRouter.HandleFunc("/recruiting/dashboard/{teamID}/", controller.GetRecruitingDataForOverviewPage).Methods("GET")

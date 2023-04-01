@@ -18,7 +18,7 @@ func GetTeamRequests(w http.ResponseWriter, r *http.Request) {
 
 func GetNBATeamRequests(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
-	requests := managers.GetAllTeamRequests()
+	requests := managers.GetAllNBATeamRequests()
 
 	json.NewEncoder(w).Encode(requests)
 }
@@ -49,6 +49,7 @@ func CreateNBATeamRequest(w http.ResponseWriter, r *http.Request) {
 	managers.CreateNBATeamRequest(request)
 
 	fmt.Fprintf(w, "Request Successfully Created")
+	json.NewEncoder(w).Encode(request)
 }
 
 func ApproveTeamRequest(w http.ResponseWriter, r *http.Request) {
@@ -63,6 +64,7 @@ func ApproveTeamRequest(w http.ResponseWriter, r *http.Request) {
 	managers.ApproveTeamRequest(request)
 
 	fmt.Fprintf(w, "Request: %+v", request)
+	json.NewEncoder(w).Encode(request)
 }
 
 func RejectTeamRequest(w http.ResponseWriter, r *http.Request) {
@@ -78,9 +80,11 @@ func RejectTeamRequest(w http.ResponseWriter, r *http.Request) {
 	managers.RejectTeamRequest(request)
 
 	fmt.Fprintf(w, "Request: %+v", request)
+	json.NewEncoder(w).Encode(request)
 }
 
 func ApproveNBATeamRequest(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
 	var request structs.NBARequest
 
 	err := json.NewDecoder(r.Body).Decode(&request)
@@ -92,9 +96,11 @@ func ApproveNBATeamRequest(w http.ResponseWriter, r *http.Request) {
 	managers.ApproveNBATeamRequest(request)
 
 	fmt.Fprintf(w, "Request: %+v", request)
+	json.NewEncoder(w).Encode(request)
 }
 
 func RejectNBATeamRequest(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
 	var request structs.NBARequest
 
 	err := json.NewDecoder(r.Body).Decode(&request)
@@ -106,9 +112,11 @@ func RejectNBATeamRequest(w http.ResponseWriter, r *http.Request) {
 	managers.RejectNBATeamRequest(request)
 
 	fmt.Fprintf(w, "Request: %+v", request)
+	json.NewEncoder(w).Encode(request)
 }
 
 func RemoveNBAUserFromNBATeam(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
 	var request structs.NBARequest
 
 	err := json.NewDecoder(r.Body).Decode(&request)
@@ -119,5 +127,5 @@ func RemoveNBAUserFromNBATeam(w http.ResponseWriter, r *http.Request) {
 
 	managers.RemoveUserFromNBATeam(request)
 
-	// json.NewEncoder(w).Encode(team)
+	json.NewEncoder(w).Encode(request)
 }

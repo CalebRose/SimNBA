@@ -34,6 +34,21 @@ func AllPlayersByTeamId(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(players)
 }
 
+func GetNBARosterByTeamID(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	vars := mux.Vars(r)
+
+	teamId := vars["teamId"]
+
+	if len(teamId) == 0 {
+		panic("User did not provide TeamID")
+	}
+
+	var players = managers.GetAllNBAPlayersByTeamID(teamId)
+
+	json.NewEncoder(w).Encode(players)
+}
+
 func AllCollegePlayers(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	var players = managers.GetAllCollegePlayers()
