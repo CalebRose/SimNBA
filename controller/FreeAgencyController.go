@@ -11,6 +11,7 @@ import (
 
 // FreeAgencyAvailablePlayers - Get All Available NFL Players for Free Agency Page
 func FreeAgencyAvailablePlayers(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
 	vars := mux.Vars(r)
 	teamId := vars["teamID"]
 	var players = managers.GetAllAvailableNBAPlayers(teamId)

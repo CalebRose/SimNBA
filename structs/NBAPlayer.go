@@ -45,6 +45,7 @@ type NBAPlayer struct {
 	InsidePercentage     uint
 	MidPercentage        uint
 	ThreePointPercentage uint
+	Offers               []NBAContractOffer   `gorm:"foreignKey:PlayerID"`
 	Contract             NBAContract          `gorm:"foreignKey:PlayerID"`
 	Stats                []NBAPlayerStats     `gorm:"foreignKey:NBAPlayerID"`
 	SeasonStats          NBAPlayerSeasonStats `gorm:"foreignKey:NBAPlayerID"`
@@ -144,4 +145,17 @@ func (np *NBAPlayer) TradePlayer(id uint, team string) {
 	np.TeamID = id
 	np.TeamAbbr = team
 	np.IsOnTradeBlock = false
+}
+
+func (np *NBAPlayer) AssignMinimumContractValue(val float64) {
+	np.MinimumValue = val
+}
+
+func (np *NBAPlayer) ToggleSuperMax() {
+	np.MaxRequested = true
+	np.IsSuperMaxQualified = !np.IsSuperMaxQualified
+}
+
+func (np *NBAPlayer) ToggleMaxRequested() {
+	np.MaxRequested = !np.MaxRequested
 }

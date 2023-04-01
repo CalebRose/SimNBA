@@ -45,6 +45,7 @@ type RetiredPlayer struct {
 	InsidePercentage     uint
 	MidPercentage        uint
 	ThreePointPercentage uint
+	Offers               []NBAContractOffer   `gorm:"foreignKey:PlayerID"`
 	Contract             NBAContract          `gorm:"foreignKey:PlayerID"`
 	Stats                []NBAPlayerStats     `gorm:"foreignKey:NBAPlayerID"`
 	SeasonStats          NBAPlayerSeasonStats `gorm:"foreignKey:NBAPlayerID"`

@@ -52,6 +52,7 @@ func handleRequests() {
 	// myRouter.HandleFunc("/admin/regress/a", controller.RegressAGamesByOneWeek).Methods("GET")
 	// myRouter.HandleFunc("/admin/regress/b", controller.RegressBGamesByOneWeek).Methods("GET")
 	myRouter.HandleFunc("/admin/week/sync", controller.SyncToNextWeek).Methods("GET")
+	myRouter.HandleFunc("/admin/sync/contract/values", controller.SyncContractValues).Methods("GET")
 
 	// myRouter.HandleFunc("/admin/generateGlobalPlayers", controller.GenerateGlobalPlayerRecords).Methods("GET")
 	// myRouter.HandleFunc("/admin/migrate/data", controller.MigratePlayers).Methods("GET")

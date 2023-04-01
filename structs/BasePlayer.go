@@ -4,6 +4,7 @@ type BasePlayer struct {
 	FirstName            string
 	LastName             string
 	Position             string
+	Archetype            string
 	Age                  int
 	Year                 int
 	State                string
