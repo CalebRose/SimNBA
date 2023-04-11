@@ -57,7 +57,7 @@ func GetAllNBAConferenceStandings(w http.ResponseWriter, r *http.Request) {
 		panic("User did not provide seasonID")
 	}
 
-	conferenceStandings := managers.GetAllConferenceStandingsBySeasonID(seasonID)
+	conferenceStandings := managers.GetAllNBAConferenceStandingsBySeasonID(seasonID)
 
 	json.NewEncoder(w).Encode(conferenceStandings)
 }

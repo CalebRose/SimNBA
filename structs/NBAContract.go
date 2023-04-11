@@ -34,7 +34,9 @@ type NBAContract struct {
 }
 
 func (n *NBAContract) ProgressContract() {
-	n.YearsRemaining--
+	if n.YearsRemaining > 0 {
+		n.YearsRemaining--
+	}
 	n.Year1Total = n.Year2Total
 	n.Year2Total = n.Year3Total
 	n.Year3Total = n.Year4Total

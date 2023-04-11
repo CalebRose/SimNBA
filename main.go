@@ -77,7 +77,8 @@ func handleRequests() {
 	// myRouter.HandleFunc("/generate/specs", controller.GenerateAttributeSpecsForCollegeAndRecruits).Methods("GET")
 
 	// Import
-	// myRouter.HandleFunc("/import/nba", controller.ImportNBATeamsAndArenas).Methods("GET")
+	// myRouter.HandleFunc("/import/nba", controller.ImportNBAStandings).Methods("GET")
+	// myRouter.HandleFunc("/import/fa/preferences", controller.ImportFAPreferences).Methods("GET")
 
 	// Match Controls
 	myRouter.HandleFunc("/match/{matchId}", controller.GetMatchByMatchId).Methods("GET")
@@ -105,6 +106,9 @@ func handleRequests() {
 	myRouter.HandleFunc("/players/nba", controller.AllNBAPlayers).Methods("GET")
 	myRouter.HandleFunc("/players/nba/freeAgents", controller.AllNBAFreeAgents).Methods("GET")
 	myRouter.HandleFunc("/nba/players/{teamId}", controller.GetNBARosterByTeamID).Methods("GET")
+	myRouter.HandleFunc("/nba/players/cut/{playerID}", controller.PlaceNBAPlayerInGLeague).Methods("GET")
+	myRouter.HandleFunc("/nba/players/place/gleague/{playerID}", controller.PlaceNBAPlayerInGLeague).Methods("GET")
+	myRouter.HandleFunc("/nba/players/place/twoway/{playerID}", controller.AssignNBAPlayerAsTwoWay).Methods("GET")
 
 	// Recruit Controls
 	myRouter.HandleFunc("/recruiting/dashboard/{teamID}/", controller.GetRecruitingDataForOverviewPage).Methods("GET")

@@ -42,7 +42,7 @@ func GetAllWaiverWirePlayers() []structs.NBAPlayer {
 
 	WaivedPlayers := []structs.NBAPlayer{}
 
-	db.Where("is_waived = ?", true).Find(&WaivedPlayers)
+	db.Preload("WaiverOffers").Where("is_waived = ?", true).Find(&WaivedPlayers)
 
 	return WaivedPlayers
 }

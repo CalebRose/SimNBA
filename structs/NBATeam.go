@@ -10,6 +10,8 @@ type NBATeam struct {
 	City              string
 	State             string
 	Country           string
+	LeagueID          uint
+	League            string
 	ConferenceID      uint
 	Conference        string
 	DivisionID        uint
@@ -28,6 +30,7 @@ type NBATeam struct {
 	OffenseGrade      string
 	DefenseGrade      string
 	IsActive          bool
+	WaiverOrder       uint
 	Gameplan          NBAGameplan           `gorm:"foreignKey:TeamID"`
 	TeamStats         []TeamStats           `gorm:"foreignKey:TeamID"`
 	TeamSeasonStats   TeamSeasonStats       `gorm:"foreignKey:TeamID"`

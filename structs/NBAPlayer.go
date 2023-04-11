@@ -46,6 +46,7 @@ type NBAPlayer struct {
 	MidPercentage        uint
 	ThreePointPercentage uint
 	Offers               []NBAContractOffer   `gorm:"foreignKey:PlayerID"`
+	WaiverOffers         []NBAWaiverOffer     `gorm:"foreignKey:PlayerID"`
 	Contract             NBAContract          `gorm:"foreignKey:PlayerID"`
 	Stats                []NBAPlayerStats     `gorm:"foreignKey:NBAPlayerID"`
 	SeasonStats          NBAPlayerSeasonStats `gorm:"foreignKey:NBAPlayerID"`
@@ -85,15 +86,15 @@ func (n *NBAPlayer) SignWithTeam(teamID uint, team string) {
 }
 
 func (n *NBAPlayer) Progress(p NBAPlayerProgressions) {
-	n.Shooting2 = p.Shooting2
-	n.Shooting3 = p.Shooting3
-	n.FreeThrow = p.FreeThrow
-	n.Ballwork = p.Ballwork
-	n.Finishing = p.Finishing
-	n.Rebounding = p.Rebounding
-	n.InteriorDefense = p.InteriorDefense
-	n.PerimeterDefense = p.PerimeterDefense
-	n.Overall = p.Overall
+	n.Shooting2 += p.Shooting2
+	n.Shooting3 += p.Shooting3
+	n.FreeThrow += p.FreeThrow
+	n.Ballwork += p.Ballwork
+	n.Finishing += p.Finishing
+	n.Rebounding += p.Rebounding
+	n.InteriorDefense += p.InteriorDefense
+	n.PerimeterDefense += p.PerimeterDefense
+	n.Overall = (int((n.Shooting2 + n.Shooting3 + n.FreeThrow) / 3)) + n.Finishing + n.Ballwork + n.Rebounding + int((n.InteriorDefense+n.PerimeterDefense)/2)
 	n.Age = p.Age
 	n.Stamina = p.Stamina
 	if n.Stamina < 1 {
@@ -115,6 +116,14 @@ func (n *NBAPlayer) ToggleIsNegotiating() {
 
 func (np *NBAPlayer) ToggleTradeBlock() {
 	np.IsOnTradeBlock = !np.IsOnTradeBlock
+}
+
+func (np *NBAPlayer) ToggleGLeague() {
+	np.IsGLeague = !np.IsGLeague
+}
+
+func (np *NBAPlayer) ToggleTwoWay() {
+	np.IsTwoWay = !np.IsTwoWay
 }
 
 func (np *NBAPlayer) RemoveFromTradeBlock() {

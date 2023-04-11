@@ -70,7 +70,7 @@ func AllNBATeams(w http.ResponseWriter, r *http.Request) {
 	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.NBATeam
-	db.Order("team asc").Find(&teams)
+	db.Order("team asc").Where("league_id = ?", "1").Find(&teams)
 	json.NewEncoder(w).Encode(teams)
 }
 

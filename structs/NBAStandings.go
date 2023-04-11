@@ -9,6 +9,8 @@ type NBAStandings struct {
 	TeamAbbr             string
 	SeasonID             uint
 	Season               int
+	LeagueID             uint
+	League               string
 	ConferenceID         uint
 	ConferenceName       string
 	DivisionID           uint
@@ -16,6 +18,10 @@ type NBAStandings struct {
 	PostSeasonStatus     string
 	IsConferenceChampion bool
 	BaseStandings
+}
+
+func (cs *NBAStandings) AssignID(id uint) {
+	cs.ID = id
 }
 
 func (cs *NBAStandings) UpdateNBAStandings(game Match) {

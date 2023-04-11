@@ -32,6 +32,7 @@ type NBACapsheet struct {
 
 func (cs *NBACapsheet) AssignID(id uint) {
 	cs.ID = id
+	cs.TeamID = id
 }
 
 func (cs *NBACapsheet) ResetCapsheet() {
@@ -70,6 +71,15 @@ func (cs *NBACapsheet) SyncByYear() {
 
 func (nc *NBACapsheet) SubtractFromCapsheetViaTrade(contract NBAContract) {
 	nc.Year1Cap += contract.Year1Total
+	nc.Year1Total -= contract.Year1Total
+	nc.Year2Total -= contract.Year2Total
+	nc.Year3Total -= contract.Year3Total
+	nc.Year4Total -= contract.Year4Total
+	nc.Year5Total -= contract.Year5Total
+}
+
+func (nc *NBACapsheet) CutPlayerFromCapsheet(contract NBAContract) {
+	nc.Year1Cap += contract.Year1Total + contract.Year2Total + contract.Year3Total + contract.Year4Total + contract.Year5Total
 	nc.Year1Total -= contract.Year1Total
 	nc.Year2Total -= contract.Year2Total
 	nc.Year3Total -= contract.Year3Total

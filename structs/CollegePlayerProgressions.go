@@ -12,5 +12,6 @@ type CollegePlayerProgressions struct {
 	InteriorDefense  int
 	PerimeterDefense int
 	FreeThrow        int
+	Stamina          int
 	PotentialGrade   string
 }

@@ -89,7 +89,7 @@ func GetCollegePlayersByTeamId(teamId string) []structs.CollegePlayer {
 	db := dbprovider.GetInstance().GetDB()
 
 	var players []structs.CollegePlayer
-	err := db.Order("team_id asc").Where("team_id = ?", teamId).Find(&players).Error
+	err := db.Order("overall desc").Order("team_id asc").Where("team_id = ?", teamId).Find(&players).Error
 	if err != nil {
 		log.Fatalln("Could not retrieve players from CollegePlayer Table")
 	}
@@ -322,4 +322,34 @@ func GetTradableNBAPlayersByTeamID(TeamID string) []structs.NBAPlayer {
 	db.Preload("Contract").Where("team_id = ? AND is_on_trade_block = ?", TeamID, true).Find(&players)
 
 	return players
+}
+
+func PlaceNBAPlayerInGLeague(playerID string) {
+	db := dbprovider.GetInstance().GetDB()
+
+	player := GetNBAPlayerRecord(playerID)
+
+	player.ToggleGLeague()
+
+	db.Save(&player)
+}
+
+func AssignPlayerAsTwoWay(playerID string) {
+	db := dbprovider.GetInstance().GetDB()
+
+	player := GetNBAPlayerRecord(playerID)
+
+	player.ToggleTwoWay()
+
+	db.Save(&player)
+}
+
+func CutNBAPlayer(playerID string) {
+	db := dbprovider.GetInstance().GetDB()
+
+	player := GetNBAPlayerRecord(playerID)
+
+	player.WaivePlayer()
+
+	db.Save(&player)
 }

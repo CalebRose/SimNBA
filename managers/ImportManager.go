@@ -3,7 +3,9 @@ package managers
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"strconv"
+	"time"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
@@ -386,5 +388,82 @@ func SyncContractValues() {
 		player.AssignMinimumContractValue(val)
 
 		db.Save(&player)
+	}
+}
+
+func ImportFAPreferences() {
+	fmt.Println(time.Now().UnixNano())
+	rand.Seed(time.Now().UnixNano())
+
+	db := dbprovider.GetInstance().GetDB()
+	nbaPlayers := GetAllNBAPlayers()
+
+	for _, p := range nbaPlayers {
+		NegotiationRound := 0
+		if p.Overall > 95 {
+			NegotiationRound = util.GenerateIntFromRange(2, 4)
+		} else {
+			NegotiationRound = util.GenerateIntFromRange(3, 6)
+		}
+
+		SigningRound := NegotiationRound + util.GenerateIntFromRange(2, 5)
+		if SigningRound > 10 {
+			SigningRound = 10
+		}
+
+		p.AssignFAPreferences(uint(NegotiationRound), uint(SigningRound))
+
+		db.Save(&p)
+	}
+}
+
+func ImportNBAStandings() {
+	db := dbprovider.GetInstance().GetDB()
+	path := "C:\\Users\\ctros\\go\\src\\github.com\\CalebRose\\SimNBA\\data\\NBAStandings.csv"
+	nbaStandingsCSV := util.ReadCSV(path)
+
+	for idx, row := range nbaStandingsCSV {
+		if idx < 1 {
+			continue
+		}
+
+		id := util.ConvertStringToInt(row[0])
+		teamID := util.ConvertStringToInt(row[1])
+		team := row[2]
+		seasonID := util.ConvertStringToInt(row[3])
+		season := util.ConvertStringToInt(row[4])
+		leagueID := util.ConvertStringToInt(row[5])
+		league := row[6]
+		conferenceID := util.ConvertStringToInt(row[7])
+		conference := row[8]
+		divisionID := util.ConvertStringToInt(row[9])
+		division := row[10]
+		postSeasonStatus := row[11]
+		isConferenceChampion := util.ConvertStringToBool(row[12])
+		totalWins := util.ConvertStringToInt(row[13])
+		totalLosses := util.ConvertStringToInt(row[14])
+
+		standings := structs.NBAStandings{
+			TeamID:               uint(teamID),
+			TeamName:             team,
+			SeasonID:             uint(seasonID),
+			Season:               season,
+			LeagueID:             uint(leagueID),
+			League:               league,
+			ConferenceID:         uint(conferenceID),
+			ConferenceName:       conference,
+			DivisionID:           uint(divisionID),
+			DivisionName:         division,
+			PostSeasonStatus:     postSeasonStatus,
+			IsConferenceChampion: isConferenceChampion,
+			BaseStandings: structs.BaseStandings{
+				TotalWins:   totalWins,
+				TotalLosses: totalLosses,
+			},
+		}
+
+		standings.AssignID(uint(id))
+
+		db.Create(&standings)
 	}
 }

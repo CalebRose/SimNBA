@@ -126,3 +126,42 @@ func NewPlayer(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintf(w, "New Player Successfully Created")
 }
+
+// PlaceNBAPlayerInGLeague
+func PlaceNBAPlayerInGLeague(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	playerID := vars["playerID"]
+	if len(playerID) == 0 {
+		panic("User did not provide playerID")
+	}
+
+	managers.PlaceNBAPlayerInGLeague(playerID)
+
+	json.NewEncoder(w).Encode("Player " + playerID + " placed on trade block.")
+}
+
+// AssignNBAPlayerAsTwoWay
+func AssignNBAPlayerAsTwoWay(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	playerID := vars["playerID"]
+	if len(playerID) == 0 {
+		panic("User did not provide playerID")
+	}
+
+	managers.AssignPlayerAsTwoWay(playerID)
+
+	json.NewEncoder(w).Encode("Player " + playerID + " placed on trade block.")
+}
+
+// CutPlayerFromNBATeam
+func CutPlayerFromNBATeam(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	playerID := vars["playerID"]
+	if len(playerID) == 0 {
+		panic("User did not provide playerID")
+	}
+
+	managers.CutNBAPlayer(playerID)
+
+	json.NewEncoder(w).Encode("Player " + playerID + " placed on trade block.")
+}

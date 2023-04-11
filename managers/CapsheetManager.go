@@ -15,7 +15,7 @@ func GetCapsheetByTeamID(TeamID string) structs.NBACapsheet {
 
 	capSheet := structs.NBACapsheet{}
 
-	err := db.Where("NBA_team_id = ?", TeamID).Find(&capSheet).Error
+	err := db.Where("team_id = ?", TeamID).Find(&capSheet).Error
 	if err != nil {
 		fmt.Println("Could not find capsheet, returning new one")
 		return structs.NBACapsheet{}
@@ -50,9 +50,9 @@ func AllocateCapsheets() {
 		y4 := 0.0
 		y5 := 0.0
 
-		for idx, player := range players {
-			if idx > 50 {
-				break
+		for _, player := range players {
+			if player.IsGLeague {
+				continue
 			}
 			contract := player.Contract
 			y1 += contract.Year1Total

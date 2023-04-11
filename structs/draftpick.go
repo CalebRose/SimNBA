@@ -5,6 +5,7 @@ import "github.com/jinzhu/gorm"
 // DraftPick - a draftpick for a draft
 type DraftPick struct {
 	gorm.Model
+	SeasonID       uint
 	Season         uint
 	DraftRound     uint
 	DraftNumber    uint

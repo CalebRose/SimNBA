@@ -120,13 +120,16 @@ func GetTeamRatings(t structs.Team) {
 	offenseSum := 0
 	defenseSum := 0
 
-	for _, player := range players {
+	for idx, player := range players {
+		if idx > 9 {
+			break
+		}
 		offenseSum += player.Shooting2 + player.Shooting3 + player.Finishing
 		defenseSum += player.Ballwork + player.Rebounding + player.Defense
 	}
 
-	offenseRating = offenseSum / len(players)
-	defenseRating = defenseSum / len(players)
+	offenseRating = offenseSum / 9
+	defenseRating = defenseSum / 9
 	overallRating = (offenseRating + defenseRating) / 2
 
 	offLetterGrade := util.GetOffenseGrade(offenseRating)

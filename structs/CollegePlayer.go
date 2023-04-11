@@ -35,15 +35,16 @@ func (c *CollegePlayer) SetID(id uint) {
 func (cp *CollegePlayer) Progress(attr CollegePlayerProgressions) {
 	// cp.Age++
 	// cp.Year++
-	cp.Ballwork = attr.Ballwork
-	cp.Shooting2 = attr.Shooting2
-	cp.Shooting3 = attr.Shooting3
-	cp.FreeThrow = attr.FreeThrow
-	cp.Finishing = attr.Finishing
-	cp.InteriorDefense = attr.InteriorDefense
-	cp.PerimeterDefense = attr.PerimeterDefense
-	cp.Rebounding = attr.Rebounding
-	cp.Overall = attr.Overall
+	cp.Ballwork += attr.Ballwork
+	cp.Shooting2 += attr.Shooting2
+	cp.Shooting3 += attr.Shooting3
+	cp.FreeThrow += attr.FreeThrow
+	cp.Finishing += attr.Finishing
+	cp.InteriorDefense += attr.InteriorDefense
+	cp.PerimeterDefense += attr.PerimeterDefense
+	cp.Rebounding += attr.Rebounding
+	cp.Stamina = attr.Stamina
+	cp.Overall = (int((cp.Shooting2 + cp.Shooting3 + cp.FreeThrow) / 3)) + cp.Finishing + cp.Ballwork + cp.Rebounding + int((cp.InteriorDefense+cp.PerimeterDefense)/2)
 	cp.HasProgressed = true
 }
 
