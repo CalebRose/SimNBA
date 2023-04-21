@@ -8,8 +8,10 @@ import (
 	"time"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/secrets"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
+	"github.com/jinzhu/gorm"
 )
 
 func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
@@ -248,8 +250,8 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 
 func ImportNBATeamsAndArenas() {
 	db := dbprovider.GetInstance().GetDB()
-	path := "C:\\Users\\ctros\\go\\src\\github.com\\CalebRose\\SimNBA\\data\\NBATeams.csv"
-	arenapath := "C:\\Users\\ctros\\go\\src\\github.com\\CalebRose\\SimNBA\\data\\Arenas.csv"
+	path := secrets.GetPath()["nbateams"]
+	arenapath := secrets.GetPath()["arenas"]
 	nbaTeamsCSV := util.ReadCSV(path)
 
 	for idx, row := range nbaTeamsCSV {
@@ -419,7 +421,7 @@ func ImportFAPreferences() {
 
 func ImportNBAStandings() {
 	db := dbprovider.GetInstance().GetDB()
-	path := "C:\\Users\\ctros\\go\\src\\github.com\\CalebRose\\SimNBA\\data\\NBAStandings.csv"
+	path := secrets.GetPath()["nbastandings"]
 	nbaStandingsCSV := util.ReadCSV(path)
 
 	for idx, row := range nbaStandingsCSV {
@@ -463,6 +465,109 @@ func ImportNBAStandings() {
 		}
 
 		standings.AssignID(uint(id))
+
+		db.Create(&standings)
+	}
+}
+
+func ImportNewPositions() {
+	db := dbprovider.GetInstance().GetDB()
+
+	collegePlayers := GetAllCollegePlayers()
+	recruits := GetAllRecruitRecords()
+
+	for _, c := range collegePlayers {
+		if c.Position == "C" {
+			continue
+		}
+		shooting := (c.Shooting2 + c.Shooting3) / 2
+		if c.Position == "G" {
+			if shooting > c.Ballwork || c.Archetype == "Floor General" {
+				c.SetNewPosition("PG")
+			} else {
+				c.SetNewPosition("SG")
+			}
+		} else {
+			if c.Rebounding > shooting || c.Archetype == "Point Forward" {
+				c.SetNewPosition("PF")
+			} else {
+				c.SetNewPosition("SF")
+			}
+		}
+		db.Save(&c)
+	}
+
+	for _, r := range recruits {
+		if r.Position == "C" {
+			continue
+		}
+		shooting := (r.Shooting2 + r.Shooting3) / 2
+		if r.Position == "G" {
+			if shooting > r.Ballwork || r.Archetype == "Floor General" {
+				r.SetNewPosition("PG")
+			} else {
+				r.SetNewPosition("SG")
+			}
+		} else {
+			if r.Rebounding > shooting || r.Archetype == "Point Forward" {
+				r.SetNewPosition("PF")
+			} else {
+				r.SetNewPosition("SF")
+			}
+		}
+		db.Save(&r)
+	}
+}
+
+func ImportNewTeams() {
+	db := dbprovider.GetInstance().GetDB()
+
+	ts := GetTimestamp()
+	path := secrets.GetPath()["teams"]
+	teams := util.ReadCSV(path)
+
+	for idx, row := range teams {
+		if idx == 0 {
+			continue
+		}
+		teamID := util.ConvertStringToInt(row[0])
+		team := row[1]
+		nickname := row[2]
+		abbr := row[3]
+		city := row[4]
+		state := row[5]
+		country := row[6]
+		conferenceID := util.ConvertStringToInt(row[7])
+		conference := row[8]
+		season := row[10]
+		isActive := util.ConvertStringToBool(row[13])
+
+		t := structs.Team{
+			Team:         team,
+			Nickname:     nickname,
+			Abbr:         abbr,
+			City:         city,
+			State:        state,
+			Country:      country,
+			ConferenceID: uint(conferenceID),
+			Conference:   conference,
+			IsActive:     isActive,
+			IsNBA:        false,
+			FirstSeason:  season,
+			Model:        gorm.Model{ID: uint(teamID)},
+		}
+
+		db.Create(&t)
+
+		standings := structs.CollegeStandings{
+			TeamID:         uint(teamID),
+			TeamName:       team,
+			TeamAbbr:       abbr,
+			SeasonID:       ts.SeasonID,
+			Season:         ts.Season,
+			ConferenceID:   uint(conferenceID),
+			ConferenceName: conference,
+		}
 
 		db.Create(&standings)
 	}

@@ -94,6 +94,12 @@ func (r *Recruit) FixRecruit(grade string, pro int, mod int) {
 	r.RecruitModifier = mod
 }
 
+func (r *Recruit) SetNewAttributes(ft int, id int, pd int) {
+	r.FreeThrow = ft
+	r.InteriorDefense = id
+	r.PerimeterDefense = pd
+}
+
 func (r *Recruit) AssignRankValues(rank247 float64, espnRank float64, rivalsRank float64, modifier float64) {
 	r.Rank247 = rank247
 	r.ESPNRank = espnRank
@@ -117,4 +123,8 @@ func (r *Recruit) ApplySigningStatus(num float64, threshold float64) {
 	} else {
 		r.SigningStatus = "Signed"
 	}
+}
+
+func (b *Recruit) SetNewPosition(pos string) {
+	b.Position = pos
 }

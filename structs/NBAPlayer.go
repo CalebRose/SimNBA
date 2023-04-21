@@ -36,12 +36,6 @@ type NBAPlayer struct {
 	MinimumValue         float64
 	SigningRound         uint
 	NegotiationRound     uint
-	PositionOne          string
-	PositionTwo          string
-	PositionThree        string
-	Position1Minutes     uint
-	Position2Minutes     uint
-	Position3Minutes     uint
 	InsidePercentage     uint
 	MidPercentage        uint
 	ThreePointPercentage uint

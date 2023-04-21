@@ -13,13 +13,14 @@ import (
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
+	"github.com/jinzhu/gorm"
 )
 
 func GenerateNewTeams() {
 	db := dbprovider.GetInstance().GetDB()
 	rand.Seed(time.Now().Unix())
 
-	var lastPlayerRecord structs.Player
+	var lastPlayerRecord structs.GlobalPlayer
 
 	err := db.Last(&lastPlayerRecord).Error
 	if err != nil {
@@ -32,42 +33,51 @@ func GenerateNewTeams() {
 
 	teams := GetAllActiveCollegeTeams()
 	firstNameMap, lastNameMap := getNameMaps()
-	var positionList []string = []string{"G", "F", "C"}
+	var positionList []string = []string{"PG", "SG", "PF", "SF", "C"}
 
 	for _, team := range teams {
 		// Test Generation
 		yearList := []int{}
 		players := GetCollegePlayersByTeamId(strconv.Itoa(int(team.ID)))
+		if len(players) > 0 {
+			continue
+		}
 		seniors := 3
 		juniors := 3
 		sophomores := 3
-		freshmen := 4
-		fCount := 0
-		gCount := 0
+		freshmen := 3
+		sfCount := 0
+		pfCount := 0
+		pgCount := 0
+		sgCount := 0
 		cCount := 0
-		requiredPlayers := 13
+		requiredPlayers := 12
 		count := 0
-		if len(players) > 0 {
-			requiredPlayers -= len(players)
-			for _, player := range players {
-				if player.Year == 4 && !player.IsRedshirt {
-					seniors--
-				} else if player.Year == 3 || (player.Year == 4 && player.IsRedshirt) {
-					juniors--
-				} else if player.Year == 2 || (player.Year == 3 && player.IsRedshirt) {
-					sophomores--
-				} else {
-					freshmen--
-				}
-				if player.Position == "F" {
-					fCount++
-				} else if player.Position == "G" {
-					gCount++
-				} else {
-					cCount++
-				}
+
+		requiredPlayers -= len(players)
+		for _, player := range players {
+			if player.Year == 4 && !player.IsRedshirt {
+				seniors--
+			} else if player.Year == 3 || (player.Year == 4 && player.IsRedshirt) {
+				juniors--
+			} else if player.Year == 2 || (player.Year == 3 && player.IsRedshirt) {
+				sophomores--
+			} else {
+				freshmen--
+			}
+			if player.Position == "PF" {
+				pfCount++
+			} else if player.Position == "SF" {
+				sfCount++
+			} else if player.Position == "PG" {
+				pgCount++
+			} else if player.Position == "SG" {
+				sgCount++
+			} else {
+				cCount++
 			}
 		}
+
 		for i := 0; i < seniors; i++ {
 			yearList = append(yearList, 4)
 		}
@@ -83,21 +93,31 @@ func GenerateNewTeams() {
 		var positionQueue []string
 		for i := 0; i < requiredPlayers; i++ {
 			pickedPosition := util.PickFromStringList(positionList)
-			if pickedPosition == "F" && fCount > 3 {
-				quickList := []string{"G", "C"}
+			if pickedPosition == "PF" && pfCount > 2 {
+				quickList := []string{"PG", "SF", "SG", "C"}
 				pickedPosition = util.PickFromStringList(quickList)
-			} else if pickedPosition == "G" && gCount > 3 {
-				quickList := []string{"F", "C"}
+			} else if pickedPosition == "SF" && sfCount > 2 {
+				quickList := []string{"PG", "PF", "SG", "C"}
 				pickedPosition = util.PickFromStringList(quickList)
-			} else if pickedPosition == "C" && cCount > 3 {
-				quickList := []string{"F", "G"}
+			} else if pickedPosition == "PG" && pgCount > 2 {
+				quickList := []string{"PF", "SG", "SF", "C"}
+				pickedPosition = util.PickFromStringList(quickList)
+			} else if pickedPosition == "SG" && pgCount > 2 {
+				quickList := []string{"PF", "PG", "SF", "C"}
+				pickedPosition = util.PickFromStringList(quickList)
+			} else if pickedPosition == "C" && cCount > 2 {
+				quickList := []string{"SF", "PG", "SG", "PF"}
 				pickedPosition = util.PickFromStringList(quickList)
 			}
 
-			if pickedPosition == "F" {
-				fCount++
-			} else if pickedPosition == "G" {
-				gCount++
+			if pickedPosition == "SF" {
+				sfCount++
+			} else if pickedPosition == "PF" {
+				pfCount++
+			} else if pickedPosition == "PG" {
+				pgCount++
+			} else if pickedPosition == "SG" {
+				sgCount++
 			} else {
 				cCount++
 			}
@@ -111,10 +131,20 @@ func GenerateNewTeams() {
 			year := yearList[count]
 			player := createCollegePlayer(team, pickedEthnicity, pickedPosition, year, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], newID)
 			// playerList = append(playerList, player)
-			err := db.Save(&player).Error
+			err := db.Create(&player).Error
 			if err != nil {
 				log.Panicln("Could not save player record")
 			}
+
+			globalPlayer := structs.GlobalPlayer{
+				Model:           gorm.Model{ID: newID},
+				CollegePlayerID: newID,
+				RecruitID:       newID,
+				NBAPlayerID:     newID,
+			}
+
+			db.Create(&globalPlayer)
+
 			count++
 			newID++
 		}
@@ -297,14 +327,6 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 
 	firstName := strings.Title(strings.ToLower(fName))
 	lastName := strings.Title(strings.ToLower(lName))
-	age := 19
-	if year == 4 {
-		age = 22
-	} else if year == 3 {
-		age = 21
-	} else if year == 2 {
-		age = 20
-	}
 	state := ""
 	country := pickCountry(ethnicity)
 	if country == "USA" {
@@ -332,7 +354,7 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 		potential = util.GenerateIntFromRange(5, 25)
 	}
 
-	expectations := util.GetPlaytimeExpectations(stars, year)
+	expectations := util.GetPlaytimeExpectations(stars, year, overall)
 	personality := util.GetPersonality()
 	academicBias := util.GetAcademicBias()
 	workEthic := util.GetWorkEthic()
@@ -343,8 +365,8 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 		FirstName:            firstName,
 		LastName:             lastName,
 		Position:             position,
-		Age:                  age,
-		Year:                 year,
+		Age:                  19,
+		Year:                 1,
 		State:                state,
 		Country:              country,
 		Stars:                stars,
@@ -387,8 +409,8 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 		collegePlayer.ToggleSpecialties(spec)
 	}
 
-	for i := 0; i < year && year > 1; i++ {
-		collegePlayer = ProgressCollegePlayer(collegePlayer)
+	for i := 1; i < year && year > 1; i++ {
+		collegePlayer = ProgressCollegePlayer(collegePlayer, true)
 	}
 
 	return collegePlayer
@@ -423,7 +445,7 @@ func createRecruit(ethnicity string, position string, year int, firstNameList []
 	overall := (int((shooting2 + shooting3 + freeThrow) / 3)) + finishing + ballwork + rebounding + int((interiorDefense+perimeterDefense)/2)
 	stars := getStarRating(overall)
 	recruitModifier := GetRecruitModifier(stars)
-	expectations := util.GetPlaytimeExpectations(stars, year)
+	expectations := util.GetPlaytimeExpectations(stars, year, overall)
 	personality := util.GetPersonality()
 	academicBias := util.GetAcademicBias()
 	workEthic := util.GetWorkEthic()

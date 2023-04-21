@@ -177,7 +177,7 @@ func GetWorkEthic() string {
 
 func GetSpecialties(pos string) []string {
 	chance := GenerateIntFromRange(0, 9)
-	if chance < 2 {
+	if chance < 1 {
 		return []string{}
 	}
 
@@ -187,74 +187,74 @@ func GetSpecialties(pos string) []string {
 
 	// S2
 	diceRoll = GenerateIntFromRange(1, 20)
-	if pos == "G" || pos == "F" {
-		mod = 3
+	if pos == "SG" || pos == "SF" || pos == "PG" {
+		mod = 2
 	}
-	if diceRoll+mod > 15 {
+	if diceRoll+mod > 14 {
 		list = append(list, "SpecShooting2")
 	}
 
 	// S3
 	diceRoll = GenerateIntFromRange(1, 20)
-	if pos == "G" {
-		mod = 3
+	if pos == "PG" || pos == "SG" {
+		mod = 2
 	}
-	if diceRoll+mod > 15 {
+	if diceRoll+mod > 14 {
 		list = append(list, "SpecShooting3")
 	}
 	// FT
 	diceRoll = GenerateIntFromRange(1, 20)
-	if pos == "G" || pos == "F" {
-		mod = 3
+	if pos == "SG" || pos == "SF" || pos == "PF" {
+		mod = 2
 	} else {
 		mod = -1
 	}
-	if diceRoll+mod > 15 {
+	if diceRoll+mod > 14 {
 		list = append(list, "SpecFreeThrow")
 	}
 
 	// FN
 	diceRoll = GenerateIntFromRange(1, 20)
-	if pos == "F" || pos == "C" {
-		mod = 3
+	if pos == "SF" || pos == "C" || pos == "SG" {
+		mod = 2
 	}
-	if diceRoll > 15 {
+	if diceRoll > 14 {
 		list = append(list, "SpecFinishing")
 	}
 
 	// BW
 	diceRoll = GenerateIntFromRange(1, 20)
-	if pos == "G" {
-		mod = 4
+	if pos == "PG" || pos == "SG" {
+		mod = 2
 	}
-	if diceRoll+mod > 15 {
+	if diceRoll+mod > 14 {
 		list = append(list, "SpecBallwork")
 	}
 
 	// RB
 	diceRoll = GenerateIntFromRange(1, 20)
-	if pos == "C" || pos == "F" {
-		mod = 4
+	if pos == "C" || pos == "PF" {
+		mod = 2
 	}
-	if diceRoll+mod > 15 {
+	if diceRoll+mod > 14 {
 		list = append(list, "SpecRebounding")
 	}
 
 	// ID
 	diceRoll = GenerateIntFromRange(1, 20)
-	if pos == "C" || pos == "F" {
-		mod = 3
+	if pos == "C" || pos == "PF" {
+		mod = 2
 	}
-	if diceRoll+mod > 15 {
+	if diceRoll+mod > 14 {
 		list = append(list, "SpecInteriorDefense")
 	}
 
 	// PD
 	diceRoll = GenerateIntFromRange(1, 20)
-	if pos == "G" || pos == "F" {
-		mod = 3
+	if pos == "SG" || pos == "SF" {
+		mod = 2
 	}
-	if diceRoll+mod > 15 {
+	if diceRoll+mod > 14 {
 		list = append(list, "SpecPerimeterDefense")
 	}
 	return list
@@ -284,49 +284,121 @@ func GetFreeAgencyBias() string {
 }
 
 func GetOffenseGrade(rating int) string {
-	if rating > 40 {
+	if rating > 45 {
+		return "A+"
+	}
+	if rating > 42 {
 		return "A"
 	}
-	if rating > 35 {
+	if rating > 39 {
+		return "A-"
+	}
+	if rating > 36 {
+		return "B+"
+	}
+	if rating > 33 {
 		return "B"
 	}
-	if rating > 32 {
+	if rating > 30 {
+		return "B-"
+	}
+	if rating > 27 {
+		return "C+"
+	}
+	if rating > 24 {
 		return "C"
 	}
-	if rating > 30 {
+	if rating > 21 {
+		return "C-"
+	}
+	if rating > 18 {
+		return "D+"
+	}
+	if rating > 15 {
 		return "D"
+	}
+	if rating > 12 {
+		return "D-"
 	}
 	return "F"
 }
 
 func GetDefenseGrade(rating int) string {
-	if rating > 40 {
+	if rating > 45 {
+		return "A+"
+	}
+	if rating > 42 {
 		return "A"
 	}
-	if rating > 35 {
+	if rating > 39 {
+		return "A-"
+	}
+	if rating > 36 {
+		return "B+"
+	}
+	if rating > 33 {
 		return "B"
 	}
-	if rating > 32 {
-		return "C"
+	if rating > 30 {
+		return "B-"
 	}
 	if rating > 27 {
+		return "C+"
+	}
+	if rating > 24 {
+		return "C"
+	}
+	if rating > 21 {
+		return "C-"
+	}
+	if rating > 18 {
+		return "D+"
+	}
+	if rating > 15 {
 		return "D"
+	}
+	if rating > 12 {
+		return "D-"
 	}
 	return "F"
 }
 
 func GetOverallGrade(rating int) string {
-	if rating > 40 {
+	if rating > 45 {
+		return "A+"
+	}
+	if rating > 42 {
 		return "A"
 	}
-	if rating > 35 {
+	if rating > 39 {
+		return "A-"
+	}
+	if rating > 36 {
+		return "B+"
+	}
+	if rating > 33 {
 		return "B"
 	}
-	if rating > 32 {
+	if rating > 30 {
+		return "B-"
+	}
+	if rating > 27 {
+		return "C+"
+	}
+	if rating > 24 {
 		return "C"
 	}
-	if rating > 30 {
+	if rating > 21 {
+		return "C-"
+	}
+	if rating > 18 {
+		return "D+"
+	}
+	if rating > 15 {
 		return "D"
+	}
+	if rating > 12 {
+		return "D-"
 	}
 	return "F"
 }
@@ -511,45 +583,49 @@ func GetPotentialGrade(rating int) string {
 	return "F"
 }
 
-func GetPlaytimeExpectations(stars int, year int) int {
+func GetPlaytimeExpectations(stars int, year int, overall int) int {
+	mod := 0
+	if overall > 60 {
+		mod = 4
+	}
 	if stars == 5 {
 		if year == 4 {
-			return GenerateIntFromRange(15, 29)
+			return GenerateIntFromRange(15, 29) + mod
 		} else if year == 3 {
-			return GenerateIntFromRange(10, 25)
+			return GenerateIntFromRange(10, 25) + mod
 		} else if year == 2 {
-			return GenerateIntFromRange(10, 20)
+			return GenerateIntFromRange(10, 20) + mod
 		}
-		return GenerateIntFromRange(10, 20)
+		return GenerateIntFromRange(10, 20) + mod
 	} else if stars == 4 {
 		if year == 4 {
-			return GenerateIntFromRange(15, 25)
+			return GenerateIntFromRange(15, 25) + mod
 		} else if year == 3 {
-			return GenerateIntFromRange(9, 20)
+			return GenerateIntFromRange(9, 20) + mod
 		} else if year == 2 {
-			return GenerateIntFromRange(5, 17)
+			return GenerateIntFromRange(5, 17) + mod
 		}
-		return GenerateIntFromRange(5, 15)
+		return GenerateIntFromRange(5, 15) + mod
 	} else if stars == 3 {
 		if year == 4 {
-			return GenerateIntFromRange(7, 21)
+			return GenerateIntFromRange(7, 21) + mod
 		} else if year == 3 {
-			return GenerateIntFromRange(3, 17)
+			return GenerateIntFromRange(3, 17) + mod
 		} else if year == 2 {
-			return GenerateIntFromRange(2, 13)
+			return GenerateIntFromRange(2, 13) + mod
 		}
-		return GenerateIntFromRange(0, 10)
+		return GenerateIntFromRange(0, 10) + mod
 	} else if stars == 2 {
 		if year == 4 {
-			return GenerateIntFromRange(0, 13)
+			return GenerateIntFromRange(0, 13) + mod
 		} else if year == 3 {
-			return GenerateIntFromRange(0, 13)
+			return GenerateIntFromRange(0, 13) + mod
 		} else if year == 2 {
-			return GenerateIntFromRange(0, 9)
+			return GenerateIntFromRange(0, 9) + mod
 		}
-		return GenerateIntFromRange(0, 6)
+		return GenerateIntFromRange(0, 6) + mod
 	} else {
-		return GenerateIntFromRange(0, 5)
+		return GenerateIntFromRange(0, 5) + mod
 	}
 }
 

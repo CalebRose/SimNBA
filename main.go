@@ -57,6 +57,7 @@ func handleRequests() {
 	// myRouter.HandleFunc("/admin/generateGlobalPlayers", controller.GenerateGlobalPlayerRecords).Methods("GET")
 	// myRouter.HandleFunc("/admin/migrate/data", controller.MigratePlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/migrate/progress", controller.ProgressPlayers).Methods("GET")
+	// myRouter.HandleFunc("/admin/migrate/new/teams", controller.ImportNewTeams).Methods("GET")
 	// myRouter.HandleFunc("/admin/migrate/nba/players", controller.MigrateNBAPlayersToTables).Methods("GET")
 	// myRouter.HandleFunc("/admin/progress/nba/players", controller.ProgressNBAPlayers).Methods("GET")
 
@@ -78,7 +79,9 @@ func handleRequests() {
 
 	// Import
 	// myRouter.HandleFunc("/import/nba", controller.ImportNBAStandings).Methods("GET")
+	// myRouter.HandleFunc("/import/archetypes", controller.ImportArchetypes).Methods("GET")
 	// myRouter.HandleFunc("/import/fa/preferences", controller.ImportFAPreferences).Methods("GET")
+	myRouter.HandleFunc("/import/positions", controller.ImportNewPositions).Methods("GET")
 
 	// Match Controls
 	myRouter.HandleFunc("/match/{matchId}", controller.GetMatchByMatchId).Methods("GET")

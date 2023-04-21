@@ -32,6 +32,11 @@ func ProgressPlayers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("DONE!")
 }
 
+func ImportNewTeams(w http.ResponseWriter, r *http.Request) {
+	managers.ImportNewTeams()
+	json.NewEncoder(w).Encode("DONE!")
+}
+
 func FillAIBoards(w http.ResponseWriter, r *http.Request) {
 	managers.FillAIRecruitingBoards()
 	json.NewEncoder(w).Encode("AI recruiting boards complete!")
@@ -130,13 +135,6 @@ func CollusionButton(w http.ResponseWriter, r *http.Request) {
 	}
 
 	db.Create(&newsLog)
-}
-
-func MigrateNBAPlayersToTables(w http.ResponseWriter, r *http.Request) {
-
-	managers.MigrateNBAPlayersToTables()
-
-	json.NewEncoder(w).Encode("Migration Complete")
 }
 
 func ProgressNBAPlayers(w http.ResponseWriter, r *http.Request) {

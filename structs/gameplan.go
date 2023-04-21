@@ -11,6 +11,9 @@ type Gameplan struct {
 	ThreePointProportion int
 	JumperProportion     int
 	PaintProportion      int
+	FocusPlayer          uint
+	OffensiveFormation   string
+	DefensiveFormation   string
 }
 
 // UpdatePace - Update the Pace of the Gameplan

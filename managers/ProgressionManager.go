@@ -3,6 +3,7 @@ package managers
 import (
 	"fmt"
 	"log"
+	"math"
 	"math/rand"
 	"strconv"
 	"time"
@@ -17,14 +18,16 @@ func ProgressionMain() {
 	fmt.Println(time.Now().UnixNano())
 	rand.Seed(time.Now().UnixNano())
 
+	ts := GetTimestamp()
+
 	collegeTeams := GetAllActiveCollegeTeams()
 
 	for _, team := range collegeTeams {
 		// var graduatingPlayers []structs.NBADraftee
 		teamID := strconv.Itoa(int(team.ID))
 		// roster := GetAllCollegePlayersWithStatsByTeamID(teamID, SeasonID)
-		roster := GetCollegePlayersByTeamId(teamID)
-		// croots := GetSignedRecruitsByTeamProfileID(teamID)
+		roster := GetCollegePlayersByTeamIdForProgression(teamID)
+		croots := GetSignedRecruitsByTeamProfileID(teamID)
 
 		for _, player := range roster {
 			if player.HasProgressed {
@@ -35,30 +38,47 @@ func ProgressionMain() {
 				// }
 				continue
 			}
-			player = ProgressCollegePlayer(player)
+			isGraduating, isDeclaringEarly := CheckForDeclaring(player)
+			player = ProgressCollegePlayer(player, false)
 			if player.IsRedshirting {
 				player.SetRedshirtStatus()
 			}
 
-			player.SetExpectations(util.GetPlaytimeExpectations(player.Stars, player.Year))
+			player.SetExpectations(util.GetPlaytimeExpectations(player.Stars, player.Year, player.Overall))
 
-			if (player.IsRedshirt && player.Year > 5) ||
-				(!player.IsRedshirt && player.Year > 4) {
+			if isGraduating || isDeclaringEarly {
 				player.GraduatePlayer()
-				if player.Overall > 69 {
-					draftee := structs.NBADraftee{}
-					draftee.Map(player)
-					draftee.AssignPrimeAge(util.GenerateIntFromRange(25, 30))
 
-					err := db.Save(&draftee).Error
-					if err != nil {
-						log.Panicln("Could not save historic player record!")
-					}
+				message := player.Position + " " + player.FirstName + " " + player.LastName + " has graduated from " + player.TeamAbbr + "!"
+				if isDeclaringEarly {
+					message = player.Position + " " + player.FirstName + " " + player.LastName + " is declaring early from " + player.TeamAbbr + ", and will be eligible to draft in SimNBA!"
+				}
+
+				newsLog := structs.NewsLog{
+					League:      "CBB",
+					MessageType: "Graduation",
+					Message:     message,
+					SeasonID:    ts.SeasonID,
+					Season:      uint(ts.Season),
+					WeekID:      ts.CollegeWeekID,
+					Week:        uint(ts.CollegeWeek),
+				}
+
+				db.Create(&newsLog)
+
+				// Make draftee record
+				draftee := structs.NBADraftee{}
+				draftee.Map(player)
+				draftee.AssignPrimeAge(util.GenerateIntFromRange(25, 30))
+
+				err := db.Save(&draftee).Error
+				if err != nil {
+					log.Panicln("Could not save historic player record!")
 				}
 
 				hcp := (structs.HistoricCollegePlayer)(player)
 
-				err := db.Save(&hcp).Error
+				err = db.Save(&hcp).Error
 				if err != nil {
 					log.Panicln("Could not save historic player record!")
 				}
@@ -79,25 +99,21 @@ func ProgressionMain() {
 
 		}
 
-		// for _, croot := range croots {
-		// 	// Convert to College Player Record
-		// 	cp := structs.CollegePlayer{}
-		// 	cp.MapFromRecruit(croot, team)
+		for _, croot := range croots {
+			// Convert to College Player Record
+			cp := structs.CollegePlayer{}
+			cp.MapFromRecruit(croot, team)
 
-		// 	// Save College Player Record
-		// 	err := db.Save(&cp).Error
-		// 	if err != nil {
-		// 		log.Panicln("Could not save new college player record")
-		// 	}
+			// Save College Player Record
+			err := db.Create(&cp).Error
+			if err != nil {
+				log.Panicln("Could not save new college player record")
+			}
 
-		// 	// Delete Recruit Record
-		// }
+			// Delete Recruit Record
+			db.Delete(&croot)
+		}
 
-		// Graduating players
-		// err := db.CreateInBatches(&graduatingPlayers, len(graduatingPlayers)).Error
-		// if err != nil {
-		// 	log.Panicln("Could not save graduating players")
-		// }
 	}
 }
 
@@ -259,7 +275,7 @@ func ProgressNBAPlayer(np structs.NBAPlayer) structs.NBAPlayer {
 	return np
 }
 
-func ProgressCollegePlayer(cp structs.CollegePlayer) structs.CollegePlayer {
+func ProgressCollegePlayer(cp structs.CollegePlayer, isGeneration bool) structs.CollegePlayer {
 	stats := cp.Stats
 	totalMinutes := 0
 
@@ -270,6 +286,10 @@ func ProgressCollegePlayer(cp structs.CollegePlayer) structs.CollegePlayer {
 	var MinutesPerGame int = 0
 	if len(stats) > 0 {
 		MinutesPerGame = totalMinutes / len(stats)
+	}
+
+	if isGeneration {
+		MinutesPerGame = 100
 	}
 
 	// Primary Progressions
@@ -284,6 +304,9 @@ func ProgressCollegePlayer(cp structs.CollegePlayer) structs.CollegePlayer {
 
 	attributeList := []string{}
 
+	pointLimit := GetPointLimit(cp.Potential)
+	count := 0
+
 	s2DiceRoll := util.GenerateIntFromRange(1, 20)
 	s3DiceRoll := util.GenerateIntFromRange(1, 20)
 	ftDiceRoll := util.GenerateIntFromRange(1, 20)
@@ -295,29 +318,54 @@ func ProgressCollegePlayer(cp structs.CollegePlayer) structs.CollegePlayer {
 
 	potentialModifier := cp.Potential / 20 // Guaranteed to be between 1-5
 
-	if s2DiceRoll+potentialModifier > 15 || cp.SpecShooting2 {
+	if cp.SpecShooting2 {
+		attributeList = append(attributeList, "Shooting2")
+	}
+	if cp.SpecShooting3 {
+		attributeList = append(attributeList, "Shooting3")
+	}
+	if cp.SpecFreeThrow {
+		attributeList = append(attributeList, "FreeThrow")
+	}
+	if cp.SpecFinishing {
+		attributeList = append(attributeList, "Finishing")
+	}
+	if cp.SpecBallwork {
+		attributeList = append(attributeList, "Ballwork")
+	}
+	if cp.SpecRebounding {
+		attributeList = append(attributeList, "Rebounding")
+	}
+	if cp.SpecInteriorDefense {
+		attributeList = append(attributeList, "InteriorDefense")
+	}
+	if cp.SpecPerimeterDefense {
+		attributeList = append(attributeList, "PerimeterDefense")
+	}
+
+	if s2DiceRoll+potentialModifier >= 15 {
 		attributeList = append(attributeList, "Shooting2")
 	}
 
-	if s3DiceRoll+potentialModifier > 15 || cp.SpecShooting3 {
+	if s3DiceRoll+potentialModifier >= 15 {
 		attributeList = append(attributeList, "Shooting3")
 	}
-	if ftDiceRoll+potentialModifier > 15 || cp.SpecFreeThrow {
+	if ftDiceRoll+potentialModifier >= 15 {
 		attributeList = append(attributeList, "FreeThrow")
 	}
-	if fnDiceRoll+potentialModifier > 15 || cp.SpecFinishing {
+	if fnDiceRoll+potentialModifier >= 15 {
 		attributeList = append(attributeList, "Finishing")
 	}
-	if bwDiceRoll+potentialModifier > 15 || cp.SpecBallwork {
+	if bwDiceRoll+potentialModifier >= 15 {
 		attributeList = append(attributeList, "Ballwork")
 	}
-	if rbDiceRoll+potentialModifier > 15 || cp.SpecRebounding {
+	if rbDiceRoll+potentialModifier >= 15 {
 		attributeList = append(attributeList, "Rebounding")
 	}
-	if idDiceRoll+potentialModifier > 15 || cp.SpecInteriorDefense {
+	if idDiceRoll+potentialModifier >= 15 {
 		attributeList = append(attributeList, "InteriorDefense")
 	}
-	if pdDiceRoll+potentialModifier > 15 || cp.SpecPerimeterDefense {
+	if pdDiceRoll+potentialModifier >= 15 {
 		attributeList = append(attributeList, "PerimeterDefense")
 	}
 
@@ -326,27 +374,66 @@ func ProgressCollegePlayer(cp structs.CollegePlayer) structs.CollegePlayer {
 	})
 
 	for _, attr := range attributeList {
-		if attr == "Shooting2" {
-			shooting2 = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecShooting2, cp.IsRedshirting)
-		} else if attr == "Shooting3" {
-			shooting3 = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecShooting3, cp.IsRedshirting)
-		} else if attr == "FreeThrow" {
-			freeThrow = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecFreeThrow, cp.IsRedshirting)
-		} else if attr == "Finishing" {
-			finishing = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecFinishing, cp.IsRedshirting)
-		} else if attr == "Ballwork" {
-			ballwork = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecBallwork, cp.IsRedshirting)
-		} else if attr == "Rebounding" {
-			rebounding = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecRebounding, cp.IsRedshirting)
-		} else if attr == "InteriorDefense" {
-			interiorDefense = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecInteriorDefense, cp.IsRedshirting)
-		} else if attr == "PerimeterDefense" {
-			perimeterDefense = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecPerimeterDefense, cp.IsRedshirting)
+		if count >= pointLimit {
+			break
 		}
+		allocation := 0
+		if attr == "Shooting2" {
+			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecShooting2, cp.IsRedshirting)
+			if count+allocation > pointLimit {
+				allocation = pointLimit - count
+			}
+			shooting2 += allocation
+		} else if attr == "Shooting3" {
+			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecShooting3, cp.IsRedshirting)
+			if count+allocation > pointLimit {
+				allocation = pointLimit - count
+			}
+			shooting3 += allocation
+		} else if attr == "FreeThrow" {
+			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecFreeThrow, cp.IsRedshirting)
+			if count+allocation > pointLimit {
+				allocation = pointLimit - count
+			}
+			freeThrow += allocation
+		} else if attr == "Finishing" {
+			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecFinishing, cp.IsRedshirting)
+			if count+allocation > pointLimit {
+				allocation = pointLimit - count
+			}
+			finishing += allocation
+		} else if attr == "Ballwork" {
+			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecBallwork, cp.IsRedshirting)
+			if count+allocation > pointLimit {
+				allocation = pointLimit - count
+			}
+			ballwork += allocation
+		} else if attr == "Rebounding" {
+			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecRebounding, cp.IsRedshirting)
+			if count+allocation > pointLimit {
+				allocation = pointLimit - count
+			}
+			rebounding += allocation
+		} else if attr == "InteriorDefense" {
+			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecInteriorDefense, cp.IsRedshirting)
+			if count+allocation > pointLimit {
+				allocation = pointLimit - count
+			}
+			interiorDefense += allocation
+		} else if attr == "PerimeterDefense" {
+			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecPerimeterDefense, cp.IsRedshirting)
+			if count+allocation > pointLimit {
+				allocation = pointLimit - count
+			}
+			perimeterDefense += allocation
+		}
+		count += allocation
 	}
 
 	// Primary Progressions
 	staminaCheck := ProgressStamina(cp.Stamina, 0)
+
+	potentialGrade := util.GetWeightedPotentialGrade(cp.Potential)
 
 	progressions := structs.CollegePlayerProgressions{
 		Shooting2:        shooting2,
@@ -358,6 +445,7 @@ func ProgressCollegePlayer(cp structs.CollegePlayer) structs.CollegePlayer {
 		InteriorDefense:  interiorDefense,
 		PerimeterDefense: perimeterDefense,
 		Stamina:          staminaCheck,
+		PotentialGrade:   potentialGrade,
 	}
 
 	cp.Progress(progressions)
@@ -432,11 +520,11 @@ func CollegePlayerProgression(progression int, mpg int, minutesRequired int, spe
 	max := 0
 
 	progressionCheck := util.GenerateIntFromRange(1, 100)
-	if progressionCheck < progression {
+	if progressionCheck <= progression {
 		max = 1
 	}
 
-	if spec || progressionCheck < progression-25 {
+	if spec || progressionCheck <= progression-25 {
 		max = 2
 	}
 
@@ -475,4 +563,42 @@ func GetModifiers(position string, mpg int, attrib string) float64 {
 		minuteMod = rand.Float64()*(0.75-0.5) + 0.5
 	}
 	return minuteMod
+}
+
+func GetPointLimit(pot int) int {
+	floater := float64(pot)
+	floor := floater / 10
+	roundUp := math.Ceil(floor)
+	if roundUp < 1 {
+		floor = 1
+	}
+	roof := int(roundUp) + util.GenerateIntFromRange(0, 1)
+	if roof > 10 {
+		roof = 10
+	}
+	return util.GenerateIntFromRange(int(roundUp), roof)
+}
+
+func CheckForDeclaring(player structs.CollegePlayer) (bool, bool) {
+	// Redshirt senior or just a senior
+	if (player.IsRedshirt && player.Year == 5) || (!player.IsRedshirt && player.Year == 4 && !player.IsRedshirting) {
+		return true, false
+	}
+	ovr := player.Overall
+	if ovr < 65 || player.IsRedshirting {
+		return false, false
+	}
+	odds := util.GenerateIntFromRange(1, 100)
+	if ovr > 64 && odds <= 40 {
+		return true, true
+	} else if ovr > 69 && odds <= 55 {
+		return true, true
+	} else if ovr > 74 && odds <= 75 {
+		return true, true
+	} else if ovr > 79 && odds <= 95 {
+		return true, true
+	} else if ovr > 84 {
+		return true, true
+	}
+	return false, false
 }

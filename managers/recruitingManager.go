@@ -459,7 +459,7 @@ func CreateRecruit(dto structs.CreateRecruitDTO) {
 
 	newID := lastPlayerRecord.ID + 1
 	threshold := GetRecruitModifier(dto.Stars)
-	expectations := util.GetPlaytimeExpectations(dto.Stars, 1)
+	expectations := util.GetPlaytimeExpectations(dto.Stars, 1, 0)
 	rankMod := 0.95 + rand.Float64()*(1.05-0.95)
 
 	collegeRecruit := &structs.Recruit{

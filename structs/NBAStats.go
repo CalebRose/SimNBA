@@ -304,6 +304,7 @@ type NBAPlayerSeasonStats struct {
 	GamesPlayed               uint
 	NBAPlayerID               uint
 	SeasonID                  uint
+	Year                      uint
 	Minutes                   int
 	MinutesPerGame            float64
 	PossessionsPerGame        float64
@@ -348,6 +349,7 @@ type NBAPlayerStats struct {
 	NBAPlayerID        uint
 	MatchID            uint
 	SeasonID           uint
+	Year               uint
 	Minutes            int
 	Possessions        int
 	FGM                int

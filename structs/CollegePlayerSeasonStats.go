@@ -7,6 +7,7 @@ type CollegePlayerSeasonStats struct {
 	GamesPlayed               uint
 	CollegePlayerID           uint
 	SeasonID                  uint
+	Year                      uint
 	Minutes                   int
 	MinutesPerGame            float64
 	PossessionsPerGame        float64
