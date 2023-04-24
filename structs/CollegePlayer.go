@@ -47,10 +47,10 @@ func (cp *CollegePlayer) Progress(attr CollegePlayerProgressions) {
 	cp.HasProgressed = true
 }
 
-func (cp *CollegePlayer) MapFromRecruit(r Recruit, t Team) {
+func (cp *CollegePlayer) MapFromRecruit(r Recruit) {
 	cp.ID = r.ID
-	cp.TeamID = t.ID
-	cp.TeamAbbr = t.Abbr
+	cp.TeamID = r.TeamID
+	cp.TeamAbbr = r.TeamAbbr
 	cp.PlayerID = r.PlayerID
 	cp.State = r.State
 	cp.Country = r.Country

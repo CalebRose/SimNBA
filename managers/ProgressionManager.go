@@ -102,7 +102,7 @@ func ProgressionMain() {
 		for _, croot := range croots {
 			// Convert to College Player Record
 			cp := structs.CollegePlayer{}
-			cp.MapFromRecruit(croot, team)
+			cp.MapFromRecruit(croot)
 
 			// Save College Player Record
 			err := db.Create(&cp).Error

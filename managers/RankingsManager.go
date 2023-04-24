@@ -59,7 +59,9 @@ func Get247Ranking(r structs.Recruit) float64 {
 
 	potentialGrade := Get247PotentialModifier(r.PotentialGrade)
 
-	return float64(ovr) + (potentialGrade * 2)
+	specGrade := float64(r.SpecCount) * 0.15
+
+	return float64(ovr) + (potentialGrade * 2) + specGrade
 }
 
 func GetESPNRanking(r structs.Recruit) float64 {

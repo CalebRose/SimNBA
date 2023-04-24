@@ -169,3 +169,10 @@ func ExportCroots(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/csv")
 	managers.ExportCroots(w)
 }
+
+// Determine the size of a year's recruiting class based on current roster number, and players leaving/potentially leaving
+func DetermineRecruitingClassSize(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	managers.DetermineRecruitingClassSize()
+	json.NewEncoder(w).Encode("CLASS SIZE COMPLETE")
+}

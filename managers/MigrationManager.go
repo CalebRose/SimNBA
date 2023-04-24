@@ -116,6 +116,27 @@ func MigrateOldPlayerDataToNewTables() {
 	}
 }
 
+func MigrateRecruits() {
+	db := dbprovider.GetInstance().GetDB()
+
+	croots := GetAllRecruitRecords()
+
+	for _, croot := range croots {
+		// Convert to College Player Record
+		cp := structs.CollegePlayer{}
+		cp.MapFromRecruit(croot)
+
+		// Save College Player Record
+		err := db.Create(&cp).Error
+		if err != nil {
+			log.Panicln("Could not save new college player record")
+		}
+
+		// Delete Recruit Record
+		db.Delete(&croot)
+	}
+}
+
 func getPlayerData() [][]string {
 	path := "C:\\Users\\ctros\\go\\src\\github.com\\CalebRose\\SimNBA\\data\\SimNBA_Players_2022.csv"
 	f, err := os.Open(path)

@@ -214,10 +214,16 @@ func ESPNModifiers() map[string]map[string]string {
 		"C": {
 			"Height": "7-0",
 		},
-		"G": {
+		"PG": {
 			"Height": "6-3",
 		},
-		"F": {
+		"SG": {
+			"Height": "6-5",
+		},
+		"PF": {
+			"Height": "6-8",
+		},
+		"SF": {
 			"Height": "6-7",
 		},
 	}

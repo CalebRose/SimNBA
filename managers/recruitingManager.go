@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"sort"
 	"strconv"
+	"time"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
@@ -497,4 +498,26 @@ func GetRecruitingClassByTeamID(id string) []structs.Croot {
 	}
 
 	return recruitingClass
+}
+
+func DetermineRecruitingClassSize() {
+	db := dbprovider.GetInstance().GetDB()
+	rand.Seed(time.Now().UnixNano())
+	recruitingProfiles := GetRecruitingProfileForRecruitSync()
+	limit := 13
+	for _, rp := range recruitingProfiles {
+		existingRoster := GetCollegePlayersByTeamId(strconv.Itoa(int(rp.ID)))
+		count := 0
+		for _, p := range existingRoster {
+			isGraduating, isDeclaringEarly := CheckForDeclaring(p)
+			if isGraduating || isDeclaringEarly {
+				count++
+			}
+		}
+		nonLeaving := limit - count
+		classSize := limit - nonLeaving
+		rp.SetClassSize(classSize)
+
+		db.Save(&rp)
+	}
 }

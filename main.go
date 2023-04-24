@@ -37,8 +37,6 @@ func handleRequests() {
 	myRouter.HandleFunc("/health", HealthCheck.Handler).Methods("GET")
 
 	// Admin Controls
-	// myRouter.HandleFunc("/admin/generateTeam", controller.GeneratePlayers).Methods("GET")
-	// myRouter.HandleFunc("/admin/generateCroots", controller.GenerateCroots).Methods("GET")
 	myRouter.HandleFunc("/admin/rankCroots", controller.RankCroots).Methods("GET")
 	myRouter.HandleFunc("/admin/ai/fill/boards", controller.FillAIBoards).Methods("GET")
 	myRouter.HandleFunc("/admin/ai/sync/boards", controller.SyncAIBoards).Methods("GET")
@@ -75,13 +73,17 @@ func handleRequests() {
 	myRouter.HandleFunc("/gameplans/update", controller.UpdateGameplan).Methods("PUT")
 
 	// Generation Controls
+	// myRouter.HandleFunc("/admin/generateTeam", controller.GeneratePlayers).Methods("GET")
+	// myRouter.HandleFunc("/admin/generateCroots", controller.GenerateCroots).Methods("GET")
 	// myRouter.HandleFunc("/generate/specs", controller.GenerateAttributeSpecsForCollegeAndRecruits).Methods("GET")
 
 	// Import
 	// myRouter.HandleFunc("/import/nba", controller.ImportNBAStandings).Methods("GET")
 	// myRouter.HandleFunc("/import/archetypes", controller.ImportArchetypes).Methods("GET")
 	// myRouter.HandleFunc("/import/fa/preferences", controller.ImportFAPreferences).Methods("GET")
-	myRouter.HandleFunc("/import/positions", controller.ImportNewPositions).Methods("GET")
+	// myRouter.HandleFunc("/import/positions", controller.ImportNewPositions).Methods("GET")
+
+	// myRouter.HandleFunc("/migrate/remaining/croots", controller.MigrateRecruits).Methods("GET")
 
 	// Match Controls
 	myRouter.HandleFunc("/match/{matchId}", controller.GetMatchByMatchId).Methods("GET")
@@ -117,6 +119,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/recruiting/dashboard/{teamID}/", controller.GetRecruitingDataForOverviewPage).Methods("GET")
 	myRouter.HandleFunc("/recruiting/profile/teamboard/{teamID}", controller.GetRecruitingDataForTeamBoardPage).Methods("GET")
 	myRouter.HandleFunc("/recruiting/profile/all/", controller.GetAllRecruitingProfiles).Methods("GET")
+	myRouter.HandleFunc("/recruiting/profile/determine/size/", controller.DetermineRecruitingClassSize).Methods("GET")
 	myRouter.HandleFunc("/recruiting/class/{teamID}/", controller.GetRecruitingClassByTeamID).Methods("GET")
 
 	myRouter.HandleFunc("/recruit/createRecruitingPointsProfile", controller.AddRecruitToBoard).Methods("POST")

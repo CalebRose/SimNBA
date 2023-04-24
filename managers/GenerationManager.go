@@ -210,14 +210,13 @@ func GenerateCroots() {
 	newID := lastPlayerRecord.ID + 1
 
 	firstNameMap, lastNameMap := getNameMaps()
-	var positionList []string = []string{"G", "F", "C"}
+	var positionList []string = []string{"PG", "SG", "PF", "SF", "C"}
 
 	// Test Generation
-	requiredPlayers := util.GenerateIntFromRange(621, 860)
-	// 531 is the number of Seniors && Redshirt Seniors currently in the league
-	// Currently 172 teams. 172 * 5 = 860, the max number of recruits that can be signed.
-	// 172 * 3 = 516, the minimum required to sign.
-	// 531 + 89 recruits left over = 620.
+	requiredPlayers := util.GenerateIntFromRange(1031, 1061)
+	// 1061 is the number of open spots on teams in the league.
+	// Currently 363 teams. 363 * 3 = 1089, the size of the average class.
+	// The plan is to ensure that every recruit is signed
 	count := 0
 
 	for count < requiredPlayers {
@@ -605,11 +604,11 @@ func pickEthnicity() string {
 func pickCountry(ethnicity string) string {
 	min := 0
 	max := 10000
-	num := rand.Intn(max-min+1) + min
+	num := util.GenerateIntFromRange(min, max)
 
-	if num < 7001 {
+	if num < 8001 {
 		return "USA"
-	} else if num < 7101 {
+	} else if num < 8251 {
 		if ethnicity == "African" {
 			return "Dominican Republic"
 		} else if ethnicity == "Hispanic" {
@@ -621,7 +620,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Canada"
 		}
-	} else if num < 7201 {
+	} else if num < 8301 {
 		if ethnicity == "African" {
 			return "The Bahamas"
 		} else if ethnicity == "Hispanic" {
@@ -633,7 +632,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "United Kingdom"
 		}
-	} else if num < 7301 {
+	} else if num < 8351 {
 		if ethnicity == "African" {
 			return "Jamaica"
 		} else if ethnicity == "Hispanic" {
@@ -645,7 +644,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "France"
 		}
-	} else if num < 7401 {
+	} else if num < 8401 {
 		if ethnicity == "African" {
 			return "Democratic Republic of Congo"
 		} else if ethnicity == "Hispanic" {
@@ -657,7 +656,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Spain"
 		}
-	} else if num < 7501 {
+	} else if num < 8451 {
 		if ethnicity == "African" {
 			return "South Africa"
 		} else if ethnicity == "Hispanic" {
@@ -669,7 +668,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Ireland"
 		}
-	} else if num < 7601 {
+	} else if num < 8501 {
 		if ethnicity == "African" {
 			return "Haiti"
 		} else if ethnicity == "Hispanic" {
@@ -681,7 +680,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Spain"
 		}
-	} else if num < 7701 {
+	} else if num < 8551 {
 		if ethnicity == "African" {
 			return "Ethiopia"
 		} else if ethnicity == "Hispanic" {
@@ -693,7 +692,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Germany"
 		}
-	} else if num < 7801 {
+	} else if num < 8601 {
 		if ethnicity == "African" {
 			return "Chad"
 		} else if ethnicity == "Hispanic" {
@@ -705,7 +704,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Poland"
 		}
-	} else if num < 7901 {
+	} else if num < 8651 {
 		if ethnicity == "African" {
 			return "Ghana"
 		} else if ethnicity == "Hispanic" {
@@ -717,7 +716,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Sweden"
 		}
-	} else if num < 8001 {
+	} else if num < 8701 {
 		if ethnicity == "African" {
 			return "Guinea"
 		} else if ethnicity == "Hispanic" {
@@ -729,7 +728,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Norway"
 		}
-	} else if num < 8101 {
+	} else if num < 8751 {
 		if ethnicity == "African" {
 			return "Senegal"
 		} else if ethnicity == "Hispanic" {
@@ -741,7 +740,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Denmark"
 		}
-	} else if num < 8201 {
+	} else if num < 8801 {
 		if ethnicity == "African" {
 			return "Morocco"
 		} else if ethnicity == "Hispanic" {
@@ -753,7 +752,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Portugal"
 		}
-	} else if num < 8301 {
+	} else if num < 8851 {
 		if ethnicity == "African" {
 			return "Algeria"
 		} else if ethnicity == "Hispanic" {
@@ -765,7 +764,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Austria"
 		}
-	} else if num < 8401 {
+	} else if num < 8901 {
 		if ethnicity == "African" {
 			return "Nigeria"
 		} else if ethnicity == "Hispanic" {
@@ -777,7 +776,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Hungary"
 		}
-	} else if num < 8501 {
+	} else if num < 8951 {
 		if ethnicity == "African" {
 			return "Cameroon"
 		} else if ethnicity == "Hispanic" {
@@ -789,7 +788,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Croatia"
 		}
-	} else if num < 8601 {
+	} else if num < 9001 {
 		if ethnicity == "African" {
 			return "Egypt"
 		} else if ethnicity == "Hispanic" {
@@ -801,7 +800,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Greece"
 		}
-	} else if num < 8701 {
+	} else if num < 9051 {
 		if ethnicity == "African" {
 			return "Eritrea"
 		} else if ethnicity == "Hispanic" {
@@ -813,7 +812,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Israel"
 		}
-	} else if num < 8801 {
+	} else if num < 9101 {
 		if ethnicity == "African" {
 			return "Kenya"
 		} else if ethnicity == "Hispanic" {
@@ -825,7 +824,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Bulgaria"
 		}
-	} else if num < 8901 {
+	} else if num < 9151 {
 		if ethnicity == "African" {
 			return "Liberia"
 		} else if ethnicity == "Hispanic" {
@@ -837,7 +836,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Romania"
 		}
-	} else if num < 9001 {
+	} else if num < 9201 {
 		if ethnicity == "African" {
 			return "Tanzania"
 		} else if ethnicity == "Hispanic" {
@@ -849,7 +848,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Montenegro"
 		}
-	} else if num < 9101 {
+	} else if num < 9251 {
 		if ethnicity == "African" {
 			return "Zimbabwe"
 		} else if ethnicity == "Hispanic" {
@@ -861,7 +860,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Turkey"
 		}
-	} else if num < 9201 {
+	} else if num < 9301 {
 		if ethnicity == "African" {
 			return "Malawi"
 		} else if ethnicity == "Hispanic" {
@@ -873,7 +872,7 @@ func pickCountry(ethnicity string) string {
 		} else {
 			return "Serbia"
 		}
-	} else if num < 9301 {
+	} else if num < 9351 {
 		if ethnicity == "African" {
 			return "Senegal"
 		} else if ethnicity == "Hispanic" {
@@ -1047,7 +1046,7 @@ func getAttribute(position string, attribute string, isGeneration bool) int {
 	if isGeneration {
 		return util.GenerateIntFromRange(1, 11)
 	}
-	if position == "G" {
+	if position == "PG" || position == "SG" {
 		if attribute == "Shooting2" {
 			return util.GenerateIntFromRange(7, 17)
 		} else if attribute == "Shooting3" {
@@ -1067,7 +1066,7 @@ func getAttribute(position string, attribute string, isGeneration bool) int {
 		} else {
 			return 1
 		}
-	} else if position == "F" {
+	} else if position == "PF" || position == "SF" {
 		if attribute == "Shooting2" {
 			return util.GenerateIntFromRange(4, 14)
 		} else if attribute == "Shooting3" {

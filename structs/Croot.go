@@ -5,39 +5,41 @@ import (
 )
 
 type Croot struct {
-	ID             uint
-	PlayerID       uint
-	TeamID         uint
-	College        string
-	FirstName      string
-	LastName       string
-	Position       string
-	Archetype      string
-	Height         string
-	Stars          int
-	Shooting2      string
-	Shooting3      string
-	Finishing      string
-	Ballwork       string
-	Rebounding     string
-	Defense        string
-	PotentialGrade string
-	Personality    string
-	RecruitingBias string
-	AcademicBias   string
-	WorkEthic      string
-	State          string
-	Country        string
-	ESPNRank       float64
-	RivalsRank     float64
-	Rank247        float64
-	IsSigned       bool
-	OverallGrade   string
-	TotalRank      float64
-	SigningStatus  string
-	IsCustomCroot  bool
-	CreatedFor     string
-	LeadingTeams   []LeadingTeams
+	ID               uint
+	PlayerID         uint
+	TeamID           uint
+	College          string
+	FirstName        string
+	LastName         string
+	Position         string
+	Archetype        string
+	Height           string
+	Stars            int
+	Shooting2        string
+	Shooting3        string
+	FreeThrow        string
+	Finishing        string
+	Ballwork         string
+	Rebounding       string
+	InteriorDefense  string
+	PerimeterDefense string
+	PotentialGrade   string
+	Personality      string
+	RecruitingBias   string
+	AcademicBias     string
+	WorkEthic        string
+	State            string
+	Country          string
+	ESPNRank         float64
+	RivalsRank       float64
+	Rank247          float64
+	IsSigned         bool
+	OverallGrade     string
+	TotalRank        float64
+	SigningStatus    string
+	IsCustomCroot    bool
+	CreatedFor       string
+	LeadingTeams     []LeadingTeams
 }
 
 type LeadingTeams struct {
@@ -67,9 +69,11 @@ func (c *Croot) Map(r Recruit) {
 	c.Shooting2 = attributeMapper(r.Shooting2)
 	c.Shooting3 = attributeMapper(r.Shooting3)
 	c.Finishing = attributeMapper(r.Finishing)
+	c.FreeThrow = attributeMapper(r.FreeThrow)
 	c.Ballwork = attributeMapper(r.Ballwork)
 	c.Rebounding = attributeMapper(r.Rebounding)
-	c.Defense = attributeMapper(r.Defense)
+	c.InteriorDefense = attributeMapper(r.InteriorDefense)
+	c.PerimeterDefense = attributeMapper(r.PerimeterDefense)
 	c.PotentialGrade = r.PotentialGrade
 	c.Personality = r.Personality
 	c.RecruitingBias = r.RecruitingBias

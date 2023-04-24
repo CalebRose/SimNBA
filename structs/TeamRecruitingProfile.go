@@ -93,3 +93,7 @@ func (r *TeamRecruitingProfile) ApplyCaughtCheating() {
 func (r *TeamRecruitingProfile) ToggleAIBehavior(val bool) {
 	r.IsAI = val
 }
+
+func (r *TeamRecruitingProfile) SetClassSize(size int) {
+	r.RecruitClassSize = size
+}
