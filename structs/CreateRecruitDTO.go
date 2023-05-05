@@ -10,11 +10,13 @@ type CreateRecruitDTO struct {
 	Position             string
 	Stars                int
 	Ballwork             int
-	Defense              int
+	InteriorDefense      int
+	PerimeterDefense     int
 	Finishing            int
 	Rebounding           int
 	Shooting2            int
 	Shooting3            int
+	FreeThrow            int
 	Stamina              int
 	Potential            int
 	PotentialGrade       string

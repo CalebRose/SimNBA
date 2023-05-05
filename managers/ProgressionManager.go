@@ -16,8 +16,6 @@ import (
 func ProgressionMain() {
 	db := dbprovider.GetInstance().GetDB()
 	fmt.Println(time.Now().UnixNano())
-	rand.Seed(time.Now().UnixNano())
-
 	ts := GetTimestamp()
 
 	collegeTeams := GetAllActiveCollegeTeams()
@@ -120,7 +118,6 @@ func ProgressionMain() {
 func ProgressNBAPlayers() {
 	db := dbprovider.GetInstance().GetDB()
 	fmt.Println(time.Now().UnixNano())
-	rand.Seed(time.Now().UnixNano())
 
 	nbaTeams := GetAllActiveNBATeams()
 	// Append empty team object to the end for Free Agents
@@ -156,7 +153,7 @@ func ProgressNBAPlayers() {
 					player.BecomeFreeAgent()
 				}
 
-				// db.Save(&contract)
+				db.Save(&contract)
 				db.Save(&player)
 			}
 		}
@@ -589,11 +586,17 @@ func CheckForDeclaring(player structs.CollegePlayer) (bool, bool) {
 		return false, false
 	}
 	odds := util.GenerateIntFromRange(1, 100)
-	if ovr > 64 && odds <= 40 {
+	if ovr > 60 && odds <= 50 {
 		return true, true
-	} else if ovr > 69 && odds <= 55 {
+	} else if ovr > 64 && odds <= 60 {
 		return true, true
-	} else if ovr > 74 && odds <= 75 {
+	} else if ovr > 69 && odds <= 70 {
+		return true, true
+	} else if ovr > 72 && odds <= 75 {
+		return true, true
+	} else if ovr > 74 && odds <= 80 {
+		return true, true
+	} else if ovr > 76 && odds <= 85 {
 		return true, true
 	} else if ovr > 79 && odds <= 95 {
 		return true, true

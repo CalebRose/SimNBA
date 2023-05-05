@@ -14,6 +14,16 @@ type Gameplan struct {
 	FocusPlayer          uint
 	OffensiveFormation   string
 	DefensiveFormation   string
+	Toggle2pt            bool
+	Toggle3pt            bool
+	ToggleFT             bool
+	ToggleFN             bool
+	ToggleBW             bool
+	ToggleRB             bool
+	ToggleID             bool
+	TogglePD             bool
+	ToggleP2             bool
+	ToggleP3             bool
 }
 
 // UpdatePace - Update the Pace of the Gameplan

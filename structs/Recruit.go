@@ -40,12 +40,15 @@ func (r *Recruit) Map(createRecruitDTO CreateRecruitDTO, lastPlayerID uint, expe
 	r.Overall = createRecruitDTO.Overall
 	r.Stamina = createRecruitDTO.Stamina
 	r.Ballwork = createRecruitDTO.Ballwork
-	r.Defense = createRecruitDTO.Defense
+	r.InteriorDefense = createRecruitDTO.InteriorDefense
+	r.PerimeterDefense = createRecruitDTO.PerimeterDefense
 	r.Finishing = createRecruitDTO.Finishing
+	r.FreeThrow = createRecruitDTO.FreeThrow
 	r.Rebounding = createRecruitDTO.Rebounding
 	r.Shooting2 = createRecruitDTO.Shooting2
 	r.Shooting3 = createRecruitDTO.Shooting3
 	r.Potential = createRecruitDTO.Potential
+	r.ProPotentialGrade = createRecruitDTO.Potential
 	r.PotentialGrade = createRecruitDTO.PotentialGrade
 	r.PlaytimeExpectations = expectations
 	r.WorkEthic = createRecruitDTO.WorkEthic
@@ -92,6 +95,10 @@ func (r *Recruit) FixRecruit(grade string, pro int, mod int) {
 	r.PotentialGrade = grade
 	r.ProPotentialGrade = pro
 	r.RecruitModifier = mod
+}
+
+func (r *Recruit) FixHeight(h string) {
+	r.Height = h
 }
 
 func (r *Recruit) SetNewAttributes(ft int, id int, pd int) {

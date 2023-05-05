@@ -332,6 +332,16 @@ func GetAllNBAPlayers() []structs.NBAPlayer {
 	return players
 }
 
+func GetAllRetiredPlayers() []structs.RetiredPlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var players []structs.RetiredPlayer
+
+	db.Find(&players)
+
+	return players
+}
+
 func GetCollegePlayerByPlayerId(playerId string) structs.CollegePlayer {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -405,7 +415,9 @@ func GetAllNBAPlayersByTeamID(teamID string) []structs.NBAPlayer {
 
 	var players []structs.NBAPlayer
 
-	db.Where("team_id = ?", teamID).Find(&players)
+	db.Preload("Contract", func(db *gorm.DB) *gorm.DB {
+		return db.Where("is_active = true")
+	}).Where("team_id = ?", teamID).Find(&players)
 	return players
 }
 

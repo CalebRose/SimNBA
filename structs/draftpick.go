@@ -31,3 +31,27 @@ func (p *DraftPick) TradePick(id uint, team string) {
 		p.Notes = "From " + p.PreviousTeam + " via " + p.OriginalTeam
 	}
 }
+
+type DraftLottery struct {
+	ID        uint
+	Team      string
+	Chances   uint
+	Selection uint
+}
+
+// Sorting Funcs
+type ByDraftChance []DraftLottery
+
+func (fo ByDraftChance) Len() int      { return len(fo) }
+func (fo ByDraftChance) Swap(i, j int) { fo[i], fo[j] = fo[j], fo[i] }
+func (fo ByDraftChance) Less(i, j int) bool {
+	return fo[i].Chances < fo[j].Chances
+}
+
+type ByDraftNumber []DraftPick
+
+func (fo ByDraftNumber) Len() int      { return len(fo) }
+func (fo ByDraftNumber) Swap(i, j int) { fo[i], fo[j] = fo[j], fo[i] }
+func (fo ByDraftNumber) Less(i, j int) bool {
+	return fo[i].DraftNumber < fo[j].DraftNumber
+}

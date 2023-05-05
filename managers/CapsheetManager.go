@@ -68,14 +68,29 @@ func AllocateCapsheets() {
 	}
 }
 
+func GetContractsByPlayerID(PlayerID string) []structs.NBAContract {
+	db := dbprovider.GetInstance().GetDB()
+
+	contract := []structs.NBAContract{}
+
+	err := db.Where("player_id = ?", PlayerID).Find(&contract).Error
+	if err != nil {
+		fmt.Println("Could not find active contract")
+		return contract
+	}
+
+	return contract
+}
+
 func GetContractByPlayerID(PlayerID string) structs.NBAContract {
 	db := dbprovider.GetInstance().GetDB()
 
 	contract := structs.NBAContract{}
 
-	err := db.Where("NBA_player_id = ? AND is_active = ?", PlayerID, true).Find(&contract).Error
+	err := db.Where("player_id = ? AND is_active = ?", PlayerID, true).Find(&contract).Error
 	if err != nil {
-		log.Fatalln("Could not find active contract for player" + PlayerID)
+		fmt.Println("Could not find active contract")
+		return contract
 	}
 
 	return contract

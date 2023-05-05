@@ -17,7 +17,6 @@ import (
 func SyncRecruiting(timestamp structs.Timestamp) {
 	db := dbprovider.GetInstance().GetDB()
 	fmt.Println(time.Now().UnixNano())
-	rand.Seed(time.Now().UnixNano())
 	//GetCurrentWeek
 
 	if timestamp.RecruitingSynced {
@@ -337,7 +336,6 @@ func SyncRecruiting(timestamp structs.Timestamp) {
 func FillAIRecruitingBoards() {
 	db := dbprovider.GetInstance().GetDB()
 	fmt.Println(time.Now().UnixNano())
-	rand.Seed(time.Now().UnixNano())
 	ts := GetTimestamp()
 
 	AITeams := GetOnlyAITeamRecruitingProfiles()
@@ -370,9 +368,8 @@ func FillAIRecruitingBoards() {
 			if count == boardCount {
 				break
 			}
-			if croot.Stars == 5 || croot.IsCustomCroot ||
-				(croot.Stars == 4 && team.AIQuality != "Blue Blood") ||
-				(croot.Stars > 2 && team.AIQuality == "Bottom Feeder") {
+			if croot.IsCustomCroot ||
+				(croot.Stars == 5 && team.AIQuality != "Blue Blood") {
 				continue
 			}
 
@@ -403,16 +400,22 @@ func FillAIRecruitingBoards() {
 				}
 			}
 
-			if team.AIQuality == "Offense" && util.IsPlayerOffensivelyStrong(croot) {
-				odds += 50
-			} else if team.AIQuality == "Defense" && util.IsPlayerDefensivelyStrong(croot) {
+			if team.AIQuality == "Blue Blood" && croot.Stars == 5 {
+				odds += 5
+			} else if team.AIQuality == "Blue Blood" && croot.Stars == 4 {
 				odds += 50
 			} else if team.AIQuality == "Cinderella" && util.IsPlayerHighPotential(croot) {
 				odds += 50
-			} else if team.AIQuality == "Blue Blood" && croot.Stars == 4 {
+			} else if team.AIQuality == "Cinderella" && croot.Stars == 4 {
+				odds += 15
+			} else if team.AIQuality == "P6" && croot.Stars == 4 {
+				odds += 5
+			} else if team.AIQuality == "P6" && croot.Stars < 4 {
 				odds += 50
-			} else if team.AIQuality == "Bottom Feeder" && croot.Stars < 3 {
-				odds += 40
+			} else if team.AIQuality == "Mid-Major" && croot.Stars < 4 {
+				odds += 35
+			} else if team.AIQuality == "Mid-Major" && croot.Stars < 3 {
+				odds += 65
 			}
 
 			chance := util.GenerateIntFromRange(1, 100)
@@ -455,7 +458,6 @@ func FillAIRecruitingBoards() {
 func AllocatePointsToAIBoards() {
 	db := dbprovider.GetInstance().GetDB()
 	fmt.Println(time.Now().UnixNano())
-	rand.Seed(time.Now().UnixNano())
 	ts := GetTimestamp()
 
 	AITeams := GetOnlyAITeamRecruitingProfiles()

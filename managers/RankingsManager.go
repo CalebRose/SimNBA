@@ -5,7 +5,6 @@ import (
 	"math"
 	"math/rand"
 	"strconv"
-	"time"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
@@ -14,8 +13,6 @@ import (
 
 func AssignAllRecruitRanks() {
 	db := dbprovider.GetInstance().GetDB()
-
-	rand.Seed(time.Now().UnixNano())
 
 	var recruits []structs.Recruit
 
@@ -228,7 +225,6 @@ func GetPredictiveOverall(r structs.Recruit) int {
 }
 
 func GetRivalsStarModifier(stars int) float64 {
-	rand.Seed(time.Now().UnixNano())
 	if stars == 5 {
 		return 6.1
 	} else if stars == 4 {

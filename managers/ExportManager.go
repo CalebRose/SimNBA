@@ -20,7 +20,7 @@ func ExportCroots(w http.ResponseWriter) {
 		"First Name", "Last Name", "Position",
 		"Stars", "College", "State", "Country", "Height",
 		"Overall", "Shooting 2s", "Shooting 3s", "Finishing",
-		"Ballwork", "Rebounding", "Defense", "Potential Grade",
+		"Ballwork", "Rebounding", "InteriorDefense", "PerimeterDefense", "Potential Grade",
 		"Personality", "Recruiting Bias", "Academic Bias", "Work Ethic",
 		"ESPN Rank", "Rivals Rank", "247 Rank", "LeadingTeams",
 	}
@@ -41,7 +41,7 @@ func ExportCroots(w http.ResponseWriter) {
 			croot.FirstName, croot.LastName, croot.Position, strconv.Itoa(croot.Stars),
 			croot.College, croot.State, croot.Country, croot.Height,
 			croot.OverallGrade, croot.Shooting2, croot.Shooting3, croot.Finishing,
-			croot.Ballwork, croot.Rebounding, croot.Defense, croot.PotentialGrade,
+			croot.Ballwork, croot.Rebounding, croot.InteriorDefense, croot.PerimeterDefense, croot.PotentialGrade,
 			croot.Personality, croot.RecruitingBias, croot.AcademicBias, croot.WorkEthic,
 			strconv.Itoa(int(croot.ESPNRank)), strconv.Itoa(int(croot.RivalsRank)), strconv.Itoa(int(croot.Rank247)), strings.Join(leadingAbbr, ", "),
 		}

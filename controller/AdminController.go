@@ -138,13 +138,16 @@ func CollusionButton(w http.ResponseWriter, r *http.Request) {
 }
 
 func ProgressNBAPlayers(w http.ResponseWriter, r *http.Request) {
-
 	managers.ProgressNBAPlayers()
-
 	json.NewEncoder(w).Encode("Migration Complete")
 }
 
 func SyncContractValues(w http.ResponseWriter, r *http.Request) {
 	managers.SyncContractValues()
+	w.WriteHeader(http.StatusOK)
+}
+
+func CleanNBAPlayerTables(w http.ResponseWriter, r *http.Request) {
+	managers.ProgressContractsByOneYear()
 	w.WriteHeader(http.StatusOK)
 }

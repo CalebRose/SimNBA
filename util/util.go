@@ -404,35 +404,41 @@ func GetOverallGrade(rating int) string {
 }
 
 func GetNBATeamGrade(rating int) string {
-	if rating > 74 {
+	if rating > 84 {
 		return "A+"
 	}
-	if rating > 70 {
+	if rating > 79 {
 		return "A"
 	}
-	if rating > 65 {
+	if rating > 74 {
 		return "A-"
 	}
-	if rating > 60 {
+	if rating > 70 {
 		return "B+"
 	}
-	if rating > 55 {
+	if rating > 65 {
 		return "B"
 	}
-	if rating > 50 {
+	if rating > 60 {
 		return "B-"
 	}
-	if rating > 45 {
+	if rating > 55 {
 		return "C+"
 	}
-	if rating > 40 {
+	if rating > 50 {
 		return "C"
 	}
-	if rating > 35 {
+	if rating > 45 {
 		return "C-"
 	}
-	if rating > 30 {
+	if rating > 40 {
+		return "D+"
+	}
+	if rating > 35 {
 		return "D"
+	}
+	if rating > 30 {
+		return "D-"
 	}
 	return "F"
 }
@@ -695,4 +701,47 @@ func GetRoundAbbreviation(str string) string {
 		return "6th Round"
 	}
 	return "7th Round"
+}
+
+func GetLotteryChances(idx int) uint {
+	if idx < 2 {
+		return 140
+	}
+	if idx == 3 {
+		return 125
+	}
+	if idx == 4 {
+		return 105
+	}
+	if idx == 5 {
+		return 90
+	}
+	if idx == 6 {
+		return 75
+	}
+	if idx == 7 {
+		return 60
+	}
+	if idx == 8 {
+		return 45
+	}
+	if idx == 9 {
+		return 30
+	}
+	if idx == 10 {
+		return 20
+	}
+	if idx == 11 {
+		return 15
+	}
+	if idx == 12 {
+		return 10
+	}
+	if idx == 13 {
+		return 5
+	}
+	if idx == 14 {
+		return 2
+	}
+	return 1
 }

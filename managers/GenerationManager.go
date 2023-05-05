@@ -4,22 +4,20 @@ import (
 	"encoding/csv"
 	"fmt"
 	"log"
-	"math/rand"
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
 	"github.com/jinzhu/gorm"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 func GenerateNewTeams() {
 	db := dbprovider.GetInstance().GetDB()
-	rand.Seed(time.Now().Unix())
-
 	var lastPlayerRecord structs.GlobalPlayer
 
 	err := db.Last(&lastPlayerRecord).Error
@@ -196,8 +194,6 @@ func GenerateGlobalPlayerRecords() {
 
 func GenerateCroots() {
 	db := dbprovider.GetInstance().GetDB()
-	rand.Seed(time.Now().Unix())
-
 	var lastPlayerRecord structs.GlobalPlayer
 
 	err := db.Last(&lastPlayerRecord).Error
@@ -281,7 +277,6 @@ func CleanUpRecruits() {
 
 func GenerateAttributeSpecs() {
 	db := dbprovider.GetInstance().GetDB()
-	rand.Seed(time.Now().Unix())
 
 	collegePlayers := GetAllCollegePlayers()
 	croots := GetAllRecruitRecords()
@@ -323,9 +318,10 @@ func GenerateAttributeSpecs() {
 func createCollegePlayer(team structs.Team, ethnicity string, position string, year int, firstNameList [][]string, lastNameList [][]string, id uint) structs.CollegePlayer {
 	fName := getName(firstNameList)
 	lName := getName(lastNameList)
+	caser := cases.Title(language.English)
 
-	firstName := strings.Title(strings.ToLower(fName))
-	lastName := strings.Title(strings.ToLower(lName))
+	firstName := caser.String(strings.ToLower(fName))
+	lastName := caser.String(strings.ToLower(lName))
 	state := ""
 	country := pickCountry(ethnicity)
 	if country == "USA" {
@@ -418,9 +414,10 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 func createRecruit(ethnicity string, position string, year int, firstNameList [][]string, lastNameList [][]string, id uint) structs.Recruit {
 	fName := getName(firstNameList)
 	lName := getName(lastNameList)
+	caser := cases.Title(language.English)
 
-	firstName := strings.Title(strings.ToLower(fName))
-	lastName := strings.Title(strings.ToLower(lName))
+	firstName := caser.String(strings.ToLower(fName))
+	lastName := caser.String(strings.ToLower(lName))
 	age := 18
 	state := ""
 	country := pickCountry(ethnicity)
@@ -1004,7 +1001,7 @@ func pickState() string {
 func getHeight(position string) string {
 	foot := 0
 	inches := 0
-	if position == "G" {
+	if position == "PG" || position == "SG" {
 		footMin := 5
 		footMax := 6
 		foot = util.GenerateIntFromRange(footMin, footMax)
@@ -1018,7 +1015,7 @@ func getHeight(position string) string {
 			inchesMax := 5
 			inches = util.GenerateIntFromRange(inchesMin, inchesMax)
 		}
-	} else if position == "F" {
+	} else if position == "PF" || position == "SF" {
 		foot = 6
 		inchesMin := 5
 		inchesMax := 8

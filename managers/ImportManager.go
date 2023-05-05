@@ -3,7 +3,7 @@ package managers
 import (
 	"fmt"
 	"log"
-	"math/rand"
+	"sort"
 	"strconv"
 	"time"
 
@@ -395,8 +395,6 @@ func SyncContractValues() {
 
 func ImportFAPreferences() {
 	fmt.Println(time.Now().UnixNano())
-	rand.Seed(time.Now().UnixNano())
-
 	db := dbprovider.GetInstance().GetDB()
 	nbaPlayers := GetAllNBAPlayers()
 
@@ -571,4 +569,123 @@ func ImportNewTeams() {
 
 		db.Create(&standings)
 	}
+}
+
+func ConductDraftLottery() {
+	db := dbprovider.GetInstance().GetDB()
+	fmt.Println(time.Now().UnixNano())
+	path := secrets.GetPath()["draftlottery"]
+	lotteryCSV := util.ReadCSV(path)
+	ts := GetTimestamp()
+	lotteryBalls := []structs.DraftLottery{}
+	draftPicks := []structs.DraftPick{}
+
+	for idx, row := range lotteryCSV {
+		if idx < 1 {
+			continue
+		}
+		pickNumber := idx + 1
+		teamID := util.ConvertStringToInt(row[0])
+		team := row[1]
+
+		if idx < 15 {
+			chances := util.GetLotteryChances(idx)
+			lottery := structs.DraftLottery{
+				ID:      uint(teamID),
+				Team:    team,
+				Chances: chances,
+			}
+			lotteryBalls = append(lotteryBalls, lottery)
+
+			draftPick := structs.DraftPick{
+				SeasonID:       ts.SeasonID,
+				Season:         uint(ts.Season),
+				DraftRound:     2,
+				DraftNumber:    uint(32 + pickNumber),
+				TeamID:         uint(teamID),
+				Team:           team,
+				OriginalTeamID: uint(teamID),
+				OriginalTeam:   team,
+				DraftValue:     0,
+			}
+			draftPicks = append(draftPicks, draftPick)
+		} else {
+			firstRoundPick := structs.DraftPick{
+				SeasonID:       ts.SeasonID,
+				Season:         uint(ts.Season),
+				DraftRound:     2,
+				DraftNumber:    uint(32 + pickNumber),
+				TeamID:         uint(teamID),
+				Team:           team,
+				OriginalTeamID: uint(teamID),
+				OriginalTeam:   team,
+				DraftValue:     0,
+			}
+			secondRoundPick := structs.DraftPick{
+				SeasonID:       ts.SeasonID,
+				Season:         uint(ts.Season),
+				DraftRound:     2,
+				DraftNumber:    uint(32 + pickNumber),
+				TeamID:         uint(teamID),
+				Team:           team,
+				OriginalTeamID: uint(teamID),
+				OriginalTeam:   team,
+				DraftValue:     0,
+			}
+			draftPicks = append(draftPicks, firstRoundPick)
+			draftPicks = append(draftPicks, secondRoundPick)
+		}
+	}
+	lotteryPicks := 16
+	draftOrder := []structs.DraftLottery{}
+	for i := 0; i < lotteryPicks; i++ {
+		sum := 0
+		for _, l := range lotteryBalls {
+			sum += int(l.Chances)
+		}
+
+		chance := util.GenerateIntFromRange(1, sum)
+		sum2 := 0
+		for _, l := range lotteryBalls {
+			sum2 += int(l.Chances)
+			if chance < sum2 {
+				draftOrder = append(draftOrder, l)
+
+				lotteryBalls = filterLotteryPicks(lotteryBalls, l.ID)
+				break
+			}
+		}
+	}
+
+	for idx, do := range draftOrder {
+		pick := idx + 1
+		draftPick := structs.DraftPick{
+			SeasonID:       ts.SeasonID,
+			Season:         uint(ts.Season),
+			DraftRound:     1,
+			DraftNumber:    uint(pick),
+			TeamID:         do.ID,
+			Team:           do.Team,
+			OriginalTeamID: do.ID,
+			OriginalTeam:   do.Team,
+			DraftValue:     0,
+		}
+		draftPicks = append(draftPicks, draftPick)
+	}
+
+	sort.Sort(structs.ByDraftNumber(draftPicks))
+
+	for _, pick := range draftPicks {
+		db.Create(&pick)
+	}
+}
+
+func filterLotteryPicks(list []structs.DraftLottery, id uint) []structs.DraftLottery {
+	newList := []structs.DraftLottery{}
+	for _, l := range list {
+		if l.ID != id {
+			newList = append(newList, l)
+		}
+	}
+	return newList
 }

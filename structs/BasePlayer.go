@@ -40,6 +40,12 @@ type BasePlayer struct {
 	MidRangeProportion   uint
 	ThreePointProportion uint
 	Overall              int
+	PositionOne          string
+	PositionTwo          string
+	PositionThree        string
+	P1Minutes            int
+	P2Minutes            int
+	P3Minutes            int
 	SpecCount            int
 	Personality          string
 	FreeAgency           string

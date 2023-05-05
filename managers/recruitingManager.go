@@ -7,7 +7,6 @@ import (
 	"math/rand"
 	"sort"
 	"strconv"
-	"time"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
@@ -464,6 +463,7 @@ func CreateRecruit(dto structs.CreateRecruitDTO) {
 	rankMod := 0.95 + rand.Float64()*(1.05-0.95)
 
 	collegeRecruit := &structs.Recruit{
+		PlayerID:        newID,
 		RecruitModifier: threshold,
 		TopRankModifier: rankMod,
 	}
@@ -474,6 +474,11 @@ func CreateRecruit(dto structs.CreateRecruitDTO) {
 		CollegePlayerID: newID,
 		NBAPlayerID:     newID,
 	}
+	specs := util.GetSpecialties(collegeRecruit.Position)
+	for _, spec := range specs {
+		collegeRecruit.ToggleSpecialties(spec)
+	}
+
 	playerRecord.SetID(newID)
 	// Create Player Record
 	db.Create(&playerRecord)
@@ -502,7 +507,6 @@ func GetRecruitingClassByTeamID(id string) []structs.Croot {
 
 func DetermineRecruitingClassSize() {
 	db := dbprovider.GetInstance().GetDB()
-	rand.Seed(time.Now().UnixNano())
 	recruitingProfiles := GetRecruitingProfileForRecruitSync()
 	limit := 13
 	for _, rp := range recruitingProfiles {

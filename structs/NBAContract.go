@@ -35,7 +35,7 @@ type NBAContract struct {
 
 func (n *NBAContract) ProgressContract() {
 	if n.YearsRemaining > 0 {
-		n.YearsRemaining--
+		n.YearsRemaining -= 1
 	}
 	n.Year1Total = n.Year2Total
 	n.Year2Total = n.Year3Total
@@ -50,12 +50,12 @@ func (n *NBAContract) ProgressContract() {
 	n.TotalRemaining = n.Year1Total + n.Year2Total + n.Year3Total + n.Year4Total + n.Year5Total
 	if n.YearsRemaining == 0 {
 		n.RetireContract()
-		n.IsComplete = true
 	}
 }
 
 func (n *NBAContract) RetireContract() {
 	n.IsActive = false
+	n.IsComplete = true
 }
 
 func (n *NBAContract) MapFromOffer(o NBAContractOffer) {

@@ -3,19 +3,76 @@ package managers
 import (
 	"encoding/csv"
 	"log"
-	"math/rand"
 	"os"
 	"strconv"
-	"time"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
 )
 
+func CleanNBAPlayerTables() {
+	db := dbprovider.GetInstance().GetDB()
+
+	nbaPlayers := GetAllNBAPlayers()
+	retiredPlayers := GetAllRetiredPlayers()
+
+	for _, n := range nbaPlayers {
+		id := strconv.Itoa(int(n.ID))
+		contracts := GetContractsByPlayerID(id)
+		hasActiveContract := false
+		activeContractCount := 0
+		var ac structs.NBAContract // Active Contract
+
+		for _, c := range contracts {
+			if c.IsActive {
+				hasActiveContract = true
+				activeContractCount++
+				if ac.ID == 0 {
+					ac = c
+				}
+			}
+			if activeContractCount > 1 {
+				c.RetireContract()
+				db.Delete(&c)
+			}
+		}
+
+		if !n.IsFreeAgent && hasActiveContract {
+			continue
+		}
+
+		if n.IsFreeAgent && !hasActiveContract {
+			continue
+		}
+
+		// If an nba player is not a free agent and they have no contracts
+		if !n.IsFreeAgent && n.TeamID != 0 && (len(contracts) == 0 || !hasActiveContract) {
+			n.BecomeFreeAgent()
+			db.Save(&n)
+			continue
+		}
+		if (n.IsFreeAgent || n.TeamID == 0 || n.TeamAbbr == "FA") && hasActiveContract {
+			n.SignWithTeam(ac.TeamID, ac.Team)
+			db.Save(&n)
+			continue
+		}
+	}
+
+	for _, r := range retiredPlayers {
+		id := strconv.Itoa(int(r.ID))
+		contracts := GetContractsByPlayerID(id)
+		for _, c := range contracts {
+			if !c.IsComplete || c.IsActive {
+				c.RetireContract()
+				db.Delete(&c)
+			}
+		}
+	}
+}
+
 func MigrateOldPlayerDataToNewTables() {
 	db := dbprovider.GetInstance().GetDB()
-	rand.Seed(time.Now().Unix())
 
 	Players := GetAllCollegePlayersFromOldTable()
 
@@ -134,6 +191,27 @@ func MigrateRecruits() {
 
 		// Delete Recruit Record
 		db.Delete(&croot)
+	}
+}
+
+func ProgressContractsByOneYear() {
+	db := dbprovider.GetInstance().GetDB()
+
+	nbaPlayers := GetAllNBAPlayers()
+
+	for _, n := range nbaPlayers {
+		if n.IsFreeAgent {
+			continue
+		}
+		id := strconv.Itoa(int(n.ID))
+		contract := GetContractByPlayerID(id)
+
+		contract.ProgressContract()
+		if !contract.IsActive || contract.IsComplete {
+			n.BecomeFreeAgent()
+			db.Save(&n)
+		}
+		db.Save(&contract)
 	}
 }
 
