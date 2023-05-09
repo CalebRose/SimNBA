@@ -680,6 +680,43 @@ func ConductDraftLottery() {
 	}
 }
 
+func GenerateGameplans() {
+	db := dbprovider.GetInstance().GetDB()
+
+	allProfessionalTeams := GetAllActiveNBATeams()
+
+	for _, n := range allProfessionalTeams {
+		gp := GetNBAGameplanByTeam(strconv.Itoa(int(n.ID)))
+		if gp.ID > 0 {
+			continue
+		}
+		gameplan := structs.NBAGameplan{
+			TeamID:             n.ID,
+			Game:               "A",
+			Pace:               "Balanced",
+			FocusPlayer:        "",
+			OffensiveFormation: "Balanced",
+			DefensiveFormation: "Man-to-Man",
+			OffensiveStyle:     "Traditional",
+		}
+		db.Create(&gameplan)
+	}
+}
+
+func GeneratePlaytimeExpectations() {
+	db := dbprovider.GetInstance().GetDB()
+
+	collegePlayers := GetAllCollegePlayers()
+
+	for _, c := range collegePlayers {
+		newExpectations := util.GetPlaytimeExpectations(c.Stars, c.Year, c.Overall)
+
+		c.SetExpectations(newExpectations)
+
+		db.Save(&c)
+	}
+}
+
 func filterLotteryPicks(list []structs.DraftLottery, id uint) []structs.DraftLottery {
 	newList := []structs.DraftLottery{}
 	for _, l := range list {

@@ -195,7 +195,7 @@ func SyncRecruiting(timestamp structs.Timestamp) {
 							} else {
 								recruitProfiles[i].LockPlayer()
 								if recruitProfiles[i].Scholarship {
-									tp := teamMap[(strconv.Itoa(int(recruitProfiles[i].ProfileID)))]
+									tp := teamMap[strconv.Itoa(int(recruitProfiles[i].ProfileID))]
 
 									tp.ReallocateScholarship()
 									err := db.Save(&tp).Error

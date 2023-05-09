@@ -57,6 +57,26 @@ func GetMatchResultsByMatchID(matchId string) structs.MatchResultsResponse {
 	}
 }
 
+func GetTeamMatchesByWeekId(weekId, seasonID, matchType, teamID string) []structs.Match {
+	db := dbprovider.GetInstance().GetDB()
+
+	var teamMatches []structs.Match
+
+	db.Where("week_id = ? AND season_id = ? AND match_of_week = ? AND (home_team_id = ? OR away_team_id = ?)", weekId, seasonID, matchType, teamID, teamID).Find(&teamMatches)
+
+	return teamMatches
+}
+
+func GetNBATeamMatchesByWeekId(weekId, seasonID, matchType, teamID string) []structs.NBAMatch {
+	db := dbprovider.GetInstance().GetDB()
+
+	var teamMatches []structs.NBAMatch
+
+	db.Where("week_id = ? AND season_id = ? AND match_of_week = ? AND (home_team_id = ? OR away_team_id = ?)", weekId, seasonID, matchType, teamID, teamID).Find(&teamMatches)
+
+	return teamMatches
+}
+
 func GetMatchesByWeekId(weekId string, seasonID string, matchType string) []structs.Match {
 	db := dbprovider.GetInstance().GetDB()
 

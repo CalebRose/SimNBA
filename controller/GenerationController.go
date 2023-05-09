@@ -26,3 +26,13 @@ func GenerateAttributeSpecsForCollegeAndRecruits(w http.ResponseWriter, r *http.
 	managers.GenerateAttributeSpecs()
 	json.NewEncoder(w).Encode("GENERATION COMPLETE")
 }
+
+func GenerateGameplans(w http.ResponseWriter, r *http.Request) {
+	managers.GenerateGameplans()
+	json.NewEncoder(w).Encode("GENERATION COMPLETE")
+}
+
+func GeneratePlaytimeExpectations(w http.ResponseWriter, r *http.Request) {
+	managers.GeneratePlaytimeExpectations()
+	json.NewEncoder(w).Encode("GENERATION COMPLETE")
+}

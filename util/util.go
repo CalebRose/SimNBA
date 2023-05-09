@@ -403,6 +403,47 @@ func GetOverallGrade(rating int) string {
 	return "F"
 }
 
+// FOR 2023 Season ONLY
+func GetOverallDraftGrade(rating int) string {
+	if rating > 90 {
+		return "A+"
+	}
+	if rating > 87 {
+		return "A"
+	}
+	if rating > 84 {
+		return "A-"
+	}
+	if rating > 81 {
+		return "B+"
+	}
+	if rating > 78 {
+		return "B"
+	}
+	if rating > 75 {
+		return "B-"
+	}
+	if rating > 72 {
+		return "C+"
+	}
+	if rating > 69 {
+		return "C"
+	}
+	if rating > 66 {
+		return "C-"
+	}
+	if rating > 63 {
+		return "D+"
+	}
+	if rating > 60 {
+		return "D"
+	}
+	if rating > 57 {
+		return "D-"
+	}
+	return "F"
+}
+
 func GetNBATeamGrade(rating int) string {
 	if rating > 84 {
 		return "A+"
@@ -454,6 +495,40 @@ func GetAttributeGrade(rating int) string {
 		return "C"
 	}
 	return "D"
+}
+
+func GetDrafteeGrade(rating int) string {
+	if rating > 24 {
+		return "A+"
+	}
+	if rating > 22 {
+		return "A"
+	}
+	if rating > 20 {
+		return "A-"
+	}
+	if rating > 18 {
+		return "B+"
+	}
+	if rating > 16 {
+		return "B"
+	}
+	if rating > 14 {
+		return "B-"
+	}
+	if rating > 12 {
+		return "C+"
+	}
+	if rating > 10 {
+		return "C"
+	}
+	if rating > 8 {
+		return "C-"
+	}
+	if rating > 5 {
+		return "D"
+	}
+	return "F"
 }
 
 func GetPlayerOverallGrade(rating int) string {
@@ -592,11 +667,11 @@ func GetPotentialGrade(rating int) string {
 func GetPlaytimeExpectations(stars int, year int, overall int) int {
 	mod := 0
 	if overall > 60 {
-		mod = 4
+		mod = 3
 	}
 	if stars == 5 {
 		if year == 4 {
-			return GenerateIntFromRange(15, 29) + mod
+			return GenerateIntFromRange(15, 25) + mod
 		} else if year == 3 {
 			return GenerateIntFromRange(10, 25) + mod
 		} else if year == 2 {

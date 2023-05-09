@@ -77,6 +77,15 @@ func GetTeamRosterForRosterPage(teamId string) []structs.CollegePlayerResponse {
 			TeamAbbr:              p.TeamAbbr,
 			IsRedshirting:         p.IsRedshirting,
 			IsRedshirt:            p.IsRedshirt,
+			PositionOne:           p.PositionOne,
+			PositionTwo:           p.PositionTwo,
+			PositionThree:         p.PositionThree,
+			P1Minutes:             p.P1Minutes,
+			P2Minutes:             p.P2Minutes,
+			P3Minutes:             p.P3Minutes,
+			InsideProportion:      p.InsideProportion,
+			MidRangeProportion:    p.MidRangeProportion,
+			ThreePointProportion:  p.ThreePointProportion,
 		}
 
 		responseList = append(responseList, res)

@@ -5,14 +5,30 @@ import "github.com/jinzhu/gorm"
 type NBADraftee struct {
 	gorm.Model
 	BasePlayer
-	PlayerID        uint
-	CollegeID       uint
-	College         string
-	DraftPickID     uint
-	DraftPick       string
-	DraftedTeamID   uint
-	DraftedTeamAbbr string
-	PrimeAge        int
+	PlayerID              uint
+	CollegeID             uint
+	College               string
+	DraftPickID           uint
+	DraftPick             string
+	DraftedTeamID         uint
+	DraftedTeamAbbr       string
+	PrimeAge              int
+	StandingReach         string
+	VerticalLeap          float64
+	LaneAgility           float64
+	MaxVerticalLeap       float64
+	ThreeQuarterSprint    float64
+	ShuttleRun            float64
+	WingSpan              string
+	Shooting2Grade        string
+	Shooting3Grade        string
+	FreeThrowGrade        string
+	FinishingGrade        string
+	BallworkGrade         string
+	ReboundingGrade       string
+	InteriorDefenseGrade  string
+	PerimeterDefenseGrade string
+	OverallGrade          string
 }
 
 func (n *NBADraftee) Map(cp CollegePlayer) {
@@ -58,4 +74,20 @@ func (n *NBADraftee) Map(cp CollegePlayer) {
 
 func (n *NBADraftee) AssignPrimeAge(age int) {
 	n.PrimeAge = age
+}
+
+func (n *NBADraftee) AssignProPotentialGrade(potential int) {
+	n.ProPotentialGrade = potential
+}
+
+func (n *NBADraftee) ApplyGrades(s2, s3, ft, fn, bw, rb, id, pd, ov string) {
+	n.Shooting2Grade = s2
+	n.Shooting3Grade = s3
+	n.FreeThrowGrade = ft
+	n.FinishingGrade = fn
+	n.BallworkGrade = bw
+	n.ReboundingGrade = rb
+	n.InteriorDefenseGrade = id
+	n.PerimeterDefenseGrade = pd
+	n.OverallGrade = ov
 }

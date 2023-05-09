@@ -123,6 +123,18 @@ func (b *BasePlayer) AssignArchetype() {
 	}
 }
 
+func (p *BasePlayer) SetMidShotProportion(mid int) {
+	p.MidRangeProportion = uint(mid)
+}
+
+func (p *BasePlayer) SetInsideProportion(ins int) {
+	p.InsideProportion = uint(ins)
+}
+
+func (p *BasePlayer) SetThreePointProportion(tp int) {
+	p.ThreePointProportion = uint(tp)
+}
+
 func (cp *BasePlayer) GetPotentialGrade() {
 	adjust := rand.Intn(20) - 10
 	if adjust == 0 {
@@ -166,6 +178,84 @@ func (cp *BasePlayer) GetPotentialGrade() {
 	}
 }
 
+func (cp *BasePlayer) GetNBAPotentialGrade() {
+	adjust := rand.Intn(20) - 10
+	if adjust == 0 {
+		test := rand.Intn(2000) - 1000
+
+		if test > 0 {
+			adjust += 1
+		} else if test < 0 {
+			adjust -= 1
+		} else {
+			adjust = 0
+		}
+	}
+	potential := cp.ProPotentialGrade + adjust
+	if potential > 80 {
+		cp.PotentialGrade = "A+"
+	} else if potential > 70 {
+		cp.PotentialGrade = "A"
+	} else if potential > 65 {
+		cp.PotentialGrade = "A-"
+	} else if potential > 60 {
+		cp.PotentialGrade = "B+"
+	} else if potential > 55 {
+		cp.PotentialGrade = "B"
+	} else if potential > 50 {
+		cp.PotentialGrade = "B-"
+	} else if potential > 40 {
+		cp.PotentialGrade = "C+"
+	} else if potential > 30 {
+		cp.PotentialGrade = "C"
+	} else if potential > 25 {
+		cp.PotentialGrade = "C-"
+	} else if potential > 20 {
+		cp.PotentialGrade = "D+"
+	} else if potential > 15 {
+		cp.PotentialGrade = "D"
+	} else if potential > 10 {
+		cp.PotentialGrade = "D-"
+	} else {
+		cp.PotentialGrade = "F"
+	}
+}
+
 func (p *BasePlayer) SetExpectations(val int) {
 	p.PlaytimeExpectations = val
+}
+
+func (p *BasePlayer) SetMinutes() {
+	p.Minutes = p.P1Minutes + p.P2Minutes + p.P3Minutes
+}
+
+func (c *BasePlayer) UpdatePlayer(p BasePlayer) {
+	c.P1Minutes = p.P1Minutes
+	c.P2Minutes = p.P2Minutes
+	c.P3Minutes = p.P3Minutes
+	c.PositionOne = p.PositionOne
+	c.PositionTwo = p.PositionTwo
+	c.PositionThree = p.PositionThree
+	c.InsideProportion = p.InsideProportion
+	c.MidRangeProportion = p.MidRangeProportion
+	c.ThreePointProportion = p.ThreePointProportion
+	c.SetMinutes()
+}
+
+func (c *BasePlayer) SetP1Minutes(p int, pos string) {
+	c.PositionOne = pos
+	c.P1Minutes = p
+	c.SetMinutes()
+}
+
+func (c *BasePlayer) SetP2Minutes(p int, pos string) {
+	c.PositionTwo = pos
+	c.P2Minutes = p
+	c.SetMinutes()
+}
+
+func (c *BasePlayer) SetP3Minutes(p int, pos string) {
+	c.PositionThree = pos
+	c.P3Minutes = p
+	c.SetMinutes()
 }

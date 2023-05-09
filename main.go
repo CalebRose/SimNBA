@@ -43,7 +43,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/admin/recruiting/sync", controller.SyncRecruiting).Methods("GET")
 	myRouter.HandleFunc("/admin/lock/recruiting", controller.LockRecruiting).Methods("GET")
 	myRouter.HandleFunc("/admin/recruit/create", controller.CreateRecruit).Methods("POST")
-	myRouter.HandleFunc("/admin/ai/gameplans/", controller.SetAIGameplans).Methods("GET")
+	// myRouter.HandleFunc("/admin/ai/gameplans/", controller.SetAIGameplans).Methods("GET")
 	myRouter.HandleFunc("/admin/results/import/", controller.ImportMatchResults).Methods("POST")
 	myRouter.HandleFunc("/admin/show/a", controller.ShowAGames).Methods("GET")
 	myRouter.HandleFunc("/admin/show/b", controller.ShowBGames).Methods("GET")
@@ -53,6 +53,8 @@ func handleRequests() {
 	myRouter.HandleFunc("/admin/sync/contract/values", controller.SyncContractValues).Methods("GET")
 
 	// myRouter.HandleFunc("/admin/generateGlobalPlayers", controller.GenerateGlobalPlayerRecords).Methods("GET")
+	// myRouter.HandleFunc("/admin/generate/gameplans", controller.GenerateGameplans).Methods("GET")
+	// myRouter.HandleFunc("/admin/generate/draft/grades", controller.GenerateDraftGrades).Methods("GET")
 	// myRouter.HandleFunc("/admin/migrate/data", controller.MigratePlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/migrate/progress", controller.ProgressPlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/migrate/new/teams", controller.ImportNewTeams).Methods("GET")
@@ -70,14 +72,16 @@ func handleRequests() {
 	myRouter.HandleFunc("/nba/freeagency/cancel/offer", controller.CancelFreeAgencyOffer).Methods("POST")
 
 	// Gameplan controls
-	myRouter.HandleFunc("/gameplans/{teamId}", controller.GetGameplansByTeamId).Methods("GET")
-	myRouter.HandleFunc("/gameplans/update", controller.UpdateGameplan).Methods("PUT")
+	myRouter.HandleFunc("/cbb/gameplans/{teamId}", controller.GetGameplansByTeamId).Methods("GET")
+	myRouter.HandleFunc("/nba/gameplans/{teamId}", controller.GetNBAGameplanByTeamId).Methods("GET")
+	myRouter.HandleFunc("/cbb/gameplans/update", controller.UpdateGameplan).Methods("POST")
+	myRouter.HandleFunc("/nba/gameplans/update", controller.UpdateNBAGameplan).Methods("POST")
 
 	// Generation Controls
 	// myRouter.HandleFunc("/admin/generateTeam", controller.GeneratePlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/generateCroots", controller.GenerateCroots).Methods("GET")
 	// myRouter.HandleFunc("/admin/fix/height", controller.FixHeight).Methods("GET")
-	// myRouter.HandleFunc("/generate/specs", controller.GenerateAttributeSpecsForCollegeAndRecruits).Methods("GET")
+	// myRouter.HandleFunc("/generate/playtime/expectations", controller.GeneratePlaytimeExpectations).Methods("GET")
 
 	// Import
 	// myRouter.HandleFunc("/import/nba", controller.ImportNBAStandings).Methods("GET")
