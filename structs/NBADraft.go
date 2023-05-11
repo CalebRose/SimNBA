@@ -2,6 +2,13 @@ package structs
 
 import "github.com/jinzhu/gorm"
 
+type NBADraftPageResponse struct {
+	WarRoom          NBAWarRoom
+	DraftablePlayers []NBADraftee
+	NBATeams         []NBATeam
+	AllDraftPicks    []DraftPick
+}
+
 type NBAWarRoom struct {
 	gorm.Model
 	TeamID         uint

@@ -1,11 +1,13 @@
 package managers
 
 import (
+	"sort"
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
+	"gorm.io/gorm"
 )
 
 // Gets all Current Season and Beyond Draft Picks
@@ -68,4 +70,43 @@ func GenerateDraftLetterGrades() {
 
 		db.Save(&d)
 	}
+}
+
+func GetAllCurrentSeasonDraftPicks() []structs.DraftPick {
+	db := dbprovider.GetInstance().GetDB()
+
+	ts := GetTimestamp()
+
+	draftPicks := []structs.DraftPick{}
+
+	db.Where("season_id = ?", strconv.Itoa(int(ts.SeasonID))).Find(&draftPicks)
+
+	return draftPicks
+}
+
+func GetNBAWarRoomByTeamID(TeamID string) structs.NBAWarRoom {
+	db := dbprovider.GetInstance().GetDB()
+
+	warRoom := structs.NBAWarRoom{}
+
+	db.Preload("DraftPicks").Preload("ScoutProfiles", func(db *gorm.DB) *gorm.DB {
+		return db.Where("removed_from_board = false")
+	}).Where("team_id = ?", TeamID).Find(&warRoom)
+
+	return warRoom
+}
+
+func GetNBADrafteesForDraftPage() []structs.NBADraftee {
+	db := dbprovider.GetInstance().GetDB()
+	draftees := []structs.NBADraftee{}
+
+	db.Find(&draftees)
+
+	sort.Slice(draftees, func(i, j int) bool {
+		iVal := util.GetNumericalSortValueByLetterGrade(draftees[i].OverallGrade)
+		jVal := util.GetNumericalSortValueByLetterGrade(draftees[j].OverallGrade)
+		return iVal < jVal
+	})
+
+	return draftees
 }

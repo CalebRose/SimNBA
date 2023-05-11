@@ -444,6 +444,35 @@ func GetOverallDraftGrade(rating int) string {
 	return "F"
 }
 
+func GetNumericalSortValueByLetterGrade(grade string) int {
+	if grade == "A+" {
+		return 1
+	} else if grade == "A" {
+		return 2
+	} else if grade == "A-" {
+		return 3
+	} else if grade == "B+" {
+		return 4
+	} else if grade == "B" {
+		return 5
+	} else if grade == "B-" {
+		return 6
+	} else if grade == "C+" {
+		return 7
+	} else if grade == "C" {
+		return 8
+	} else if grade == "C-" {
+		return 9
+	} else if grade == "D+" {
+		return 10
+	} else if grade == "D" {
+		return 11
+	} else if grade == "D-" {
+		return 12
+	}
+	return 13
+}
+
 func GetNBATeamGrade(rating int) string {
 	if rating > 84 {
 		return "A+"
