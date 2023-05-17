@@ -21,3 +21,11 @@ func ImportNBAStandings(w http.ResponseWriter, r *http.Request) {
 func MigrateRecruits(w http.ResponseWriter, r *http.Request) {
 	managers.MigrateRecruits()
 }
+
+func MigrateNewAIRecruitingValues(w http.ResponseWriter, r *http.Request) {
+	managers.MigrateNewAIRecruitingValues()
+}
+
+func ImportNBAPersonalities(w http.ResponseWriter, r *http.Request) {
+	managers.ImportNBAPersonalities()
+}

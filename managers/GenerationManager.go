@@ -314,6 +314,43 @@ func GenerateAttributeSpecs() {
 	}
 }
 
+func GenerateGameplans() {
+	db := dbprovider.GetInstance().GetDB()
+
+	allProfessionalTeams := GetAllActiveNBATeams()
+
+	for _, n := range allProfessionalTeams {
+		gp := GetNBAGameplanByTeam(strconv.Itoa(int(n.ID)))
+		if gp.ID > 0 {
+			continue
+		}
+		gameplan := structs.NBAGameplan{
+			TeamID:             n.ID,
+			Game:               "A",
+			Pace:               "Balanced",
+			FocusPlayer:        "",
+			OffensiveFormation: "Balanced",
+			DefensiveFormation: "Man-to-Man",
+			OffensiveStyle:     "Traditional",
+		}
+		db.Create(&gameplan)
+	}
+}
+
+func GeneratePlaytimeExpectations() {
+	db := dbprovider.GetInstance().GetDB()
+
+	collegePlayers := GetAllCollegePlayers()
+
+	for _, c := range collegePlayers {
+		newExpectations := util.GetPlaytimeExpectations(c.Stars, c.Year, c.Overall)
+
+		c.SetExpectations(newExpectations)
+
+		db.Save(&c)
+	}
+}
+
 // Private Methods
 func createCollegePlayer(team structs.Team, ethnicity string, position string, year int, firstNameList [][]string, lastNameList [][]string, id uint) structs.CollegePlayer {
 	fName := getName(firstNameList)
@@ -354,7 +391,7 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 	academicBias := util.GetAcademicBias()
 	workEthic := util.GetWorkEthic()
 	recruitingBias := util.GetRecruitingBias()
-	freeAgency := util.GetFreeAgencyBias()
+	freeAgency := util.GetFreeAgencyBias(0, 0)
 
 	var basePlayer = structs.BasePlayer{
 		FirstName:            firstName,
@@ -446,7 +483,7 @@ func createRecruit(ethnicity string, position string, year int, firstNameList []
 	academicBias := util.GetAcademicBias()
 	workEthic := util.GetWorkEthic()
 	recruitingBias := util.GetRecruitingBias()
-	freeAgency := util.GetFreeAgencyBias()
+	freeAgency := util.GetFreeAgencyBias(0, 0)
 
 	var basePlayer = structs.BasePlayer{
 		FirstName:            firstName,

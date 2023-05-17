@@ -175,6 +175,39 @@ func GetWorkEthic() string {
 	return PickFromStringList(list)
 }
 
+func GetFreeAgencyBias(age, ovr int) string {
+	chance := GenerateIntFromRange(1, 3)
+	if chance < 3 {
+		return "Average"
+	}
+	list := []string{
+		"Wants extensions",
+		"Drafted team discount",
+		"Loyal",
+		"Hometown hero",
+		"Adversarial",
+	}
+
+	midAgeList := []string{
+		"I'm the starter",
+		"Market-driven",
+		"Money motivated",
+	}
+
+	veteranList := []string{
+		"Highest bidder",
+		"Championship seeking",
+	}
+
+	if age > 30 || ovr > 95 {
+		list = append(list, veteranList...)
+	} else if age > 24 {
+		list = append(list, midAgeList...)
+	}
+
+	return PickFromStringList(list)
+}
+
 func GetSpecialties(pos string) []string {
 	chance := GenerateIntFromRange(0, 9)
 	if chance < 1 {
@@ -258,29 +291,6 @@ func GetSpecialties(pos string) []string {
 		list = append(list, "SpecPerimeterDefense")
 	}
 	return list
-}
-
-func GetFreeAgencyBias() string {
-	chance := GenerateIntFromRange(1, 3)
-	if chance < 3 {
-		return "Average"
-	}
-	list := []string{"I'm the starter",
-		"Market-driven",
-		"Wants extensions",
-		"Drafted team discount",
-		"Highest bidder",
-		"Championship seeking",
-		"Loyal",
-		"Average",
-		"Hometown hero",
-		"Money motivated",
-		"Hates Tags",
-		"Adversarial",
-		"Hates Cleveland",
-		"Will eventually play for LeBron"}
-
-	return PickFromStringList(list)
 }
 
 func GetOffenseGrade(rating int) string {
@@ -808,43 +818,43 @@ func GetRoundAbbreviation(str string) string {
 }
 
 func GetLotteryChances(idx int) uint {
-	if idx < 2 {
+	if idx <= 4 {
 		return 140
 	}
-	if idx == 3 {
+	if idx == 5 {
 		return 125
 	}
-	if idx == 4 {
+	if idx == 6 {
 		return 105
 	}
-	if idx == 5 {
+	if idx == 7 {
 		return 90
 	}
-	if idx == 6 {
+	if idx == 8 {
 		return 75
 	}
-	if idx == 7 {
+	if idx == 9 {
 		return 60
 	}
-	if idx == 8 {
+	if idx == 10 {
 		return 45
 	}
-	if idx == 9 {
+	if idx == 11 {
 		return 30
 	}
-	if idx == 10 {
+	if idx == 12 {
 		return 20
 	}
-	if idx == 11 {
+	if idx == 13 {
 		return 15
 	}
-	if idx == 12 {
-		return 10
-	}
-	if idx == 13 {
-		return 5
-	}
 	if idx == 14 {
+		return 9
+	}
+	if idx == 15 {
+		return 4
+	}
+	if idx == 16 {
 		return 2
 	}
 	return 1

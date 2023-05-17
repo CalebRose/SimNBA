@@ -66,6 +66,9 @@ func handleRequests() {
 	myRouter.HandleFunc("/nba/capsheet/generate", controller.GenerateCapsheets).Methods("GET")
 	myRouter.HandleFunc("/nba/contracts/get/value", controller.CalculateContracts).Methods("GET")
 
+	// Draft Controls
+	myRouter.HandleFunc("/nba/draft/conduct/lottery", controller.ConductDraftLottery).Methods("GET")
+
 	// Free Agency Controls
 	myRouter.HandleFunc("/nba/freeagency/available/{teamID}", controller.FreeAgencyAvailablePlayers).Methods("GET")
 	myRouter.HandleFunc("/nba/freeagency/create/offer", controller.CreateFreeAgencyOffer).Methods("POST")
@@ -88,6 +91,8 @@ func handleRequests() {
 	// myRouter.HandleFunc("/import/archetypes", controller.ImportArchetypes).Methods("GET")
 	// myRouter.HandleFunc("/import/fa/preferences", controller.ImportFAPreferences).Methods("GET")
 	// myRouter.HandleFunc("/import/positions", controller.ImportNewPositions).Methods("GET")
+	// myRouter.HandleFunc("/import/ai/values", controller.MigrateNewAIRecruitingValues).Methods("GET")
+	myRouter.HandleFunc("/import/nba/personalities", controller.ImportNBAPersonalities).Methods("GET")
 
 	// myRouter.HandleFunc("/migrate/remaining/croots", controller.MigrateRecruits).Methods("GET")
 

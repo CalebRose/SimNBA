@@ -259,3 +259,15 @@ func (c *BasePlayer) SetP3Minutes(p int, pos string) {
 	c.P3Minutes = p
 	c.SetMinutes()
 }
+
+func (c *BasePlayer) SetWorkEthic(ethic string) {
+	c.WorkEthic = ethic
+}
+
+func (c *BasePlayer) SetPersonality(personality string) {
+	c.Personality = personality
+}
+
+func (c *BasePlayer) SetFreeAgencyBias(faBias string) {
+	c.FreeAgency = faBias
+}

@@ -226,3 +226,16 @@ func GetFreeAgentOffersByPlayerID(PlayerID string) []structs.NBAContractOffer {
 
 	return offers
 }
+
+func TempExtensionAlgorithm() {
+	// DB
+	// Read CSV
+	// Iterate through submissions
+	// Player Record by ID
+	// Get Minimum Value required
+	// Check if max/supermax
+	// Check FA Preference
+	// Compare contract with FA Preference with minimum value
+	// If met, player signs
+	// If not, continue algorithm
+}

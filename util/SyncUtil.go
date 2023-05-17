@@ -138,7 +138,7 @@ func IsPlayerDefensivelyStrong(r structs.Recruit) bool {
 }
 
 func IsPlayerHighPotential(r structs.Recruit) bool {
-	return r.Potential > 55
+	return r.Potential > 70
 }
 
 func IsAITeamContendingForCroot(profiles []structs.PlayerRecruitProfile) int {

@@ -355,8 +355,8 @@ func FillAIRecruitingBoards() {
 		if !team.IsAI || team.TotalCommitments >= team.RecruitClassSize {
 			continue
 		}
-
-		existingBoard := GetAllRecruitsByProfileID(strconv.Itoa(int(team.ID)))
+		id := strconv.Itoa(int(team.ID))
+		existingBoard := GetAllRecruitsByProfileID(id)
 
 		count = len(existingBoard)
 
@@ -364,11 +364,31 @@ func FillAIRecruitingBoards() {
 			continue
 		}
 
+		currentRoster := GetCollegePlayersByTeamId(id)
+		teamNeedsMap := make(map[string]bool)
+		positionCount := make(map[string]int)
+
+		for _, r := range currentRoster {
+			positionCount[r.Position] += 1
+		}
+
+		if positionCount["PG"] < 3 {
+			teamNeedsMap["PG"] = true
+		} else if positionCount["SG"] < 4 {
+			teamNeedsMap["SG"] = true
+		} else if positionCount["SF"] < 4 {
+			teamNeedsMap["SF"] = true
+		} else if positionCount["PF"] < 4 {
+			teamNeedsMap["PF"] = true
+		} else if positionCount["C"] < 3 {
+			teamNeedsMap["C"] = true
+		}
+
 		for _, croot := range UnsignedRecruits {
 			if count == boardCount {
 				break
 			}
-			if croot.IsCustomCroot ||
+			if croot.IsCustomCroot || (!teamNeedsMap[croot.Position] && ts.CollegeWeek < 10) ||
 				(croot.Stars == 5 && team.AIQuality != "Blue Blood") {
 				continue
 			}
@@ -399,23 +419,38 @@ func FillAIRecruitingBoards() {
 					odds += 33
 				}
 			}
-
+			/* Initial Base */
 			if team.AIQuality == "Blue Blood" && croot.Stars == 5 {
 				odds += 5
-			} else if team.AIQuality == "Blue Blood" && croot.Stars == 4 {
-				odds += 50
-			} else if team.AIQuality == "Cinderella" && util.IsPlayerHighPotential(croot) {
-				odds += 50
 			} else if team.AIQuality == "Cinderella" && croot.Stars == 4 {
 				odds += 15
 			} else if team.AIQuality == "P6" && croot.Stars == 4 {
 				odds += 5
-			} else if team.AIQuality == "P6" && croot.Stars < 4 {
-				odds += 50
+			} else if team.AIQuality == "P6" && croot.Stars == 3 {
+				odds += 15
 			} else if team.AIQuality == "Mid-Major" && croot.Stars < 4 {
-				odds += 35
+				odds += 5
 			} else if team.AIQuality == "Mid-Major" && croot.Stars < 3 {
-				odds += 65
+				odds += 10
+			}
+
+			if team.AIQuality == "Cinderella" && util.IsPlayerHighPotential(croot) {
+				odds += 15
+			}
+
+			if team.AIValue == "Star" {
+				odds += getOddsIncrementByStar(5, croot.Stars)
+			} else if team.AIValue == "Potential" {
+				odds += getOddsIncrementByPotential(5, croot.Potential)
+			} else if team.AIValue == "Talent" {
+				odds += getOddsIncrementByTalent(croot.Shooting2, croot.SpecShooting2, team.AIAttribute1 == "Shooting2" || team.AIAttribute2 == "Shooting2")
+				odds += getOddsIncrementByTalent(croot.Shooting3, croot.SpecShooting3, team.AIAttribute1 == "Shooting3" || team.AIAttribute2 == "Shooting3")
+				odds += getOddsIncrementByTalent(croot.Finishing, croot.SpecFinishing, team.AIAttribute1 == "Finishing" || team.AIAttribute2 == "Finishing")
+				odds += getOddsIncrementByTalent(croot.FreeThrow, croot.SpecFreeThrow, team.AIAttribute1 == "FreeThrow" || team.AIAttribute2 == "FreeThrow")
+				odds += getOddsIncrementByTalent(croot.Ballwork, croot.SpecBallwork, team.AIAttribute1 == "Ballwork" || team.AIAttribute2 == "Ballwork")
+				odds += getOddsIncrementByTalent(croot.Rebounding, croot.SpecRebounding, team.AIAttribute1 == "Rebounding" || team.AIAttribute2 == "Rebounding")
+				odds += getOddsIncrementByTalent(croot.InteriorDefense, croot.SpecInteriorDefense, team.AIAttribute1 == "InteriorDefense" || team.AIAttribute2 == "InteriorDefense")
+				odds += getOddsIncrementByTalent(croot.PerimeterDefense, croot.SpecPerimeterDefense, team.AIAttribute1 == "PerimeterDefense" || team.AIAttribute2 == "PerimeterDefense")
 			}
 
 			chance := util.GenerateIntFromRange(1, 100)
@@ -602,4 +637,20 @@ func ResetAIBoardsForCompletedTeams() {
 			db.Save(&team)
 		}
 	}
+}
+
+func getOddsIncrementByStar(init int, stars int) int {
+	return init * stars
+}
+
+func getOddsIncrementByPotential(init int, potential int) int {
+	potentialFloor := potential / 10
+	return init * potentialFloor
+}
+
+func getOddsIncrementByTalent(attr int, attrspec, attrMatch bool) int {
+	if attrMatch && (attrspec || attr > 15) {
+		return 25
+	}
+	return 0
 }

@@ -18,6 +18,9 @@ type TeamRecruitingProfile struct {
 	IsAI                  bool
 	AIBehavior            string
 	AIQuality             string
+	AIValue               string // Star, Talent, Potential
+	AIAttribute1          string
+	AIAttribute2          string
 	ESPNScore             float64
 	RivalsScore           float64
 	Rank247Score          float64
@@ -96,4 +99,10 @@ func (r *TeamRecruitingProfile) ToggleAIBehavior(val bool) {
 
 func (r *TeamRecruitingProfile) SetClassSize(size int) {
 	r.RecruitClassSize = size
+}
+
+func (r *TeamRecruitingProfile) SetNewBehaviors(value, attr1, attr2 string) {
+	r.AIValue = value
+	r.AIAttribute1 = attr1
+	r.AIAttribute2 = attr2
 }

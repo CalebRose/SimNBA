@@ -3,7 +3,6 @@ package managers
 import (
 	"fmt"
 	"log"
-	"sort"
 	"strconv"
 	"time"
 
@@ -417,6 +416,24 @@ func ImportFAPreferences() {
 	}
 }
 
+func ImportNBAPersonalities() {
+	fmt.Println(time.Now().UnixNano())
+	db := dbprovider.GetInstance().GetDB()
+	nbaPlayers := GetAllNBAPlayers()
+
+	for _, p := range nbaPlayers {
+		freeAgency := util.GetFreeAgencyBias(p.Age, p.Overall)
+		workEthic := util.GetWorkEthic()
+		personality := util.GetPersonality()
+
+		p.SetFreeAgencyBias(freeAgency)
+		p.SetWorkEthic(workEthic)
+		p.SetPersonality(personality)
+
+		db.Save(&p)
+	}
+}
+
 func ImportNBAStandings() {
 	db := dbprovider.GetInstance().GetDB()
 	path := secrets.GetPath()["nbastandings"]
@@ -568,152 +585,6 @@ func ImportNewTeams() {
 		}
 
 		db.Create(&standings)
-	}
-}
-
-func ConductDraftLottery() {
-	db := dbprovider.GetInstance().GetDB()
-	fmt.Println(time.Now().UnixNano())
-	path := secrets.GetPath()["draftlottery"]
-	lotteryCSV := util.ReadCSV(path)
-	ts := GetTimestamp()
-	lotteryBalls := []structs.DraftLottery{}
-	draftPicks := []structs.DraftPick{}
-
-	for idx, row := range lotteryCSV {
-		if idx < 1 {
-			continue
-		}
-		pickNumber := idx + 1
-		teamID := util.ConvertStringToInt(row[0])
-		team := row[1]
-
-		if idx < 15 {
-			chances := util.GetLotteryChances(idx)
-			lottery := structs.DraftLottery{
-				ID:      uint(teamID),
-				Team:    team,
-				Chances: chances,
-			}
-			lotteryBalls = append(lotteryBalls, lottery)
-
-			draftPick := structs.DraftPick{
-				SeasonID:       ts.SeasonID,
-				Season:         uint(ts.Season),
-				DraftRound:     2,
-				DraftNumber:    uint(32 + pickNumber),
-				TeamID:         uint(teamID),
-				Team:           team,
-				OriginalTeamID: uint(teamID),
-				OriginalTeam:   team,
-				DraftValue:     0,
-			}
-			draftPicks = append(draftPicks, draftPick)
-		} else {
-			firstRoundPick := structs.DraftPick{
-				SeasonID:       ts.SeasonID,
-				Season:         uint(ts.Season),
-				DraftRound:     2,
-				DraftNumber:    uint(32 + pickNumber),
-				TeamID:         uint(teamID),
-				Team:           team,
-				OriginalTeamID: uint(teamID),
-				OriginalTeam:   team,
-				DraftValue:     0,
-			}
-			secondRoundPick := structs.DraftPick{
-				SeasonID:       ts.SeasonID,
-				Season:         uint(ts.Season),
-				DraftRound:     2,
-				DraftNumber:    uint(32 + pickNumber),
-				TeamID:         uint(teamID),
-				Team:           team,
-				OriginalTeamID: uint(teamID),
-				OriginalTeam:   team,
-				DraftValue:     0,
-			}
-			draftPicks = append(draftPicks, firstRoundPick)
-			draftPicks = append(draftPicks, secondRoundPick)
-		}
-	}
-	lotteryPicks := 16
-	draftOrder := []structs.DraftLottery{}
-	for i := 0; i < lotteryPicks; i++ {
-		sum := 0
-		for _, l := range lotteryBalls {
-			sum += int(l.Chances)
-		}
-
-		chance := util.GenerateIntFromRange(1, sum)
-		sum2 := 0
-		for _, l := range lotteryBalls {
-			sum2 += int(l.Chances)
-			if chance < sum2 {
-				draftOrder = append(draftOrder, l)
-
-				lotteryBalls = filterLotteryPicks(lotteryBalls, l.ID)
-				break
-			}
-		}
-	}
-
-	for idx, do := range draftOrder {
-		pick := idx + 1
-		draftPick := structs.DraftPick{
-			SeasonID:       ts.SeasonID,
-			Season:         uint(ts.Season),
-			DraftRound:     1,
-			DraftNumber:    uint(pick),
-			TeamID:         do.ID,
-			Team:           do.Team,
-			OriginalTeamID: do.ID,
-			OriginalTeam:   do.Team,
-			DraftValue:     0,
-		}
-		draftPicks = append(draftPicks, draftPick)
-	}
-
-	sort.Sort(structs.ByDraftNumber(draftPicks))
-
-	for _, pick := range draftPicks {
-		db.Create(&pick)
-	}
-}
-
-func GenerateGameplans() {
-	db := dbprovider.GetInstance().GetDB()
-
-	allProfessionalTeams := GetAllActiveNBATeams()
-
-	for _, n := range allProfessionalTeams {
-		gp := GetNBAGameplanByTeam(strconv.Itoa(int(n.ID)))
-		if gp.ID > 0 {
-			continue
-		}
-		gameplan := structs.NBAGameplan{
-			TeamID:             n.ID,
-			Game:               "A",
-			Pace:               "Balanced",
-			FocusPlayer:        "",
-			OffensiveFormation: "Balanced",
-			DefensiveFormation: "Man-to-Man",
-			OffensiveStyle:     "Traditional",
-		}
-		db.Create(&gameplan)
-	}
-}
-
-func GeneratePlaytimeExpectations() {
-	db := dbprovider.GetInstance().GetDB()
-
-	collegePlayers := GetAllCollegePlayers()
-
-	for _, c := range collegePlayers {
-		newExpectations := util.GetPlaytimeExpectations(c.Stars, c.Year, c.Overall)
-
-		c.SetExpectations(newExpectations)
-
-		db.Save(&c)
 	}
 }
 

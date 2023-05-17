@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/secrets"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
 )
@@ -88,7 +89,7 @@ func MigrateOldPlayerDataToNewTables() {
 		academicBias := util.GetAcademicBias()
 		workEthic := util.GetWorkEthic()
 		recruitingBias := util.GetRecruitingBias()
-		freeAgency := util.GetFreeAgencyBias()
+		freeAgency := util.GetFreeAgencyBias(player.Age, player.Overall)
 
 		abbr := ""
 		teamId := 0
@@ -231,4 +232,37 @@ func getPlayerData() [][]string {
 	}
 
 	return records
+}
+
+func MigrateNewAIRecruitingValues() {
+	db := dbprovider.GetInstance().GetDB()
+
+	path := secrets.GetPath()["ai"]
+	teams := util.ReadCSV(path)
+
+	for idx, row := range teams {
+		if idx == 0 {
+			continue
+		}
+
+		id := row[0]
+		aiValue := row[7]
+		attr1 := row[8]
+		attr2 := row[9]
+
+		attributeList := []string{"Finishing", "FreeThrow", "Shooting2", "Shooting3", "Ballwork", "Rebounding", "InteriorDefense", "PerimeterDefense"}
+
+		for len(attr1) == 0 {
+			attr1 = util.PickFromStringList(attributeList)
+		}
+
+		for len(attr2) == 0 || attr1 == attr2 {
+			attr2 = util.PickFromStringList(attributeList)
+		}
+
+		teamProfile := GetOnlyTeamRecruitingProfileByTeamID(id)
+		teamProfile.SetNewBehaviors(aiValue, attr1, attr2)
+
+		db.Save(&teamProfile)
+	}
 }
