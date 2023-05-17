@@ -8,7 +8,9 @@ import (
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/secrets"
 	"github.com/CalebRose/SimNBA/structs"
+	"github.com/CalebRose/SimNBA/util"
 	"gorm.io/gorm"
 )
 
@@ -228,8 +230,39 @@ func GetFreeAgentOffersByPlayerID(PlayerID string) []structs.NBAContractOffer {
 }
 
 func TempExtensionAlgorithm() {
+	db := dbprovider.GetInstance().GetDB()
 	// DB
+	path := secrets.GetPath()["extensions"]
+	extensionsCSV := util.ReadCSV(path)
+	ts := GetTimestamp()
 	// Read CSV
+	for idx, row := range extensionsCSV {
+		if idx == 0 {
+			continue
+		}
+
+		id := row[0]
+		teamID := row[1]
+		playerRecord := GetNBAPlayerRecord(id)
+		minimumValue := playerRecord.MinimumValue
+		contractLength := util.ConvertStringToInt(row[3])
+		totalValue := util.ConvertStringToInt(row[4])
+		year1 := util.ConvertStringToInt(row[5])
+		year2 := util.ConvertStringToInt(row[6])
+		year3 := util.ConvertStringToInt(row[7])
+		year4 := util.ConvertStringToInt(row[8])
+		year5 := util.ConvertStringToInt(row[9])
+		contractStatus := ""
+		if playerRecord.MaxRequested {
+			contractStatus = "Max"
+		}
+		if playerRecord.IsSuperMaxQualified {
+			contractStatus = "SuperMax"
+		}
+
+		pref := playerRecord.FreeAgency
+
+	}
 	// Iterate through submissions
 	// Player Record by ID
 	// Get Minimum Value required
@@ -238,4 +271,40 @@ func TempExtensionAlgorithm() {
 	// Compare contract with FA Preference with minimum value
 	// If met, player signs
 	// If not, continue algorithm
+}
+
+func validateFreeAgencyPref(playerRecord structs.NBAPlayer, teamID uint, totalValue int) bool {
+	preference := playerRecord.FreeAgency
+
+	if preference == "Average" {
+		return true
+	}
+	if preference == "Drafted team discount" && playerRecord.DraftedTeamID == teamID {
+		return true
+	}
+	if preference == "Loyal" {
+
+	}
+	if preference == "Hometown Hero" {
+
+	}
+	if preference == "Adversarial" {
+
+	}
+
+	if preference == "I'm the starter" {
+
+	}
+	if preference == "Market-driven" {
+
+	}
+	if preference == "Money motivated" {
+
+	}
+	if preference == "Highest bidder" {
+
+	}
+	if preference == "Championship seeking" {
+
+	}
 }
