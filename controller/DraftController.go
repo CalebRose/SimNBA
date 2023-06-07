@@ -20,6 +20,11 @@ func GenerateDraftGrades(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(w, "Congrats, you generated the Letter Grades!")
 }
 
+func CheckDeclarationStatus(w http.ResponseWriter, r *http.Request) {
+	managers.RunDeclarationsAlgorithm()
+	fmt.Println(w, "Congrats, you generated the Letter Grades!")
+}
+
 func GetDraftPageData(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	vars := mux.Vars(r)

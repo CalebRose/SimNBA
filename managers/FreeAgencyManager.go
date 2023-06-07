@@ -241,17 +241,43 @@ func TempExtensionAlgorithm() {
 			continue
 		}
 
-		id := row[0]
-		teamID := row[1]
+		id := row[1]
+		teamID := row[0]
 		playerRecord := GetNBAPlayerRecord(id)
+		team := GetNBATeamByTeamID(teamID)
+		contractType := row[3]
+		contractLength := util.ConvertStringToInt(row[4])
+		totalValue := util.ConvertStringToFloat(row[5])
+		year1 := util.ConvertStringToFloat(row[6])
+		year2 := util.ConvertStringToFloat(row[7])
+		year3 := util.ConvertStringToFloat(row[8])
+		year4 := util.ConvertStringToFloat(row[9])
+		year5 := util.ConvertStringToFloat(row[10])
+		year1Opt := util.ConvertStringToBool(row[11])
+		year2Opt := util.ConvertStringToBool(row[12])
+		year3Opt := util.ConvertStringToBool(row[13])
+		year4Opt := util.ConvertStringToBool(row[14])
+		year5Opt := util.ConvertStringToBool(row[15])
+		nbaContract := structs.NBAContract{
+			PlayerID:       playerRecord.ID,
+			TeamID:         team.ID,
+			ContractType:   contractType,
+			YearsRemaining: uint(contractLength),
+			TotalRemaining: totalValue,
+			Year1Total:     year1,
+			Year2Total:     year2,
+			Year3Total:     year3,
+			Year4Total:     year4,
+			Year5Total:     year5,
+			Year1Opt:       year1Opt,
+			Year2Opt:       year2Opt,
+			Year3Opt:       year3Opt,
+			Year4Opt:       year4Opt,
+			Year5Opt:       year5Opt,
+			IsExtended:     true,
+			IsActive:       true,
+		}
 		minimumValue := playerRecord.MinimumValue
-		contractLength := util.ConvertStringToInt(row[3])
-		totalValue := util.ConvertStringToInt(row[4])
-		year1 := util.ConvertStringToInt(row[5])
-		year2 := util.ConvertStringToInt(row[6])
-		year3 := util.ConvertStringToInt(row[7])
-		year4 := util.ConvertStringToInt(row[8])
-		year5 := util.ConvertStringToInt(row[9])
 		contractStatus := ""
 		if playerRecord.MaxRequested {
 			contractStatus = "Max"
@@ -259,9 +285,43 @@ func TempExtensionAlgorithm() {
 		if playerRecord.IsSuperMaxQualified {
 			contractStatus = "SuperMax"
 		}
+		multiplier := 1.0
+		// validation := validateFreeAgencyPref(playerRecord, team, strconv.Itoa(int(ts.SeasonID)))
+		// if validation && playerRecord.FreeAgency != "Average" {
+		// 	multiplier = 0.85
+		// } else if !validation && playerRecord.FreeAgency != "Average" {
+		// 	multiplier = 1.15
+		// }
+		minimumValue = minimumValue * multiplier
+		validOffer := validateContract(nbaContract, contractStatus, minimumValue)
 
-		pref := playerRecord.FreeAgency
+		if !validOffer {
+			newsLog := structs.NewsLog{
+				League:      "NBA",
+				SeasonID:    ts.SeasonID,
+				Season:      uint(ts.Season),
+				WeekID:      ts.NBAWeekID,
+				Week:        uint(ts.NBAWeek),
+				MessageType: "Contract",
+				Message:     playerRecord.Position + " " + playerRecord.FirstName + " " + playerRecord.LastName + " has rejected an extension offer from " + team.Team + " " + team.Nickname,
+			}
+			db.Create(&newsLog)
+			continue
+		}
 
+		newsLog := structs.NewsLog{
+			League:      "NBA",
+			SeasonID:    ts.SeasonID,
+			Season:      uint(ts.Season),
+			WeekID:      ts.NBAWeekID,
+			Week:        uint(ts.NBAWeek),
+			MessageType: "Contract",
+			Message:     playerRecord.Position + " " + playerRecord.FirstName + " " + playerRecord.LastName + " has signed an extension with the " + team.Team + " " + team.Nickname + ", worth approximately $" + strconv.Itoa(int(nbaContract.TotalRemaining)) + " Million!",
+		}
+		playerRecord.SignWithTeam(team.ID, team.Team)
+		db.Create(&newsLog)
+		db.Save(&playerRecord)
+		db.Create(&nbaContract)
 	}
 	// Iterate through submissions
 	// Player Record by ID
@@ -273,38 +333,74 @@ func TempExtensionAlgorithm() {
 	// If not, continue algorithm
 }
 
-func validateFreeAgencyPref(playerRecord structs.NBAPlayer, teamID uint, totalValue int) bool {
+func validateFreeAgencyPref(playerRecord structs.NBAPlayer, team structs.NBATeam, seasonID string) bool {
 	preference := playerRecord.FreeAgency
 
 	if preference == "Average" {
 		return true
 	}
-	if preference == "Drafted team discount" && playerRecord.DraftedTeamID == teamID {
+	if preference == "Drafted team discount" && playerRecord.DraftedTeamID == team.ID {
 		return true
 	}
-	if preference == "Loyal" {
-
+	if preference == "Loyal" && playerRecord.PreviousTeamID == team.ID {
+		return true
 	}
-	if preference == "Hometown Hero" {
 
+	if preference == "Hometown Hero" && playerRecord.State == team.State {
+		return true
 	}
-	if preference == "Adversarial" {
-
+	if preference == "Adversarial" && playerRecord.PreviousTeamID != team.ID && playerRecord.DraftedTeamID != team.ID {
+		return true
 	}
 
 	if preference == "I'm the starter" {
-
+		teamRoster := GetAllNBAPlayersByTeamID(strconv.Itoa(int(team.ID)))
+		sort.Slice(teamRoster, func(i, j int) bool {
+			return teamRoster[i].Overall > teamRoster[j].Overall
+		})
+		for idx, p := range teamRoster {
+			if idx > 4 {
+				return false
+			}
+			if playerRecord.Overall >= p.Overall {
+				return true
+			}
+		}
 	}
-	if preference == "Market-driven" {
-
+	if preference == "Market-driven" && checkMarketCity(team.City) {
+		return true
 	}
 	if preference == "Money motivated" {
-
+		return false
 	}
 	if preference == "Highest bidder" {
-
+		return true
 	}
 	if preference == "Championship seeking" {
-
+		standings := GetNBAStandingsRecordByTeamID(strconv.Itoa(int(team.ID)), seasonID)
+		if standings.TotalWins > standings.TotalLosses {
+			return true
+		}
 	}
+	return false
+}
+
+func validateContract(offer structs.NBAContract, status string, minimum float64) bool {
+	if status == "Max" || status == "SuperMax" {
+		// if offer.YearsRemaining == 5 {
+		// 	return minimum < offer.Year1Total && minimum < offer.Year2Total && minimum < offer.Year3Total && minimum < offer.Year4Total && minimum < offer.Year5Total
+		// } else if offer.YearsRemaining == 4 {
+		// 	return minimum < offer.Year1Total && minimum < offer.Year2Total && minimum < offer.Year3Total && minimum < offer.Year4Total
+		// } else if offer.YearsRemaining == 3 {
+		// 	return minimum < offer.Year1Total && minimum < offer.Year2Total && minimum < offer.Year3Total
+		// } else if offer.YearsRemaining == 2 {
+		// 	return minimum < offer.Year1Total && minimum < offer.Year2Total
+		// }
+		return minimum <= offer.Year1Total
+	}
+	return minimum <= offer.TotalRemaining
+}
+
+func checkMarketCity(city string) bool {
+	return city == "Los Angeles" || city == "New York" || city == "Brooklyn" || city == "Chicago" || city == "Philadelphia" || city == "Boston" || city == "Dallas" || city == "Oakland" || city == "Atlanta" || city == "Houston" || city == "Washington"
 }

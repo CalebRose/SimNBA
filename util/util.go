@@ -33,6 +33,37 @@ func PickFromStringList(list []string) string {
 	return list[rand.Intn(len(list))]
 }
 
+func GeneratePrimeAge() int {
+	chance := GenerateIntFromRange(1, 100)
+
+	if chance < 5 {
+		return 22
+	} else if chance < 10 {
+		return 23
+	} else if chance < 15 {
+		return 24
+	} else if chance < 35 {
+		return 25
+	} else if chance < 50 {
+		return 26
+	} else if chance < 55 {
+		return 27
+	} else if chance < 65 {
+		return 28
+	} else if chance < 75 {
+		return 29
+	} else if chance < 80 {
+		return 30
+	} else if chance < 85 {
+		return 31
+	} else if chance < 90 {
+		return 32
+	} else if chance < 95 {
+		return 33
+	}
+	return 34
+}
+
 func GeneratePotential() int {
 	num := GenerateIntFromRange(1, 100)
 
@@ -750,7 +781,7 @@ func GetPlaytimeExpectations(stars int, year int, overall int) int {
 }
 
 func ConvertStringToBool(str string) bool {
-	return str == "TRUE"
+	return str == "TRUE" || str == "1"
 }
 
 func ConvertStringToInt(num string) int {

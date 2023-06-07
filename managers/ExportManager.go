@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/CalebRose/SimNBA/util"
 )
 
 func ExportCroots(w http.ResponseWriter) {
@@ -47,6 +49,59 @@ func ExportCroots(w http.ResponseWriter) {
 		}
 
 		err = writer.Write(crootRow)
+		if err != nil {
+			log.Fatal("Cannot write croot row to CSV", err)
+		}
+
+		writer.Flush()
+		err = writer.Error()
+		if err != nil {
+			log.Fatal("Error while writing to file ::", err)
+		}
+	}
+}
+
+func ExportCollegePlayers(w http.ResponseWriter) {
+	w.Header().Set("Content-Disposition", "attachment;filename=sagebows_secret_player_list.csv")
+	w.Header().Set("Transfer-Encoding", "chunked")
+
+	writer := csv.NewWriter(w)
+
+	players := GetAllCollegePlayers()
+
+	HeaderRow := []string{
+		"College", "First Name", "Last Name", "Position",
+		"Stars", "State", "Country", "Height",
+		"Overall", "Shooting 2s", "Shooting 3s", "Free Throwing", "Finishing",
+		"Ballwork", "Rebounding", "InteriorDefense", "PerimeterDefense", "Potential Grade",
+	}
+
+	err := writer.Write(HeaderRow)
+	if err != nil {
+		log.Fatal("Cannot write header row", err)
+	}
+
+	for _, player := range players {
+
+		shooting2Grade := util.GetAttributeGrade(player.Shooting2)
+		shooting3Grade := util.GetAttributeGrade(player.Shooting3)
+		freeThrowGrade := util.GetAttributeGrade(player.FreeThrow)
+		finishingGrade := util.GetAttributeGrade(player.Finishing)
+		reboundingGrade := util.GetAttributeGrade(player.Rebounding)
+		ballworkGrade := util.GetAttributeGrade(player.Ballwork)
+		interiorDefenseGrade := util.GetAttributeGrade(player.InteriorDefense)
+		perimeterDefenseGrade := util.GetAttributeGrade(player.PerimeterDefense)
+		potentialGrade := util.GetPotentialGrade(player.Potential)
+		overallGrade := util.GetPlayerOverallGrade(player.Overall)
+
+		playerRow := []string{
+			player.TeamAbbr, player.FirstName, player.LastName, player.Position,
+			strconv.Itoa(player.Stars), player.State, player.Country, player.Height,
+			overallGrade, shooting2Grade, shooting3Grade, freeThrowGrade, finishingGrade,
+			ballworkGrade, reboundingGrade, interiorDefenseGrade, perimeterDefenseGrade, potentialGrade,
+		}
+
+		err = writer.Write(playerRow)
 		if err != nil {
 			log.Fatal("Cannot write croot row to CSV", err)
 		}

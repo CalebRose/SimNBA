@@ -36,7 +36,6 @@ func ProgressionMain() {
 				// }
 				continue
 			}
-			isGraduating, isDeclaringEarly := CheckForDeclaring(player)
 			player = ProgressCollegePlayer(player, false)
 			if player.IsRedshirting {
 				player.SetRedshirtStatus()
@@ -44,11 +43,11 @@ func ProgressionMain() {
 
 			player.SetExpectations(util.GetPlaytimeExpectations(player.Stars, player.Year, player.Overall))
 
-			if isGraduating || isDeclaringEarly {
+			if player.WillDeclare {
 				player.GraduatePlayer()
 
 				message := player.Position + " " + player.FirstName + " " + player.LastName + " has graduated from " + player.TeamAbbr + "!"
-				if isDeclaringEarly {
+				if (player.Year < 5 && player.IsRedshirt) || (player.Year < 4 && !player.IsRedshirt) {
 					message = player.Position + " " + player.FirstName + " " + player.LastName + " is declaring early from " + player.TeamAbbr + ", and will be eligible to draft in SimNBA!"
 				}
 
@@ -574,34 +573,4 @@ func GetPointLimit(pot int) int {
 		roof = 10
 	}
 	return util.GenerateIntFromRange(int(roundUp), roof)
-}
-
-func CheckForDeclaring(player structs.CollegePlayer) (bool, bool) {
-	// Redshirt senior or just a senior
-	if (player.IsRedshirt && player.Year == 5) || (!player.IsRedshirt && player.Year == 4 && !player.IsRedshirting) {
-		return true, false
-	}
-	ovr := player.Overall
-	if ovr < 65 || player.IsRedshirting {
-		return false, false
-	}
-	odds := util.GenerateIntFromRange(1, 100)
-	if ovr > 60 && odds <= 50 {
-		return true, true
-	} else if ovr > 64 && odds <= 60 {
-		return true, true
-	} else if ovr > 69 && odds <= 70 {
-		return true, true
-	} else if ovr > 72 && odds <= 75 {
-		return true, true
-	} else if ovr > 74 && odds <= 80 {
-		return true, true
-	} else if ovr > 76 && odds <= 85 {
-		return true, true
-	} else if ovr > 79 && odds <= 95 {
-		return true, true
-	} else if ovr > 84 {
-		return true, true
-	}
-	return false, false
 }

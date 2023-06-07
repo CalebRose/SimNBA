@@ -12,6 +12,7 @@ type HistoricCollegePlayer struct {
 	IsRedshirting bool
 	HasGraduated  bool
 	HasProgressed bool
+	WillDeclare   bool
 	Stats         []CollegePlayerStats     `gorm:"foreignKey:CollegePlayerID"`
 	SeasonStats   CollegePlayerSeasonStats `gorm:"foreignKey:CollegePlayerID"`
 }

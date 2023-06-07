@@ -77,6 +77,13 @@ func AllNBAPlayers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(players)
 }
 
+func AllDraftablePlayers(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	var players = managers.GetAllNBADraftees()
+
+	json.NewEncoder(w).Encode(players)
+}
+
 func AllNBAFreeAgents(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	players := managers.GetAllNBAPlayersByTeamID("0")
@@ -164,4 +171,10 @@ func CutPlayerFromNBATeam(w http.ResponseWriter, r *http.Request) {
 	managers.CutNBAPlayer(playerID)
 
 	json.NewEncoder(w).Encode("Player " + playerID + " placed on trade block.")
+}
+
+func ExportCollegePlayers(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	w.Header().Set("Content-Type", "text/csv")
+	managers.ExportCollegePlayers(w)
 }

@@ -337,6 +337,29 @@ func GenerateGameplans() {
 	}
 }
 
+func GenerateDraftWarRooms() {
+	db := dbprovider.GetInstance().GetDB()
+
+	allProfessionalTeams := GetAllActiveNBATeams()
+
+	for _, n := range allProfessionalTeams {
+		if n.League != "SimNBA" {
+			continue
+		}
+		room := GetNBAWarRoomByTeamID(strconv.Itoa(int(n.ID)))
+		if room.ID > 0 {
+			continue
+		}
+		warRoom := structs.NBAWarRoom{
+			TeamID:         n.ID,
+			Team:           n.Team + " " + n.Nickname,
+			ScoutingPoints: 100,
+			SpentPoints:    0,
+		}
+		db.Create(&warRoom)
+	}
+}
+
 func GeneratePlaytimeExpectations() {
 	db := dbprovider.GetInstance().GetDB()
 

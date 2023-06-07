@@ -32,6 +32,11 @@ func GenerateGameplans(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("GENERATION COMPLETE")
 }
 
+func GenerateDraftWarRooms(w http.ResponseWriter, r *http.Request) {
+	managers.GenerateDraftWarRooms()
+	json.NewEncoder(w).Encode("GENERATION COMPLETE")
+}
+
 func GeneratePlaytimeExpectations(w http.ResponseWriter, r *http.Request) {
 	managers.GeneratePlaytimeExpectations()
 	json.NewEncoder(w).Encode("GENERATION COMPLETE")

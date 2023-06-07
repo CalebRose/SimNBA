@@ -513,8 +513,7 @@ func DetermineRecruitingClassSize() {
 		existingRoster := GetCollegePlayersByTeamId(strconv.Itoa(int(rp.ID)))
 		count := 0
 		for _, p := range existingRoster {
-			isGraduating, isDeclaringEarly := CheckForDeclaring(p)
-			if isGraduating || isDeclaringEarly {
+			if p.WillDeclare {
 				count++
 			}
 		}

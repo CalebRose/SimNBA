@@ -14,12 +14,16 @@ type CollegePlayer struct {
 	IsRedshirting bool
 	HasGraduated  bool
 	HasProgressed bool
+	WillDeclare   bool
 	Stats         []CollegePlayerStats     `gorm:"foreignKey:CollegePlayerID"`
 	SeasonStats   CollegePlayerSeasonStats `gorm:"foreignKey:CollegePlayerID"`
 }
 
 func (c *CollegePlayer) SetRedshirtingStatus() {
 	c.IsRedshirting = true
+	if c.WillDeclare {
+		c.WillDeclare = false
+	}
 }
 
 func (c *CollegePlayer) UpdateMinutes(newMinutes int) {
@@ -130,6 +134,10 @@ func (p *CollegePlayer) SetNewAttributes(ft int, id int, pd int) {
 
 func (b *CollegePlayer) SetNewPosition(pos string) {
 	b.Position = pos
+}
+
+func (b *CollegePlayer) SetDeclarationStatus() {
+	b.WillDeclare = true
 }
 
 // Sorting Funcs

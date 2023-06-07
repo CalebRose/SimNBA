@@ -46,3 +46,9 @@ func CancelFreeAgencyOffer(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(true)
 }
+
+// FreeAgencyAvailablePlayers - Get All Available NFL Players for Free Agency Page
+func ExtendPlayers(w http.ResponseWriter, r *http.Request) {
+	managers.TempExtensionAlgorithm()
+	json.NewEncoder(w).Encode(true)
+}
