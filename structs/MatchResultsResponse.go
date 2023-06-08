@@ -3,8 +3,17 @@ package structs
 type MatchResultsResponse struct {
 	HomePlayers []MatchResultsPlayer
 	AwayPlayers []MatchResultsPlayer
-	HomeStats   TeamStats
-	AwayStats   TeamStats
+	HomeStats   MatchResultsTeam
+	AwayStats   MatchResultsTeam
+}
+
+type MatchResultsTeam struct {
+	Team            string
+	FirstHalfScore  int
+	SecondHalfScore int
+	OvertimeScore   int
+	Points          int
+	Possessions     int
 }
 
 type MatchResultsPlayer struct {

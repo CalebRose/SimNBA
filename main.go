@@ -101,7 +101,8 @@ func handleRequests() {
 
 	// Match Controls
 	myRouter.HandleFunc("/match/{matchId}", controller.GetMatchByMatchId).Methods("GET")
-	myRouter.HandleFunc("/match/result/{matchId}", controller.GetMatchResultByMatchID).Methods("GET")
+	myRouter.HandleFunc("/match/result/cbb/{matchId}", controller.GetMatchResultByMatchID).Methods("GET")
+	myRouter.HandleFunc("/match/result/nba/{matchId}", controller.GetNBAMatchResultByMatchID).Methods("GET")
 	myRouter.HandleFunc("/match/team/{teamId}/season/{seasonId}", controller.GetMatchesByTeamIdAndSeasonId).Methods("GET")
 	myRouter.HandleFunc("/match/week/{weekId}", controller.GetMatchesByTeamIdAndSeasonId).Methods("GET")
 	myRouter.HandleFunc("/match/season/{seasonID}", controller.GetMatchesBySeasonID).Methods("GET")

@@ -145,7 +145,7 @@ func GetCollegePlayersWithMatchStatsByTeamId(teamId string, matchID string) []st
 			Position:           p.Position,
 			Archetype:          p.Archetype,
 			Year:               s.Year,
-			League:             "CFB",
+			League:             "CBB",
 			Minutes:            s.Minutes,
 			Possessions:        s.Possessions,
 			FGM:                s.FGM,
@@ -193,6 +193,113 @@ func GetCollegePlayersWithMatchStatsByTeamId(teamId string, matchID string) []st
 			Position:           p.Position,
 			Archetype:          p.Archetype,
 			League:             "CFB",
+			Year:               s.Year,
+			Minutes:            s.Minutes,
+			Possessions:        s.Possessions,
+			FGM:                s.FGM,
+			FGA:                s.FGA,
+			FGPercent:          s.FGPercent,
+			ThreePointsMade:    s.ThreePointsMade,
+			ThreePointAttempts: s.ThreePointAttempts,
+			ThreePointPercent:  s.ThreePointPercent,
+			FTM:                s.FTM,
+			FTA:                s.FTA,
+			FTPercent:          s.FTPercent,
+			Points:             s.Points,
+			TotalRebounds:      s.TotalRebounds,
+			OffRebounds:        s.OffRebounds,
+			DefRebounds:        s.DefRebounds,
+			Assists:            s.Assists,
+			Steals:             s.Steals,
+			Blocks:             s.Blocks,
+			Turnovers:          s.Turnovers,
+			Fouls:              s.Fouls,
+		}
+
+		matchRows = append(matchRows, row)
+	}
+
+	// Merge both sets of players into one -- new struct: GameResultRow struct
+
+	sort.Sort(structs.ByPlayedMinutes(matchRows))
+	return matchRows
+}
+
+func GetNBAPlayersWithMatchStatsByTeamId(teamId string, matchID string) []structs.MatchResultsPlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var matchRows []structs.MatchResultsPlayer
+
+	var players []structs.NBAPlayer
+	err := db.Preload("Stats", func(db *gorm.DB) *gorm.DB {
+		return db.Where("match_id = ?", matchID)
+	}).Where("team_id = ?", teamId).Find(&players).Error
+	if err != nil {
+		log.Fatalln("Could not retrieve players from CollegePlayer Table")
+	}
+
+	for _, p := range players {
+		if len(p.Stats) == 0 {
+			continue
+		}
+		s := p.Stats[0]
+		if s.Minutes == 0 {
+			continue
+		}
+		row := structs.MatchResultsPlayer{
+			FirstName:          p.FirstName,
+			LastName:           p.LastName,
+			Position:           p.Position,
+			Archetype:          p.Archetype,
+			Year:               s.Year,
+			League:             "Pro",
+			Minutes:            s.Minutes,
+			Possessions:        s.Possessions,
+			FGM:                s.FGM,
+			FGA:                s.FGA,
+			FGPercent:          s.FGPercent,
+			ThreePointsMade:    s.ThreePointsMade,
+			ThreePointAttempts: s.ThreePointAttempts,
+			ThreePointPercent:  s.ThreePointPercent,
+			FTM:                s.FTM,
+			FTA:                s.FTA,
+			FTPercent:          s.FTPercent,
+			Points:             s.Points,
+			TotalRebounds:      s.TotalRebounds,
+			OffRebounds:        s.OffRebounds,
+			DefRebounds:        s.DefRebounds,
+			Assists:            s.Assists,
+			Steals:             s.Steals,
+			Blocks:             s.Blocks,
+			Turnovers:          s.Turnovers,
+			Fouls:              s.Fouls,
+		}
+
+		matchRows = append(matchRows, row)
+	}
+
+	var historicPlayers []structs.RetiredPlayer
+	err = db.Preload("Stats", func(db *gorm.DB) *gorm.DB {
+		return db.Where("match_id = ?", matchID)
+	}).Where("team_id = ?", teamId).Find(&historicPlayers).Error
+	if err != nil {
+		log.Fatalln("Could not retrieve players from CollegePlayer Table")
+	}
+
+	for _, p := range historicPlayers {
+		if len(p.Stats) == 0 {
+			continue
+		}
+		s := p.Stats[0]
+		if s.Minutes == 0 {
+			continue
+		}
+		row := structs.MatchResultsPlayer{
+			FirstName:          p.FirstName,
+			LastName:           p.LastName,
+			Position:           p.Position,
+			Archetype:          p.Archetype,
+			League:             "Pro",
 			Year:               s.Year,
 			Minutes:            s.Minutes,
 			Possessions:        s.Possessions,

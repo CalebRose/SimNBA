@@ -60,6 +60,19 @@ func GetMatchResultByMatchID(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(match)
 }
 
+func GetNBAMatchResultByMatchID(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	vars := mux.Vars(r)
+	matchId := vars["matchId"]
+	if len(matchId) == 0 {
+		panic("User did not provide a matchId")
+	}
+
+	match := managers.GetNBAMatchResultsByMatchID(matchId)
+
+	json.NewEncoder(w).Encode(match)
+}
+
 func GetMatchesByWeekId(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	vars := mux.Vars(r)

@@ -449,6 +449,38 @@ func GetNBATeamStatsByMatch(teamId string, matchId string) structs.NBATeamStats 
 	return teamStats
 }
 
+func GetCBBTeamResultsByMatch(teamId string, matchId string) structs.MatchResultsTeam {
+	db := dbprovider.GetInstance().GetDB()
+
+	var teamStats structs.TeamStats
+
+	db.Where("team_id = ? AND match_id = ?", teamId, matchId).Find(&teamStats)
+
+	return structs.MatchResultsTeam{
+		FirstHalfScore:  teamStats.FirstHalfScore,
+		SecondHalfScore: teamStats.SecondHalfScore,
+		OvertimeScore:   teamStats.OvertimeScore,
+		Points:          teamStats.Points,
+		Possessions:     teamStats.Possessions,
+	}
+}
+
+func GetNBATeamResultsByMatch(teamId string, matchId string) structs.MatchResultsTeam {
+	db := dbprovider.GetInstance().GetDB()
+
+	var teamStats structs.NBATeamStats
+
+	db.Where("team_id = ? AND match_id = ?", teamId, matchId).Find(&teamStats)
+
+	return structs.MatchResultsTeam{
+		FirstHalfScore:  teamStats.FirstHalfScore,
+		SecondHalfScore: teamStats.SecondHalfScore,
+		OvertimeScore:   teamStats.OvertimeScore,
+		Points:          teamStats.Points,
+		Possessions:     teamStats.Possessions,
+	}
+}
+
 func GetPlayerSeasonStatsByPlayerID(playerID string, seasonID string) structs.CollegePlayerSeasonStats {
 	db := dbprovider.GetInstance().GetDB()
 

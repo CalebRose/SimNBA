@@ -41,13 +41,42 @@ func GetMatchByMatchId(matchId string) structs.Match {
 	return match
 }
 
+func GetNBAMatchByMatchId(matchId string) structs.NBAMatch {
+	db := dbprovider.GetInstance().GetDB()
+
+	var match structs.NBAMatch
+
+	err := db.Where("id = ?", matchId).Find(&match).Error
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	return match
+}
+
 func GetMatchResultsByMatchID(matchId string) structs.MatchResultsResponse {
 	match := GetMatchByMatchId(matchId)
 
 	homePlayers := GetCollegePlayersWithMatchStatsByTeamId(strconv.Itoa(int(match.HomeTeamID)), matchId)
 	awayPlayers := GetCollegePlayersWithMatchStatsByTeamId(strconv.Itoa(int(match.AwayTeamID)), matchId)
-	homeStats := GetCBBTeamStatsByMatch(strconv.Itoa(int(match.HomeTeamID)), matchId)
-	awayStats := GetCBBTeamStatsByMatch(strconv.Itoa(int(match.AwayTeamID)), matchId)
+	homeStats := GetCBBTeamResultsByMatch(strconv.Itoa(int(match.HomeTeamID)), matchId)
+	awayStats := GetCBBTeamResultsByMatch(strconv.Itoa(int(match.AwayTeamID)), matchId)
+
+	return structs.MatchResultsResponse{
+		HomePlayers: homePlayers,
+		AwayPlayers: awayPlayers,
+		HomeStats:   homeStats,
+		AwayStats:   awayStats,
+	}
+}
+
+func GetNBAMatchResultsByMatchID(matchId string) structs.MatchResultsResponse {
+	match := GetNBAMatchByMatchId(matchId)
+
+	homePlayers := GetNBAPlayersWithMatchStatsByTeamId(strconv.Itoa(int(match.HomeTeamID)), matchId)
+	awayPlayers := GetNBAPlayersWithMatchStatsByTeamId(strconv.Itoa(int(match.AwayTeamID)), matchId)
+	homeStats := GetNBATeamResultsByMatch(strconv.Itoa(int(match.HomeTeamID)), matchId)
+	awayStats := GetNBATeamResultsByMatch(strconv.Itoa(int(match.AwayTeamID)), matchId)
 
 	return structs.MatchResultsResponse{
 		HomePlayers: homePlayers,
