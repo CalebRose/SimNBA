@@ -189,6 +189,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/teams/coached", controller.AllCoachedTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/college", controller.AllCollegeTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/nba", controller.AllNBATeams).Methods("GET")
+	myRouter.HandleFunc("/teams/isl", controller.AllISLTeams).Methods("GET")
 
 	// Trade Controls
 	myRouter.HandleFunc("/trades/nba/all/accepted", controller.GetAllAcceptedTrades).Methods("GET")

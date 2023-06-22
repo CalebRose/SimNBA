@@ -74,6 +74,15 @@ func AllNBATeams(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(teams)
 }
 
+func AllISLTeams(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	db := dbprovider.GetInstance().GetDB()
+
+	var teams []structs.NBATeam
+	db.Order("conference_id asc").Where("league_id = ?", "2").Find(&teams)
+	json.NewEncoder(w).Encode(teams)
+}
+
 func GetTeamByTeamID(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	vars := mux.Vars(r)

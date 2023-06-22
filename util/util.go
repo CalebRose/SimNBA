@@ -254,7 +254,7 @@ func GetSpecialties(pos string) []string {
 	if pos == "SG" || pos == "SF" || pos == "PG" {
 		mod = 2
 	}
-	if diceRoll+mod > 14 {
+	if diceRoll+mod > 13 {
 		list = append(list, "SpecShooting2")
 	}
 
@@ -263,7 +263,7 @@ func GetSpecialties(pos string) []string {
 	if pos == "PG" || pos == "SG" {
 		mod = 2
 	}
-	if diceRoll+mod > 14 {
+	if diceRoll+mod > 13 {
 		list = append(list, "SpecShooting3")
 	}
 	// FT
@@ -273,7 +273,7 @@ func GetSpecialties(pos string) []string {
 	} else {
 		mod = -1
 	}
-	if diceRoll+mod > 14 {
+	if diceRoll+mod > 13 {
 		list = append(list, "SpecFreeThrow")
 	}
 
@@ -282,7 +282,7 @@ func GetSpecialties(pos string) []string {
 	if pos == "SF" || pos == "C" || pos == "SG" {
 		mod = 2
 	}
-	if diceRoll > 14 {
+	if diceRoll > 13 {
 		list = append(list, "SpecFinishing")
 	}
 
@@ -291,7 +291,7 @@ func GetSpecialties(pos string) []string {
 	if pos == "PG" || pos == "SG" {
 		mod = 2
 	}
-	if diceRoll+mod > 14 {
+	if diceRoll+mod > 13 {
 		list = append(list, "SpecBallwork")
 	}
 
@@ -300,7 +300,7 @@ func GetSpecialties(pos string) []string {
 	if pos == "C" || pos == "PF" {
 		mod = 2
 	}
-	if diceRoll+mod > 14 {
+	if diceRoll+mod > 13 {
 		list = append(list, "SpecRebounding")
 	}
 
@@ -309,7 +309,7 @@ func GetSpecialties(pos string) []string {
 	if pos == "C" || pos == "PF" {
 		mod = 2
 	}
-	if diceRoll+mod > 14 {
+	if diceRoll+mod > 13 {
 		list = append(list, "SpecInteriorDefense")
 	}
 
@@ -318,7 +318,7 @@ func GetSpecialties(pos string) []string {
 	if pos == "SG" || pos == "SF" {
 		mod = 2
 	}
-	if diceRoll+mod > 14 {
+	if diceRoll+mod > 13 {
 		list = append(list, "SpecPerimeterDefense")
 	}
 	return list
