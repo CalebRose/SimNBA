@@ -75,6 +75,8 @@ func handleRequests() {
 	myRouter.HandleFunc("/nba/freeagency/available/{teamID}", controller.FreeAgencyAvailablePlayers).Methods("GET")
 	myRouter.HandleFunc("/nba/freeagency/create/offer", controller.CreateFreeAgencyOffer).Methods("POST")
 	myRouter.HandleFunc("/nba/freeagency/cancel/offer", controller.CancelFreeAgencyOffer).Methods("POST")
+	myRouter.HandleFunc("/nba/freeagency/create/waiver", controller.CreateFreeAgencyOffer).Methods("POST")
+	myRouter.HandleFunc("/nba/freeagency/cancel/waiver", controller.CancelFreeAgencyOffer).Methods("POST")
 	myRouter.HandleFunc("/nba/freeagency/extensions/temp", controller.ExtendPlayers).Methods("GET")
 
 	// Gameplan controls

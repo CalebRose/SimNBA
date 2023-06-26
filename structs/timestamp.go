@@ -21,6 +21,7 @@ type Timestamp struct {
 	AIPointAllocationComplete bool
 	IsOffSeason               bool
 	IsNBAOffseason            bool
+	NBAPreseason              bool
 	IsFreeAgencyLocked        bool
 	IsDraftTime               bool
 	Y1Capspace                float64

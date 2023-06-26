@@ -128,6 +128,8 @@ func (np *NBAPlayer) WaivePlayer() {
 	np.TeamAbbr = ""
 	np.IsWaived = true
 	np.IsOnTradeBlock = false
+	np.IsGLeague = false
+	np.IsTwoWay = false
 }
 
 func (np *NBAPlayer) ConvertWaivedPlayerToFA() {

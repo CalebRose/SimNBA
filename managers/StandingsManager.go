@@ -72,6 +72,17 @@ func GetNBAStandingsRecordByTeamID(id string, seasonID string) structs.NBAStandi
 	return standing
 }
 
+func GetNBAStandingsBySeasonID(seasonID string) []structs.NBAStandings {
+	var standings []structs.NBAStandings
+	db := dbprovider.GetInstance().GetDB()
+	err := db.Where("season_id = ?", seasonID).Order("total_losses asc").Order("total_wins desc").
+		Find(&standings).Error
+	if err != nil {
+		log.Fatal(err)
+	}
+	return standings
+}
+
 func UpdateStandings(ts structs.Timestamp, MatchType string) {
 	db := dbprovider.GetInstance().GetDB()
 

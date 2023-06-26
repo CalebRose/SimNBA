@@ -80,3 +80,7 @@ func (t *NBATeam) AssignRatings(og string, dg string, ov string) {
 	t.DefenseGrade = dg
 	t.OverallGrade = ov
 }
+
+func (t *NBATeam) AssignWaiverOrder(order uint) {
+	t.WaiverOrder = order
+}

@@ -6,4 +6,5 @@ type FreeAgencyResponse struct {
 	GLeaguePlayers []NBAPlayer
 	ISLPlayers     []NBAPlayer
 	TeamOffers     []NBAContractOffer
+	RosterCount    uint
 }

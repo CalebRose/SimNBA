@@ -24,3 +24,23 @@ type NBAWaiverOffer struct {
 	IsActive    bool
 	WaiverOrder uint
 }
+
+func (n *NBAWaiverOffer) AssignID(id uint) {
+	n.ID = id
+}
+
+func (wo *NBAWaiverOffer) Map(offer NBAWaiverOfferDTO) {
+	wo.TeamID = offer.TeamID
+	wo.Team = offer.Team
+	wo.PlayerID = offer.PlayerID
+	wo.WaiverOrder = offer.WaiverOrder
+	wo.IsActive = true
+}
+
+func (wo *NBAWaiverOffer) AssignNewWaiverOrder(val uint) {
+	wo.WaiverOrder = val
+}
+
+func (wo *NBAWaiverOffer) DeactivateWaiverOffer() {
+	wo.IsActive = false
+}
