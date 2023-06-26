@@ -128,7 +128,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/players/nba", controller.AllNBAPlayers).Methods("GET")
 	myRouter.HandleFunc("/players/nba/freeAgents", controller.AllNBAFreeAgents).Methods("GET")
 	myRouter.HandleFunc("/nba/players/{teamId}", controller.GetNBARosterByTeamID).Methods("GET")
-	myRouter.HandleFunc("/nba/players/cut/{playerID}", controller.PlaceNBAPlayerInGLeague).Methods("GET")
+	myRouter.HandleFunc("/nba/players/cut/{playerID}", controller.CutPlayerFromNBATeam).Methods("GET")
 	myRouter.HandleFunc("/nba/players/place/gleague/{playerID}", controller.PlaceNBAPlayerInGLeague).Methods("GET")
 	myRouter.HandleFunc("/nba/players/place/twoway/{playerID}", controller.AssignNBAPlayerAsTwoWay).Methods("GET")
 

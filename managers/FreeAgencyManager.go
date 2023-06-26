@@ -16,13 +16,17 @@ import (
 
 func GetAllAvailableNBAPlayers(TeamID string) structs.FreeAgencyResponse {
 	FAs := GetAllFreeAgentsWithOffers()
-	WaiverPlayers := GetAllWaiverWirePlayers()
+	waiverPlayers := GetAllWaiverWirePlayers()
+	gLeagePlayer := GetAllGLeaguePlayersForFA()
+	islPlayers := GetAllISLPlayersForFA()
 	Offers := GetFreeAgentOffersByTeamID(TeamID)
 
 	return structs.FreeAgencyResponse{
-		FreeAgents:    FAs,
-		WaiverPlayers: WaiverPlayers,
-		TeamOffers:    Offers,
+		FreeAgents:     FAs,
+		WaiverPlayers:  waiverPlayers,
+		GLeaguePlayers: gLeagePlayer,
+		ISLPlayers:     islPlayers,
+		TeamOffers:     Offers,
 	}
 }
 
@@ -47,6 +51,26 @@ func GetAllWaiverWirePlayers() []structs.NBAPlayer {
 	db.Preload("WaiverOffers").Preload("Contract").Where("is_waived = ?", true).Find(&WaivedPlayers)
 
 	return WaivedPlayers
+}
+
+func GetAllGLeaguePlayersForFA() []structs.NBAPlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	gLeaguePlayers := []structs.NBAPlayer{}
+
+	db.Preload("WaiverOffers").Preload("Contract").Where("is_g_league = ?", true).Find(&gLeaguePlayers)
+
+	return gLeaguePlayers
+}
+
+func GetAllISLPlayersForFA() []structs.NBAPlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	islPlayers := []structs.NBAPlayer{}
+
+	db.Preload("WaiverOffers").Preload("Contract").Where("team_id > 32").Find(&islPlayers)
+
+	return islPlayers
 }
 
 func GetFreeAgentOffersByTeamID(TeamID string) []structs.NBAContractOffer {
