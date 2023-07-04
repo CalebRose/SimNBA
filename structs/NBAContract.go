@@ -90,10 +90,9 @@ func (c *NBAContract) CalculateContract() {
 	c.ContractValue = y1BonusVal + y2BonusVal + y3BonusVal + y4BonusVal + y5BonusVal
 }
 
-func (c *NBAContract) TradePlayer(TeamID uint, Team string, percentage float64) {
+func (c *NBAContract) TradePlayer(TeamID uint, Team string) {
 	c.PreviousTeamID = c.TeamID
 	c.PreviousTeam = c.Team
 	c.TeamID = TeamID
 	c.Team = Team
-	c.Year1Total = c.Year1Total * percentage
 }

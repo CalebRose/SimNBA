@@ -168,8 +168,34 @@ func CreateWaiverOffer(offer structs.NBAWaiverOfferDTO) structs.NBAWaiverOffer {
 	}
 
 	waiverOffer.Map(offer)
+	playerIDStr := strconv.Itoa(int(offer.PlayerID))
+	nbaPlayer := GetNBAPlayerRecord(playerIDStr)
+
+	if nbaPlayer.IsGLeague && nbaPlayer.TeamID == offer.TeamID {
+		// Sign player back to team
+		nbaPlayer.ToggleGLeague()
+		db.Save(&nbaPlayer)
+
+		otherWaiverOffers := GetWaiverOffersByPlayerID(playerIDStr)
+
+		for _, o := range otherWaiverOffers {
+			db.Delete(&o)
+		}
+		message := "Breaking News! " + nbaPlayer.FirstName + " " + nbaPlayer.LastName + " has been picked up from the GLeague onto his owning team, " + offer.Team + "!"
+		CreateNewsLog("NBA", message, "FreeAgency", int(offer.TeamID), ts)
+		return waiverOffer
+	}
 
 	db.Save(&waiverOffer)
+
+	leagueType := ""
+	if nbaPlayer.IsGLeague {
+		leagueType = "G-League Player "
+	} else if nbaPlayer.IsInternational {
+		leagueType = "ISL Player "
+	}
+	message := "Breaking News! " + offer.Team + " have placed a waivering offer on " + leagueType + nbaPlayer.Position + " " + nbaPlayer.FirstName + " " + nbaPlayer.LastName + "!"
+	CreateNewsLog("NBA", message, "FreeAgency", int(offer.TeamID), ts)
 
 	fmt.Println("Creating offer!")
 
@@ -211,6 +237,19 @@ func GetLatestWaiverOfferInDB(db *gorm.DB) uint {
 	}
 
 	return latestOffer.ID + 1
+}
+
+func GetWaiverOffersByPlayerID(playerID string) []structs.NBAWaiverOffer {
+	db := dbprovider.GetInstance().GetDB()
+
+	offers := []structs.NBAWaiverOffer{}
+
+	err := db.Where("player_id = ?", playerID).Find(&offers).Error
+	if err != nil {
+		return offers
+	}
+
+	return offers
 }
 
 func SetWaiverOrder() {

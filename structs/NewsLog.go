@@ -11,4 +11,5 @@ type NewsLog struct {
 	MessageType string
 	Message     string
 	League      string
+	TeamID      uint
 }

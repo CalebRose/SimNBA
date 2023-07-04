@@ -1,5 +1,29 @@
 package structs
 
+type MatchResponse struct {
+	ID                     uint
+	MatchName              string // For Post-Season matchups
+	WeekID                 uint
+	Week                   uint
+	SeasonID               uint
+	HomeTeamID             uint
+	HomeTeam               string
+	AwayTeamID             uint
+	AwayTeam               string
+	MatchOfWeek            string
+	Arena                  string
+	City                   string
+	State                  string
+	IsNeutralSite          bool
+	IsNBAMatch             bool
+	IsConference           bool
+	IsConferenceTournament bool
+	IsNILGame              bool
+	IsPlayoffGame          bool
+	IsNationalChampionship bool
+	IsRivalryGame          bool
+}
+
 type MatchDataResponse struct {
 	HomeTeam         MatchTeamResponse
 	HomeTeamRoster   []CollegePlayer
@@ -11,6 +35,7 @@ type MatchDataResponse struct {
 	Match            string
 	WeekID           uint
 	SeasonID         uint
+	League           string
 }
 
 func (mdr *MatchDataResponse) AssignHomeTeam(team MatchTeamResponse, roster []CollegePlayer, gp Gameplan) {
@@ -26,12 +51,14 @@ func (mdr *MatchDataResponse) AssignAwayTeam(team MatchTeamResponse, roster []Co
 }
 
 type MatchTeamResponse struct {
-	ID         uint
-	TeamName   string
-	Mascot     string
-	Abbr       string
-	Conference string
-	Coach      string
+	ID           uint
+	TeamName     string
+	Mascot       string
+	Abbr         string
+	Conference   string
+	Coach        string
+	ConferenceID uint
+	LeagueID     uint
 }
 
 func (mtr *MatchTeamResponse) Map(team Team) {

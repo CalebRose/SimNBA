@@ -14,6 +14,7 @@ type Timestamp struct {
 	GamesARan                 bool
 	GamesBRan                 bool
 	GamesCRan                 bool
+	GamesDRan                 bool
 	RecruitingSynced          bool
 	GMActionsComplete         bool
 	IsRecruitingLocked        bool

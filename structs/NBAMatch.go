@@ -29,7 +29,7 @@ type NBAMatch struct {
 	IsConferenceTournament bool
 	IsNILGame              bool
 	IsPlayoffGame          bool
-	IsNationalChampionship bool
+	IsTheFinals            bool
 	IsRivalryGame          bool
 	GameComplete           bool
 }

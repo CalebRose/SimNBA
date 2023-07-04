@@ -103,11 +103,11 @@ func GetTradeProposalsByNBAID(TeamID string) structs.NBATeamProposals {
 		receivedOptions := []structs.NBATradeOptionObj{}
 		for _, option := range proposal.NBATeamTradeOptions {
 			opt := structs.NBATradeOptionObj{
-				ID:               option.Model.ID,
-				TradeProposalID:  option.TradeProposalID,
-				NBATeamID:        option.NBATeamID,
-				SalaryPercentage: option.SalaryPercentage,
-				OptionType:       option.OptionType,
+				ID:              option.Model.ID,
+				TradeProposalID: option.TradeProposalID,
+				NBATeamID:       option.NBATeamID,
+				CashTransfer:    option.CashTransfer,
+				OptionType:      option.OptionType,
 			}
 			if option.NBAPlayerID > 0 {
 				player := GetNBAPlayerRecord(strconv.Itoa(int(option.NBAPlayerID)))
@@ -262,24 +262,24 @@ func CreateTradeProposal(TradeProposal structs.NBATradeProposalDTO) {
 
 	for _, sentOption := range SentTradeOptions {
 		tradeOption := structs.NBATradeOption{
-			TradeProposalID:  latestID,
-			NBATeamID:        TradeProposal.NBATeamID,
-			NBAPlayerID:      sentOption.NBAPlayerID,
-			NBADraftPickID:   sentOption.NBADraftPickID,
-			SalaryPercentage: sentOption.SalaryPercentage,
-			OptionType:       sentOption.OptionType,
+			TradeProposalID: latestID,
+			NBATeamID:       TradeProposal.NBATeamID,
+			NBAPlayerID:     sentOption.NBAPlayerID,
+			NBADraftPickID:  sentOption.NBADraftPickID,
+			CashTransfer:    sentOption.CashTransfer,
+			OptionType:      sentOption.OptionType,
 		}
 		db.Create(&tradeOption)
 	}
 
 	for _, recepientOption := range ReceivedTradeOptions {
 		tradeOption := structs.NBATradeOption{
-			TradeProposalID:  latestID,
-			NBATeamID:        TradeProposal.RecepientTeamID,
-			NBAPlayerID:      recepientOption.NBAPlayerID,
-			NBADraftPickID:   recepientOption.NBADraftPickID,
-			SalaryPercentage: recepientOption.SalaryPercentage,
-			OptionType:       recepientOption.OptionType,
+			TradeProposalID: latestID,
+			NBATeamID:       TradeProposal.RecepientTeamID,
+			NBAPlayerID:     recepientOption.NBAPlayerID,
+			NBADraftPickID:  recepientOption.NBADraftPickID,
+			CashTransfer:    recepientOption.CashTransfer,
+			OptionType:      recepientOption.OptionType,
 		}
 		db.Create(&tradeOption)
 	}
@@ -433,26 +433,21 @@ func syncAcceptedOptions(db *gorm.DB, options []structs.NBATradeOption, senderID
 	recepientCapsheet := GetCapsheetByTeamID(strconv.Itoa(int(recepientID)))
 	for _, option := range options {
 		// Contract
-		percentage := option.SalaryPercentage
 		if option.NBAPlayerID > 0 {
 			playerRecord := GetNBAPlayerRecord(strconv.Itoa(int(option.NBAPlayerID)))
 			contract := playerRecord.Contract
 			if playerRecord.TeamID == senderID {
-				sendersPercentage := percentage * 0.01
-				receiversPercentage := (100 - percentage) * 0.01
 				SendersCapsheet.SubtractFromCapsheetViaTrade(contract)
-				SendersCapsheet.NegotiateSalaryDifference(contract.Year1Total, contract.Year1Total*sendersPercentage)
-				recepientCapsheet.AddContractViaTrade(contract, contract.Year1Total*receiversPercentage)
+				SendersCapsheet.NegotiateSalaryDifference(option.CashTransfer)
+				recepientCapsheet.AddContractViaTrade(contract, option.CashTransfer)
 				playerRecord.TradePlayer(recepientID, receivingTeam.Abbr)
-				contract.TradePlayer(recepientID, receivingTeam.Abbr, receiversPercentage)
+				contract.TradePlayer(recepientID, receivingTeam.Abbr)
 			} else {
-				receiversPercentage := percentage * 0.01
-				sendersPercentage := (100 - percentage) * 0.01
 				recepientCapsheet.SubtractFromCapsheetViaTrade(contract)
-				recepientCapsheet.NegotiateSalaryDifference(contract.Year1Total, contract.Year1Total*receiversPercentage)
-				SendersCapsheet.AddContractViaTrade(contract, contract.Year1Total*sendersPercentage)
+				recepientCapsheet.NegotiateSalaryDifference(option.CashTransfer)
+				SendersCapsheet.AddContractViaTrade(contract, option.CashTransfer)
 				playerRecord.TradePlayer(senderID, sendingTeam.Abbr)
-				contract.TradePlayer(senderID, sendingTeam.Abbr, sendersPercentage)
+				contract.TradePlayer(senderID, sendingTeam.Abbr)
 			}
 
 			db.Save(&playerRecord)

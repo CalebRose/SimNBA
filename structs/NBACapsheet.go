@@ -87,10 +87,9 @@ func (nc *NBACapsheet) CutPlayerFromCapsheet(contract NBAContract) {
 	nc.Year5Total -= contract.Year5Total
 }
 
-func (nc *NBACapsheet) NegotiateSalaryDifference(SalaryDifference float64, CapHit float64) {
-	nc.Year1Total -= SalaryDifference
-	nc.Year1CashTransferred += SalaryDifference
-	nc.Year1Cap += CapHit
+func (nc *NBACapsheet) NegotiateSalaryDifference(CashTransferring float64) {
+	nc.Year1Total -= CashTransferring
+	nc.Year1CashTransferred += CashTransferring
 }
 
 func (nc *NBACapsheet) AddContractViaTrade(contract NBAContract, differenceValue float64) {

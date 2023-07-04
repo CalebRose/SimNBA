@@ -32,3 +32,32 @@ func GetAllNBANewsLogs() []structs.NewsLog {
 
 	return logs
 }
+
+func CreateNewsLog(league, message, messageType string, teamID int, ts structs.Timestamp) {
+	db := dbprovider.GetInstance().GetDB()
+
+	seasonID := 0
+	weekID := 0
+	week := 0
+	if league == "CFB" {
+		seasonID = int(ts.SeasonID)
+		weekID = int(ts.CollegeWeekID)
+		week = ts.CollegeWeek
+	} else {
+		seasonID = int(ts.SeasonID)
+		weekID = int(ts.NBAWeekID)
+		week = ts.NBAWeek
+	}
+
+	news := structs.NewsLog{
+		League:      league,
+		Message:     message,
+		MessageType: messageType,
+		SeasonID:    uint(seasonID),
+		WeekID:      uint(weekID),
+		Week:        uint(week),
+		TeamID:      uint(teamID),
+	}
+
+	db.Create(&news)
+}

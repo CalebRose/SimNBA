@@ -38,6 +38,7 @@ type NBATradeOption struct {
 	NBAPlayerID      uint
 	NBADraftPickID   uint
 	OptionType       string
+	CashTransfer     float64
 	SalaryPercentage float64 // Will be a percentage that the recepient team (TEAM B) will pay for Y1. Will be between 0 and 100.
 }
 
@@ -48,6 +49,7 @@ type NBATradeOptionObj struct {
 	NBAPlayerID      uint
 	NBADraftPickID   uint
 	OptionType       string
+	CashTransfer     float64
 	SalaryPercentage float64   // Will be a percentage that the recepient team (TEAM B) will pay. Will be between 0 and 100.
 	Player           NBAPlayer // If the NBAPlayerID is greater than 0, it will return a player.
 	Draftpick        DraftPick // If the NBADraftPickID is greater than 0, it will return a draft pick.
