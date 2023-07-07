@@ -20,6 +20,11 @@ func GenerateDraftGrades(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(w, "Congrats, you generated the Letter Grades!")
 }
 
+func GeneratePredictionRound(w http.ResponseWriter, r *http.Request) {
+	managers.DraftPredictionRound()
+	fmt.Println(w, "Congrats, you generated the Round Predictions!")
+}
+
 func CheckDeclarationStatus(w http.ResponseWriter, r *http.Request) {
 	managers.RunDeclarationsAlgorithm()
 	fmt.Println(w, "Congrats, you generated the Letter Grades!")

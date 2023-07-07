@@ -179,6 +179,44 @@ func GenerateDraftLetterGrades() {
 	}
 }
 
+func DraftPredictionRound() {
+	db := dbprovider.GetInstance().GetDB()
+
+	draftees := GetAllNBADraftees()
+
+	for _, d := range draftees {
+		s2 := util.GenerateIntFromRange(d.Shooting2-3, d.Shooting2+3)
+		s3 := util.GenerateIntFromRange(d.Shooting3-3, d.Shooting3+3)
+		ft := util.GenerateIntFromRange(d.FreeThrow-3, d.FreeThrow+3)
+		fn := util.GenerateIntFromRange(d.Finishing-3, d.Finishing+3)
+		bw := util.GenerateIntFromRange(d.Ballwork-3, d.Ballwork+3)
+		rb := util.GenerateIntFromRange(d.Rebounding-3, d.Rebounding+3)
+		id := util.GenerateIntFromRange(d.InteriorDefense-3, d.InteriorDefense+3)
+		pd := util.GenerateIntFromRange(d.PerimeterDefense-3, d.PerimeterDefense+3)
+		ovrVal := ((s2 + s3 + ft) / 3) + fn + bw + rb + ((id + pd) / 2)
+		round := ""
+		if ovrVal > 88 {
+			round = "Early First Round"
+		} else if ovrVal > 85 {
+			round = "Mid First Round"
+		} else if ovrVal > 82 {
+			round = "Late First Round"
+		} else if ovrVal > 79 {
+			round = "Early Second Round"
+		} else if ovrVal > 76 {
+			round = "Mid Second Round"
+		} else if ovrVal > 73 {
+			round = "Late Second Round"
+		} else {
+			round = "Likely UDFA"
+		}
+
+		d.PredictRound(round)
+
+		db.Save(&d)
+	}
+}
+
 func GetAllCurrentSeasonDraftPicks() []structs.DraftPick {
 	db := dbprovider.GetInstance().GetDB()
 
