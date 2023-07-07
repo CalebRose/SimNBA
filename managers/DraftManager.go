@@ -194,21 +194,21 @@ func DraftPredictionRound() {
 		id := util.GenerateIntFromRange(d.InteriorDefense-3, d.InteriorDefense+3)
 		pd := util.GenerateIntFromRange(d.PerimeterDefense-3, d.PerimeterDefense+3)
 		ovrVal := ((s2 + s3 + ft) / 3) + fn + bw + rb + ((id + pd) / 2)
-		round := ""
+		round := 0
 		if ovrVal > 88 {
-			round = "Early First Round"
+			round = 1
 		} else if ovrVal > 85 {
-			round = "Mid First Round"
+			round = 2
 		} else if ovrVal > 82 {
-			round = "Late First Round"
+			round = 3
 		} else if ovrVal > 79 {
-			round = "Early Second Round"
+			round = 4
 		} else if ovrVal > 76 {
-			round = "Mid Second Round"
+			round = 5
 		} else if ovrVal > 73 {
-			round = "Late Second Round"
+			round = 6
 		} else {
-			round = "Likely UDFA"
+			round = 7
 		}
 
 		d.PredictRound(round)

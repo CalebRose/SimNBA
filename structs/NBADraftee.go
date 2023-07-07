@@ -29,7 +29,7 @@ type NBADraftee struct {
 	InteriorDefenseGrade  string
 	PerimeterDefenseGrade string
 	OverallGrade          string
-	Prediction            string
+	Prediction            int
 }
 
 func (n *NBADraftee) Map(cp CollegePlayer) {
@@ -93,6 +93,6 @@ func (n *NBADraftee) ApplyGrades(s2, s3, ft, fn, bw, rb, id, pd, ov string) {
 	n.OverallGrade = ov
 }
 
-func (n *NBADraftee) PredictRound(round string) {
+func (n *NBADraftee) PredictRound(round int) {
 	n.Prediction = round
 }
