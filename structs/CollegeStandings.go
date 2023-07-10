@@ -4,15 +4,18 @@ import "github.com/jinzhu/gorm"
 
 type CollegeStandings struct {
 	gorm.Model
-	TeamID               uint
-	TeamName             string
-	TeamAbbr             string
-	SeasonID             uint
-	Season               int
-	ConferenceID         uint
-	ConferenceName       string
-	PostSeasonStatus     string
-	IsConferenceChampion bool
+	TeamID                  uint
+	TeamName                string
+	TeamAbbr                string
+	SeasonID                uint
+	Season                  int
+	ConferenceID            uint
+	ConferenceName          string
+	PostSeasonStatus        string
+	IsConferenceChampion    bool
+	InvitationalParticipant bool
+	Invitational            string
+	InvitationalChampion    bool
 	BaseStandings
 }
 
@@ -30,11 +33,26 @@ func (cs *CollegeStandings) UpdateCollegeStandings(game Match) {
 			cs.ConferenceWins += 1
 		}
 		cs.Streak += 1
+		if game.IsInvitational && game.MatchName == "Championship" {
+			cs.InvitationalChampion = true
+		}
+		if game.IsConferenceTournament && game.MatchName == "Championship" {
+			cs.PostSeasonStatus = "Conference Champion"
+		}
+		if game.IsPlayoffGame && game.IsNationalChampionship {
+			cs.PostSeasonStatus = "National Champion"
+		}
 	} else {
 		cs.TotalLosses += 1
 		cs.Streak = 0
 		if game.IsConference {
 			cs.ConferenceLosses += 1
+		}
+		if game.IsPlayoffGame {
+			cs.PostSeasonStatus = game.MatchName
+		}
+		if game.IsNationalChampionship {
+			cs.PostSeasonStatus = "National Champion Runner-Up"
 		}
 	}
 	if isAway {

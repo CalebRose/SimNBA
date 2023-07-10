@@ -28,10 +28,11 @@ type Match struct {
 	IsNBAMatch             bool
 	IsConference           bool
 	IsConferenceTournament bool
-	IsNILGame              bool
+	IsNITGame              bool
 	IsPlayoffGame          bool
 	IsNationalChampionship bool
 	IsRivalryGame          bool
+	IsInvitational         bool
 	GameComplete           bool
 }
 

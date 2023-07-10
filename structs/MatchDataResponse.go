@@ -18,10 +18,12 @@ type MatchResponse struct {
 	IsNBAMatch             bool
 	IsConference           bool
 	IsConferenceTournament bool
-	IsNILGame              bool
+	IsNITGame              bool
 	IsPlayoffGame          bool
 	IsNationalChampionship bool
 	IsRivalryGame          bool
+	IsInvitational         bool
+	IsInternational        bool
 }
 
 type MatchDataResponse struct {

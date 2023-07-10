@@ -56,10 +56,11 @@ func GetMatchesForTimeslot() []structs.MatchResponse {
 			IsNBAMatch:             false,
 			IsConference:           c.IsConference,
 			IsConferenceTournament: c.IsConferenceTournament,
-			IsNILGame:              c.IsNILGame,
+			IsNITGame:              c.IsNITGame,
 			IsPlayoffGame:          c.IsPlayoffGame,
 			IsNationalChampionship: c.IsNationalChampionship,
 			IsRivalryGame:          c.IsRivalryGame,
+			IsInvitational:         c.IsInvitational,
 		}
 
 		matchesList = append(matchesList, match)
@@ -91,7 +92,7 @@ func GetMatchesForTimeslot() []structs.MatchResponse {
 			IsNBAMatch:             true,
 			IsConference:           n.IsConference,
 			IsConferenceTournament: n.IsConferenceTournament,
-			IsNILGame:              n.IsNILGame,
+			IsInternational:        n.IsInternational,
 			IsPlayoffGame:          n.IsPlayoffGame,
 			IsNationalChampionship: n.IsTheFinals,
 			IsRivalryGame:          n.IsRivalryGame,
