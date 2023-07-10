@@ -486,7 +486,7 @@ func GetPlayerSeasonStatsByPlayerID(playerID string, seasonID string) structs.Co
 
 	var seasonStats structs.CollegePlayerSeasonStats
 
-	err := db.Where("college_player_id = ? AND season_id = ?", playerID, seasonID).Find(&seasonStats)
+	err := db.Where("college_player_id = ? AND season_id = ?", playerID, seasonID).Find(&seasonStats).Error
 	if err != nil {
 		fmt.Println("Could not find existing record for player... generating new one.")
 	}
@@ -499,7 +499,7 @@ func GetTeamSeasonStatsByTeamID(teamID string, seasonID string) structs.TeamSeas
 
 	var seasonStats structs.TeamSeasonStats
 
-	err := db.Where("team_id = ? AND season_id = ?", teamID, seasonID).Find(&seasonStats)
+	err := db.Where("team_id = ? AND season_id = ?", teamID, seasonID).Find(&seasonStats).Error
 	if err != nil {
 		fmt.Println("Could not find existing record for team... generating new one.")
 	}

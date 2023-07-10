@@ -42,7 +42,7 @@ type ScoutingProfile struct {
 	ShowPotential        bool
 	RemovedFromBoard     bool
 	ShowCount            uint
-	Draftee              NBADraftee `gorm:"foreignKey:PlayerID"`
+	Draftee              NBADraftee `gorm:"foreignKey:PlayerID;references:PlayerID"`
 }
 
 func (sp *ScoutingProfile) RevealAttribute(attr string) {
@@ -64,4 +64,29 @@ func (sp *ScoutingProfile) RevealAttribute(attr string) {
 		sp.ShowPerimeterDefense = true
 	}
 	sp.ShowCount++
+}
+
+func (sp *ScoutingProfile) RemoveFromBoard() {
+	sp.RemovedFromBoard = true
+}
+
+func (sp *ScoutingProfile) ReplaceOnBoard() {
+	sp.RemovedFromBoard = false
+}
+
+type ScoutingProfileDTO struct {
+	PlayerID uint
+	TeamID   uint
+}
+
+type RevealAttributeDTO struct {
+	ScoutProfileID uint
+	Attribute      string
+	Points         uint
+	TeamID         uint
+}
+
+type ScoutingDataResponse struct {
+	DrafteeSeasonStats CollegePlayerSeasonStats
+	TeamStandings      CollegeStandings
 }

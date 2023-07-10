@@ -516,6 +516,32 @@ func GetNBADrafteeByNameAndCollege(firstName string, lastName string, college st
 	return player
 }
 
+func GetHistoricCollegePlayerByID(id string) structs.HistoricCollegePlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var player structs.HistoricCollegePlayer
+
+	err := db.Where("id = ?", id).Find(&player).Error
+	if err != nil {
+		fmt.Println("Could not find player in historics DB")
+	}
+
+	return player
+}
+
+func GetNBADrafteeByID(id string) structs.NBADraftee {
+	db := dbprovider.GetInstance().GetDB()
+
+	var player structs.NBADraftee
+
+	err := db.Where("id = ?", id).Find(&player).Error
+	if err != nil {
+		fmt.Println("Could not find player in historics DB")
+	}
+
+	return player
+}
+
 func GetAllNBADraftees() []structs.NBADraftee {
 	db := dbprovider.GetInstance().GetDB()
 

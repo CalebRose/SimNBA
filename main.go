@@ -71,6 +71,12 @@ func handleRequests() {
 	// Draft Controls
 	// myRouter.HandleFunc("/nba/draft/conduct/lottery", controller.ConductDraftLottery).Methods("GET")
 	myRouter.HandleFunc("/nba/draft/page/{teamID}", controller.GetDraftPageData).Methods("GET")
+	myRouter.HandleFunc("/nba/draft/create/scoutprofile", controller.AddPlayerToScoutBoard).Methods("POST")
+	myRouter.HandleFunc("/nba/draft/reveal/attribute", controller.RevealScoutingAttribute).Methods("POST")
+	// myRouter.HandleFunc("/recruit/revokeScholarshipFromRecruit", controller.RevokeScholarshipFromRecruit).Methods("PUT")
+	myRouter.HandleFunc("/nba/draft/remove/{id}", controller.RemovePlayerFromScoutBoard).Methods("GET")
+	myRouter.HandleFunc("/nba/draft/scout/{id}", controller.GetScoutingDataByDraftee).Methods("GET")
+	// myRouter.HandleFunc("/nba/draft/player/", controller.SaveRecruitingBoard).Methods("POST")
 
 	// Free Agency Controls
 	myRouter.HandleFunc("/nba/freeagency/available/{teamID}", controller.FreeAgencyAvailablePlayers).Methods("GET")

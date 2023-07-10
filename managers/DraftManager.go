@@ -10,7 +10,6 @@ import (
 	"github.com/CalebRose/SimNBA/secrets"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
-	"gorm.io/gorm"
 )
 
 func ConductDraftLottery() {
@@ -234,9 +233,10 @@ func GetNBAWarRoomByTeamID(TeamID string) structs.NBAWarRoom {
 
 	warRoom := structs.NBAWarRoom{}
 
-	err := db.Preload("DraftPicks").Preload("ScoutProfiles", func(db *gorm.DB) *gorm.DB {
-		return db.Where("removed_from_board = false")
-	}).Where("team_id = ?", TeamID).Find(&warRoom).Error
+	err := db.Preload("DraftPicks").
+		Preload("ScoutProfiles.Draftee").
+		Preload("ScoutProfiles", "removed_from_board = ?", false).
+		Where("team_id = ?", TeamID).Find(&warRoom).Error
 	if err != nil {
 		return warRoom
 	}
@@ -274,6 +274,114 @@ func RunDeclarationsAlgorithm() {
 			db.Save(&c)
 		}
 	}
+}
+
+func GetScoutProfileByScoutProfileID(profileID string) structs.ScoutingProfile {
+	db := dbprovider.GetInstance().GetDB()
+
+	var scoutProfile structs.ScoutingProfile
+
+	err := db.Where("id = ?", profileID).Find(&scoutProfile).Error
+	if err != nil {
+		return structs.ScoutingProfile{}
+	}
+
+	return scoutProfile
+}
+
+func GetOnlyScoutProfileByPlayerIDandTeamID(playerID, teamID string) structs.ScoutingProfile {
+	db := dbprovider.GetInstance().GetDB()
+
+	var scoutProfile structs.ScoutingProfile
+
+	err := db.Where("player_id = ? AND team_id = ?", playerID, teamID).Error
+	if err != nil {
+		return structs.ScoutingProfile{}
+	}
+
+	return scoutProfile
+}
+
+func CreateScoutingProfile(dto structs.ScoutingProfileDTO) structs.ScoutingProfile {
+	db := dbprovider.GetInstance().GetDB()
+
+	scoutProfile := GetOnlyScoutProfileByPlayerIDandTeamID(strconv.Itoa(int(dto.PlayerID)), strconv.Itoa(int(dto.TeamID)))
+
+	// If Recruit Already Exists
+	if scoutProfile.PlayerID != 0 && scoutProfile.TeamID != 0 {
+		scoutProfile.ReplaceOnBoard()
+		db.Save(&scoutProfile)
+		return scoutProfile
+	}
+
+	newScoutingProfile := structs.ScoutingProfile{
+		PlayerID:         dto.PlayerID,
+		TeamID:           dto.TeamID,
+		ShowCount:        0,
+		RemovedFromBoard: false,
+	}
+
+	db.Create(&newScoutingProfile)
+
+	return newScoutingProfile
+}
+
+func RemovePlayerFromScoutBoard(id string) {
+	db := dbprovider.GetInstance().GetDB()
+
+	scoutProfile := GetScoutProfileByScoutProfileID(id)
+
+	scoutProfile.RemoveFromBoard()
+
+	db.Save(&scoutProfile)
+}
+
+func GetScoutingDataByPlayerID(id string) structs.ScoutingDataResponse {
+	ts := GetTimestamp()
+
+	lastSeasonID := ts.SeasonID - 1
+	lastSeasonIDSTR := strconv.Itoa(int(lastSeasonID))
+
+	draftee := GetHistoricCollegePlayerByID(id)
+
+	seasonStats := GetPlayerSeasonStatsByPlayerID(id, lastSeasonIDSTR)
+	teamID := strconv.Itoa(int(draftee.TeamID))
+	collegeStandings := GetStandingsRecordByTeamID(teamID, lastSeasonIDSTR)
+
+	return structs.ScoutingDataResponse{
+		DrafteeSeasonStats: seasonStats,
+		TeamStandings:      collegeStandings,
+	}
+}
+
+func RevealScoutingAttribute(dto structs.RevealAttributeDTO) bool {
+	db := dbprovider.GetInstance().GetDB()
+
+	scoutProfile := GetScoutProfileByScoutProfileID(strconv.Itoa(int(dto.ScoutProfileID)))
+
+	if scoutProfile.ID == 0 {
+		return false
+	}
+
+	scoutProfile.RevealAttribute(dto.Attribute)
+
+	warRoom := GetNBAWarRoomByTeamID(strconv.Itoa(int(dto.TeamID)))
+
+	if warRoom.ID == 0 {
+		return false
+	}
+
+	warRoom.AddToSpentPoints(dto.Points)
+
+	err := db.Save(&scoutProfile).Error
+	if err != nil {
+		return false
+	}
+	err = db.Save(&warRoom).Error
+	if err != nil {
+		return false
+	}
+	return true
 }
 
 func DetermineIfDeclaring(player structs.CollegePlayer) bool {
