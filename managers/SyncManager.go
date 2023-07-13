@@ -344,10 +344,10 @@ func FillAIRecruitingBoards() {
 
 	regionMap := util.GetRegionMap()
 
-	boardCount := 40
+	boardCount := 30
 
 	if ts.CollegeWeek > 3 {
-		boardCount = 25
+		boardCount = 20
 	}
 
 	for _, team := range AITeams {
@@ -425,17 +425,17 @@ func FillAIRecruitingBoards() {
 			} else if team.AIQuality == "Cinderella" && croot.Stars == 4 {
 				odds += 15
 			} else if team.AIQuality == "P6" && croot.Stars == 4 {
-				odds += 5
+				odds += 10
 			} else if team.AIQuality == "P6" && croot.Stars == 3 {
-				odds += 15
+				odds += 20
 			} else if team.AIQuality == "Mid-Major" && croot.Stars < 4 {
 				odds += 5
 			} else if team.AIQuality == "Mid-Major" && croot.Stars < 3 {
-				odds += 10
+				odds += 25
 			}
 
 			if team.AIQuality == "Cinderella" && util.IsPlayerHighPotential(croot) {
-				odds += 15
+				odds += 20
 			}
 
 			if team.AIValue == "Star" {
@@ -462,8 +462,7 @@ func FillAIRecruitingBoards() {
 					teamsWithBoards = append(teamsWithBoards, team)
 				}
 			}
-
-			if chance <= odds && len(teamsWithBoards) < 5 {
+			if chance <= odds && len(teamsWithBoards) < 20 {
 				playerProfile := structs.PlayerRecruitProfile{
 					RecruitID:          croot.ID,
 					ProfileID:          team.ID,
