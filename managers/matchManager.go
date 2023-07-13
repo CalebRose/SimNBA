@@ -114,6 +114,31 @@ func GetMatchesByTeamIdAndSeasonId(teamId string, seasonId string) []structs.Mat
 	return teamMatches
 }
 
+func FixPlayerStatsFromLastSeason() {
+	db := dbprovider.GetInstance().GetDB()
+
+	ts := GetTimestamp()
+
+	lastSeasonID := ts.SeasonID - 1
+	seasonIDSTR := strconv.Itoa(int(lastSeasonID))
+
+	matches := GetMatchesBySeasonID(seasonIDSTR)
+
+	for _, m := range matches {
+		id := strconv.Itoa(int(m.ID))
+		stats := GetPlayerStatsByMatch(id)
+
+		for _, stat := range stats {
+			if stat.WeekID > 0 {
+				continue
+			}
+			stat.MapNewProperties(m.WeekID, m.MatchOfWeek)
+
+			db.Save(&stat)
+		}
+	}
+}
+
 func GetMatchesBySeasonID(seasonId string) []structs.Match {
 	db := dbprovider.GetInstance().GetDB()
 

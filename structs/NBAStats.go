@@ -349,6 +349,8 @@ type NBAPlayerStats struct {
 	NBAPlayerID        uint
 	MatchID            uint
 	SeasonID           uint
+	WeekID             uint
+	MatchType          string
 	Year               uint
 	Minutes            int
 	Possessions        int

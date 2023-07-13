@@ -100,3 +100,11 @@ func GetUpcomingMatchesByTeamIdAndSeasonId(w http.ResponseWriter, r *http.Reques
 
 	json.NewEncoder(w).Encode(upcomingMatches)
 }
+
+func FixPlayerStatsFromLastSeason(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+
+	managers.FixPlayerStatsFromLastSeason()
+
+	json.NewEncoder(w).Encode("All done!")
+}

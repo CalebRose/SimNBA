@@ -354,24 +354,308 @@ func GetAllCollegePlayers() []structs.CollegePlayer {
 	return players
 }
 
-func GetAllCollegePlayersWithSeasonStats() []structs.CollegePlayer {
+func GetAllCollegePlayersWithSeasonStats(seasonID, weekID, viewType string) []structs.CollegePlayerResponse {
 	db := dbprovider.GetInstance().GetDB()
+
+	ts := GetTimestamp()
+
+	seasonIDVal := util.ConvertStringToInt(seasonID)
 
 	var players []structs.CollegePlayer
+	var distinctCollegeStats []structs.CollegePlayerSeasonStats
+	db.Distinct("college_player_id").Where("minutes > 0 AND season_id = ?", seasonID).Find(&distinctCollegeStats)
+	distinctCollegePlayerIDs := util.GetCollegePlayerIDsBySeasonStats(distinctCollegeStats)
 
-	db.Preload("SeasonStats").Find(&players)
+	if viewType == "SEASON" {
+		db.Preload("SeasonStats", "season_id = ?", seasonID).
+			Where("id in ?", distinctCollegePlayerIDs).Find(&players)
+	} else {
+		db.Preload("Stats", "season_id = ? AND week_id = ?", seasonID, weekID).
+			Where("id in ?", distinctCollegePlayerIDs).Find(&players)
+	}
 
-	return players
+	playerList := []structs.CollegePlayerResponse{}
+
+	for _, p := range players {
+		if len(p.Stats) == 0 && viewType == "WEEK" {
+			continue
+		}
+		var stat structs.CollegePlayerStats
+		if viewType == "WEEK" {
+			stat = p.Stats[0]
+		}
+		shooting2Grade := util.GetAttributeGrade(p.Shooting2)
+		shooting3Grade := util.GetAttributeGrade(p.Shooting3)
+		freeThrowGrade := util.GetAttributeGrade(p.FreeThrow)
+		finishingGrade := util.GetAttributeGrade(p.Finishing)
+		reboundingGrade := util.GetAttributeGrade(p.Rebounding)
+		ballworkGrade := util.GetAttributeGrade(p.Ballwork)
+		interiorDefenseGrade := util.GetAttributeGrade(p.InteriorDefense)
+		perimeterDefenseGrade := util.GetAttributeGrade(p.PerimeterDefense)
+		potentialGrade := util.GetPotentialGrade(p.Potential)
+		overallGrade := util.GetPlayerOverallGrade(p.Overall)
+		var playerRes = structs.CollegePlayerResponse{
+			FirstName:             p.FirstName,
+			LastName:              p.LastName,
+			Position:              p.Position,
+			Age:                   p.Age,
+			Year:                  p.Year,
+			State:                 p.State,
+			Country:               p.Country,
+			Stars:                 p.Stars,
+			Height:                p.Height,
+			PotentialGrade:        potentialGrade,
+			Shooting2Grade:        shooting2Grade,
+			Shooting3Grade:        shooting3Grade,
+			FreeThrowGrade:        freeThrowGrade,
+			FinishingGrade:        finishingGrade,
+			BallworkGrade:         ballworkGrade,
+			ReboundingGrade:       reboundingGrade,
+			InteriorDefenseGrade:  interiorDefenseGrade,
+			PerimeterDefenseGrade: perimeterDefenseGrade,
+			OverallGrade:          overallGrade,
+			Stamina:               p.Stamina,
+			PlaytimeExpectations:  p.PlaytimeExpectations,
+			Minutes:               p.Minutes,
+			Potential:             p.Potential,
+			Personality:           p.Personality,
+			RecruitingBias:        p.RecruitingBias,
+			WorkEthic:             p.WorkEthic,
+			AcademicBias:          p.AcademicBias,
+			PlayerID:              p.PlayerID,
+			TeamID:                p.TeamID,
+			TeamAbbr:              p.TeamAbbr,
+			IsRedshirting:         p.IsRedshirting,
+			IsRedshirt:            p.IsRedshirt,
+			SeasonStats:           p.SeasonStats,
+			Stats:                 stat,
+		}
+
+		playerList = append(playerList, playerRes)
+	}
+
+	if seasonIDVal < int(ts.SeasonID) {
+		var historicCollegePlayers []structs.HistoricCollegePlayer
+		if viewType == "SEASON" {
+			db.Preload("SeasonStats", func(db *gorm.DB) *gorm.DB {
+				return db.Where("season_id = ?", seasonID)
+			}).Where("id in ?", distinctCollegePlayerIDs).Find(&historicCollegePlayers)
+		} else {
+			db.Preload("Stats", func(db *gorm.DB) *gorm.DB {
+				return db.Where("season_id = ? AND week_id = ?", seasonID, weekID)
+			}).Where("id in ?", distinctCollegePlayerIDs).Find(&historicCollegePlayers)
+		}
+
+		for _, p := range historicCollegePlayers {
+			if len(p.Stats) == 0 && viewType == "WEEK" {
+				continue
+			}
+			var stat structs.CollegePlayerStats
+			if viewType == "WEEK" {
+				stat = p.Stats[0]
+			}
+			shooting2Grade := util.GetAttributeGrade(p.Shooting2)
+			shooting3Grade := util.GetAttributeGrade(p.Shooting3)
+			freeThrowGrade := util.GetAttributeGrade(p.FreeThrow)
+			finishingGrade := util.GetAttributeGrade(p.Finishing)
+			reboundingGrade := util.GetAttributeGrade(p.Rebounding)
+			ballworkGrade := util.GetAttributeGrade(p.Ballwork)
+			interiorDefenseGrade := util.GetAttributeGrade(p.InteriorDefense)
+			perimeterDefenseGrade := util.GetAttributeGrade(p.PerimeterDefense)
+			potentialGrade := util.GetPotentialGrade(p.Potential)
+			overallGrade := util.GetPlayerOverallGrade(p.Overall)
+			var playerRes = structs.CollegePlayerResponse{
+				FirstName:             p.FirstName,
+				LastName:              p.LastName,
+				Position:              p.Position,
+				Age:                   p.Age,
+				Year:                  p.Year,
+				State:                 p.State,
+				Country:               p.Country,
+				Stars:                 p.Stars,
+				Height:                p.Height,
+				PotentialGrade:        potentialGrade,
+				Shooting2Grade:        shooting2Grade,
+				Shooting3Grade:        shooting3Grade,
+				FreeThrowGrade:        freeThrowGrade,
+				FinishingGrade:        finishingGrade,
+				BallworkGrade:         ballworkGrade,
+				ReboundingGrade:       reboundingGrade,
+				InteriorDefenseGrade:  interiorDefenseGrade,
+				PerimeterDefenseGrade: perimeterDefenseGrade,
+				OverallGrade:          overallGrade,
+				Stamina:               p.Stamina,
+				PlaytimeExpectations:  p.PlaytimeExpectations,
+				Minutes:               p.Minutes,
+				Potential:             p.Potential,
+				Personality:           p.Personality,
+				RecruitingBias:        p.RecruitingBias,
+				WorkEthic:             p.WorkEthic,
+				AcademicBias:          p.AcademicBias,
+				PlayerID:              p.PlayerID,
+				TeamID:                p.TeamID,
+				TeamAbbr:              p.TeamAbbr,
+				IsRedshirting:         p.IsRedshirting,
+				IsRedshirt:            p.IsRedshirt,
+				SeasonStats:           p.SeasonStats,
+				Stats:                 stat,
+			}
+
+			playerList = append(playerList, playerRes)
+		}
+	}
+
+	return playerList
 }
 
-func GetAllNBAPlayersWithSeasonStats() []structs.NBAPlayer {
+func GetAllNBAPlayersWithSeasonStats(seasonID, weekID, viewType string) []structs.NBAPlayerResponse {
 	db := dbprovider.GetInstance().GetDB()
 
+	ts := GetTimestamp()
+
+	seasonIDVal := util.ConvertStringToInt(seasonID)
+
 	var players []structs.NBAPlayer
+	var distinctNBAStats []structs.NBAPlayerSeasonStats
+	db.Distinct("nba_player_id").Where("minutes > 0 AND season_id = ?", seasonID).Find(&distinctNBAStats)
+	distinctNBAPlayerIDs := util.GetNBAPlayerIDsBySeasonStats(distinctNBAStats)
 
-	db.Preload("SeasonStats").Find(&players)
+	if viewType == "SEASON" {
+		db.Preload("SeasonStats", "season_id = ?", seasonID).
+			Where("id in ?", distinctNBAPlayerIDs).Find(&players)
+	} else {
+		db.Preload("Stats", "season_id = ? AND week_id = ? AND minutes > 0", seasonID, weekID).
+			Where("id in ?", distinctNBAPlayerIDs).Find(&players)
+	}
 
-	return players
+	playerList := []structs.NBAPlayerResponse{}
+
+	for _, p := range players {
+		if len(p.Stats) == 0 && viewType == "WEEK" {
+			continue
+		}
+		var stat structs.NBAPlayerStats
+		if viewType == "WEEK" {
+			stat = p.Stats[0]
+		}
+		shooting2Grade := util.GetAttributeGrade(p.Shooting2)
+		shooting3Grade := util.GetAttributeGrade(p.Shooting3)
+		freeThrowGrade := util.GetAttributeGrade(p.FreeThrow)
+		finishingGrade := util.GetAttributeGrade(p.Finishing)
+		reboundingGrade := util.GetAttributeGrade(p.Rebounding)
+		ballworkGrade := util.GetAttributeGrade(p.Ballwork)
+		interiorDefenseGrade := util.GetAttributeGrade(p.InteriorDefense)
+		perimeterDefenseGrade := util.GetAttributeGrade(p.PerimeterDefense)
+		potentialGrade := util.GetPotentialGrade(p.Potential)
+		overallGrade := util.GetPlayerOverallGrade(p.Overall)
+		var playerRes = structs.NBAPlayerResponse{
+			FirstName:             p.FirstName,
+			LastName:              p.LastName,
+			Position:              p.Position,
+			Age:                   p.Age,
+			Year:                  p.Year,
+			State:                 p.State,
+			Country:               p.Country,
+			Stars:                 p.Stars,
+			Height:                p.Height,
+			PotentialGrade:        potentialGrade,
+			Shooting2Grade:        shooting2Grade,
+			Shooting3Grade:        shooting3Grade,
+			FreeThrowGrade:        freeThrowGrade,
+			FinishingGrade:        finishingGrade,
+			BallworkGrade:         ballworkGrade,
+			ReboundingGrade:       reboundingGrade,
+			InteriorDefenseGrade:  interiorDefenseGrade,
+			PerimeterDefenseGrade: perimeterDefenseGrade,
+			OverallGrade:          overallGrade,
+			Stamina:               p.Stamina,
+			PlaytimeExpectations:  p.PlaytimeExpectations,
+			Minutes:               p.Minutes,
+			Potential:             p.Potential,
+			Personality:           p.Personality,
+			RecruitingBias:        p.RecruitingBias,
+			WorkEthic:             p.WorkEthic,
+			AcademicBias:          p.AcademicBias,
+			PlayerID:              p.PlayerID,
+			TeamID:                p.TeamID,
+			TeamAbbr:              p.TeamAbbr,
+			SeasonStats:           p.SeasonStats,
+			Stats:                 stat,
+		}
+
+		playerList = append(playerList, playerRes)
+	}
+
+	if seasonIDVal < int(ts.SeasonID) {
+		var historicNBAPlayers []structs.RetiredPlayer
+		if viewType == "SEASON" {
+			db.Preload("SeasonStats", func(db *gorm.DB) *gorm.DB {
+				return db.Where("season_id = ?", seasonID)
+			}).Where("id in ?", distinctNBAPlayerIDs).Find(&historicNBAPlayers)
+		} else {
+			db.Preload("Stats", func(db *gorm.DB) *gorm.DB {
+				return db.Where("season_id = ? AND week_id = ?", seasonID, weekID)
+			}).Where("id in ?", distinctNBAPlayerIDs).Find(&historicNBAPlayers)
+		}
+
+		for _, p := range historicNBAPlayers {
+			if len(p.Stats) == 0 && viewType == "WEEK" {
+				continue
+			}
+			var stat structs.NBAPlayerStats
+			if viewType == "WEEK" {
+				stat = p.Stats[0]
+			}
+			shooting2Grade := util.GetAttributeGrade(p.Shooting2)
+			shooting3Grade := util.GetAttributeGrade(p.Shooting3)
+			freeThrowGrade := util.GetAttributeGrade(p.FreeThrow)
+			finishingGrade := util.GetAttributeGrade(p.Finishing)
+			reboundingGrade := util.GetAttributeGrade(p.Rebounding)
+			ballworkGrade := util.GetAttributeGrade(p.Ballwork)
+			interiorDefenseGrade := util.GetAttributeGrade(p.InteriorDefense)
+			perimeterDefenseGrade := util.GetAttributeGrade(p.PerimeterDefense)
+			potentialGrade := util.GetPotentialGrade(p.Potential)
+			overallGrade := util.GetPlayerOverallGrade(p.Overall)
+			var playerRes = structs.NBAPlayerResponse{
+				FirstName:             p.FirstName,
+				LastName:              p.LastName,
+				Position:              p.Position,
+				Age:                   p.Age,
+				Year:                  p.Year,
+				State:                 p.State,
+				Country:               p.Country,
+				Stars:                 p.Stars,
+				Height:                p.Height,
+				PotentialGrade:        potentialGrade,
+				Shooting2Grade:        shooting2Grade,
+				Shooting3Grade:        shooting3Grade,
+				FreeThrowGrade:        freeThrowGrade,
+				FinishingGrade:        finishingGrade,
+				BallworkGrade:         ballworkGrade,
+				ReboundingGrade:       reboundingGrade,
+				InteriorDefenseGrade:  interiorDefenseGrade,
+				PerimeterDefenseGrade: perimeterDefenseGrade,
+				OverallGrade:          overallGrade,
+				Stamina:               p.Stamina,
+				PlaytimeExpectations:  p.PlaytimeExpectations,
+				Minutes:               p.Minutes,
+				Potential:             p.Potential,
+				Personality:           p.Personality,
+				RecruitingBias:        p.RecruitingBias,
+				WorkEthic:             p.WorkEthic,
+				AcademicBias:          p.AcademicBias,
+				PlayerID:              p.PlayerID,
+				TeamID:                p.TeamID,
+				TeamAbbr:              p.TeamAbbr,
+				SeasonStats:           p.SeasonStats,
+				Stats:                 stat,
+			}
+
+			playerList = append(playerList, playerRes)
+		}
+	}
+
+	return playerList
 }
 
 func GetAllCollegePlayersFromOldTable() []structs.Player {

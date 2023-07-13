@@ -7,10 +7,9 @@ import (
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
-	"github.com/CalebRose/SimNBA/util"
 )
 
-func GetCBBStatsPageData() structs.StatsPageResponse {
+func GetCBBStatsPageData(seasonID, weekID, viewType string) structs.StatsPageResponse {
 	db := dbprovider.GetInstance().GetDB()
 
 	var teamList []structs.CollegeTeamResponse
@@ -19,170 +18,25 @@ func GetCBBStatsPageData() structs.StatsPageResponse {
 
 	db.Find(&conferences)
 
+	teamsChan := make(chan []structs.CollegeTeamResponse)
+	playersChan := make(chan []structs.CollegePlayerResponse)
+
+	go func() {
+		ct := GetAllActiveCollegeTeamsWithSeasonStats(seasonID, weekID, viewType)
+		teamsChan <- ct
+	}()
+
+	go func() {
+		cp := GetAllCollegePlayersWithSeasonStats(seasonID, weekID, viewType)
+		playersChan <- cp
+	}()
+
 	// Teams
-	teams := GetAllActiveCollegeTeamsWithSeasonStats()
+	teamList = <-teamsChan
+	close(teamsChan)
 
-	for _, team := range teams {
-		seasonsResponse := structs.TeamSeasonStatsResponse{
-			ID:                        team.TeamSeasonStats.ID,
-			TeamID:                    team.ID,
-			SeasonID:                  team.TeamSeasonStats.SeasonID,
-			GamesPlayed:               team.TeamSeasonStats.GamesPlayed,
-			Points:                    team.TeamSeasonStats.Points,
-			PointsAgainst:             team.TeamSeasonStats.PointsAgainst,
-			PPG:                       team.TeamSeasonStats.PPG,
-			PAPG:                      team.TeamSeasonStats.PAPG,
-			PointsDiff:                team.TeamSeasonStats.PPG - team.TeamSeasonStats.PAPG,
-			Possessions:               team.TeamSeasonStats.Possessions,
-			PossessionsPerGame:        team.TeamSeasonStats.PossessionsPerGame,
-			FGM:                       team.TeamSeasonStats.FGM,
-			FGA:                       team.TeamSeasonStats.FGA,
-			FGPercent:                 team.TeamSeasonStats.FGPercent,
-			FGMPG:                     team.TeamSeasonStats.FGMPG,
-			FGAPG:                     team.TeamSeasonStats.FGAPG,
-			FGMAgainst:                team.TeamSeasonStats.FGMAgainst,
-			FGAAgainst:                team.TeamSeasonStats.FGAAgainst,
-			FGPercentAgainst:          team.TeamSeasonStats.FGPercentAgainst,
-			FGMAPG:                    team.TeamSeasonStats.FGMAPG,
-			FGAAPG:                    team.TeamSeasonStats.FGAAPG,
-			FGMDiff:                   team.TeamSeasonStats.FGMPG - team.TeamSeasonStats.FGMAPG,
-			FGADiff:                   team.TeamSeasonStats.FGAPG - team.TeamSeasonStats.FGAAPG,
-			FGPercentDiff:             team.TeamSeasonStats.FGPercent - team.TeamSeasonStats.FGPercentAgainst,
-			ThreePointsMade:           team.TeamSeasonStats.ThreePointsMade,
-			ThreePointAttempts:        team.TeamSeasonStats.ThreePointAttempts,
-			ThreePointPercent:         team.TeamSeasonStats.ThreePointPercent,
-			ThreePointsMadeAgainst:    team.TeamSeasonStats.ThreePointsMadeAgainst,
-			ThreePointAttemptsAgainst: team.TeamSeasonStats.ThreePointAttemptsAgainst,
-			ThreePointPercentAgainst:  team.TeamSeasonStats.ThreePointPercentAgainst,
-			TPMPG:                     team.TeamSeasonStats.TPMPG,
-			TPAPG:                     team.TeamSeasonStats.TPAPG,
-			TPMAPG:                    team.TeamSeasonStats.TPMAPG,
-			TPAAPG:                    team.TeamSeasonStats.TPAAPG,
-			TPMDiff:                   team.TeamSeasonStats.TPMPG - team.TeamSeasonStats.TPMAPG,
-			TPADiff:                   team.TeamSeasonStats.TPAPG - team.TeamSeasonStats.TPAAPG,
-			TPPercentDiff:             team.TeamSeasonStats.ThreePointPercent - team.TeamSeasonStats.ThreePointPercentAgainst,
-			FTM:                       team.TeamSeasonStats.FTM,
-			FTA:                       team.TeamSeasonStats.FTA,
-			FTPercent:                 team.TeamSeasonStats.FTPercent,
-			FTMAgainst:                team.TeamSeasonStats.FTMAgainst,
-			FTAAgainst:                team.TeamSeasonStats.FTAAgainst,
-			FTPercentAgainst:          team.TeamSeasonStats.FTPercentAgainst,
-			FTMPG:                     team.TeamSeasonStats.FTMPG,
-			FTAPG:                     team.TeamSeasonStats.FTAPG,
-			FTMAPG:                    team.TeamSeasonStats.FTMAPG,
-			FTAAPG:                    team.TeamSeasonStats.FTAAPG,
-			FTMDiff:                   team.TeamSeasonStats.FTMPG - team.TeamSeasonStats.FTMAPG,
-			FTADiff:                   team.TeamSeasonStats.FTAPG - team.TeamSeasonStats.FTAAPG,
-			FTPercentDiff:             team.TeamSeasonStats.FTPercent - team.TeamSeasonStats.FTPercentAgainst,
-			Rebounds:                  team.TeamSeasonStats.Rebounds,
-			OffRebounds:               team.TeamSeasonStats.OffRebounds,
-			DefRebounds:               team.TeamSeasonStats.DefRebounds,
-			ReboundsPerGame:           team.TeamSeasonStats.ReboundsPerGame,
-			OffReboundsPerGame:        team.TeamSeasonStats.OffReboundsPerGame,
-			DefReboundsPerGame:        team.TeamSeasonStats.DefReboundsPerGame,
-			ReboundsAllowed:           team.TeamSeasonStats.ReboundsAllowed,
-			ReboundsAllowedPerGame:    team.TeamSeasonStats.ReboundsAllowedPerGame,
-			OffReboundsAllowed:        team.TeamSeasonStats.OffReboundsAllowed,
-			OffReboundsAllowedPerGame: team.TeamSeasonStats.OffReboundsAllowedPerGame,
-			DefReboundsAllowed:        team.TeamSeasonStats.DefReboundsAllowed,
-			DefReboundsAllowedPerGame: team.TeamSeasonStats.DefReboundsAllowedPerGame,
-			ReboundsDiff:              team.TeamSeasonStats.ReboundsPerGame - team.TeamSeasonStats.ReboundsAllowedPerGame,
-			OReboundsDiff:             team.TeamSeasonStats.OffReboundsPerGame - team.TeamSeasonStats.OffReboundsAllowedPerGame,
-			DReboundsDiff:             team.TeamSeasonStats.DefReboundsPerGame - team.TeamSeasonStats.DefReboundsAllowedPerGame,
-			Assists:                   team.TeamSeasonStats.Assists,
-			AssistsAllowed:            team.TeamSeasonStats.AssistsAllowed,
-			AssistsPerGame:            team.TeamSeasonStats.AssistsPerGame,
-			AssistsAllowedPerGame:     team.TeamSeasonStats.AssistsAllowedPerGame,
-			AssistsDiff:               team.TeamSeasonStats.AssistsPerGame - team.TeamSeasonStats.AssistsAllowedPerGame,
-			Steals:                    team.TeamSeasonStats.Steals,
-			StealsAllowed:             team.TeamSeasonStats.StealsAllowed,
-			StealsPerGame:             team.TeamSeasonStats.StealsPerGame,
-			StealsAllowedPerGame:      team.TeamSeasonStats.StealsAllowedPerGame,
-			StealsDiff:                team.TeamSeasonStats.StealsPerGame - team.TeamSeasonStats.StealsAllowedPerGame,
-			Blocks:                    team.TeamSeasonStats.Blocks,
-			BlocksAllowed:             team.TeamSeasonStats.BlocksAllowed,
-			BlocksPerGame:             team.TeamSeasonStats.BlocksPerGame,
-			BlocksAllowedPerGame:      team.TeamSeasonStats.BlocksAllowedPerGame,
-			BlocksDiff:                team.TeamSeasonStats.BlocksPerGame - team.TeamSeasonStats.BlocksAllowedPerGame,
-			TotalTurnovers:            team.TeamSeasonStats.TotalTurnovers,
-			TurnoversAllowed:          team.TeamSeasonStats.TurnoversAllowed,
-			TurnoversPerGame:          team.TeamSeasonStats.TurnoversPerGame,
-			TurnoversAllowedPerGame:   team.TeamSeasonStats.TurnoversAllowedPerGame,
-			TODiff:                    team.TeamSeasonStats.TurnoversPerGame - team.TeamSeasonStats.TurnoversAllowedPerGame,
-			Fouls:                     team.TeamSeasonStats.Fouls,
-			FoulsPerGame:              team.TeamSeasonStats.FoulsPerGame,
-		}
-
-		var teamRes = structs.CollegeTeamResponse{
-			ID:           team.ID,
-			Team:         team.Team,
-			Nickname:     team.Nickname,
-			Abbr:         team.Abbr,
-			ConferenceID: team.ConferenceID,
-			Conference:   team.Conference,
-			Coach:        team.Coach,
-			OverallGrade: team.OverallGrade,
-			OffenseGrade: team.OffenseGrade,
-			DefenseGrade: team.DefenseGrade,
-			IsNBA:        team.IsNBA,
-			IsActive:     team.IsActive,
-			SeasonStats:  seasonsResponse,
-		}
-
-		teamList = append(teamList, teamRes)
-	}
-
-	players := GetAllCollegePlayersWithSeasonStats()
-
-	for _, p := range players {
-		shooting2Grade := util.GetAttributeGrade(p.Shooting2)
-		shooting3Grade := util.GetAttributeGrade(p.Shooting3)
-		freeThrowGrade := util.GetAttributeGrade(p.FreeThrow)
-		finishingGrade := util.GetAttributeGrade(p.Finishing)
-		reboundingGrade := util.GetAttributeGrade(p.Rebounding)
-		ballworkGrade := util.GetAttributeGrade(p.Ballwork)
-		interiorDefenseGrade := util.GetAttributeGrade(p.InteriorDefense)
-		perimeterDefenseGrade := util.GetAttributeGrade(p.PerimeterDefense)
-		potentialGrade := util.GetPotentialGrade(p.Potential)
-		overallGrade := util.GetPlayerOverallGrade(p.Overall)
-		var playerRes = structs.CollegePlayerResponse{
-			FirstName:             p.FirstName,
-			LastName:              p.LastName,
-			Position:              p.Position,
-			Age:                   p.Age,
-			Year:                  p.Year,
-			State:                 p.State,
-			Country:               p.Country,
-			Stars:                 p.Stars,
-			Height:                p.Height,
-			PotentialGrade:        potentialGrade,
-			Shooting2Grade:        shooting2Grade,
-			Shooting3Grade:        shooting3Grade,
-			FreeThrowGrade:        freeThrowGrade,
-			FinishingGrade:        finishingGrade,
-			BallworkGrade:         ballworkGrade,
-			ReboundingGrade:       reboundingGrade,
-			InteriorDefenseGrade:  interiorDefenseGrade,
-			PerimeterDefenseGrade: perimeterDefenseGrade,
-			OverallGrade:          overallGrade,
-			Stamina:               p.Stamina,
-			PlaytimeExpectations:  p.PlaytimeExpectations,
-			Minutes:               p.Minutes,
-			Potential:             p.Potential,
-			Personality:           p.Personality,
-			RecruitingBias:        p.RecruitingBias,
-			WorkEthic:             p.WorkEthic,
-			AcademicBias:          p.AcademicBias,
-			PlayerID:              p.PlayerID,
-			TeamID:                p.TeamID,
-			TeamAbbr:              p.TeamAbbr,
-			IsRedshirting:         p.IsRedshirting,
-			IsRedshirt:            p.IsRedshirt,
-			SeasonStats:           p.SeasonStats,
-		}
-
-		playerList = append(playerList, playerRes)
-	}
+	playerList = <-playersChan
+	close(playersChan)
 
 	return structs.StatsPageResponse{
 		CollegeConferences: conferences,
@@ -191,7 +45,7 @@ func GetCBBStatsPageData() structs.StatsPageResponse {
 	}
 }
 
-func GetNBAStatsPageData() structs.NBAStatsPageResponse {
+func GetNBAStatsPageData(seasonID, weekID, viewType string) structs.NBAStatsPageResponse {
 	db := dbprovider.GetInstance().GetDB()
 
 	var teamList []structs.NBATeamResponse
@@ -200,167 +54,25 @@ func GetNBAStatsPageData() structs.NBAStatsPageResponse {
 
 	db.Find(&conferences)
 
+	teamsChan := make(chan []structs.NBATeamResponse)
+	playersChan := make(chan []structs.NBAPlayerResponse)
+
+	go func() {
+		ct := GetAllActiveNBATeamsWithSeasonStats(seasonID, weekID, viewType)
+		teamsChan <- ct
+	}()
+
+	go func() {
+		cp := GetAllNBAPlayersWithSeasonStats(seasonID, weekID, viewType)
+		playersChan <- cp
+	}()
+
 	// Teams
-	teams := GetAllActiveNBATeams()
+	teamList = <-teamsChan
+	close(teamsChan)
 
-	for _, team := range teams {
-		seasonsResponse := structs.TeamSeasonStatsResponse{
-			ID:                        team.TeamSeasonStats.ID,
-			TeamID:                    team.ID,
-			SeasonID:                  team.TeamSeasonStats.SeasonID,
-			GamesPlayed:               team.TeamSeasonStats.GamesPlayed,
-			Points:                    team.TeamSeasonStats.Points,
-			PointsAgainst:             team.TeamSeasonStats.PointsAgainst,
-			PPG:                       team.TeamSeasonStats.PPG,
-			PAPG:                      team.TeamSeasonStats.PAPG,
-			PointsDiff:                team.TeamSeasonStats.PPG - team.TeamSeasonStats.PAPG,
-			Possessions:               team.TeamSeasonStats.Possessions,
-			PossessionsPerGame:        team.TeamSeasonStats.PossessionsPerGame,
-			FGM:                       team.TeamSeasonStats.FGM,
-			FGA:                       team.TeamSeasonStats.FGA,
-			FGPercent:                 team.TeamSeasonStats.FGPercent,
-			FGMPG:                     team.TeamSeasonStats.FGMPG,
-			FGAPG:                     team.TeamSeasonStats.FGAPG,
-			FGMAgainst:                team.TeamSeasonStats.FGMAgainst,
-			FGAAgainst:                team.TeamSeasonStats.FGAAgainst,
-			FGPercentAgainst:          team.TeamSeasonStats.FGPercentAgainst,
-			FGMAPG:                    team.TeamSeasonStats.FGMAPG,
-			FGAAPG:                    team.TeamSeasonStats.FGAAPG,
-			FGMDiff:                   team.TeamSeasonStats.FGMPG - team.TeamSeasonStats.FGMAPG,
-			FGADiff:                   team.TeamSeasonStats.FGAPG - team.TeamSeasonStats.FGAAPG,
-			FGPercentDiff:             team.TeamSeasonStats.FGPercent - team.TeamSeasonStats.FGPercentAgainst,
-			ThreePointsMade:           team.TeamSeasonStats.ThreePointsMade,
-			ThreePointAttempts:        team.TeamSeasonStats.ThreePointAttempts,
-			ThreePointPercent:         team.TeamSeasonStats.ThreePointPercent,
-			ThreePointsMadeAgainst:    team.TeamSeasonStats.ThreePointsMadeAgainst,
-			ThreePointAttemptsAgainst: team.TeamSeasonStats.ThreePointAttemptsAgainst,
-			ThreePointPercentAgainst:  team.TeamSeasonStats.ThreePointPercentAgainst,
-			TPMPG:                     team.TeamSeasonStats.TPMPG,
-			TPAPG:                     team.TeamSeasonStats.TPAPG,
-			TPMAPG:                    team.TeamSeasonStats.TPMAPG,
-			TPAAPG:                    team.TeamSeasonStats.TPAAPG,
-			TPMDiff:                   team.TeamSeasonStats.TPMPG - team.TeamSeasonStats.TPMAPG,
-			TPADiff:                   team.TeamSeasonStats.TPAPG - team.TeamSeasonStats.TPAAPG,
-			TPPercentDiff:             team.TeamSeasonStats.ThreePointPercent - team.TeamSeasonStats.ThreePointPercentAgainst,
-			FTM:                       team.TeamSeasonStats.FTM,
-			FTA:                       team.TeamSeasonStats.FTA,
-			FTPercent:                 team.TeamSeasonStats.FTPercent,
-			FTMAgainst:                team.TeamSeasonStats.FTMAgainst,
-			FTAAgainst:                team.TeamSeasonStats.FTAAgainst,
-			FTPercentAgainst:          team.TeamSeasonStats.FTPercentAgainst,
-			FTMPG:                     team.TeamSeasonStats.FTMPG,
-			FTAPG:                     team.TeamSeasonStats.FTAPG,
-			FTMAPG:                    team.TeamSeasonStats.FTMAPG,
-			FTAAPG:                    team.TeamSeasonStats.FTAAPG,
-			FTMDiff:                   team.TeamSeasonStats.FTMPG - team.TeamSeasonStats.FTMAPG,
-			FTADiff:                   team.TeamSeasonStats.FTAPG - team.TeamSeasonStats.FTAAPG,
-			FTPercentDiff:             team.TeamSeasonStats.FTPercent - team.TeamSeasonStats.FTPercentAgainst,
-			Rebounds:                  team.TeamSeasonStats.Rebounds,
-			OffRebounds:               team.TeamSeasonStats.OffRebounds,
-			DefRebounds:               team.TeamSeasonStats.DefRebounds,
-			ReboundsPerGame:           team.TeamSeasonStats.ReboundsPerGame,
-			OffReboundsPerGame:        team.TeamSeasonStats.OffReboundsPerGame,
-			DefReboundsPerGame:        team.TeamSeasonStats.DefReboundsPerGame,
-			ReboundsAllowed:           team.TeamSeasonStats.ReboundsAllowed,
-			ReboundsAllowedPerGame:    team.TeamSeasonStats.ReboundsAllowedPerGame,
-			OffReboundsAllowed:        team.TeamSeasonStats.OffReboundsAllowed,
-			OffReboundsAllowedPerGame: team.TeamSeasonStats.OffReboundsAllowedPerGame,
-			DefReboundsAllowed:        team.TeamSeasonStats.DefReboundsAllowed,
-			DefReboundsAllowedPerGame: team.TeamSeasonStats.DefReboundsAllowedPerGame,
-			ReboundsDiff:              team.TeamSeasonStats.ReboundsPerGame - team.TeamSeasonStats.ReboundsAllowedPerGame,
-			OReboundsDiff:             team.TeamSeasonStats.OffReboundsPerGame - team.TeamSeasonStats.OffReboundsAllowedPerGame,
-			DReboundsDiff:             team.TeamSeasonStats.DefReboundsPerGame - team.TeamSeasonStats.DefReboundsAllowedPerGame,
-			Assists:                   team.TeamSeasonStats.Assists,
-			AssistsAllowed:            team.TeamSeasonStats.AssistsAllowed,
-			AssistsPerGame:            team.TeamSeasonStats.AssistsPerGame,
-			AssistsAllowedPerGame:     team.TeamSeasonStats.AssistsAllowedPerGame,
-			AssistsDiff:               team.TeamSeasonStats.AssistsPerGame - team.TeamSeasonStats.AssistsAllowedPerGame,
-			Steals:                    team.TeamSeasonStats.Steals,
-			StealsAllowed:             team.TeamSeasonStats.StealsAllowed,
-			StealsPerGame:             team.TeamSeasonStats.StealsPerGame,
-			StealsAllowedPerGame:      team.TeamSeasonStats.StealsAllowedPerGame,
-			StealsDiff:                team.TeamSeasonStats.StealsPerGame - team.TeamSeasonStats.StealsAllowedPerGame,
-			Blocks:                    team.TeamSeasonStats.Blocks,
-			BlocksAllowed:             team.TeamSeasonStats.BlocksAllowed,
-			BlocksPerGame:             team.TeamSeasonStats.BlocksPerGame,
-			BlocksAllowedPerGame:      team.TeamSeasonStats.BlocksAllowedPerGame,
-			BlocksDiff:                team.TeamSeasonStats.BlocksPerGame - team.TeamSeasonStats.BlocksAllowedPerGame,
-			TotalTurnovers:            team.TeamSeasonStats.TotalTurnovers,
-			TurnoversAllowed:          team.TeamSeasonStats.TurnoversAllowed,
-			TurnoversPerGame:          team.TeamSeasonStats.TurnoversPerGame,
-			TurnoversAllowedPerGame:   team.TeamSeasonStats.TurnoversAllowedPerGame,
-			TODiff:                    team.TeamSeasonStats.TurnoversPerGame - team.TeamSeasonStats.TurnoversAllowedPerGame,
-			Fouls:                     team.TeamSeasonStats.Fouls,
-			FoulsPerGame:              team.TeamSeasonStats.FoulsPerGame,
-		}
-
-		var teamRes = structs.NBATeamResponse{
-			ID:           team.ID,
-			Team:         team.Team,
-			Nickname:     team.Nickname,
-			Abbr:         team.Abbr,
-			ConferenceID: team.ConferenceID,
-			Conference:   team.Conference,
-			Coach:        team.NBACoachName,
-			OverallGrade: team.OverallGrade,
-			OffenseGrade: team.OffenseGrade,
-			DefenseGrade: team.DefenseGrade,
-			IsActive:     team.IsActive,
-			SeasonStats:  seasonsResponse,
-		}
-
-		teamList = append(teamList, teamRes)
-	}
-
-	players := GetAllNBAPlayersWithSeasonStats()
-
-	for _, p := range players {
-		shooting2Grade := util.GetAttributeGrade(p.Shooting2)
-		shooting3Grade := util.GetAttributeGrade(p.Shooting3)
-		freeThrowGrade := util.GetAttributeGrade(p.FreeThrow)
-		finishingGrade := util.GetAttributeGrade(p.Finishing)
-		reboundingGrade := util.GetAttributeGrade(p.Rebounding)
-		ballworkGrade := util.GetAttributeGrade(p.Ballwork)
-		interiorDefense := util.GetAttributeGrade(p.InteriorDefense)
-		perimeterDefense := util.GetAttributeGrade(p.PerimeterDefense)
-		potentialGrade := util.GetPotentialGrade(p.Potential)
-		overallGrade := util.GetPlayerOverallGrade(p.Overall)
-		var playerRes = structs.NBAPlayerResponse{
-			FirstName:             p.FirstName,
-			LastName:              p.LastName,
-			Position:              p.Position,
-			Age:                   p.Age,
-			Year:                  p.Year,
-			State:                 p.State,
-			Country:               p.Country,
-			Stars:                 p.Stars,
-			Height:                p.Height,
-			PotentialGrade:        potentialGrade,
-			Shooting2Grade:        shooting2Grade,
-			Shooting3Grade:        shooting3Grade,
-			FreeThrowGrade:        freeThrowGrade,
-			FinishingGrade:        finishingGrade,
-			BallworkGrade:         ballworkGrade,
-			ReboundingGrade:       reboundingGrade,
-			InteriorDefenseGrade:  interiorDefense,
-			PerimeterDefenseGrade: perimeterDefense,
-			OverallGrade:          overallGrade,
-			Stamina:               p.Stamina,
-			PlaytimeExpectations:  p.PlaytimeExpectations,
-			Minutes:               p.Minutes,
-			Potential:             p.Potential,
-			Personality:           p.Personality,
-			RecruitingBias:        p.RecruitingBias,
-			WorkEthic:             p.WorkEthic,
-			AcademicBias:          p.AcademicBias,
-			PlayerID:              p.PlayerID,
-			TeamID:                p.TeamID,
-			TeamAbbr:              p.TeamAbbr,
-			SeasonStats:           p.SeasonStats,
-		}
-
-		playerList = append(playerList, playerRes)
-	}
+	playerList = <-playersChan
+	close(playersChan)
 
 	return structs.NBAStatsPageResponse{
 		NBAConferences: conferences,

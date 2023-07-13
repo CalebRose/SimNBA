@@ -43,6 +43,7 @@ type CollegePlayerResponse struct {
 	IsRedshirting         bool
 	IsRedshirt            bool
 	SeasonStats           CollegePlayerSeasonStats
+	Stats                 CollegePlayerStats
 }
 
 type NBAPlayerResponse struct {
@@ -79,4 +80,5 @@ type NBAPlayerResponse struct {
 	IsRedshirting         bool
 	IsRedshirt            bool
 	SeasonStats           NBAPlayerSeasonStats
+	Stats                 NBAPlayerStats
 }

@@ -7,6 +7,8 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+
+	"github.com/CalebRose/SimNBA/structs"
 )
 
 func ReadCSV(path string) [][]string {
@@ -846,6 +848,26 @@ func GetRoundAbbreviation(str string) string {
 		return "6th Round"
 	}
 	return "7th Round"
+}
+
+func GetCollegePlayerIDsBySeasonStats(cps []structs.CollegePlayerSeasonStats) []string {
+	var list []string
+
+	for _, cp := range cps {
+		list = append(list, strconv.Itoa(int(cp.CollegePlayerID)))
+	}
+
+	return list
+}
+
+func GetNBAPlayerIDsBySeasonStats(nps []structs.NBAPlayerSeasonStats) []string {
+	var list []string
+
+	for _, cp := range nps {
+		list = append(list, strconv.Itoa(int(cp.NBAPlayerID)))
+	}
+
+	return list
 }
 
 func GetLotteryChances(idx int) uint {

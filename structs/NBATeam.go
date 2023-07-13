@@ -32,8 +32,8 @@ type NBATeam struct {
 	IsActive          bool
 	WaiverOrder       uint
 	Gameplan          NBAGameplan           `gorm:"foreignKey:TeamID"`
-	TeamStats         []TeamStats           `gorm:"foreignKey:TeamID"`
-	TeamSeasonStats   TeamSeasonStats       `gorm:"foreignKey:TeamID"`
+	TeamStats         []NBATeamStats        `gorm:"foreignKey:TeamID"`
+	TeamSeasonStats   NBATeamSeasonStats    `gorm:"foreignKey:TeamID"`
 	RecruitingProfile TeamRecruitingProfile `gorm:"foreignKey:TeamID"`
 	Capsheet          NBACapsheet           `gorm:"foreignKey:TeamID"`
 	Contracts         []NBAContract         `gorm:"foreignKey:TeamID"`

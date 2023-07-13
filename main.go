@@ -37,7 +37,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/health", HealthCheck.Handler).Methods("GET")
 
 	// Admin Controls
-	myRouter.HandleFunc("/admin/rankCroots", controller.RankCroots).Methods("GET")
+	// myRouter.HandleFunc("/admin/rankCroots", controller.RankCroots).Methods("GET")
 	myRouter.HandleFunc("/admin/ai/fill/boards", controller.FillAIBoards).Methods("GET")
 	myRouter.HandleFunc("/admin/ai/sync/boards", controller.SyncAIBoards).Methods("GET")
 	myRouter.HandleFunc("/admin/recruiting/sync", controller.SyncRecruiting).Methods("GET")
@@ -173,8 +173,9 @@ func handleRequests() {
 	myRouter.HandleFunc("/stats/player/{playerId}/season/{seasonId}", controller.GetPlayerStatsBySeason).Methods("GET")
 	myRouter.HandleFunc("/stats/team/{teamId}/season/{seasonId}", controller.GetTeamStatsBySeason).Methods("GET")
 	myRouter.HandleFunc("/stats/team/{teamId}/match/{matchId}", controller.GetCBBTeamStatsByMatch).Methods("GET")
-	myRouter.HandleFunc("/stats/cbb/page", controller.GetCBBStatsPageData).Methods("GET")
-	myRouter.HandleFunc("/stats/nba/page", controller.GetCBBStatsPageData).Methods("GET")
+	myRouter.HandleFunc("/stats/cbb/fix/player/stats", controller.FixPlayerStatsFromLastSeason).Methods("GET")
+	myRouter.HandleFunc("/stats/cbb/{seasonID}/{weekID}/{viewType}", controller.GetCBBStatsPageData).Methods("GET")
+	myRouter.HandleFunc("/stats/nba/{seasonID}/{weekID}/{viewType}", controller.GetNBAStatsPageData).Methods("GET")
 	myRouter.HandleFunc("/stats/nba/team/{teamId}/match/{matchId}", controller.GetNBATeamStatsByMatch).Methods("GET")
 	myRouter.HandleFunc("/stats/nba/match/{matchId}", controller.GetPlayerStatsByMatch).Methods("GET")
 
@@ -198,7 +199,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/teams/coached", controller.AllCoachedTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/college", controller.AllCollegeTeams).Methods("GET")
 	myRouter.HandleFunc("/teams/nba", controller.AllNBATeams).Methods("GET")
-	myRouter.HandleFunc("/teams/isl", controller.AllISLTeams).Methods("GET")
+	myRouter.HandleFunc("/teams/pro", controller.AllProfessionalTeams).Methods("GET")
 
 	// Trade Controls
 	myRouter.HandleFunc("/trades/nba/all/accepted", controller.GetAllAcceptedTrades).Methods("GET")
