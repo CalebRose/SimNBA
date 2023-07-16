@@ -62,6 +62,8 @@ func (sp *ScoutingProfile) RevealAttribute(attr string) {
 		sp.ShowInteriorDefense = true
 	} else if attr == "PerimeterDefense" {
 		sp.ShowPerimeterDefense = true
+	} else if attr == "Potential" {
+		sp.ShowPotential = true
 	}
 	sp.ShowCount++
 }

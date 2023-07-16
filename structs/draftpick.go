@@ -5,19 +5,22 @@ import "github.com/jinzhu/gorm"
 // DraftPick - a draftpick for a draft
 type DraftPick struct {
 	gorm.Model
-	SeasonID       uint
-	Season         uint
-	DraftRound     uint
-	DraftNumber    uint
-	DrafteeID      uint
-	TeamID         uint
-	Team           string
-	OriginalTeamID uint
-	OriginalTeam   string
-	PreviousTeamID uint
-	PreviousTeam   string
-	DraftValue     uint
-	Notes          string
+	SeasonID               uint
+	Season                 uint
+	DraftRound             uint
+	DraftNumber            uint
+	DrafteeID              uint
+	TeamID                 uint
+	Team                   string
+	OriginalTeamID         uint
+	OriginalTeam           string
+	PreviousTeamID         uint
+	PreviousTeam           string
+	DraftValue             uint
+	Notes                  string
+	SelectedPlayerID       uint
+	SelectedPlayerName     string
+	SelectedPlayerPosition string
 }
 
 func (p *DraftPick) TradePick(id uint, team string) {

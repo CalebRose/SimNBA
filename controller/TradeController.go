@@ -12,6 +12,7 @@ import (
 
 // Get Trade Block Data for Trade Block Page
 func GetNBATradeBlockDataByTeamID(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
 	vars := mux.Vars(r)
 	teamID := vars["teamID"]
 	if len(teamID) == 0 {
@@ -25,13 +26,14 @@ func GetNBATradeBlockDataByTeamID(w http.ResponseWriter, r *http.Request) {
 
 // Get Trade Block Data for Trade Block Page
 func GetAllAcceptedTrades(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
 	response := managers.GetAcceptedTradeProposals()
-
 	json.NewEncoder(w).Encode(response)
 }
 
 // Get Trade Block Data for Trade Block Page
 func GetAllRejectedTrades(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
 	response := managers.GetRejectedTradeProposals()
 
 	json.NewEncoder(w).Encode(response)
@@ -39,6 +41,7 @@ func GetAllRejectedTrades(w http.ResponseWriter, r *http.Request) {
 
 // Place player on NBA Trade block
 func PlaceNBAPlayerOnTradeBlock(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
 	vars := mux.Vars(r)
 	playerID := vars["playerID"]
 	if len(playerID) == 0 {
@@ -52,7 +55,7 @@ func PlaceNBAPlayerOnTradeBlock(w http.ResponseWriter, r *http.Request) {
 
 // Update Trade Preferences
 func UpdateTradePreferences(w http.ResponseWriter, r *http.Request) {
-
+	EnableCors(&w)
 	var tradePreferenceDTO structs.NBATradePreferencesDTO
 	err := json.NewDecoder(r.Body).Decode(&tradePreferenceDTO)
 	if err != nil {
@@ -67,7 +70,7 @@ func UpdateTradePreferences(w http.ResponseWriter, r *http.Request) {
 
 // Create NBA Trade Proposal
 func CreateNBATradeProposal(w http.ResponseWriter, r *http.Request) {
-
+	EnableCors(&w)
 	var tradeProposalDTO structs.NBATradeProposalDTO
 	err := json.NewDecoder(r.Body).Decode(&tradeProposalDTO)
 	if err != nil {
@@ -83,6 +86,7 @@ func CreateNBATradeProposal(w http.ResponseWriter, r *http.Request) {
 
 // Accept Trade Offer
 func AcceptTradeOffer(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
 	vars := mux.Vars(r)
 	proposalID := vars["proposalID"]
 	if len(proposalID) == 0 {
@@ -96,6 +100,7 @@ func AcceptTradeOffer(w http.ResponseWriter, r *http.Request) {
 
 // Reject Trade Offer
 func RejectTradeOffer(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
 	vars := mux.Vars(r)
 	proposalID := vars["proposalID"]
 	if len(proposalID) == 0 {
@@ -109,6 +114,7 @@ func RejectTradeOffer(w http.ResponseWriter, r *http.Request) {
 
 // Cancels Trade Offer
 func CancelTradeOffer(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
 	vars := mux.Vars(r)
 	proposalID := vars["proposalID"]
 	if len(proposalID) == 0 {
@@ -122,6 +128,7 @@ func CancelTradeOffer(w http.ResponseWriter, r *http.Request) {
 
 // SyncAcceptedTrade -- Admin approve a trade
 func SyncAcceptedTrade(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
 	vars := mux.Vars(r)
 	proposalID := vars["proposalID"]
 	if len(proposalID) == 0 {
@@ -135,6 +142,7 @@ func SyncAcceptedTrade(w http.ResponseWriter, r *http.Request) {
 
 // SyncAcceptedTrade -- Admin approve a trade
 func VetoAcceptedTrade(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
 	vars := mux.Vars(r)
 	proposalID := vars["proposalID"]
 	if len(proposalID) == 0 {
@@ -148,6 +156,7 @@ func VetoAcceptedTrade(w http.ResponseWriter, r *http.Request) {
 
 // CleanUpRejectedTrades -- Remove all rejected trades from the DB
 func CleanUpRejectedTrades(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
 	managers.RemoveRejectedTrades()
 
 	json.NewEncoder(w).Encode("Removed all rejected trades from the interface.")
