@@ -100,6 +100,7 @@ func handleRequests() {
 
 	// Import
 	// myRouter.HandleFunc("/import/nba", controller.ImportNBAStandings).Methods("GET")
+	// myRouter.HandleFunc("/import/cbb/games", controller.ImportCBBMatches).Methods("GET")
 	// myRouter.HandleFunc("/import/archetypes", controller.ImportArchetypes).Methods("GET")
 	// myRouter.HandleFunc("/import/fa/preferences", controller.ImportFAPreferences).Methods("GET")
 	// myRouter.HandleFunc("/import/positions", controller.ImportNewPositions).Methods("GET")

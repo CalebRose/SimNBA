@@ -122,7 +122,7 @@ func FixPlayerStatsFromLastSeason() {
 	lastSeasonID := ts.SeasonID - 1
 	seasonIDSTR := strconv.Itoa(int(lastSeasonID))
 
-	matches := GetMatchesBySeasonID(seasonIDSTR)
+	matches := GetCBBMatchesBySeasonID(seasonIDSTR)
 
 	for _, m := range matches {
 		id := strconv.Itoa(int(m.ID))
@@ -139,12 +139,44 @@ func FixPlayerStatsFromLastSeason() {
 	}
 }
 
-func GetMatchesBySeasonID(seasonId string) []structs.Match {
+func GetSchedulePageData(seasonId string) structs.MatchPageResponse {
+	collegeMatches := GetCBBMatchesBySeasonID(seasonId)
+	nbaMatches := GetNBAMatchesBySeasonID(seasonId)
+	islMatches := GetISLMatchesBySeasonID(seasonId)
+
+	return structs.MatchPageResponse{
+		CBBGames: collegeMatches,
+		NBAGames: nbaMatches,
+		ISLGames: islMatches,
+	}
+}
+
+func GetCBBMatchesBySeasonID(seasonId string) []structs.Match {
 	db := dbprovider.GetInstance().GetDB()
 
 	var teamMatches []structs.Match
 
 	db.Where("season_id = ?", seasonId).Find(&teamMatches)
+
+	return teamMatches
+}
+
+func GetNBAMatchesBySeasonID(seasonId string) []structs.NBAMatch {
+	db := dbprovider.GetInstance().GetDB()
+
+	var teamMatches []structs.NBAMatch
+
+	db.Where("season_id = ? AND is_international = false", seasonId).Find(&teamMatches)
+
+	return teamMatches
+}
+
+func GetISLMatchesBySeasonID(seasonId string) []structs.NBAMatch {
+	db := dbprovider.GetInstance().GetDB()
+
+	var teamMatches []structs.NBAMatch
+
+	db.Where("season_id = ? AND is_international = true", seasonId).Find(&teamMatches)
 
 	return teamMatches
 }

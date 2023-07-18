@@ -367,7 +367,7 @@ func RevealScoutingAttribute(dto structs.RevealAttributeDTO) bool {
 
 	warRoom := GetNBAWarRoomByTeamID(strconv.Itoa(int(dto.TeamID)))
 
-	if warRoom.ID == 0 {
+	if warRoom.ID == 0 || warRoom.SpentPoints >= 100 || warRoom.SpentPoints+dto.Points > 100 {
 		return false
 	}
 
@@ -378,10 +378,7 @@ func RevealScoutingAttribute(dto structs.RevealAttributeDTO) bool {
 		return false
 	}
 	err = db.Save(&warRoom).Error
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
 
 func DetermineIfDeclaring(player structs.CollegePlayer) bool {
