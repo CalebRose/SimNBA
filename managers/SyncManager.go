@@ -344,10 +344,10 @@ func FillAIRecruitingBoards() {
 
 	regionMap := util.GetRegionMap()
 
-	boardCount := 40
+	boardCount := 30
 
 	if ts.CollegeWeek > 3 {
-		boardCount = 25
+		boardCount = 15
 	}
 
 	for _, team := range AITeams {
@@ -360,7 +360,7 @@ func FillAIRecruitingBoards() {
 
 		count = len(existingBoard)
 
-		if count > boardCount {
+		if count >= boardCount {
 			continue
 		}
 
@@ -425,11 +425,11 @@ func FillAIRecruitingBoards() {
 			} else if team.AIQuality == "Cinderella" && croot.Stars == 4 {
 				odds += 15
 			} else if team.AIQuality == "P6" && croot.Stars == 4 {
-				odds += 5
+				odds += 8
 			} else if team.AIQuality == "P6" && croot.Stars == 3 {
 				odds += 15
 			} else if team.AIQuality == "Mid-Major" && croot.Stars < 4 {
-				odds += 5
+				odds += 7
 			} else if team.AIQuality == "Mid-Major" && croot.Stars < 3 {
 				odds += 10
 			}
@@ -443,14 +443,14 @@ func FillAIRecruitingBoards() {
 			} else if team.AIValue == "Potential" {
 				odds += getOddsIncrementByPotential(5, croot.Potential)
 			} else if team.AIValue == "Talent" {
-				odds += getOddsIncrementByTalent(croot.Shooting2, croot.SpecShooting2, team.AIAttribute1 == "Shooting2" || team.AIAttribute2 == "Shooting2")
-				odds += getOddsIncrementByTalent(croot.Shooting3, croot.SpecShooting3, team.AIAttribute1 == "Shooting3" || team.AIAttribute2 == "Shooting3")
-				odds += getOddsIncrementByTalent(croot.Finishing, croot.SpecFinishing, team.AIAttribute1 == "Finishing" || team.AIAttribute2 == "Finishing")
-				odds += getOddsIncrementByTalent(croot.FreeThrow, croot.SpecFreeThrow, team.AIAttribute1 == "FreeThrow" || team.AIAttribute2 == "FreeThrow")
-				odds += getOddsIncrementByTalent(croot.Ballwork, croot.SpecBallwork, team.AIAttribute1 == "Ballwork" || team.AIAttribute2 == "Ballwork")
-				odds += getOddsIncrementByTalent(croot.Rebounding, croot.SpecRebounding, team.AIAttribute1 == "Rebounding" || team.AIAttribute2 == "Rebounding")
-				odds += getOddsIncrementByTalent(croot.InteriorDefense, croot.SpecInteriorDefense, team.AIAttribute1 == "InteriorDefense" || team.AIAttribute2 == "InteriorDefense")
-				odds += getOddsIncrementByTalent(croot.PerimeterDefense, croot.SpecPerimeterDefense, team.AIAttribute1 == "PerimeterDefense" || team.AIAttribute2 == "PerimeterDefense")
+				odds += getOddsIncrementByTalent(croot.Shooting2, croot.SpecShooting2, team.AIAttribute1 == "Shooting2" || team.AIAttribute2 == "Shooting2", team.AIQuality == "Mid-Major")
+				odds += getOddsIncrementByTalent(croot.Shooting3, croot.SpecShooting3, team.AIAttribute1 == "Shooting3" || team.AIAttribute2 == "Shooting3", team.AIQuality == "Mid-Major")
+				odds += getOddsIncrementByTalent(croot.Finishing, croot.SpecFinishing, team.AIAttribute1 == "Finishing" || team.AIAttribute2 == "Finishing", team.AIQuality == "Mid-Major")
+				odds += getOddsIncrementByTalent(croot.FreeThrow, croot.SpecFreeThrow, team.AIAttribute1 == "FreeThrow" || team.AIAttribute2 == "FreeThrow", team.AIQuality == "Mid-Major")
+				odds += getOddsIncrementByTalent(croot.Ballwork, croot.SpecBallwork, team.AIAttribute1 == "Ballwork" || team.AIAttribute2 == "Ballwork", team.AIQuality == "Mid-Major")
+				odds += getOddsIncrementByTalent(croot.Rebounding, croot.SpecRebounding, team.AIAttribute1 == "Rebounding" || team.AIAttribute2 == "Rebounding", team.AIQuality == "Mid-Major")
+				odds += getOddsIncrementByTalent(croot.InteriorDefense, croot.SpecInteriorDefense, team.AIAttribute1 == "InteriorDefense" || team.AIAttribute2 == "InteriorDefense", team.AIQuality == "Mid-Major")
+				odds += getOddsIncrementByTalent(croot.PerimeterDefense, croot.SpecPerimeterDefense, team.AIAttribute1 == "PerimeterDefense" || team.AIAttribute2 == "PerimeterDefense", team.AIQuality == "Mid-Major")
 			}
 
 			chance := util.GenerateIntFromRange(1, 100)
@@ -463,7 +463,7 @@ func FillAIRecruitingBoards() {
 				}
 			}
 
-			if chance <= odds && len(teamsWithBoards) < 5 {
+			if chance <= odds && len(teamsWithBoards) < 25 {
 				playerProfile := structs.PlayerRecruitProfile{
 					RecruitID:          croot.ID,
 					ProfileID:          team.ID,
@@ -648,8 +648,12 @@ func getOddsIncrementByPotential(init int, potential int) int {
 	return init * potentialFloor
 }
 
-func getOddsIncrementByTalent(attr int, attrspec, attrMatch bool) int {
-	if attrMatch && (attrspec || attr > 15) {
+func getOddsIncrementByTalent(attr int, attrspec, attrMatch bool, isMidMajor bool) int {
+	attrRequirement := 15
+	if isMidMajor {
+		attrRequirement = 10
+	}
+	if attrMatch && (attrspec || attr > attrRequirement) {
 		return 25
 	}
 	return 0

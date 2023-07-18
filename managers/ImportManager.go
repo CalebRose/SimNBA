@@ -434,6 +434,90 @@ func ImportNBAPersonalities() {
 	}
 }
 
+func ImportCBBGames() {
+	db := dbprovider.GetInstance().GetDB()
+	path := secrets.GetPath()["cbbmatches"]
+	collegeMatches := util.ReadCSV(path)
+
+	collegeTeams := GetAllActiveCollegeTeams()
+	collegeMap := make(map[string]structs.Team)
+
+	for _, t := range collegeTeams {
+		collegeMap[t.Abbr] = t
+	}
+
+	for idx, row := range collegeMatches {
+		if idx < 1 {
+			continue
+		}
+
+		id := util.ConvertStringToInt(row[0])
+		season := util.ConvertStringToInt(row[1])
+		seasonID := season - 2020
+		week := util.ConvertStringToInt(row[2])
+		weekID := week + 20
+		timeSlot := row[3]
+		matchType := row[4]
+		isConf := false
+		if matchType == "Conf" {
+			isConf = true
+		}
+		homeTeamAbbr := row[5]
+		awayTeamAbbr := row[6]
+		homeTeam := collegeMap[homeTeamAbbr]
+		awayTeam := collegeMap[awayTeamAbbr]
+		gameTitle := row[25]
+		nextGameID := util.ConvertStringToInt(row[18])
+		hoA := row[19]
+		neutralSite := util.ConvertStringToBool(row[12])
+		invitational := util.ConvertStringToBool(row[13])
+		conferenceTournament := util.ConvertStringToBool(row[14])
+		nit := util.ConvertStringToBool(row[15])
+		tournament := util.ConvertStringToBool(row[16])
+		nationalChamp := util.ConvertStringToBool(row[17])
+		arena := row[22]
+		city := row[23]
+		state := row[24]
+		homeCoach := homeTeam.Coach
+		if homeCoach == "" {
+			homeCoach = "AI"
+		}
+		awayCoach := awayTeam.Coach
+		if awayCoach == "" {
+			awayCoach = "AI"
+		}
+
+		match := structs.Match{
+			Model:                  gorm.Model{ID: uint(id)},
+			SeasonID:               uint(seasonID),
+			WeekID:                 uint(weekID),
+			Week:                   uint(week),
+			MatchOfWeek:            timeSlot,
+			IsConference:           isConf,
+			HomeTeam:               homeTeamAbbr,
+			HomeTeamID:             homeTeam.ID,
+			AwayTeamID:             awayTeam.ID,
+			HomeTeamCoach:          homeCoach,
+			AwayTeam:               awayTeamAbbr,
+			AwayTeamCoach:          awayCoach,
+			MatchName:              gameTitle,
+			NextGameID:             uint(nextGameID),
+			NextGameHOA:            hoA,
+			IsNeutralSite:          neutralSite,
+			IsInvitational:         invitational,
+			IsConferenceTournament: conferenceTournament,
+			IsNITGame:              nit,
+			IsPlayoffGame:          tournament,
+			IsNationalChampionship: nationalChamp,
+			Arena:                  arena,
+			City:                   city,
+			State:                  state,
+		}
+
+		db.Create(&match)
+	}
+}
+
 func ImportNBAStandings() {
 	db := dbprovider.GetInstance().GetDB()
 	path := secrets.GetPath()["nbastandings"]

@@ -29,3 +29,7 @@ func MigrateNewAIRecruitingValues(w http.ResponseWriter, r *http.Request) {
 func ImportNBAPersonalities(w http.ResponseWriter, r *http.Request) {
 	managers.ImportNBAPersonalities()
 }
+
+func ImportCBBMatches(w http.ResponseWriter, r *http.Request) {
+	managers.ImportCBBGames()
+}

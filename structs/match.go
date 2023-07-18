@@ -2,6 +2,13 @@ package structs
 
 import "github.com/jinzhu/gorm"
 
+// MatchPageResponse - The Data Structure for the Schedule Page
+type MatchPageResponse struct {
+	CBBGames []Match
+	NBAGames []NBAMatch
+	ISLGames []NBAMatch
+}
+
 // Match - The Data Structure for a Game
 type Match struct {
 	gorm.Model
@@ -13,10 +20,12 @@ type Match struct {
 	HomeTeam               string
 	HomeTeamCoach          string
 	HomeTeamWin            bool
+	HomeTeamRank           uint
 	AwayTeamID             uint
 	AwayTeam               string
 	AwayTeamCoach          string
 	AwayTeamWin            bool
+	AwayTeamRank           uint
 	MatchOfWeek            string
 	HomeTeamScore          int
 	AwayTeamScore          int
@@ -24,6 +33,8 @@ type Match struct {
 	Arena                  string
 	City                   string
 	State                  string
+	NextGameID             uint
+	NextGameHOA            string
 	IsNeutralSite          bool
 	IsNBAMatch             bool
 	IsConference           bool
@@ -52,5 +63,19 @@ func (m *Match) UpdateCoach(TeamID int, Username string) {
 		m.HomeTeamCoach = Username
 	} else if m.AwayTeamID == uint(TeamID) {
 		m.AwayTeamCoach = Username
+	}
+}
+
+func (m *Match) AddTeam(isHome bool, id, rank uint, team, coach string) {
+	if isHome {
+		m.HomeTeam = team
+		m.HomeTeamID = id
+		m.HomeTeamRank = rank
+		m.HomeTeamCoach = coach
+	} else {
+		m.AwayTeam = team
+		m.AwayTeamID = id
+		m.AwayTeamRank = rank
+		m.AwayTeamCoach = coach
 	}
 }

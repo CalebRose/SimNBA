@@ -20,6 +20,8 @@ type NBAMatch struct {
 	MatchOfWeek            string
 	HomeTeamScore          int
 	AwayTeamScore          int
+	NextGameID             uint
+	NextGameHOA            string
 	TimeSlot               string
 	Arena                  string
 	City                   string

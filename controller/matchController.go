@@ -30,9 +30,9 @@ func GetMatchesBySeasonID(w http.ResponseWriter, r *http.Request) {
 		panic("User did not provide both a teamId and a Season Id")
 	}
 
-	teamMatches := managers.GetMatchesBySeasonID(seasonId)
+	matchesObj := managers.GetSchedulePageData(seasonId)
 
-	json.NewEncoder(w).Encode(teamMatches)
+	json.NewEncoder(w).Encode(matchesObj)
 }
 
 func GetMatchByMatchId(w http.ResponseWriter, r *http.Request) {
