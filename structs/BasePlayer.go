@@ -36,9 +36,9 @@ type BasePlayer struct {
 	Stamina              int
 	PlaytimeExpectations int
 	Minutes              int
-	InsideProportion     uint
-	MidRangeProportion   uint
-	ThreePointProportion uint
+	InsideProportion     float64
+	MidRangeProportion   float64
+	ThreePointProportion float64
 	Overall              int
 	PositionOne          string
 	PositionTwo          string
@@ -123,16 +123,16 @@ func (b *BasePlayer) AssignArchetype() {
 	}
 }
 
-func (p *BasePlayer) SetMidShotProportion(mid int) {
-	p.MidRangeProportion = uint(mid)
+func (p *BasePlayer) SetMidShotProportion(mid float64) {
+	p.MidRangeProportion = mid
 }
 
-func (p *BasePlayer) SetInsideProportion(ins int) {
-	p.InsideProportion = uint(ins)
+func (p *BasePlayer) SetInsideProportion(ins float64) {
+	p.InsideProportion = ins
 }
 
-func (p *BasePlayer) SetThreePointProportion(tp int) {
-	p.ThreePointProportion = uint(tp)
+func (p *BasePlayer) SetThreePointProportion(tp float64) {
+	p.ThreePointProportion = tp
 }
 
 func (cp *BasePlayer) GetPotentialGrade() {
