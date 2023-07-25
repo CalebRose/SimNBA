@@ -72,7 +72,7 @@ func ExportCollegePlayers(w http.ResponseWriter) {
 	players := GetAllCollegePlayers()
 
 	HeaderRow := []string{
-		"College", "First Name", "Last Name", "Position",
+		"College", "First Name", "Last Name", "Position", "Year", "Is_Redshirt", "Age",
 		"Stars", "State", "Country", "Height",
 		"Overall", "Shooting 2s", "Shooting 3s", "Free Throwing", "Finishing",
 		"Ballwork", "Rebounding", "InteriorDefense", "PerimeterDefense", "Potential Grade",
@@ -97,7 +97,7 @@ func ExportCollegePlayers(w http.ResponseWriter) {
 		overallGrade := util.GetPlayerOverallGrade(player.Overall)
 
 		playerRow := []string{
-			player.TeamAbbr, player.FirstName, player.LastName, player.Position,
+			player.TeamAbbr, player.FirstName, player.LastName, player.Position, strconv.Itoa(player.Year), strconv.FormatBool(player.IsRedshirt), strconv.Itoa(player.Age),
 			strconv.Itoa(player.Stars), player.State, player.Country, player.Height,
 			overallGrade, shooting2Grade, shooting3Grade, freeThrowGrade, finishingGrade,
 			ballworkGrade, reboundingGrade, interiorDefenseGrade, perimeterDefenseGrade, potentialGrade,
