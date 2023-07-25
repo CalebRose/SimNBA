@@ -78,6 +78,9 @@ func handleRequests() {
 	myRouter.HandleFunc("/nba/draft/scout/{id}", controller.GetScoutingDataByDraftee).Methods("GET")
 	// myRouter.HandleFunc("/nba/draft/player/", controller.SaveRecruitingBoard).Methods("POST")
 
+	// Exports
+	myRouter.HandleFunc("/export/cbb/preseason", controller.ExportCBBPreseasonRanks).Methods("GET")
+
 	// Free Agency Controls
 	myRouter.HandleFunc("/nba/freeagency/available/{teamID}", controller.FreeAgencyAvailablePlayers).Methods("GET")
 	myRouter.HandleFunc("/nba/freeagency/create/offer", controller.CreateFreeAgencyOffer).Methods("POST")

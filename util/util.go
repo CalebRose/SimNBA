@@ -743,42 +743,28 @@ func GetPlaytimeExpectations(stars int, year int, overall int) int {
 	}
 	if stars == 5 {
 		if year == 4 {
-			return GenerateIntFromRange(15, 25) + mod
-		} else if year == 3 {
-			return GenerateIntFromRange(10, 25) + mod
-		} else if year == 2 {
-			return GenerateIntFromRange(10, 20) + mod
+			return GenerateIntFromRange(15, 20) + mod
 		}
 		return GenerateIntFromRange(10, 20) + mod
 	} else if stars == 4 {
 		if year == 4 {
-			return GenerateIntFromRange(15, 25) + mod
-		} else if year == 3 {
-			return GenerateIntFromRange(9, 20) + mod
-		} else if year == 2 {
-			return GenerateIntFromRange(5, 17) + mod
+			return GenerateIntFromRange(8, 15) + mod
 		}
 		return GenerateIntFromRange(5, 15) + mod
 	} else if stars == 3 {
 		if year == 4 {
-			return GenerateIntFromRange(7, 21) + mod
-		} else if year == 3 {
-			return GenerateIntFromRange(3, 17) + mod
-		} else if year == 2 {
-			return GenerateIntFromRange(2, 13) + mod
+			return GenerateIntFromRange(7, 10) + mod
 		}
 		return GenerateIntFromRange(0, 10) + mod
 	} else if stars == 2 {
 		if year == 4 {
-			return GenerateIntFromRange(0, 13) + mod
+			return GenerateIntFromRange(4, 8) + mod
 		} else if year == 3 {
-			return GenerateIntFromRange(0, 13) + mod
-		} else if year == 2 {
-			return GenerateIntFromRange(0, 9) + mod
+			return GenerateIntFromRange(0, 6) + mod
 		}
-		return GenerateIntFromRange(0, 6) + mod
-	} else {
 		return GenerateIntFromRange(0, 5) + mod
+	} else {
+		return 0 + mod
 	}
 }
 

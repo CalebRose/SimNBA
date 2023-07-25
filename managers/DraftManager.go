@@ -228,6 +228,20 @@ func GetAllCurrentSeasonDraftPicks() []structs.DraftPick {
 	return draftPicks
 }
 
+func GetOnlyNBAWarRoomByTeamID(TeamID string) structs.NBAWarRoom {
+	db := dbprovider.GetInstance().GetDB()
+
+	warRoom := structs.NBAWarRoom{}
+
+	err := db.
+		Where("team_id = ?", TeamID).Find(&warRoom).Error
+	if err != nil {
+		return warRoom
+	}
+
+	return warRoom
+}
+
 func GetNBAWarRoomByTeamID(TeamID string) structs.NBAWarRoom {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -365,7 +379,7 @@ func RevealScoutingAttribute(dto structs.RevealAttributeDTO) bool {
 
 	scoutProfile.RevealAttribute(dto.Attribute)
 
-	warRoom := GetNBAWarRoomByTeamID(strconv.Itoa(int(dto.TeamID)))
+	warRoom := GetOnlyNBAWarRoomByTeamID(strconv.Itoa(int(dto.TeamID)))
 
 	if warRoom.ID == 0 || warRoom.SpentPoints >= 100 || warRoom.SpentPoints+dto.Points > 100 {
 		return false

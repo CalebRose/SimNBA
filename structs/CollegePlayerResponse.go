@@ -21,9 +21,9 @@ type CollegePlayerResponse struct {
 	PerimeterDefenseGrade string
 	Stamina               int
 	PlaytimeExpectations  int
-	InsideProportion      uint
-	MidRangeProportion    uint
-	ThreePointProportion  uint
+	InsideProportion      float64
+	MidRangeProportion    float64
+	ThreePointProportion  float64
 	PositionOne           string
 	PositionTwo           string
 	PositionThree         string

@@ -151,3 +151,9 @@ func CleanNBAPlayerTables(w http.ResponseWriter, r *http.Request) {
 	managers.ProgressContractsByOneYear()
 	w.WriteHeader(http.StatusOK)
 }
+
+func ExportCBBPreseasonRanks(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	w.Header().Set("Content-Type", "text/csv")
+	managers.ExportCBBPreseasonRanks(w)
+}
