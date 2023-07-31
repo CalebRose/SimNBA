@@ -22,6 +22,20 @@ func GetMatchesByTeamIdAndSeasonId(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(teamMatches)
 }
 
+func GetNBAMatchesByTeamIdAndSeasonId(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	vars := mux.Vars(r)
+	teamId := vars["teamId"]
+	seasonId := vars["seasonId"]
+	if len(teamId) == 0 || len(seasonId) == 0 {
+		panic("User did not provide both a teamId and a Season Id")
+	}
+
+	teamMatches := managers.GetProfessionalMatchesByTeamIdAndSeasonId(teamId, seasonId)
+
+	json.NewEncoder(w).Encode(teamMatches)
+}
+
 func GetMatchesBySeasonID(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	vars := mux.Vars(r)
