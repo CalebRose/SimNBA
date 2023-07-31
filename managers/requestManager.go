@@ -137,17 +137,8 @@ func ApproveNBATeamRequest(request structs.NBARequest) structs.NBARequest {
 
 	db.Save(&coach)
 
-	newsLog := structs.NewsLog{
-		WeekID:      timestamp.NBAWeekID,
-		SeasonID:    timestamp.SeasonID,
-		Week:        uint(timestamp.NBAWeek),
-		MessageType: "CoachJob",
-		League:      "NBA",
-		Message:     "Breaking News! The " + team.Team + " " + team.Nickname + " have hired " + coach.Username + " to their staff for the " + strconv.Itoa(timestamp.Season) + " season!",
-	}
-
-	db.Create(&newsLog)
-
+	message := "Breaking News! The " + team.Team + " " + team.Nickname + " have hired " + coach.Username + " to their staff for the " + strconv.Itoa(timestamp.Season) + " season!"
+	CreateNewsLog("CBB", message, "CoachJob", int(team.ID), timestamp)
 	return request
 }
 
@@ -200,15 +191,5 @@ func RemoveUserFromNBATeam(request structs.NBARequest) {
 	db.Save(&user)
 
 	timestamp := GetTimestamp()
-
-	newsLog := structs.NewsLog{
-		WeekID:      timestamp.NBAWeekID,
-		SeasonID:    timestamp.SeasonID,
-		Week:        uint(timestamp.NBAWeek),
-		MessageType: "CoachJob",
-		Message:     message,
-		League:      "NBA",
-	}
-
-	db.Create(&newsLog)
+	CreateNewsLog("NBA", message, "CoachJob", int(team.ID), timestamp)
 }

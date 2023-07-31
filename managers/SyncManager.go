@@ -173,17 +173,8 @@ func SyncRecruiting(timestamp structs.Timestamp) {
 						recruitTeamProfile.IncreaseCommitCount()
 						teamAbbreviation := recruitTeamProfile.TeamAbbr
 						recruit.AssignCollege(teamAbbreviation)
-
-						newsLog := structs.NewsLog{
-							WeekID:      timestamp.CollegeWeekID + 1,
-							Week:        uint(timestamp.CollegeWeek),
-							SeasonID:    timestamp.SeasonID,
-							Season:      uint(timestamp.Season),
-							MessageType: "Commitment",
-							Message:     recruit.FirstName + " " + recruit.LastName + ", " + strconv.Itoa(recruit.Stars) + " star " + recruit.Position + " from " + recruit.State + ", " + recruit.Country + " has signed with " + recruit.TeamAbbr + " with " + strconv.Itoa(int(odds)) + " percent odds.",
-						}
-
-						db.Create(&newsLog)
+						message := recruit.FirstName + " " + recruit.LastName + ", " + strconv.Itoa(recruit.Stars) + " star " + recruit.Position + " from " + recruit.State + ", " + recruit.Country + " has signed with " + recruit.TeamAbbr + " with " + strconv.Itoa(int(odds)) + " percent odds."
+						CreateNewsLog("CBB", message, "Commitment", int(winningTeamID), timestamp)
 						fmt.Println("Created new log!")
 
 						db.Save(&recruitTeamProfile)

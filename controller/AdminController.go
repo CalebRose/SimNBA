@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/managers"
 	"github.com/CalebRose/SimNBA/structs"
 )
@@ -115,7 +114,6 @@ func GetAllNBANewsInASeason(w http.ResponseWriter, r *http.Request) {
 
 // Collusion Button
 func CollusionButton(w http.ResponseWriter, r *http.Request) {
-	db := dbprovider.GetInstance().GetDB()
 	var collusionButton structs.CollusionDto
 
 	ts := managers.GetTimestamp()
@@ -126,15 +124,7 @@ func CollusionButton(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newsLog := structs.NewsLog{
-		WeekID:      uint(collusionButton.WeekID),
-		SeasonID:    uint(ts.SeasonID),
-		Week:        uint(ts.CollegeWeek),
-		MessageType: "Collusion",
-		Message:     collusionButton.Message,
-	}
-
-	db.Create(&newsLog)
+	managers.CreateNewsLog("CBB", collusionButton.Message, "Collusion", 0, ts)
 }
 
 func ProgressNBAPlayers(w http.ResponseWriter, r *http.Request) {

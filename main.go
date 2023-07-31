@@ -125,6 +125,7 @@ func handleRequests() {
 	// News Controls
 	myRouter.HandleFunc("/cbb/news/all/", controller.GetAllCBBNewsInASeason).Methods("GET")
 	myRouter.HandleFunc("/nba/news/all/", controller.GetAllNBANewsInASeason).Methods("GET")
+	myRouter.HandleFunc("/news/feed/{league}/{teamID}/", controller.GetNewsFeed).Methods("GET")
 
 	// Player Controls
 	myRouter.HandleFunc("/player/AllPlayers", controller.AllCollegePlayers).Methods("GET")
@@ -144,6 +145,11 @@ func handleRequests() {
 	myRouter.HandleFunc("/nba/players/cut/{playerID}", controller.CutPlayerFromNBATeam).Methods("GET")
 	myRouter.HandleFunc("/nba/players/place/gleague/{playerID}", controller.PlaceNBAPlayerInGLeague).Methods("GET")
 	myRouter.HandleFunc("/nba/players/place/twoway/{playerID}", controller.AssignNBAPlayerAsTwoWay).Methods("GET")
+
+	// Poll Controls
+	myRouter.HandleFunc("/college/poll/create/", controller.CreatePollSubmission).Methods("POST")
+	myRouter.HandleFunc("/college/poll/sync", controller.SyncCollegePoll).Methods("GET")
+	myRouter.HandleFunc("/college/poll/official/week/{weekID}/season/{seasonID}", controller.GetOfficialPollByWeekIDAndSeasonID).Methods("GET")
 
 	// Recruit Controls
 	myRouter.HandleFunc("/recruiting/dashboard/{teamID}/", controller.GetRecruitingDataForOverviewPage).Methods("GET")

@@ -90,13 +90,20 @@ func SyncCollegePollSubmissionForCurrentWeek() {
 		}
 		officialPoll.AssignRank(idx, v)
 	}
+	ts.TogglePollRan()
+	db.Save(&ts)
 
 	db.Save(&officialPoll)
 }
 
-func GetOfficialPollByWeekIDAndSeasonID(weekID, seasonID string) structs.CollegePollOfficial {
+func CreatePoll(dto structs.CollegePollSubmission) {
 	db := dbprovider.GetInstance().GetDB()
 
+	db.Create(&dto)
+}
+
+func GetOfficialPollByWeekIDAndSeasonID(weekID, seasonID string) structs.CollegePollOfficial {
+	db := dbprovider.GetInstance().GetDB()
 	officialPoll := structs.CollegePollOfficial{}
 
 	err := db.Where("week_id = ? AND season_id = ?", weekID, seasonID).Find(&officialPoll).Error

@@ -338,17 +338,7 @@ func AcceptTradeProposal(proposalID string) {
 		}
 	}
 	newsLogMessage += "\n"
-
-	newsLog := structs.NewsLog{
-		WeekID:      ts.NBAWeekID,
-		Week:        uint(ts.NBAWeek),
-		SeasonID:    ts.SeasonID,
-		League:      "NBA",
-		MessageType: "Trade",
-		Message:     newsLogMessage,
-	}
-
-	db.Create(&newsLog)
+	CreateNewsLog("NBA", newsLogMessage, "Trade", 0, ts)
 	db.Save(&proposal)
 }
 
@@ -359,16 +349,8 @@ func RejectTradeProposal(proposalID string) {
 	proposal := GetOnlyTradeProposalByProposalID(proposalID)
 
 	proposal.RejectTrade()
-	newsLog := structs.NewsLog{
-		WeekID:      ts.NBAWeekID,
-		Week:        uint(ts.NBAWeek),
-		SeasonID:    ts.SeasonID,
-		League:      "NBA",
-		MessageType: "Trade",
-		Message:     proposal.RecepientTeam + " has rejected a trade from " + proposal.NBATeam,
-	}
-
-	db.Create(&newsLog)
+	message := proposal.RecepientTeam + " has rejected a trade from " + proposal.NBATeam
+	CreateNewsLog("NBA", message, "Trade", 0, ts)
 	db.Save(&proposal)
 }
 

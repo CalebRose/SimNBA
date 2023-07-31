@@ -51,17 +51,7 @@ func ProgressionMain() {
 					message = player.Position + " " + player.FirstName + " " + player.LastName + " is declaring early from " + player.TeamAbbr + ", and will be eligible to draft in SimNBA!"
 				}
 
-				newsLog := structs.NewsLog{
-					League:      "CBB",
-					MessageType: "Graduation",
-					Message:     message,
-					SeasonID:    ts.SeasonID,
-					Season:      uint(ts.Season),
-					WeekID:      ts.CollegeWeekID,
-					Week:        uint(ts.CollegeWeek),
-				}
-
-				db.Create(&newsLog)
+				CreateNewsLog("CBB", message, "Graduation", int(player.TeamID), ts)
 
 				// Make draftee record
 				draftee := structs.NBADraftee{}

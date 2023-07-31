@@ -71,6 +71,10 @@ func (t *Timestamp) ToggleGMActions() {
 	t.GMActionsComplete = !t.GMActionsComplete
 }
 
+func (t *Timestamp) TogglePollRan() {
+	t.CollegePollRan = !t.CollegePollRan
+}
+
 func (t *Timestamp) SyncToNextWeek() {
 	t.MoveUpWeekCollege()
 	t.MoveUpWeekNBA()
