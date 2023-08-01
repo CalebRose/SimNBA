@@ -36,7 +36,7 @@ func GetRecruitingProfileForTeamBoardByTeamID(TeamID string) structs.SimTeamBoar
 	var profile structs.TeamRecruitingProfile
 
 	err := db.Preload("Recruits.Recruit.RecruitProfiles", func(db *gorm.DB) *gorm.DB {
-		return db.Order("total_points DESC").Where("total_points > 0")
+		return db.Order("total_points DESC")
 	}).Where("id = ?", TeamID).Find(&profile).Error
 	if err != nil {
 		log.Panicln(err)
