@@ -2,6 +2,8 @@ package managers
 
 import (
 	"fmt"
+	"sort"
+	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
@@ -39,7 +41,7 @@ func CreateNewsLog(league, message, messageType string, teamID int, ts structs.T
 	seasonID := 0
 	weekID := 0
 	week := 0
-	if league == "CFB" {
+	if league == "CBB" {
 		seasonID = int(ts.SeasonID)
 		weekID = int(ts.CollegeWeekID)
 		week = ts.CollegeWeek
@@ -60,4 +62,68 @@ func CreateNewsLog(league, message, messageType string, teamID int, ts structs.T
 	}
 
 	db.Create(&news)
+}
+
+func GetNBARelatedNews(TeamID string) []structs.NewsLog {
+	ts := GetTimestamp()
+
+	newsLogs := GetAllNBANewsLogs()
+
+	sort.Slice(newsLogs, func(i, j int) bool {
+		return newsLogs[i].CreatedAt.Unix() > newsLogs[j].CreatedAt.Unix()
+	})
+
+	newsFeed := []structs.NewsLog{}
+
+	recentEventsCount := 0
+	personalizedNewsCount := 0
+	for _, news := range newsLogs {
+		if recentEventsCount == 5 && personalizedNewsCount == 5 {
+			break
+		}
+		if news.SeasonID != ts.SeasonID && news.League != "NBA" {
+			continue
+		}
+		if recentEventsCount < 5 {
+			newsFeed = append(newsFeed, news)
+			recentEventsCount += 1
+		} else if news.TeamID > 0 && strconv.Itoa(int(news.TeamID)) == TeamID && personalizedNewsCount < 5 {
+			newsFeed = append(newsFeed, news)
+			personalizedNewsCount += 1
+		}
+	}
+
+	return newsFeed
+}
+
+func GetCBBRelatedNews(TeamID string) []structs.NewsLog {
+	ts := GetTimestamp()
+
+	newsLogs := GetAllCBBNewsLogs()
+
+	sort.Slice(newsLogs, func(i, j int) bool {
+		return newsLogs[i].CreatedAt.Unix() > newsLogs[j].CreatedAt.Unix()
+	})
+
+	newsFeed := []structs.NewsLog{}
+
+	recentEventsCount := 0
+	personalizedNewsCount := 0
+	for _, news := range newsLogs {
+		if recentEventsCount == 5 && personalizedNewsCount == 5 {
+			break
+		}
+		if news.SeasonID != ts.SeasonID && news.League != "CBB" {
+			continue
+		}
+		if news.TeamID == 0 && recentEventsCount < 5 {
+			newsFeed = append(newsFeed, news)
+			recentEventsCount += 1
+		} else if news.TeamID > 0 && strconv.Itoa(int(news.TeamID)) == TeamID && personalizedNewsCount < 5 {
+			newsFeed = append(newsFeed, news)
+			personalizedNewsCount += 1
+		}
+	}
+
+	return newsFeed
 }

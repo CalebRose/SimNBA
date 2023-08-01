@@ -1,5 +1,11 @@
 package structs
 
+type MatchStateResponse struct {
+	MatchType string
+	Week      uint
+	Matches   []MatchResponse
+}
+
 type MatchResponse struct {
 	ID                     uint
 	MatchName              string // For Post-Season matchups
@@ -24,6 +30,7 @@ type MatchResponse struct {
 	IsRivalryGame          bool
 	IsInvitational         bool
 	IsInternational        bool
+	Channel                uint
 }
 
 type MatchDataResponse struct {

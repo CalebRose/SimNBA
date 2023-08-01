@@ -8,7 +8,7 @@ import (
 	"github.com/CalebRose/SimNBA/structs"
 )
 
-func GetMatchesForTimeslot() []structs.MatchResponse {
+func GetMatchesForTimeslot() structs.MatchStateResponse {
 	ts := GetTimestamp()
 	seasonID := strconv.Itoa(int(ts.SeasonID))
 	weekID := strconv.Itoa(int(ts.CollegeWeekID))
@@ -24,11 +24,13 @@ func GetMatchesForTimeslot() []structs.MatchResponse {
 		matchType = "C"
 	} else if !ts.GamesDRan {
 		matchType = "D"
-	} else {
-		panic("STOP")
 	}
 
 	matchesList := []structs.MatchResponse{}
+
+	if matchType == "" {
+		return structs.MatchStateResponse{Matches: matchesList}
+	}
 
 	// Get College Matches
 	collegeMatches := GetMatchesByWeekId(weekID, seasonID, matchType)
@@ -36,6 +38,19 @@ func GetMatchesForTimeslot() []structs.MatchResponse {
 	for _, c := range collegeMatches {
 		if c.GameComplete {
 			continue
+		}
+
+		ht := GetTeamByTeamID(strconv.Itoa(int(c.HomeTeamID)))
+		at := GetTeamByTeamID(strconv.Itoa(int(c.AwayTeamID)))
+
+		livestreamChannel := 0
+		if (c.HomeTeamCoach != "AI" && c.HomeTeamCoach != "") || (c.AwayTeamCoach != "AI" && c.AwayTeamCoach != "") {
+			livestreamChannel = 1
+		}
+		if ht.ConferenceID < 6 || ht.ConferenceID == 11 || at.ConferenceID < 6 || at.ConferenceID == 11 {
+			livestreamChannel = 2
+		} else {
+			livestreamChannel = 3
 		}
 
 		match := structs.MatchResponse{
@@ -61,6 +76,7 @@ func GetMatchesForTimeslot() []structs.MatchResponse {
 			IsNationalChampionship: c.IsNationalChampionship,
 			IsRivalryGame:          c.IsRivalryGame,
 			IsInvitational:         c.IsInvitational,
+			Channel:                uint(livestreamChannel),
 		}
 
 		matchesList = append(matchesList, match)
@@ -68,10 +84,22 @@ func GetMatchesForTimeslot() []structs.MatchResponse {
 
 	// Get Professional Matches
 	nbaMatches := GetNBATeamMatchesByMatchType(nbaWeekID, seasonID, matchType)
-
+	coinFlip := false
 	for _, n := range nbaMatches {
 		if n.GameComplete {
 			continue
+		}
+
+		livestreamChannel := 0
+		if coinFlip {
+			livestreamChannel = 4
+			coinFlip = !coinFlip
+		} else if !coinFlip {
+			livestreamChannel = 5
+			coinFlip = !coinFlip
+		}
+		if n.IsInternational {
+			livestreamChannel = 6
 		}
 
 		match := structs.MatchResponse{
@@ -96,18 +124,33 @@ func GetMatchesForTimeslot() []structs.MatchResponse {
 			IsPlayoffGame:          n.IsPlayoffGame,
 			IsNationalChampionship: n.IsTheFinals,
 			IsRivalryGame:          n.IsRivalryGame,
+			Channel:                uint(livestreamChannel),
 		}
 
 		matchesList = append(matchesList, match)
 	}
 
-	return matchesList
+	return structs.MatchStateResponse{
+		Matches:   matchesList,
+		MatchType: matchType,
+		Week:      uint(ts.NBAWeek),
+	}
 }
 
 func GetMatchesByTeamIdAndSeasonId(teamId string, seasonId string) []structs.Match {
 	db := dbprovider.GetInstance().GetDB()
 
 	var teamMatches []structs.Match
+
+	db.Where("(home_team_id = ? OR away_team_id = ?) AND season_id = ?", teamId, teamId, seasonId).Find(&teamMatches)
+
+	return teamMatches
+}
+
+func GetProfessionalMatchesByTeamIdAndSeasonId(teamId string, seasonId string) []structs.NBAMatch {
+	db := dbprovider.GetInstance().GetDB()
+
+	var teamMatches []structs.NBAMatch
 
 	db.Where("(home_team_id = ? OR away_team_id = ?) AND season_id = ?", teamId, teamId, seasonId).Find(&teamMatches)
 

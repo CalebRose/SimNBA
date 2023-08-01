@@ -182,7 +182,7 @@ func CreateWaiverOffer(offer structs.NBAWaiverOfferDTO) structs.NBAWaiverOffer {
 			db.Delete(&o)
 		}
 		message := "Breaking News! " + nbaPlayer.FirstName + " " + nbaPlayer.LastName + " has been picked up from the GLeague onto his owning team, " + offer.Team + "!"
-		CreateNewsLog("NBA", message, "FreeAgency", int(offer.TeamID), ts)
+		CreateNewsLog("NBA", message, "FreeAgency", 0, ts)
 		return waiverOffer
 	}
 
@@ -318,15 +318,7 @@ func SignFreeAgent(offer structs.NBAContractOffer, FreeAgent structs.NBAPlayer, 
 
 	// News Log
 	message := "FA " + FreeAgent.Position + " " + FreeAgent.FirstName + " " + FreeAgent.LastName + " has signed with the " + NBATeam.Team + " " + NBATeam.Nickname + " with a contract worth approximately $" + strconv.Itoa(int(Contract.ContractValue)) + " Million Dollars."
-	newsLog := structs.NewsLog{
-		WeekID:      ts.NBAWeekID,
-		SeasonID:    ts.SeasonID,
-		MessageType: "Free Agency",
-		Message:     message,
-		League:      "NBA",
-	}
-
-	db.Create(&newsLog)
+	CreateNewsLog("NBA", message, "Free Agency", 0, ts)
 }
 
 func SyncFreeAgencyOffers() {
@@ -459,30 +451,14 @@ func TempExtensionAlgorithm() {
 		validOffer := validateContract(nbaContract, contractStatus, minimumValue)
 
 		if !validOffer {
-			newsLog := structs.NewsLog{
-				League:      "NBA",
-				SeasonID:    ts.SeasonID,
-				Season:      uint(ts.Season),
-				WeekID:      ts.NBAWeekID,
-				Week:        uint(ts.NBAWeek),
-				MessageType: "Contract",
-				Message:     playerRecord.Position + " " + playerRecord.FirstName + " " + playerRecord.LastName + " has rejected an extension offer from " + team.Team + " " + team.Nickname,
-			}
-			db.Create(&newsLog)
+			message := playerRecord.Position + " " + playerRecord.FirstName + " " + playerRecord.LastName + " has rejected an extension offer from " + team.Team + " " + team.Nickname
+			CreateNewsLog("NBA", message, "Contract", int(team.ID), ts)
 			continue
 		}
 
-		newsLog := structs.NewsLog{
-			League:      "NBA",
-			SeasonID:    ts.SeasonID,
-			Season:      uint(ts.Season),
-			WeekID:      ts.NBAWeekID,
-			Week:        uint(ts.NBAWeek),
-			MessageType: "Contract",
-			Message:     playerRecord.Position + " " + playerRecord.FirstName + " " + playerRecord.LastName + " has signed an extension with the " + team.Team + " " + team.Nickname + ", worth approximately $" + strconv.Itoa(int(nbaContract.TotalRemaining)) + " Million!",
-		}
+		message := playerRecord.Position + " " + playerRecord.FirstName + " " + playerRecord.LastName + " has signed an extension with the " + team.Team + " " + team.Nickname + ", worth approximately $" + strconv.Itoa(int(nbaContract.TotalRemaining)) + " Million!"
+		CreateNewsLog("NBA", message, "Contract", 0, ts)
 		playerRecord.SignWithTeam(team.ID, team.Team)
-		db.Create(&newsLog)
 		db.Save(&playerRecord)
 		db.Create(&nbaContract)
 	}
