@@ -43,9 +43,10 @@ type Croot struct {
 }
 
 type LeadingTeams struct {
-	TeamName string
-	TeamAbbr string
-	Odds     float64
+	TeamName    string
+	TeamAbbr    string
+	Odds        float64
+	Scholarship bool
 }
 
 // Sorting Funcs
@@ -127,8 +128,9 @@ func (c *Croot) Map(r Recruit) {
 			odds = float64(sortedProfiles[i].TotalPoints) / totalPoints
 		}
 		leadingTeam := LeadingTeams{
-			TeamAbbr: r.RecruitProfiles[i].TeamAbbreviation,
-			Odds:     odds,
+			TeamAbbr:    r.RecruitProfiles[i].TeamAbbreviation,
+			Odds:        odds,
+			Scholarship: r.RecruitProfiles[i].Scholarship,
 		}
 		c.LeadingTeams = append(c.LeadingTeams, leadingTeam)
 	}
