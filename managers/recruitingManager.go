@@ -324,36 +324,6 @@ func SendScholarshipToRecruit(updateRecruitPointsDto structs.UpdateRecruitPoints
 	crootProfile.ToggleScholarship(updateRecruitPointsDto.RewardScholarship, updateRecruitPointsDto.RevokeScholarship)
 	if crootProfile.Scholarship {
 		recruitingProfile.SubtractScholarshipsAvailable()
-
-		ts := GetTimestamp()
-		recruit := GetRecruitByRecruitID(strconv.Itoa(int(updateRecruitPointsDto.PlayerId)))
-
-		stars := recruit.Stars
-
-		location := ""
-
-		if len(recruit.State) == 0 {
-			location = recruit.Country
-		} else {
-			location = recruit.State + ", " + recruit.Country
-		}
-
-		if stars >= 4 {
-			message := recruit.FirstName + " " + recruit.LastName + ", " + strconv.Itoa(stars) + " star " + recruit.Position + " from " + location + " has received an offer from " + updateRecruitPointsDto.Team
-			newLog := structs.NewsLog{
-				WeekID:      ts.CollegeWeekID,
-				Week:        uint(ts.CollegeWeek),
-				SeasonID:    ts.SeasonID,
-				MessageType: "Recruiting",
-				Message:     message,
-			}
-
-			err := db.Create(&newLog).Error
-			if err != nil {
-				fmt.Println(err.Error())
-				log.Fatalln("ERROR! Could not save news log for scholarship on " + recruit.FirstName + " " + recruit.LastName + " " + strconv.Itoa(int(recruit.ID)))
-			}
-		}
 	} else {
 		recruitingProfile.ReallocateScholarship()
 	}
