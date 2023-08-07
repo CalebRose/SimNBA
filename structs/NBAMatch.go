@@ -26,8 +26,10 @@ type NBAMatch struct {
 	Arena                  string
 	City                   string
 	State                  string
+	Country                string
 	IsNeutralSite          bool
 	IsConference           bool
+	IsDivisional           bool
 	IsConferenceTournament bool
 	IsInternational        bool
 	IsPlayoffGame          bool

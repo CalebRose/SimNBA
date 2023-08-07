@@ -33,3 +33,11 @@ func ImportNBAPersonalities(w http.ResponseWriter, r *http.Request) {
 func ImportCBBMatches(w http.ResponseWriter, r *http.Request) {
 	managers.ImportCBBGames()
 }
+
+func ImportNBAMatches(w http.ResponseWriter, r *http.Request) {
+	managers.ImportNBAGames()
+}
+
+func ImportDraftPicks(w http.ResponseWriter, r *http.Request) {
+	managers.ImportDraftPicks()
+}
