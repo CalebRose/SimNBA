@@ -223,7 +223,7 @@ func GetAllCurrentSeasonDraftPicks() []structs.DraftPick {
 
 	draftPicks := []structs.DraftPick{}
 
-	db.Where("season_id = ?", strconv.Itoa(int(ts.SeasonID))).Find(&draftPicks)
+	db.Order("draft_number asc").Where("season_id = ?", strconv.Itoa(int(ts.SeasonID))).Find(&draftPicks)
 
 	return draftPicks
 }

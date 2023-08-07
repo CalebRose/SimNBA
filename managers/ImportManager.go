@@ -518,6 +518,85 @@ func ImportCBBGames() {
 	}
 }
 
+func ImportNBAGames() {
+	db := dbprovider.GetInstance().GetDB()
+	path := secrets.GetPath()["nbamatches"]
+	professionalMatches := util.ReadCSV(path)
+
+	professionalTeams := GetAllActiveNBATeams()
+	teamMap := make(map[string]structs.NBATeam)
+
+	for _, t := range professionalTeams {
+		teamMap[t.Abbr] = t
+	}
+
+	for idx, row := range professionalMatches {
+		if idx < 1 {
+			continue
+		}
+
+		id := util.ConvertStringToInt(row[0])
+		season := util.ConvertStringToInt(row[1])
+		seasonID := season - 2020
+		week := util.ConvertStringToInt(row[2])
+		weekID := week
+		timeSlot := row[3]
+		homeTeamStr := row[6]
+		awayTeamStr := row[7]
+		homeTeam := teamMap[homeTeamStr]
+		awayTeam := teamMap[awayTeamStr]
+		gameTitle := row[26]
+		nextGameID := util.ConvertStringToInt(row[18])
+		hoA := row[19]
+		conference := util.ConvertStringToBool(row[12])
+		divisional := util.ConvertStringToBool(row[13])
+		international := util.ConvertStringToBool(row[14])
+		playoff := util.ConvertStringToBool(row[16])
+		finals := util.ConvertStringToBool(row[17])
+		arena := row[22]
+		city := row[23]
+		state := row[24]
+		country := row[25]
+		homeCoach := homeTeam.NBACoachName
+		if homeCoach == "" {
+			homeCoach = "AI"
+		}
+		awayCoach := awayTeam.NBACoachName
+		if awayCoach == "" {
+			awayCoach = "AI"
+		}
+
+		match := structs.NBAMatch{
+			Model:           gorm.Model{ID: uint(id)},
+			SeasonID:        uint(seasonID),
+			WeekID:          uint(weekID),
+			Week:            uint(week),
+			MatchOfWeek:     timeSlot,
+			IsConference:    conference,
+			IsDivisional:    divisional,
+			HomeTeam:        homeTeamStr,
+			HomeTeamID:      homeTeam.ID,
+			AwayTeamID:      awayTeam.ID,
+			HomeTeamCoach:   homeCoach,
+			AwayTeam:        awayTeamStr,
+			AwayTeamCoach:   awayCoach,
+			MatchName:       gameTitle,
+			NextGameID:      uint(nextGameID),
+			NextGameHOA:     hoA,
+			IsNeutralSite:   conference,
+			IsPlayoffGame:   playoff,
+			IsTheFinals:     finals,
+			IsInternational: international,
+			Arena:           arena,
+			City:            city,
+			State:           state,
+			Country:         country,
+		}
+
+		db.Create(&match)
+	}
+}
+
 func ImportNBAStandings() {
 	db := dbprovider.GetInstance().GetDB()
 	path := secrets.GetPath()["nbastandings"]
@@ -669,6 +748,44 @@ func ImportNewTeams() {
 		}
 
 		db.Create(&standings)
+	}
+}
+
+func ImportDraftPicks() {
+	db := dbprovider.GetInstance().GetDB()
+
+	ts := GetTimestamp()
+	path := secrets.GetPath()["draftpicks"]
+	picks := util.ReadCSV(path)
+
+	for idx, row := range picks {
+		if idx == 0 {
+			continue
+		}
+		id := util.ConvertStringToInt(row[0])
+		round := util.ConvertStringToInt(row[1])
+		draftNumber := util.ConvertStringToInt(row[2])
+		drafteeID := 0
+		teamID := util.ConvertStringToInt(row[4])
+		team := row[5]
+		originalTeamID := util.ConvertStringToInt(row[6])
+		notes := "Consolation Pick"
+
+		draftPick := structs.DraftPick{
+			DraftRound:     uint(round),
+			DraftNumber:    uint(draftNumber),
+			DrafteeID:      uint(drafteeID),
+			TeamID:         uint(teamID),
+			Team:           team,
+			OriginalTeamID: uint(originalTeamID),
+			OriginalTeam:   team,
+			Season:         uint(ts.Season),
+			Notes:          notes,
+			SeasonID:       ts.SeasonID,
+			Model:          gorm.Model{ID: uint(id)},
+		}
+
+		db.Create(&draftPick)
 	}
 }
 
