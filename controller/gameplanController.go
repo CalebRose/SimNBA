@@ -44,7 +44,7 @@ func UpdateGameplan(w http.ResponseWriter, r *http.Request) {
 
 	managers.UpdateGameplan(updateGameplanDto)
 
-	fmt.Println("Updated Gameplans and Players")
+	// fmt.Println("Updated Gameplans and Players")
 	// w.WriteHeader(http.StatusOK)
 }
 

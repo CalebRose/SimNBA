@@ -229,16 +229,16 @@ func (p *BasePlayer) SetMinutes() {
 	p.Minutes = p.P1Minutes + p.P2Minutes + p.P3Minutes
 }
 
-func (c *BasePlayer) UpdatePlayer(p BasePlayer) {
-	c.P1Minutes = p.P1Minutes
-	c.P2Minutes = p.P2Minutes
-	c.P3Minutes = p.P3Minutes
-	c.PositionOne = p.PositionOne
-	c.PositionTwo = p.PositionTwo
-	c.PositionThree = p.PositionThree
-	c.InsideProportion = p.InsideProportion
-	c.MidRangeProportion = p.MidRangeProportion
-	c.ThreePointProportion = p.ThreePointProportion
+func (c *BasePlayer) UpdatePlayer(p1Minutes, p2Minutes, p3Minutes int, posOne, posTwo, posThree string, ins, mid, three float64) {
+	c.P1Minutes = p1Minutes
+	c.P2Minutes = p2Minutes
+	c.P3Minutes = p3Minutes
+	c.PositionOne = posOne
+	c.PositionTwo = posTwo
+	c.PositionThree = posThree
+	c.InsideProportion = ins
+	c.MidRangeProportion = mid
+	c.ThreePointProportion = three
 	c.SetMinutes()
 }
 

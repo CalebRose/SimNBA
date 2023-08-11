@@ -35,7 +35,7 @@ func UpdateGameplan(updateGameplanDto structs.UpdateGameplanDto) {
 	for _, player := range updatedPlayers {
 		id := strconv.Itoa(int(player.PlayerID))
 		record := GetCollegePlayerByPlayerID(id)
-		record.UpdatePlayer(player.BasePlayer)
+		record.UpdatePlayer(player.P1Minutes, player.P2Minutes, player.P3Minutes, player.PositionOne, player.PositionTwo, player.PositionThree, player.InsideProportion, player.MidRangeProportion, player.ThreePointProportion)
 		db.Save(&record)
 	}
 }
@@ -64,7 +64,7 @@ func UpdateNBAGameplan(updateGameplanDto structs.UpdateGameplanDto) {
 	for _, player := range updatedPlayers {
 		id := strconv.Itoa(int(player.ID))
 		record := GetNBAPlayerRecord(id)
-		record.UpdatePlayer(player.BasePlayer)
+		record.UpdatePlayer(player.P1Minutes, player.P2Minutes, player.P3Minutes, player.PositionOne, player.PositionTwo, player.PositionThree, player.InsideProportion, player.MidRangeProportion, player.ThreePointProportion)
 		db.Save(&record)
 	}
 }
