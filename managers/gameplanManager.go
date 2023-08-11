@@ -211,6 +211,7 @@ func SetAIGameplans() bool {
 			if c.IsRedshirting {
 				continue
 			}
+
 			if c.Position == "PG" {
 				pgCount++
 				pgList = append(pgList, c)
@@ -279,7 +280,7 @@ func SetAIGameplans() bool {
 		})
 
 		sort.Slice(sfList, func(i, j int) bool {
-			return sfList[i].Overall < sfList[j].Overall
+			return sfList[i].Overall > sfList[j].Overall
 		})
 
 		sort.Slice(pfList, func(i, j int) bool {

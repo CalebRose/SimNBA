@@ -9,6 +9,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
+func SyncFreeAgencyOffers(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	managers.MoveUpInOffseasonFreeAgency()
+	managers.SyncFreeAgencyOffers()
+	json.NewEncoder(w).Encode("Moved to next free agency round")
+}
+
 // FreeAgencyAvailablePlayers - Get All Available NFL Players for Free Agency Page
 func FreeAgencyAvailablePlayers(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)

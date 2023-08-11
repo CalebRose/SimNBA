@@ -53,6 +53,10 @@ func (n *NBAContract) ProgressContract() {
 	}
 }
 
+func (n *NBAContract) DeactivateContract() {
+	n.IsActive = false
+}
+
 func (n *NBAContract) RetireContract() {
 	n.IsActive = false
 	n.IsComplete = true

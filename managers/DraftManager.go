@@ -12,6 +12,16 @@ import (
 	"github.com/CalebRose/SimNBA/util"
 )
 
+func ToggleDraftTime() {
+	db := dbprovider.GetInstance().GetDB()
+
+	ts := GetTimestamp()
+
+	ts.ToggleDraftTime()
+
+	db.Save(&ts)
+}
+
 func ConductDraftLottery() {
 	// db := dbprovider.GetInstance().GetDB()
 	fmt.Println(time.Now().UnixNano())

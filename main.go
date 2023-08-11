@@ -45,8 +45,8 @@ func handleRequests() {
 	myRouter.HandleFunc("/admin/recruit/create", controller.CreateRecruit).Methods("POST")
 	// myRouter.HandleFunc("/admin/ai/gameplans/", controller.SetAIGameplans).Methods("GET")
 	myRouter.HandleFunc("/admin/results/import/", controller.ImportMatchResults).Methods("POST")
-	myRouter.HandleFunc("/admin/show/a", controller.ShowAGames).Methods("GET")
-	myRouter.HandleFunc("/admin/show/b", controller.ShowBGames).Methods("GET")
+	myRouter.HandleFunc("/admin/show/{matchType}", controller.ShowAGames).Methods("GET")
+	// myRouter.HandleFunc("/admin/show/b", controller.ShowBGames).Methods("GET")
 	// myRouter.HandleFunc("/admin/regress/a", controller.RegressAGamesByOneWeek).Methods("GET")
 	// myRouter.HandleFunc("/admin/regress/b", controller.RegressBGamesByOneWeek).Methods("GET")
 	myRouter.HandleFunc("/admin/week/sync", controller.SyncToNextWeek).Methods("GET")
@@ -71,6 +71,7 @@ func handleRequests() {
 	// Draft Controls
 	// myRouter.HandleFunc("/nba/draft/conduct/lottery", controller.ConductDraftLottery).Methods("GET")
 	myRouter.HandleFunc("/nba/draft/page/{teamID}", controller.GetDraftPageData).Methods("GET")
+	myRouter.HandleFunc("/nba/draft/time/change", controller.ToggleDraftTime).Methods("GET")
 	myRouter.HandleFunc("/nba/draft/create/scoutprofile", controller.AddPlayerToScoutBoard).Methods("POST")
 	myRouter.HandleFunc("/nba/draft/reveal/attribute", controller.RevealScoutingAttribute).Methods("POST")
 	// myRouter.HandleFunc("/recruit/revokeScholarshipFromRecruit", controller.RevokeScholarshipFromRecruit).Methods("PUT")
@@ -88,6 +89,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/nba/freeagency/create/waiver", controller.CreateFreeAgencyOffer).Methods("POST")
 	myRouter.HandleFunc("/nba/freeagency/cancel/waiver", controller.CancelFreeAgencyOffer).Methods("POST")
 	myRouter.HandleFunc("/nba/freeagency/extensions/temp", controller.ExtendPlayers).Methods("GET")
+	myRouter.HandleFunc("/nba/freeagency/sync/round", controller.SyncFreeAgencyOffers).Methods("GET")
 
 	// Gameplan controls
 	myRouter.HandleFunc("/cbb/gameplans/{teamId}", controller.GetGameplansByTeamId).Methods("GET")
