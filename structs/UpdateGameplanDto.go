@@ -3,7 +3,7 @@ package structs
 // CreateRecruitPointsDto - Data Transfer Object from UI to API
 type UpdateGameplanDto struct {
 	Gameplan       Gameplan
-	CollegePlayers []CollegePlayer
+	CollegePlayers []CollegePlayerResponse
 	NBAPlayers     []NBAPlayer
 	TeamID         int
 }
