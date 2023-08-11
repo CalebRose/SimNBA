@@ -111,3 +111,10 @@ func GetScoutingDataByDraftee(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(data)
 }
+
+func ToggleDraftTime(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	managers.ToggleDraftTime()
+
+	json.NewEncoder(w).Encode("Draft Time Changed")
+}

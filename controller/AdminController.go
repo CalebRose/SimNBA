@@ -7,6 +7,7 @@ import (
 
 	"github.com/CalebRose/SimNBA/managers"
 	"github.com/CalebRose/SimNBA/structs"
+	"github.com/gorilla/mux"
 )
 
 func EnableCors(w *http.ResponseWriter) {
@@ -77,13 +78,15 @@ func SyncToNextWeek(w http.ResponseWriter, r *http.Request) {
 }
 
 func ShowAGames(w http.ResponseWriter, r *http.Request) {
-	managers.ShowAGames()
-	w.WriteHeader(http.StatusOK)
+	EnableCors(&w)
+	vars := mux.Vars(r)
+	matchType := vars["matchType"]
 
-}
+	if len(matchType) == 0 {
+		panic("User did not provide TeamID")
+	}
 
-func ShowBGames(w http.ResponseWriter, r *http.Request) {
-	managers.ShowBGames()
+	managers.ShowGames(matchType)
 	w.WriteHeader(http.StatusOK)
 
 }

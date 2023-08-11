@@ -43,6 +43,18 @@ func (t *Timestamp) MoveUpWeekNBA() {
 	t.NBAWeekID++
 }
 
+func (t *Timestamp) ToggleGames(matchType string) {
+	if matchType == "A" {
+		t.GamesARan = true
+	} else if matchType == "B" {
+		t.GamesBRan = true
+	} else if matchType == "C" {
+		t.GamesCRan = true
+	} else if matchType == "D" {
+		t.GamesDRan = true
+	}
+}
+
 func (t *Timestamp) ToggleGamesARan() {
 	t.GamesARan = !t.GamesARan
 }
@@ -75,18 +87,22 @@ func (t *Timestamp) TogglePollRan() {
 	t.CollegePollRan = !t.CollegePollRan
 }
 
+func (t *Timestamp) ToggleFALock() {
+	t.IsFreeAgencyLocked = !t.IsFreeAgencyLocked
+}
+
 func (t *Timestamp) SyncToNextWeek() {
 	t.MoveUpWeekCollege()
 	t.MoveUpWeekNBA()
 	// Reset Toggles
-	// t.ToggleGamesARan()
-	// t.ToggleGamesBRan()
-	// t.ToggleGamesCRan()
 	t.GamesARan = false
 	t.GamesBRan = false
+	t.GamesCRan = false
+	t.GamesDRan = false
 	t.RecruitingSynced = false
 	t.AIPointAllocationComplete = false
-	// t.ToggleGMActions()
+	t.GMActionsComplete = false
+	t.TogglePollRan()
 }
 
 func (t *Timestamp) MoveUpFreeAgencyRound() {
@@ -94,11 +110,11 @@ func (t *Timestamp) MoveUpFreeAgencyRound() {
 	if t.FreeAgencyRound > 10 {
 		t.FreeAgencyRound = 0
 		t.IsFreeAgencyLocked = true
-		t.IsDraftTime = true
+		// t.IsDraftTime = true
 	}
 }
 
-func (t *Timestamp) DraftIsOver() {
-	t.IsDraftTime = false
-	t.IsNBAOffseason = false
+func (t *Timestamp) ToggleDraftTime() {
+	t.IsDraftTime = !t.IsDraftTime
+	// t.IsNBAOffseason = false
 }

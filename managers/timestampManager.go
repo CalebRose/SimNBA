@@ -33,6 +33,15 @@ func LockRecruiting() {
 	}
 }
 
+func MoveUpInOffseasonFreeAgency() {
+	db := dbprovider.GetInstance().GetDB()
+	ts := GetTimestamp()
+	if ts.IsNBAOffseason {
+		ts.MoveUpFreeAgencyRound()
+	}
+	db.Save(&ts)
+}
+
 func SyncToNextWeek() {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -44,26 +53,13 @@ func SyncToNextWeek() {
 	}
 }
 
-func ShowAGames() {
+func ShowGames(matchType string) {
 	db := dbprovider.GetInstance().GetDB()
 
 	ts := GetTimestamp()
-	UpdateStandings(ts, "A")
-	UpdateSeasonStats(ts, "A")
-	ts.ToggleGamesARan()
-	err := db.Save(&ts).Error
-	if err != nil {
-		log.Fatalln("Could not save timestamp and sync week")
-	}
-}
-
-func ShowBGames() {
-	db := dbprovider.GetInstance().GetDB()
-
-	ts := GetTimestamp()
-	UpdateStandings(ts, "B")
-	UpdateSeasonStats(ts, "B")
-	ts.ToggleGamesBRan()
+	UpdateStandings(ts, matchType)
+	UpdateSeasonStats(ts, matchType)
+	ts.ToggleGames(matchType)
 	err := db.Save(&ts).Error
 	if err != nil {
 		log.Fatalln("Could not save timestamp and sync week")

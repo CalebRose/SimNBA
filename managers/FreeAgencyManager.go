@@ -39,6 +39,16 @@ func GetAllAvailableNBAPlayers(TeamID string) structs.FreeAgencyResponse {
 	}
 }
 
+func GetAllFreeAgents() []structs.NBAPlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	fas := []structs.NBAPlayer{}
+
+	db.Where("is_free_agent = ?", true).Find(&fas)
+
+	return fas
+}
+
 // GetAllFreeAgentsWithOffers -- For Free Agency UI Page.
 func GetAllFreeAgentsWithOffers() []structs.NBAPlayer {
 	db := dbprovider.GetInstance().GetDB()
@@ -325,8 +335,10 @@ func SyncFreeAgencyOffers() {
 	db := dbprovider.GetInstance().GetDB()
 
 	ts := GetTimestamp()
+	ts.ToggleFALock()
+	db.Save(&ts)
 
-	FreeAgents := GetAllNBAPlayersByTeamID("0")
+	FreeAgents := GetAllFreeAgents()
 
 	for _, FA := range FreeAgents {
 
@@ -353,10 +365,28 @@ func SyncFreeAgencyOffers() {
 		sort.Sort(structs.ByContractValue(Offers))
 
 		WinningOffer := structs.NBAContractOffer{}
-
+		minimumValue := FA.MinimumValue
+		contractStatus := ""
+		if FA.MaxRequested {
+			contractStatus = "Max"
+		}
+		if FA.IsSuperMaxQualified {
+			contractStatus = "SuperMax"
+		}
 		for _, Offer := range Offers {
+			multiplier := 1.0
+			team := GetNBATeamByTeamID(strconv.Itoa(int(Offer.TeamID)))
+			validation := validateFreeAgencyPref(FA, team, strconv.Itoa(int(ts.SeasonID)))
+			if validation && FA.FreeAgency != "Average" {
+				multiplier = 0.85
+			} else if !validation && FA.FreeAgency != "Average" {
+				multiplier = 1.15
+			}
+			minimumValue = minimumValue * multiplier
+			validOffer := validateOffer(Offer, contractStatus, minimumValue)
+
 			// Get the Contract with the best value for the FA
-			if Offer.IsActive && WinningOffer.ID == 0 {
+			if Offer.IsActive && WinningOffer.ID == 0 && validOffer {
 				WinningOffer = Offer
 			}
 
@@ -369,6 +399,109 @@ func SyncFreeAgencyOffers() {
 
 		SignFreeAgent(WinningOffer, FA, ts)
 	}
+
+	WaiverWirePlayers := GetAllWaiverWirePlayers()
+
+	for _, w := range WaiverWirePlayers {
+		if len(w.WaiverOffers) == 0 {
+			// Deactivate Contract, convert to Free Agent
+			w.ConvertWaivedPlayerToFA()
+			contract := GetContractByPlayerID(strconv.Itoa(int(w.ID)))
+			contract.DeactivateContract()
+			db.Save(&contract)
+		} else {
+			offers := GetWaiverOffersByPlayerID(strconv.Itoa(int(w.ID)))
+			winningOffer := offers[0]
+			w.SignWithTeam(winningOffer.TeamID, winningOffer.Team)
+
+			message := w.Position + " " + w.FirstName + " " + w.LastName + " was picked up on the Waiver Wire by " + winningOffer.Team
+			CreateNewsLog("NBA", message, "Free Agency", int(winningOffer.TeamID), ts)
+
+			// Recalibrate winning team's remaining offers
+			teamOffers := GetWaiverOffersByTeamID(strconv.Itoa(int(winningOffer.TeamID)))
+			team := GetNBATeamByTeamID(strconv.Itoa(int(winningOffer.TeamID)))
+
+			team.AssignWaiverOrder(team.WaiverOrder + 32)
+			db.Save(&team)
+
+			for _, o := range teamOffers {
+				o.AssignNewWaiverOrder(team.WaiverOrder + 32)
+				db.Save(&o)
+			}
+
+			// Delete current waiver offers
+			for _, o := range offers {
+				db.Delete(&o)
+			}
+		}
+		db.Save(&w)
+	}
+
+	gLeaguePlayers := GetAllGLeaguePlayersForFA()
+
+	for _, g := range gLeaguePlayers {
+		Offers := GetWaiverOffersByPlayerID(strconv.Itoa(int(g.ID)))
+
+		if len(Offers) == 0 {
+			continue
+		}
+		ownerTeam := g.TeamID
+		ownerOffer := structs.NBAWaiverOffer{}
+
+		for _, o := range Offers {
+			if o.TeamID == ownerTeam && o.IsActive {
+				ownerOffer = o
+				break
+			}
+		}
+		g.SignWithTeam(ownerOffer.TeamID, ownerOffer.Team)
+		contract := GetNBAContractsByPlayerID(strconv.Itoa(int(g.ID)))
+		contract.TradePlayer(ownerOffer.TeamID, ownerOffer.Team)
+		db.Save(&contract)
+		message := g.Position + " " + g.FirstName + " " + g.LastName + " was picked up from the GLeague by " + ownerOffer.Team
+		CreateNewsLog("NBA", message, "Free Agency", int(ownerOffer.TeamID), ts)
+
+		db.Save(&g)
+
+		for _, o := range Offers {
+			db.Delete(&o)
+		}
+	}
+
+	islPlayers := GetAllISLPlayersForFA()
+
+	for _, i := range islPlayers {
+		Offers := GetWaiverOffersByPlayerID(strconv.Itoa(int(i.ID)))
+
+		if len(Offers) == 0 {
+			continue
+		}
+		ownerTeam := i.TeamID
+		ownerOffer := structs.NBAWaiverOffer{}
+
+		for _, o := range Offers {
+			if o.TeamID == ownerTeam && o.IsActive {
+				ownerOffer = o
+				break
+			}
+		}
+		contract := GetNBAContractsByPlayerID(strconv.Itoa(int(i.ID)))
+		contract.TradePlayer(ownerOffer.TeamID, ownerOffer.Team)
+		db.Save(&contract)
+		i.SignWithTeam(ownerOffer.TeamID, ownerOffer.Team)
+		message := i.Position + " " + i.FirstName + " " + i.LastName + " was picked up from the GLeague by " + ownerOffer.Team
+		CreateNewsLog("NBA", message, "Free Agency", int(ownerOffer.TeamID), ts)
+
+		db.Save(&i)
+
+		for _, o := range Offers {
+			db.Delete(&o)
+		}
+	}
+
+	ts.ToggleFALock()
+	ts.ToggleGMActions()
+	db.Save(&ts)
 }
 
 func GetFreeAgentOffersByPlayerID(PlayerID string) []structs.NBAContractOffer {
@@ -377,6 +510,19 @@ func GetFreeAgentOffersByPlayerID(PlayerID string) []structs.NBAContractOffer {
 	offers := []structs.NBAContractOffer{}
 
 	err := db.Where("NBA_player_id = ? AND is_active = ?", PlayerID, true).Find(&offers).Error
+	if err != nil {
+		return offers
+	}
+
+	return offers
+}
+
+func GetWaiverOffersByTeamID(teamID string) []structs.NBAWaiverOffer {
+	db := dbprovider.GetInstance().GetDB()
+
+	offers := []structs.NBAWaiverOffer{}
+
+	err := db.Where("team_id = ?", teamID).Find(&offers).Error
 	if err != nil {
 		return offers
 	}
@@ -441,12 +587,12 @@ func TempExtensionAlgorithm() {
 			contractStatus = "SuperMax"
 		}
 		multiplier := 1.0
-		// validation := validateFreeAgencyPref(playerRecord, team, strconv.Itoa(int(ts.SeasonID)))
-		// if validation && playerRecord.FreeAgency != "Average" {
-		// 	multiplier = 0.85
-		// } else if !validation && playerRecord.FreeAgency != "Average" {
-		// 	multiplier = 1.15
-		// }
+		validation := validateFreeAgencyPref(playerRecord, team, strconv.Itoa(int(ts.SeasonID)))
+		if validation && playerRecord.FreeAgency != "Average" {
+			multiplier = 0.85
+		} else if !validation && playerRecord.FreeAgency != "Average" {
+			multiplier = 1.15
+		}
 		minimumValue = minimumValue * multiplier
 		validOffer := validateContract(nbaContract, contractStatus, minimumValue)
 
@@ -538,6 +684,22 @@ func validateContract(offer structs.NBAContract, status string, minimum float64)
 		return minimum <= offer.Year1Total
 	}
 	return minimum <= offer.TotalRemaining
+}
+
+func validateOffer(offer structs.NBAContractOffer, status string, minimum float64) bool {
+	if status == "Max" || status == "SuperMax" {
+		if offer.TotalYears == 5 {
+			return minimum < offer.Year1Total && minimum < offer.Year2Total && minimum < offer.Year3Total && minimum < offer.Year4Total && minimum < offer.Year5Total
+		} else if offer.TotalYears == 4 {
+			return minimum < offer.Year1Total && minimum < offer.Year2Total && minimum < offer.Year3Total && minimum < offer.Year4Total
+		} else if offer.TotalYears == 3 {
+			return minimum < offer.Year1Total && minimum < offer.Year2Total && minimum < offer.Year3Total
+		} else if offer.TotalYears == 2 {
+			return minimum < offer.Year1Total && minimum < offer.Year2Total
+		}
+		return minimum <= offer.Year1Total
+	}
+	return minimum <= offer.TotalCost
 }
 
 func checkMarketCity(city string) bool {
