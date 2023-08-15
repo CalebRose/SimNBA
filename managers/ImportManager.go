@@ -754,7 +754,6 @@ func ImportNewTeams() {
 func ImportDraftPicks() {
 	db := dbprovider.GetInstance().GetDB()
 
-	ts := GetTimestamp()
 	path := secrets.GetPath()["draftpicks"]
 	picks := util.ReadCSV(path)
 
@@ -765,11 +764,14 @@ func ImportDraftPicks() {
 		id := util.ConvertStringToInt(row[0])
 		round := util.ConvertStringToInt(row[1])
 		draftNumber := util.ConvertStringToInt(row[2])
+		season_id := util.ConvertStringToInt(row[3])
+		season := util.ConvertStringToInt(row[4])
 		drafteeID := 0
-		teamID := util.ConvertStringToInt(row[4])
-		team := row[5]
-		originalTeamID := util.ConvertStringToInt(row[6])
-		notes := "Consolation Pick"
+		teamID := util.ConvertStringToInt(row[5])
+		team := row[6]
+		originalTeamID := util.ConvertStringToInt(row[7])
+		originalTeam := row[8]
+		notes := ""
 
 		draftPick := structs.DraftPick{
 			DraftRound:     uint(round),
@@ -778,10 +780,10 @@ func ImportDraftPicks() {
 			TeamID:         uint(teamID),
 			Team:           team,
 			OriginalTeamID: uint(originalTeamID),
-			OriginalTeam:   team,
-			Season:         uint(ts.Season),
+			OriginalTeam:   originalTeam,
+			Season:         uint(season),
 			Notes:          notes,
-			SeasonID:       ts.SeasonID,
+			SeasonID:       uint(season_id),
 			Model:          gorm.Model{ID: uint(id)},
 		}
 
