@@ -256,8 +256,9 @@ func GetNBAWarRoomByTeamID(TeamID string) structs.NBAWarRoom {
 	db := dbprovider.GetInstance().GetDB()
 
 	warRoom := structs.NBAWarRoom{}
+	ts := GetTimestamp()
 
-	err := db.Preload("DraftPicks").
+	err := db.Preload("DraftPicks", "season_id = ?", strconv.Itoa(int(ts.SeasonID))).
 		Preload("ScoutProfiles.Draftee").
 		Preload("ScoutProfiles", "removed_from_board = ?", false).
 		Where("team_id = ?", TeamID).Find(&warRoom).Error
@@ -332,7 +333,7 @@ func CreateScoutingProfile(dto structs.ScoutingProfileDTO) structs.ScoutingProfi
 	scoutProfile := GetOnlyScoutProfileByPlayerIDandTeamID(strconv.Itoa(int(dto.PlayerID)), strconv.Itoa(int(dto.TeamID)))
 
 	// If Recruit Already Exists
-	if scoutProfile.PlayerID != 0 && scoutProfile.TeamID != 0 {
+	if scoutProfile.PlayerID > 0 && scoutProfile.TeamID > 0 {
 		scoutProfile.ReplaceOnBoard()
 		db.Save(&scoutProfile)
 		return scoutProfile

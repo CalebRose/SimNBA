@@ -77,7 +77,7 @@ func SyncToNextWeek(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func ShowAGames(w http.ResponseWriter, r *http.Request) {
+func ShowGames(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	vars := mux.Vars(r)
 	matchType := vars["matchType"]
