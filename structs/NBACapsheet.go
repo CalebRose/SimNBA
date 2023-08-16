@@ -70,7 +70,7 @@ func (cs *NBACapsheet) SyncByYear() {
 }
 
 func (nc *NBACapsheet) SubtractFromCapsheetViaTrade(contract NBAContract) {
-	nc.Year1Cap += contract.Year1Total
+	// nc.Year1Cap += contract.Year1Total -- This was a SimNFL implementation, not needed for SimNBA
 	nc.Year1Total -= contract.Year1Total
 	nc.Year2Total -= contract.Year2Total
 	nc.Year3Total -= contract.Year3Total
