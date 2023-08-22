@@ -70,6 +70,22 @@ func AddPlayerToScoutBoard(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(scoutingProfile)
 }
 
+func ExportDraftedPicks(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	var draftPickDTO structs.ExportDraftPicksDTO
+	err := json.NewDecoder(r.Body).Decode(&draftPickDTO)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	saveComplete := managers.ExportDraftedPlayers(draftPickDTO.DraftPicks)
+
+	json.NewEncoder(w).Encode(saveComplete)
+
+	fmt.Fprintf(w, "Exported Players to new tables")
+}
+
 func RevealScoutingAttribute(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	var revealAttributeDTO structs.RevealAttributeDTO

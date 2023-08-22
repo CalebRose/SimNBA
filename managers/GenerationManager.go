@@ -242,6 +242,113 @@ func GenerateCroots() {
 	// return playerList
 }
 
+func GenerateInternationalPlayers() {
+	db := dbprovider.GetInstance().GetDB()
+	var lastPlayerRecord structs.GlobalPlayer
+
+	err := db.Last(&lastPlayerRecord).Error
+	if err != nil {
+		log.Fatalln("Could not grab last player record from players table...")
+	}
+
+	// var playerList []structs.CollegePlayer
+
+	newID := lastPlayerRecord.ID + 1
+
+	firstNameMap, lastNameMap := getNameMaps()
+	var positionList []string = []string{"PG", "SG", "PF", "SF", "C"}
+
+	// Get all ISL teams
+	allProfessionalTeams := GetAllActiveNBATeams()
+
+	requiredPlayers := 2
+
+	for _, team := range allProfessionalTeams {
+		// If an NBA team, skip
+		if team.LeagueID == 1 {
+			continue
+		}
+		count := 0
+		// Generate two international players from the team's host country
+		for count < requiredPlayers {
+			pickedPosition := util.PickFromStringList(positionList)
+			pickedEthnicity := pickISLEthnicity(team.Country)
+			year := 1
+			player := createInternationalPlayer(team.ID, team.Team, team.Country, pickedEthnicity, pickedPosition, year, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], newID)
+
+			year1Salary := 0.0
+			year2Salary := 0.0
+			year3Salary := 0.0
+			year4Salary := 0.0
+			year5Salary := 0.0
+			yearsRemaining := 2
+			if player.Age < 22 {
+				yearsRemaining = 22 - player.Age
+				if yearsRemaining > 5 {
+					yearsRemaining = 5
+				}
+			}
+			for i := 1; i <= yearsRemaining; i++ {
+				if i == 1 {
+					year1Salary = 0.5
+				}
+				if i == 2 {
+					year2Salary = 0.5
+				}
+				if i == 3 {
+					year3Salary = 0.5
+				}
+				if i == 4 {
+					year4Salary = 0.5
+				}
+				if i == 5 {
+					year5Salary = 0.5
+				}
+			}
+			contract := structs.NBAContract{
+				PlayerID:       player.PlayerID,
+				TeamID:         player.TeamID,
+				Team:           player.TeamAbbr,
+				OriginalTeamID: player.TeamID,
+				OriginalTeam:   player.TeamAbbr,
+				YearsRemaining: uint(yearsRemaining),
+				ContractType:   "International",
+				TotalRemaining: year1Salary + year2Salary + year3Salary + year4Salary + year5Salary,
+				Year1Total:     year1Salary,
+				Year2Total:     year2Salary,
+				Year3Total:     year3Salary,
+				Year4Total:     year4Salary,
+				Year5Total:     year5Salary,
+				IsActive:       true,
+			}
+
+			err := db.Create(&player).Error
+			if err != nil {
+				log.Panicln("Could not save player record")
+			}
+
+			err = db.Create(&contract).Error
+			if err != nil {
+				log.Panicln("Could not save player record")
+			}
+
+			globalPlayer := structs.GlobalPlayer{
+				CollegePlayerID: newID,
+				RecruitID:       newID,
+				NBAPlayerID:     newID,
+			}
+
+			globalPlayer.SetID(newID)
+
+			db.Create(&globalPlayer)
+
+			count++
+			newID++
+		}
+	}
+	// return playerList
+}
+
 func CleanUpRecruits() {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -363,14 +470,27 @@ func GenerateDraftWarRooms() {
 func GeneratePlaytimeExpectations() {
 	db := dbprovider.GetInstance().GetDB()
 
-	collegePlayers := GetAllCollegePlayers()
+	// collegePlayers := GetAllCollegePlayers()
 
-	for _, c := range collegePlayers {
-		newExpectations := util.GetPlaytimeExpectations(c.Stars, c.Year, c.Overall)
+	// for _, c := range collegePlayers {
+	// 	newExpectations := util.GetPlaytimeExpectations(c.Stars, c.Year, c.Overall)
 
-		c.SetExpectations(newExpectations)
+	// 	c.SetExpectations(newExpectations)
 
-		db.Save(&c)
+	// 	db.Save(&c)
+	// }
+
+	nbaPlayers := GetAllNBAPlayers()
+
+	for _, n := range nbaPlayers {
+		newExpectations := util.GetProfessionalPlaytimeExpectations(n.Age, int(n.PrimeAge), n.Overall)
+		if newExpectations > n.Stamina {
+			newExpectations = n.Stamina - 5
+		}
+
+		n.SetExpectations(newExpectations)
+
+		db.Save(&n)
 	}
 }
 
@@ -561,6 +681,85 @@ func createRecruit(ethnicity string, position string, year int, firstNameList []
 	return croot
 }
 
+func createInternationalPlayer(teamID uint, team, country, ethnicity, position string, year int, firstNameList [][]string, lastNameList [][]string, id uint) structs.NBAPlayer {
+	fName := getName(firstNameList)
+	lName := getName(lastNameList)
+	caser := cases.Title(language.English)
+
+	firstName := caser.String(strings.ToLower(fName))
+	lastName := caser.String(strings.ToLower(lName))
+	age := util.GenerateISLAge()
+	primeAge := util.GeneratePrimeAge()
+	height := getHeight(position)
+	potential := util.GeneratePotential()
+	potentialGrade := util.GetWeightedPotentialGrade(potential)
+	proPotential := util.GeneratePotential()
+	stamina := util.GenerateStamina()
+
+	personality := util.GetPersonality()
+	academicBias := util.GetAcademicBias()
+	workEthic := util.GetWorkEthic()
+	recruitingBias := util.GetRecruitingBias()
+	freeAgency := util.GetFreeAgencyBias(0, 0)
+
+	var basePlayer = structs.BasePlayer{
+		FirstName:         firstName,
+		LastName:          lastName,
+		Position:          position,
+		Age:               age,
+		Year:              year,
+		State:             "",
+		Country:           country,
+		Height:            height,
+		Potential:         potential,
+		PotentialGrade:    potentialGrade,
+		ProPotentialGrade: proPotential,
+		Stamina:           stamina,
+		Minutes:           0,
+		Personality:       personality,
+		FreeAgency:        freeAgency,
+		RecruitingBias:    recruitingBias,
+		WorkEthic:         workEthic,
+		AcademicBias:      academicBias,
+	}
+
+	isNBAEligible := age > 21
+
+	var player = structs.NBAPlayer{
+		BasePlayer:      basePlayer,
+		PlayerID:        id,
+		TeamID:          teamID,
+		TeamAbbr:        team,
+		IsNBA:           isNBAEligible,
+		IsInternational: true,
+		PrimeAge:        uint(primeAge),
+	}
+
+	// Specialties
+	specs := util.GetSpecialties(position)
+	for _, spec := range specs {
+		player.ToggleSpecialties(spec)
+	}
+
+	shooting2 := util.GetAttributeNew(position, "Shooting2", player.SpecShooting2)
+	shooting3 := util.GetAttributeNew(position, "Shooting3", player.SpecShooting3)
+	finishing := util.GetAttributeNew(position, "Finishing", player.SpecFinishing)
+	freeThrow := util.GetAttributeNew(position, "FreeThrow", player.SpecFreeThrow)
+	ballwork := util.GetAttributeNew(position, "Ballwork", player.SpecBallwork)
+	rebounding := util.GetAttributeNew(position, "Rebounding", player.SpecRebounding)
+	interiorDefense := util.GetAttributeNew(position, "Interior Defense", player.SpecInteriorDefense)
+	perimeterDefense := util.GetAttributeNew(position, "Perimeter Defense", player.SpecPerimeterDefense)
+
+	overall := (int((shooting2 + shooting3 + freeThrow) / 3)) + finishing + ballwork + rebounding + int((interiorDefense+perimeterDefense)/2)
+	stars := getStarRating(overall)
+	expectations := util.GetProfessionalPlaytimeExpectations(age, primeAge, overall)
+
+	player.SetID(id)
+	player.SetAttributes(shooting2, shooting3, finishing, freeThrow, ballwork, rebounding, interiorDefense, perimeterDefense, overall, stars, expectations)
+
+	return player
+}
+
 func getNameList(ethnicity string, isFirstName bool) [][]string {
 	path := "C:\\Users\\ctros\\go\\src\\github.com\\CalebRose\\SimNBA\\data"
 	var fileName string
@@ -653,6 +852,26 @@ func pickEthnicity() string {
 	} else if num < 8900 {
 		return "Hispanic"
 	} else if num < 9975 {
+		return "Asian"
+	}
+	return "NativeAmerican"
+}
+
+func pickISLEthnicity(country string) string {
+
+	if country == "England" || country == "Scotland" || country == "Spain" ||
+		country == "Italy" || country == "Latvia" || country == "Poland" ||
+		country == "Estonia" || country == "Ukraine" || country == "France" ||
+		country == "Germany" || country == "Belgium" || country == "Netherlands" ||
+		country == "Turkey" || country == "Greece" || country == "Australia" ||
+		country == "Israel" || country == "Lithuania" || country == "Serbia" {
+		return "Caucasian"
+	} else if country == "Morocco" || country == "Egypt" {
+		return "African"
+	} else if country == "Mexico" || country == "Argentina" || country == "Brazil" {
+		return "Hispanic"
+	} else if country == "China" || country == "Japan" || country == "South Korea" ||
+		country == "Taiwan" || country == "Phillipines" || country == "New Zealand" {
 		return "Asian"
 	}
 	return "NativeAmerican"

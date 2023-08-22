@@ -55,6 +55,34 @@ func CancelFreeAgencyOffer(w http.ResponseWriter, r *http.Request) {
 }
 
 // FreeAgencyAvailablePlayers - Get All Available NFL Players for Free Agency Page
+func CreateWaiverOffer(w http.ResponseWriter, r *http.Request) {
+	var freeAgencyOfferDTO structs.NBAWaiverOfferDTO
+	err := json.NewDecoder(r.Body).Decode(&freeAgencyOfferDTO)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var offer = managers.CreateWaiverOffer(freeAgencyOfferDTO)
+
+	json.NewEncoder(w).Encode(offer)
+}
+
+// FreeAgencyAvailablePlayers - Get All Available NFL Players for Free Agency Page
+func CancelWaiverOffer(w http.ResponseWriter, r *http.Request) {
+	var freeAgencyOfferDTO structs.NBAWaiverOfferDTO
+	err := json.NewDecoder(r.Body).Decode(&freeAgencyOfferDTO)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	managers.CancelWaiverOffer(freeAgencyOfferDTO)
+
+	json.NewEncoder(w).Encode(true)
+}
+
+// FreeAgencyAvailablePlayers - Get All Available NFL Players for Free Agency Page
 func ExtendPlayers(w http.ResponseWriter, r *http.Request) {
 	managers.TempExtensionAlgorithm()
 	json.NewEncoder(w).Encode(true)

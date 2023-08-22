@@ -70,6 +70,7 @@ func handleRequests() {
 
 	// Draft Controls
 	// myRouter.HandleFunc("/nba/draft/conduct/lottery", controller.ConductDraftLottery).Methods("GET")
+	myRouter.HandleFunc("/nba/draft/export/picks", controller.ExportDraftedPicks).Methods("POST")
 	myRouter.HandleFunc("/nba/draft/page/{teamID}", controller.GetDraftPageData).Methods("GET")
 	myRouter.HandleFunc("/nba/draft/time/change", controller.ToggleDraftTime).Methods("GET")
 	myRouter.HandleFunc("/nba/draft/create/scoutprofile", controller.AddPlayerToScoutBoard).Methods("POST")
@@ -86,8 +87,8 @@ func handleRequests() {
 	myRouter.HandleFunc("/nba/freeagency/available/{teamID}", controller.FreeAgencyAvailablePlayers).Methods("GET")
 	myRouter.HandleFunc("/nba/freeagency/create/offer", controller.CreateFreeAgencyOffer).Methods("POST")
 	myRouter.HandleFunc("/nba/freeagency/cancel/offer", controller.CancelFreeAgencyOffer).Methods("POST")
-	myRouter.HandleFunc("/nba/freeagency/create/waiver", controller.CreateFreeAgencyOffer).Methods("POST")
-	myRouter.HandleFunc("/nba/freeagency/cancel/waiver", controller.CancelFreeAgencyOffer).Methods("POST")
+	myRouter.HandleFunc("/nba/freeagency/create/waiver", controller.CreateWaiverOffer).Methods("POST")
+	myRouter.HandleFunc("/nba/freeagency/cancel/waiver", controller.CancelWaiverOffer).Methods("POST")
 	myRouter.HandleFunc("/nba/freeagency/extensions/temp", controller.ExtendPlayers).Methods("GET")
 	myRouter.HandleFunc("/nba/freeagency/sync/round", controller.SyncFreeAgencyOffers).Methods("GET")
 
@@ -100,6 +101,7 @@ func handleRequests() {
 	// Generation Controls
 	// myRouter.HandleFunc("/admin/generateTeam", controller.GeneratePlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/generateCroots", controller.GenerateCroots).Methods("GET")
+	myRouter.HandleFunc("/admin/generate/international", controller.GenerateInternationalPlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/fix/height", controller.FixHeight).Methods("GET")
 	// myRouter.HandleFunc("/generate/playtime/expectations", controller.GeneratePlaytimeExpectations).Methods("GET")
 
@@ -123,7 +125,8 @@ func handleRequests() {
 	myRouter.HandleFunc("/match/week/{weekId}", controller.GetMatchesByTeamIdAndSeasonId).Methods("GET")
 	myRouter.HandleFunc("/match/season/{seasonID}", controller.GetMatchesBySeasonID).Methods("GET")
 	myRouter.HandleFunc("/match/team/upcoming/{teamId}/season/{seasonId}", controller.GetUpcomingMatchesByTeamIdAndSeasonId).Methods("GET")
-	myRouter.HandleFunc("/cbb/match/data/{homeTeamAbbr}/{awayTeamAbbr}", controller.GetMatchData).Methods("GET")
+	myRouter.HandleFunc("/cbb/match/data/{homeTeamAbbr}/{awayTeamAbbr}", controller.GetCBBMatchData).Methods("GET")
+	myRouter.HandleFunc("/nba/match/data/{homeTeamID}/{awayTeamID}", controller.GetNBAMatchData).Methods("GET")
 	myRouter.HandleFunc("/nba/match/team/{teamId}/season/{seasonId}", controller.GetNBAMatchesByTeamIdAndSeasonId).Methods("GET")
 	// News Controls
 	myRouter.HandleFunc("/cbb/news/all/", controller.GetAllCBBNewsInASeason).Methods("GET")

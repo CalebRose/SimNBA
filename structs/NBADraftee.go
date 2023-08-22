@@ -96,3 +96,10 @@ func (n *NBADraftee) ApplyGrades(s2, s3, ft, fn, bw, rb, id, pd, ov string) {
 func (n *NBADraftee) PredictRound(round int) {
 	n.Prediction = round
 }
+
+func (n *NBADraftee) AssignDraftedTeam(DraftPick string, PickID, TeamID uint, Abbr string) {
+	n.DraftPick = DraftPick
+	n.DraftPickID = PickID
+	n.DraftedTeamID = TeamID
+	n.DraftedTeamAbbr = Abbr
+}

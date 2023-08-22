@@ -427,13 +427,17 @@ func GetNBATeamRatings(t structs.NBATeam) {
 
 	offenseSum := 0
 	defenseSum := 0
-
-	for idx, player := range players {
-		if idx > 9 {
+	count := 0
+	for _, player := range players {
+		if player.IsGLeague {
+			continue
+		}
+		if count > 9 {
 			break
 		}
 		offenseSum += player.Shooting2 + player.Shooting3 + player.Finishing + player.FreeThrow
 		defenseSum += player.Ballwork + player.Rebounding + player.InteriorDefense + player.PerimeterDefense
+		count++
 	}
 
 	offenseRating = offenseSum / 9

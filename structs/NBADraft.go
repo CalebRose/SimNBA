@@ -92,3 +92,7 @@ type ScoutingDataResponse struct {
 	DrafteeSeasonStats CollegePlayerSeasonStats
 	TeamStandings      CollegeStandings
 }
+
+type ExportDraftPicksDTO struct {
+	DraftPicks []DraftPick
+}
