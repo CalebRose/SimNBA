@@ -76,6 +76,14 @@ func (n *NBAPlayer) SignWithTeam(teamID uint, team string) {
 	n.TeamAbbr = team
 	n.TeamID = teamID
 	n.IsFreeAgent = false
+	n.IsWaived = false
+	n.IsGLeague = false
+	n.IsTwoWay = false
+	if teamID < 33 {
+		n.IsInternational = false
+	} else {
+		n.IsInternational = true
+	}
 }
 
 func (n *NBAPlayer) Progress(p NBAPlayerProgressions) {

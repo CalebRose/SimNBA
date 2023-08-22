@@ -100,3 +100,7 @@ func (c *NBAContract) TradePlayer(TeamID uint, Team string) {
 	c.TeamID = TeamID
 	c.Team = Team
 }
+
+func (c *NBAContract) MakeContractActive() {
+	c.IsActive = true
+}
