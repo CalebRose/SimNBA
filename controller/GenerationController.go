@@ -17,6 +17,11 @@ func GenerateCroots(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("GENERATION COMPLETE")
 }
 
+func GenerateInternationalPlayers(w http.ResponseWriter, r *http.Request) {
+	managers.GenerateInternationalPlayers()
+	json.NewEncoder(w).Encode("GENERATION COMPLETE")
+}
+
 func GenerateGlobalPlayerRecords(w http.ResponseWriter, r *http.Request) {
 	managers.GenerateGlobalPlayerRecords()
 	json.NewEncoder(w).Encode("GENERATION COMPLETE")

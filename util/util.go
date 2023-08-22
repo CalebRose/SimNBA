@@ -66,6 +66,38 @@ func GeneratePrimeAge() int {
 	return 34
 }
 
+func GenerateISLAge() int {
+	mean := 19.0
+	standardDeviation := 1.2 // Adjust this value to change the spread
+
+	value := rand.NormFloat64()*standardDeviation + mean
+
+	// Clamp the value to the range [16, 22]
+	if value < 16 {
+		value = 16
+	} else if value > 22 {
+		value = 22
+	}
+
+	return int(value)
+}
+
+func GenerateStamina() int {
+	mean := 32.0
+	standardDeviation := 1.6 // Adjust this value to change the spread
+
+	value := rand.NormFloat64()*standardDeviation + mean
+
+	// Clamp the value to the range [25, 38]
+	if value < 25 {
+		value = 25
+	} else if value > 38 {
+		value = 38
+	}
+
+	return int(value)
+}
+
 func GeneratePotential() int {
 	num := GenerateIntFromRange(1, 100)
 
@@ -517,40 +549,40 @@ func GetNumericalSortValueByLetterGrade(grade string) int {
 }
 
 func GetNBATeamGrade(rating int) string {
-	if rating > 84 {
+	if rating > 89 {
 		return "A+"
 	}
-	if rating > 79 {
+	if rating > 84 {
 		return "A"
 	}
-	if rating > 74 {
+	if rating > 79 {
 		return "A-"
 	}
-	if rating > 70 {
+	if rating > 74 {
 		return "B+"
 	}
-	if rating > 65 {
+	if rating > 70 {
 		return "B"
 	}
-	if rating > 60 {
+	if rating > 65 {
 		return "B-"
 	}
-	if rating > 55 {
+	if rating > 60 {
 		return "C+"
 	}
-	if rating > 50 {
+	if rating > 55 {
 		return "C"
 	}
-	if rating > 45 {
+	if rating > 50 {
 		return "C-"
 	}
-	if rating > 40 {
+	if rating > 45 {
 		return "D+"
 	}
-	if rating > 35 {
+	if rating > 40 {
 		return "D"
 	}
-	if rating > 30 {
+	if rating > 35 {
 		return "D-"
 	}
 	return "F"
@@ -768,6 +800,42 @@ func GetPlaytimeExpectations(stars int, year int, overall int) int {
 	}
 }
 
+func GetProfessionalPlaytimeExpectations(age, primeage, overall int) int {
+	mod := calculateOverallModifier(overall)
+	if age < 23 {
+		mod -= 5
+	} else if age >= primeage {
+		mod -= (age - primeage)
+	}
+	if age < 23 {
+		return GenerateIntFromRange(0, 12) + mod
+	} else if age <= primeage {
+		return GenerateIntFromRange(7, 20) + mod
+	} else if age > primeage {
+		return GenerateIntFromRange(3, 15) + mod
+	}
+
+	return 0
+}
+
+// calculateOverallModifier - Returns a modifier between 0 and 100 based on the overall of the player
+func calculateOverallModifier(overall int) int {
+	minOverall := 60
+	maxOverall := 100 // Changed to match your specific game
+	minModifier := 1
+	maxModifier := 10
+
+	// Interpolate between min and max values
+	modifier := (overall-minOverall)*(maxModifier-minModifier)/(maxOverall-minOverall) + minModifier
+
+	// Apply the cap
+	if modifier > maxModifier {
+		return maxModifier
+	} else {
+		return modifier
+	}
+}
+
 func ConvertStringToBool(str string) bool {
 	return str == "TRUE" || str == "1"
 }
@@ -897,4 +965,38 @@ func GetLotteryChances(idx int) uint {
 		return 2
 	}
 	return 1
+}
+
+func GetAttributeNew(position, attribute string, spec bool) int {
+	mod := 0
+	if spec {
+		mod = 2
+	}
+	if position == "PG" || position == "SG" {
+		if attribute == "Shooting2" || attribute == "Shooting3" ||
+			attribute == "Ballwork" {
+			mod += GenerateIntFromRange(1, 2)
+		} else if attribute == "Rebounding" || attribute == "Interior Defense" {
+			mod -= GenerateIntFromRange(0, 2)
+		}
+	} else if position == "SG" || position == "SF" {
+		if attribute == "Perimeter Defense" {
+			mod += GenerateIntFromRange(1, 2)
+		}
+	} else if position == "PF" || position == "SF" {
+		if attribute == "Finishing" {
+			mod += GenerateIntFromRange(1, 2)
+		} else if attribute == "Shooting3" {
+			mod -= GenerateIntFromRange(0, 2)
+		}
+	} else if position == "C" {
+		if attribute == "Finishing" || attribute == "Interior Defense" ||
+			attribute == "Rebounding" {
+			mod += GenerateIntFromRange(1, 2)
+		} else if attribute == "Shooting2" || attribute == "Shooting3" ||
+			attribute == "FreeThrow" || attribute == "Ballwork" {
+			mod -= GenerateIntFromRange(0, 2)
+		}
+	}
+	return GenerateIntFromRange(4, 14) + mod
 }

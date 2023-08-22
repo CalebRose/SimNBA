@@ -33,7 +33,7 @@ type MatchResponse struct {
 	Channel                uint
 }
 
-type MatchDataResponse struct {
+type CBBMatchDataResponse struct {
 	HomeTeam         MatchTeamResponse
 	HomeTeamRoster   []CollegePlayer
 	HomeTeamGameplan Gameplan
@@ -47,13 +47,39 @@ type MatchDataResponse struct {
 	League           string
 }
 
-func (mdr *MatchDataResponse) AssignHomeTeam(team MatchTeamResponse, roster []CollegePlayer, gp Gameplan) {
+func (mdr *CBBMatchDataResponse) AssignHomeTeam(team MatchTeamResponse, roster []CollegePlayer, gp Gameplan) {
 	mdr.HomeTeam = team
 	mdr.HomeTeamRoster = roster
 	mdr.HomeTeamGameplan = gp
 }
 
-func (mdr *MatchDataResponse) AssignAwayTeam(team MatchTeamResponse, roster []CollegePlayer, gp Gameplan) {
+func (mdr *CBBMatchDataResponse) AssignAwayTeam(team MatchTeamResponse, roster []CollegePlayer, gp Gameplan) {
+	mdr.AwayTeam = team
+	mdr.AwayTeamRoster = roster
+	mdr.AwayTeamGameplan = gp
+}
+
+type NBAMatchDataResponse struct {
+	HomeTeam         MatchTeamResponse
+	HomeTeamRoster   []NBAPlayer
+	HomeTeamGameplan NBAGameplan
+	AwayTeam         MatchTeamResponse
+	AwayTeamRoster   []NBAPlayer
+	AwayTeamGameplan NBAGameplan
+	GameID           uint
+	Match            string
+	WeekID           uint
+	SeasonID         uint
+	League           string
+}
+
+func (mdr *NBAMatchDataResponse) AssignHomeTeam(team MatchTeamResponse, roster []NBAPlayer, gp NBAGameplan) {
+	mdr.HomeTeam = team
+	mdr.HomeTeamRoster = roster
+	mdr.HomeTeamGameplan = gp
+}
+
+func (mdr *NBAMatchDataResponse) AssignAwayTeam(team MatchTeamResponse, roster []NBAPlayer, gp NBAGameplan) {
 	mdr.AwayTeam = team
 	mdr.AwayTeamRoster = roster
 	mdr.AwayTeamGameplan = gp
@@ -77,4 +103,18 @@ func (mtr *MatchTeamResponse) Map(team Team) {
 	mtr.Abbr = team.Abbr
 	mtr.Conference = team.Conference
 	mtr.Coach = team.Coach
+}
+
+func (mtr *MatchTeamResponse) MapNBATeam(team NBATeam) {
+	mtr.ID = team.ID
+	mtr.TeamName = team.Team
+	mtr.Mascot = team.Nickname
+	mtr.Abbr = team.Abbr
+	mtr.Conference = team.Conference
+	if len(team.NBACoachName) > 0 {
+		mtr.Coach = team.NBACoachName
+	} else {
+		mtr.Coach = team.NBAOwnerName
+	}
+
 }

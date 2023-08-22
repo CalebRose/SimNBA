@@ -373,10 +373,10 @@ func SyncFreeAgencyOffers() {
 		if FA.IsSuperMaxQualified {
 			contractStatus = "SuperMax"
 		}
-		for _, Offer := range Offers {
+		for idx, Offer := range Offers {
 			multiplier := 1.0
 			team := GetNBATeamByTeamID(strconv.Itoa(int(Offer.TeamID)))
-			validation := validateFreeAgencyPref(FA, team, strconv.Itoa(int(ts.SeasonID)))
+			validation := validateFreeAgencyPref(FA, team, strconv.Itoa(int(ts.SeasonID)), idx)
 			if validation && FA.FreeAgency != "Average" {
 				multiplier = 0.85
 			} else if !validation && FA.FreeAgency != "Average" {
@@ -587,11 +587,14 @@ func TempExtensionAlgorithm() {
 			contractStatus = "SuperMax"
 		}
 		multiplier := 1.0
-		validation := validateFreeAgencyPref(playerRecord, team, strconv.Itoa(int(ts.SeasonID)))
+		validation := validateFreeAgencyPref(playerRecord, team, strconv.Itoa(int(ts.SeasonID)), idx)
 		if validation && playerRecord.FreeAgency != "Average" {
 			multiplier = 0.85
 		} else if !validation && playerRecord.FreeAgency != "Average" {
 			multiplier = 1.15
+		}
+		if playerRecord.FreeAgency == "Highest bidder" {
+			multiplier = 1
 		}
 		minimumValue = minimumValue * multiplier
 		validOffer := validateContract(nbaContract, contractStatus, minimumValue)
@@ -618,7 +621,7 @@ func TempExtensionAlgorithm() {
 	// If not, continue algorithm
 }
 
-func validateFreeAgencyPref(playerRecord structs.NBAPlayer, team structs.NBATeam, seasonID string) bool {
+func validateFreeAgencyPref(playerRecord structs.NBAPlayer, team structs.NBATeam, seasonID string, idx int) bool {
 	preference := playerRecord.FreeAgency
 
 	if preference == "Average" {
@@ -658,7 +661,7 @@ func validateFreeAgencyPref(playerRecord structs.NBAPlayer, team structs.NBATeam
 	if preference == "Money motivated" {
 		return false
 	}
-	if preference == "Highest bidder" {
+	if preference == "Highest bidder" && idx == 0 {
 		return true
 	}
 	if preference == "Championship seeking" {
