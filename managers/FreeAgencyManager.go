@@ -414,6 +414,12 @@ func SyncFreeAgencyOffers() {
 			winningOffer := offers[0]
 			w.SignWithTeam(winningOffer.TeamID, winningOffer.Team)
 
+			contract := GetNBAContractsByPlayerID(strconv.Itoa(int(w.ID)))
+			contract.TradePlayer(winningOffer.TeamID, winningOffer.Team)
+			contract.MakeContractActive()
+
+			db.Save(&contract)
+
 			message := w.Position + " " + w.FirstName + " " + w.LastName + " was picked up on the Waiver Wire by " + winningOffer.Team
 			CreateNewsLog("NBA", message, "Free Agency", int(winningOffer.TeamID), ts)
 

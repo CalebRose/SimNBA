@@ -70,12 +70,23 @@ func (n *NBAPlayer) BecomeFreeAgent() {
 	n.IsOnTradeBlock = false
 	n.IsGLeague = false
 	n.IsTwoWay = false
+	n.IsAcceptingOffers = true
 }
 
 func (n *NBAPlayer) SignWithTeam(teamID uint, team string) {
 	n.TeamAbbr = team
 	n.TeamID = teamID
 	n.IsFreeAgent = false
+	n.IsWaived = false
+	n.IsGLeague = false
+	n.IsTwoWay = false
+	n.IsAcceptingOffers = false
+	n.IsNegotiating = false
+	if teamID < 33 {
+		n.IsInternational = false
+	} else {
+		n.IsInternational = true
+	}
 }
 
 func (n *NBAPlayer) Progress(p NBAPlayerProgressions) {
@@ -130,6 +141,7 @@ func (np *NBAPlayer) WaivePlayer() {
 	np.IsOnTradeBlock = false
 	np.IsGLeague = false
 	np.IsTwoWay = false
+	np.IsAcceptingOffers = true
 }
 
 func (np *NBAPlayer) ConvertWaivedPlayerToFA() {
