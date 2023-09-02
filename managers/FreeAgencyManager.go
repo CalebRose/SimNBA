@@ -254,7 +254,7 @@ func GetWaiverOffersByPlayerID(playerID string) []structs.NBAWaiverOffer {
 
 	offers := []structs.NBAWaiverOffer{}
 
-	err := db.Where("player_id = ?", playerID).Find(&offers).Error
+	err := db.Order("waiver_order asc").Where("player_id = ?", playerID).Find(&offers).Error
 	if err != nil {
 		return offers
 	}
@@ -403,15 +403,16 @@ func SyncFreeAgencyOffers() {
 	WaiverWirePlayers := GetAllWaiverWirePlayers()
 
 	for _, w := range WaiverWirePlayers {
-		if len(w.WaiverOffers) == 0 {
+
+		waiverOffers := GetWaiverOffersByPlayerID(strconv.Itoa(int(w.ID)))
+		if len(waiverOffers) == 0 {
 			// Deactivate Contract, convert to Free Agent
 			w.ConvertWaivedPlayerToFA()
 			contract := GetContractByPlayerID(strconv.Itoa(int(w.ID)))
 			contract.DeactivateContract()
 			db.Save(&contract)
 		} else {
-			offers := GetWaiverOffersByPlayerID(strconv.Itoa(int(w.ID)))
-			winningOffer := offers[0]
+			winningOffer := waiverOffers[0]
 			w.SignWithTeam(winningOffer.TeamID, winningOffer.Team)
 
 			contract := GetNBAContractsByPlayerID(strconv.Itoa(int(w.ID)))
@@ -436,7 +437,7 @@ func SyncFreeAgencyOffers() {
 			}
 
 			// Delete current waiver offers
-			for _, o := range offers {
+			for _, o := range waiverOffers {
 				db.Delete(&o)
 			}
 		}
