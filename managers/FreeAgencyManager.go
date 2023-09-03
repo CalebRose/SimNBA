@@ -506,9 +506,6 @@ func SyncFreeAgencyOffers() {
 		}
 	}
 
-	if ts.IsNBAOffseason {
-		ts.MoveUpFreeAgencyRound()
-	}
 	ts.ToggleFALock()
 	ts.ToggleGMActions()
 	db.Save(&ts)
