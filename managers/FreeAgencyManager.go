@@ -516,7 +516,7 @@ func GetFreeAgentOffersByPlayerID(PlayerID string) []structs.NBAContractOffer {
 
 	offers := []structs.NBAContractOffer{}
 
-	err := db.Where("NBA_player_id = ? AND is_active = ?", PlayerID, true).Find(&offers).Error
+	err := db.Where("player_id = ? AND is_active = ?", PlayerID, true).Find(&offers).Error
 	if err != nil {
 		return offers
 	}
