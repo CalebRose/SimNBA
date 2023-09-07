@@ -77,6 +77,7 @@ func (n *NBAContractOffer) CalculateOffer(offer NBAContractOfferDTO) {
 	n.Year3Opt = offer.Year3Opt
 	n.Year4Opt = offer.Year4Opt
 	n.Year5Opt = offer.Year5Opt
+	n.TotalCost = offer.Year1Total + offer.Year2Total + offer.Year3Total + offer.Year4Total + offer.Year5Total
 	n.IsActive = true
 
 	// Calculate Value
