@@ -116,6 +116,7 @@ func (n *NBAPlayer) QualifiesForMax() {
 
 func (n *NBAPlayer) ToggleIsNegotiating() {
 	n.IsNegotiating = true
+	n.IsAcceptingOffers = false
 }
 
 func (np *NBAPlayer) ToggleTradeBlock() {

@@ -11,8 +11,8 @@ import (
 
 func SyncFreeAgencyOffers(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
-	managers.MoveUpInOffseasonFreeAgency()
 	managers.SyncFreeAgencyOffers()
+	managers.MoveUpInOffseasonFreeAgency()
 	json.NewEncoder(w).Encode("Moved to next free agency round")
 }
 
