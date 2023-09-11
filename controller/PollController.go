@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -24,8 +23,17 @@ func CreatePollSubmission(w http.ResponseWriter, r *http.Request) {
 		log.Fatalln("ERROR: Cannot submit poll.")
 	}
 
-	managers.CreatePoll(dto)
-	fmt.Println(w, "New Poll Submitted")
+	poll := managers.CreatePoll(dto)
+	json.NewEncoder(w).Encode(poll)
+}
+
+func GetPollSubmission(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	vars := mux.Vars(r)
+	username := vars["username"]
+
+	poll := managers.GetPollSubmissionByUsernameWeekAndSeason(username)
+	json.NewEncoder(w).Encode(poll)
 }
 
 func SyncCollegePoll(w http.ResponseWriter, r *http.Request) {

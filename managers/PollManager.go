@@ -21,6 +21,22 @@ func GetAllCollegePollsByWeekIDAndSeasonID(weekID, seasonID string) []structs.Co
 	return submissions
 }
 
+func GetPollSubmissionByUsernameWeekAndSeason(username string) structs.CollegePollSubmission {
+	db := dbprovider.GetInstance().GetDB()
+	ts := GetTimestamp()
+	weekID := strconv.Itoa(int(ts.CollegeWeekID))
+	seasonID := strconv.Itoa(int(ts.SeasonID))
+
+	submission := structs.CollegePollSubmission{}
+
+	err := db.Where("username = ? AND week_id = ? AND season_id = ?", username, weekID, seasonID).Find(&submission).Error
+	if err != nil {
+		return structs.CollegePollSubmission{}
+	}
+
+	return submission
+}
+
 func SyncCollegePollSubmissionForCurrentWeek() {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -96,10 +112,12 @@ func SyncCollegePollSubmissionForCurrentWeek() {
 	db.Save(&officialPoll)
 }
 
-func CreatePoll(dto structs.CollegePollSubmission) {
+func CreatePoll(dto structs.CollegePollSubmission) structs.CollegePollSubmission {
 	db := dbprovider.GetInstance().GetDB()
 
 	db.Create(&dto)
+
+	return dto
 }
 
 func GetOfficialPollByWeekIDAndSeasonID(weekID, seasonID string) structs.CollegePollOfficial {
