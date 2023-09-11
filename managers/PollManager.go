@@ -21,6 +21,19 @@ func GetAllCollegePollsByWeekIDAndSeasonID(weekID, seasonID string) []structs.Co
 	return submissions
 }
 
+func GetPollSubmissionBySubmissionID(id string) structs.CollegePollSubmission {
+	db := dbprovider.GetInstance().GetDB()
+
+	submission := structs.CollegePollSubmission{}
+
+	err := db.Where("id = ?", id).Find(&submission).Error
+	if err != nil {
+		return structs.CollegePollSubmission{}
+	}
+
+	return submission
+}
+
 func GetPollSubmissionByUsernameWeekAndSeason(username string) structs.CollegePollSubmission {
 	db := dbprovider.GetInstance().GetDB()
 	ts := GetTimestamp()
@@ -114,8 +127,13 @@ func SyncCollegePollSubmissionForCurrentWeek() {
 
 func CreatePoll(dto structs.CollegePollSubmission) structs.CollegePollSubmission {
 	db := dbprovider.GetInstance().GetDB()
-
-	db.Create(&dto)
+	existingPoll := GetPollSubmissionBySubmissionID(strconv.Itoa(int(dto.ID)))
+	if existingPoll.ID > 0 {
+		dto.AssignID(existingPoll.ID)
+		db.Save(&dto)
+	} else {
+		db.Create(&dto)
+	}
 
 	return dto
 }

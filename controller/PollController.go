@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/CalebRose/SimNBA/managers"
 	"github.com/CalebRose/SimNBA/structs"
@@ -32,8 +33,20 @@ func GetPollSubmission(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	username := vars["username"]
 
+	ts := managers.GetTimestamp()
+	seasonID := strconv.Itoa(int(ts.SeasonID))
+	weekID := strconv.Itoa(int(ts.CollegeWeekID))
 	poll := managers.GetPollSubmissionByUsernameWeekAndSeason(username)
-	json.NewEncoder(w).Encode(poll)
+	conferenceStandings := managers.GetAllConferenceStandingsBySeasonID(seasonID)
+	collegeGames := managers.GetMatchesByWeekId(weekID, seasonID)
+
+	res := structs.PollDataResponse{
+		Poll:      poll,
+		Matches:   collegeGames,
+		Standings: conferenceStandings,
+	}
+
+	json.NewEncoder(w).Encode(res)
 }
 
 func SyncCollegePoll(w http.ResponseWriter, r *http.Request) {

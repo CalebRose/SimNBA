@@ -169,6 +169,10 @@ type CollegePollOfficial struct {
 	Rank25No1Votes     uint
 }
 
+func (s *CollegePollSubmission) AssignID(id uint) {
+	s.ID = id
+}
+
 func (c *CollegePollOfficial) AssignRank(idx int, vote TeamVote) {
 	if idx == 0 {
 		c.RankOne = vote.Team

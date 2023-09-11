@@ -225,7 +225,7 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 	weekId := strconv.Itoa(int(ts.CollegeWeekID))
 	seasonId := strconv.Itoa(int(ts.SeasonID))
 
-	matches := GetMatchesByWeekId(weekId, seasonId, MatchType)
+	matches := GetMatchesByWeekIdAndMatchType(weekId, seasonId, MatchType)
 
 	for _, match := range matches {
 		homeTeamStats := GetCBBTeamStatsByMatch(strconv.Itoa(int(match.HomeTeamID)), strconv.Itoa(int(match.ID)))
@@ -273,7 +273,7 @@ func RegressSeasonStats(ts structs.Timestamp, MatchType string) {
 	weekId := strconv.Itoa(int(ts.CollegeWeekID))
 	seasonId := strconv.Itoa(int(ts.SeasonID))
 
-	matches := GetMatchesByWeekId(weekId, seasonId, MatchType)
+	matches := GetMatchesByWeekIdAndMatchType(weekId, seasonId, MatchType)
 
 	for _, match := range matches {
 		homeTeamStats := GetCBBTeamStatsByMatch(strconv.Itoa(int(match.HomeTeamID)), strconv.Itoa(int(match.ID)))
