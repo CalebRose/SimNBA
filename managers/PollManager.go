@@ -21,6 +21,35 @@ func GetAllCollegePollsByWeekIDAndSeasonID(weekID, seasonID string) []structs.Co
 	return submissions
 }
 
+func GetPollSubmissionBySubmissionID(id string) structs.CollegePollSubmission {
+	db := dbprovider.GetInstance().GetDB()
+
+	submission := structs.CollegePollSubmission{}
+
+	err := db.Where("id = ?", id).Find(&submission).Error
+	if err != nil {
+		return structs.CollegePollSubmission{}
+	}
+
+	return submission
+}
+
+func GetPollSubmissionByUsernameWeekAndSeason(username string) structs.CollegePollSubmission {
+	db := dbprovider.GetInstance().GetDB()
+	ts := GetTimestamp()
+	weekID := strconv.Itoa(int(ts.CollegeWeekID))
+	seasonID := strconv.Itoa(int(ts.SeasonID))
+
+	submission := structs.CollegePollSubmission{}
+
+	err := db.Where("username = ? AND week_id = ? AND season_id = ?", username, weekID, seasonID).Find(&submission).Error
+	if err != nil {
+		return structs.CollegePollSubmission{}
+	}
+
+	return submission
+}
+
 func SyncCollegePollSubmissionForCurrentWeek() {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -40,17 +69,17 @@ func SyncCollegePollSubmissionForCurrentWeek() {
 	}
 
 	for _, s := range submissions {
-		voteMap[s.RankOneID].AddVotes(1)
-		voteMap[s.RankTwoID].AddVotes(2)
-		voteMap[s.RankThreeID].AddVotes(3)
-		voteMap[s.RankFourID].AddVotes(4)
-		voteMap[s.RankFiveID].AddVotes(5)
-		voteMap[s.RankSixID].AddVotes(6)
-		voteMap[s.RankSevenID].AddVotes(7)
-		voteMap[s.RankEightID].AddVotes(8)
-		voteMap[s.RankNineID].AddVotes(9)
-		voteMap[s.RankTenID].AddVotes(10)
-		voteMap[s.RankElevenID].AddVotes(11)
+		voteMap[s.Rank1ID].AddVotes(1)
+		voteMap[s.Rank2ID].AddVotes(2)
+		voteMap[s.Rank3ID].AddVotes(3)
+		voteMap[s.Rank4ID].AddVotes(4)
+		voteMap[s.Rank5ID].AddVotes(5)
+		voteMap[s.Rank6ID].AddVotes(6)
+		voteMap[s.Rank7ID].AddVotes(7)
+		voteMap[s.Rank8ID].AddVotes(8)
+		voteMap[s.Rank9ID].AddVotes(9)
+		voteMap[s.Rank10ID].AddVotes(10)
+		voteMap[s.Rank11ID].AddVotes(11)
 		voteMap[s.Rank12ID].AddVotes(12)
 		voteMap[s.Rank13ID].AddVotes(13)
 		voteMap[s.Rank14ID].AddVotes(14)
@@ -96,10 +125,17 @@ func SyncCollegePollSubmissionForCurrentWeek() {
 	db.Save(&officialPoll)
 }
 
-func CreatePoll(dto structs.CollegePollSubmission) {
+func CreatePoll(dto structs.CollegePollSubmission) structs.CollegePollSubmission {
 	db := dbprovider.GetInstance().GetDB()
+	existingPoll := GetPollSubmissionBySubmissionID(strconv.Itoa(int(dto.ID)))
+	if existingPoll.ID > 0 {
+		dto.AssignID(existingPoll.ID)
+		db.Save(&dto)
+	} else {
+		db.Create(&dto)
+	}
 
-	db.Create(&dto)
+	return dto
 }
 
 func GetOfficialPollByWeekIDAndSeasonID(weekID, seasonID string) structs.CollegePollOfficial {

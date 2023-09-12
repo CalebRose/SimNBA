@@ -118,3 +118,9 @@ func (mtr *MatchTeamResponse) MapNBATeam(team NBATeam) {
 	}
 
 }
+
+type PollDataResponse struct {
+	Poll      CollegePollSubmission
+	Matches   []Match
+	Standings []CollegeStandings
+}

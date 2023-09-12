@@ -33,7 +33,7 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 	}
 
 	// Get College Matches
-	collegeMatches := GetMatchesByWeekId(weekID, seasonID, matchType)
+	collegeMatches := GetMatchesByWeekIdAndMatchType(weekID, seasonID, matchType)
 
 	for _, c := range collegeMatches {
 		if c.GameComplete {
@@ -312,12 +312,22 @@ func GetNBATeamMatchesByWeekId(weekId, seasonID, matchType, teamID string) []str
 	return teamMatches
 }
 
-func GetMatchesByWeekId(weekId string, seasonID string, matchType string) []structs.Match {
+func GetMatchesByWeekIdAndMatchType(weekId string, seasonID string, matchType string) []structs.Match {
 	db := dbprovider.GetInstance().GetDB()
 
 	var teamMatches []structs.Match
 
 	db.Where("week_id = ? AND season_id = ? AND match_of_week = ?", weekId, seasonID, matchType).Find(&teamMatches)
+
+	return teamMatches
+}
+
+func GetMatchesByWeekId(weekId, seasonID string) []structs.Match {
+	db := dbprovider.GetInstance().GetDB()
+
+	var teamMatches []structs.Match
+
+	db.Order("match_of_week asc").Where("week_id = ? AND season_id = ?", weekId, seasonID).Find(&teamMatches)
 
 	return teamMatches
 }

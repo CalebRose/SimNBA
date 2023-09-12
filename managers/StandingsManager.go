@@ -86,7 +86,7 @@ func GetNBAStandingsBySeasonID(seasonID string) []structs.NBAStandings {
 func UpdateStandings(ts structs.Timestamp, MatchType string) {
 	db := dbprovider.GetInstance().GetDB()
 
-	games := GetMatchesByWeekId(strconv.Itoa(int(ts.CollegeWeekID)), strconv.Itoa(int(ts.SeasonID)), MatchType)
+	games := GetMatchesByWeekIdAndMatchType(strconv.Itoa(int(ts.CollegeWeekID)), strconv.Itoa(int(ts.SeasonID)), MatchType)
 
 	for i := 0; i < len(games); i++ {
 		game := games[i]
@@ -159,7 +159,7 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 func RegressStandings(ts structs.Timestamp, MatchType string) {
 	db := dbprovider.GetInstance().GetDB()
 
-	games := GetMatchesByWeekId(strconv.Itoa(int(ts.CollegeWeekID)), strconv.Itoa(int(ts.SeasonID)), MatchType)
+	games := GetMatchesByWeekIdAndMatchType(strconv.Itoa(int(ts.CollegeWeekID)), strconv.Itoa(int(ts.SeasonID)), MatchType)
 
 	for i := 0; i < len(games); i++ {
 		HomeID := games[i].HomeTeamID

@@ -2,9 +2,9 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/CalebRose/SimNBA/managers"
 	"github.com/CalebRose/SimNBA/structs"
@@ -24,8 +24,29 @@ func CreatePollSubmission(w http.ResponseWriter, r *http.Request) {
 		log.Fatalln("ERROR: Cannot submit poll.")
 	}
 
-	managers.CreatePoll(dto)
-	fmt.Println(w, "New Poll Submitted")
+	poll := managers.CreatePoll(dto)
+	json.NewEncoder(w).Encode(poll)
+}
+
+func GetPollSubmission(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	vars := mux.Vars(r)
+	username := vars["username"]
+
+	ts := managers.GetTimestamp()
+	seasonID := strconv.Itoa(int(ts.SeasonID))
+	weekID := strconv.Itoa(int(ts.CollegeWeekID))
+	poll := managers.GetPollSubmissionByUsernameWeekAndSeason(username)
+	conferenceStandings := managers.GetAllConferenceStandingsBySeasonID(seasonID)
+	collegeGames := managers.GetMatchesByWeekId(weekID, seasonID)
+
+	res := structs.PollDataResponse{
+		Poll:      poll,
+		Matches:   collegeGames,
+		Standings: conferenceStandings,
+	}
+
+	json.NewEncoder(w).Encode(res)
 }
 
 func SyncCollegePoll(w http.ResponseWriter, r *http.Request) {
