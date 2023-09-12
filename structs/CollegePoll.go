@@ -6,167 +6,167 @@ import (
 
 type CollegePollSubmission struct {
 	gorm.Model
-	Username     string
-	SeasonID     uint
-	WeekID       uint
-	Week         uint
-	RankOne      string
-	RankOneID    uint
-	RankTwo      string
-	RankTwoID    uint
-	RankThree    string
-	RankThreeID  uint
-	RankFour     string
-	RankFourID   uint
-	RankFive     string
-	RankFiveID   uint
-	RankSix      string
-	RankSixID    uint
-	RankSeven    string
-	RankSevenID  uint
-	RankEight    string
-	RankEightID  uint
-	RankNine     string
-	RankNineID   uint
-	RankTen      string
-	RankTenID    uint
-	RankEleven   string
-	RankElevenID uint
-	Rank12       string
-	Rank12ID     uint
-	Rank13       string
-	Rank13ID     uint
-	Rank14       string
-	Rank14ID     uint
-	Rank15       string
-	Rank15ID     uint
-	Rank16       string
-	Rank16ID     uint
-	Rank17       string
-	Rank17ID     uint
-	Rank18       string
-	Rank18ID     uint
-	Rank19       string
-	Rank19ID     uint
-	Rank20       string
-	Rank20ID     uint
-	Rank21       string
-	Rank21ID     uint
-	Rank22       string
-	Rank22ID     uint
-	Rank23       string
-	Rank23ID     uint
-	Rank24       string
-	Rank24ID     uint
-	Rank25       string
-	Rank25ID     uint
+	Username string
+	SeasonID uint
+	WeekID   uint
+	Week     uint
+	Rank1    string
+	Rank1ID  uint
+	Rank2    string
+	Rank2ID  uint
+	Rank3    string
+	Rank3ID  uint
+	Rank4    string
+	Rank4ID  uint
+	Rank5    string
+	Rank5ID  uint
+	Rank6    string
+	Rank6ID  uint
+	Rank7    string
+	Rank7ID  uint
+	Rank8    string
+	Rank8ID  uint
+	Rank9    string
+	Rank9ID  uint
+	Rank10   string
+	Rank10ID uint
+	Rank11   string
+	Rank11ID uint
+	Rank12   string
+	Rank12ID uint
+	Rank13   string
+	Rank13ID uint
+	Rank14   string
+	Rank14ID uint
+	Rank15   string
+	Rank15ID uint
+	Rank16   string
+	Rank16ID uint
+	Rank17   string
+	Rank17ID uint
+	Rank18   string
+	Rank18ID uint
+	Rank19   string
+	Rank19ID uint
+	Rank20   string
+	Rank20ID uint
+	Rank21   string
+	Rank21ID uint
+	Rank22   string
+	Rank22ID uint
+	Rank23   string
+	Rank23ID uint
+	Rank24   string
+	Rank24ID uint
+	Rank25   string
+	Rank25ID uint
 }
 
 type CollegePollOfficial struct {
 	gorm.Model
-	SeasonID           uint
-	WeekID             uint
-	Week               uint
-	RankOne            string
-	RankOneID          uint
-	RankOneVotes       uint
-	RankOneNo1Votes    uint
-	RankTwo            string
-	RankTwoID          uint
-	RankTwoVotes       uint
-	RankTwoNo1Votes    uint
-	RankThree          string
-	RankThreeID        uint
-	RankThreeVotes     uint
-	RankThreeNo1Votes  uint
-	RankFour           string
-	RankFourID         uint
-	RankFourVotes      uint
-	RankFourNo1Votes   uint
-	RankFive           string
-	RankFiveID         uint
-	RankFiveVotes      uint
-	RankFiveNo1Votes   uint
-	RankSix            string
-	RankSixID          uint
-	RankSixVotes       uint
-	RankSixNo1Votes    uint
-	RankSeven          string
-	RankSevenID        uint
-	RankSevenVotes     uint
-	RankSevenNo1Votes  uint
-	RankEight          string
-	RankEightID        uint
-	RankEightVotes     uint
-	RankEightNo1Votes  uint
-	RankNine           string
-	RankNineID         uint
-	RankNineVotes      uint
-	RankNineNo1Votes   uint
-	RankTen            string
-	RankTenID          uint
-	RankTenVotes       uint
-	RankTenNo1Votes    uint
-	RankEleven         string
-	RankElevenID       uint
-	RankElevenVotes    uint
-	RankElevenNo1Votes uint
-	Rank12             string
-	Rank12ID           uint
-	Rank12Votes        uint
-	Rank12No1Votes     uint
-	Rank13             string
-	Rank13ID           uint
-	Rank13Votes        uint
-	Rank13No1Votes     uint
-	Rank14             string
-	Rank14ID           uint
-	Rank14Votes        uint
-	Rank14No1Votes     uint
-	Rank15             string
-	Rank15ID           uint
-	Rank15Votes        uint
-	Rank15No1Votes     uint
-	Rank16             string
-	Rank16ID           uint
-	Rank16Votes        uint
-	Rank16No1Votes     uint
-	Rank17             string
-	Rank17ID           uint
-	Rank17Votes        uint
-	Rank17No1Votes     uint
-	Rank18             string
-	Rank18ID           uint
-	Rank18Votes        uint
-	Rank18No1Votes     uint
-	Rank19             string
-	Rank19ID           uint
-	Rank19Votes        uint
-	Rank19No1Votes     uint
-	Rank20             string
-	Rank20ID           uint
-	Rank20Votes        uint
-	Rank20No1Votes     uint
-	Rank21             string
-	Rank21ID           uint
-	Rank21Votes        uint
-	Rank21No1Votes     uint
-	Rank22             string
-	Rank22ID           uint
-	Rank22Votes        uint
-	Rank22No1Votes     uint
-	Rank23             string
-	Rank23ID           uint
-	Rank23Votes        uint
-	Rank23No1Votes     uint
-	Rank24             string
-	Rank24ID           uint
-	Rank24Votes        uint
-	Rank24No1Votes     uint
-	Rank25             string
-	Rank25ID           uint
-	Rank25Votes        uint
-	Rank25No1Votes     uint
+	SeasonID       uint
+	WeekID         uint
+	Week           uint
+	Rank1          string
+	Rank1ID        uint
+	Rank1Votes     uint
+	Rank1No1Votes  uint
+	Rank2          string
+	Rank2ID        uint
+	Rank2Votes     uint
+	Rank2No1Votes  uint
+	Rank3          string
+	Rank3ID        uint
+	Rank3Votes     uint
+	Rank3No1Votes  uint
+	Rank4          string
+	Rank4ID        uint
+	Rank4Votes     uint
+	Rank4No1Votes  uint
+	Rank5          string
+	Rank5ID        uint
+	Rank5Votes     uint
+	Rank5No1Votes  uint
+	Rank6          string
+	Rank6ID        uint
+	Rank6Votes     uint
+	Rank6No1Votes  uint
+	Rank7          string
+	Rank7ID        uint
+	Rank7Votes     uint
+	Rank7No1Votes  uint
+	Rank8          string
+	Rank8ID        uint
+	Rank8Votes     uint
+	Rank8No1Votes  uint
+	Rank9          string
+	Rank9ID        uint
+	Rank9Votes     uint
+	Rank9No1Votes  uint
+	Rank10         string
+	Rank10ID       uint
+	Rank10Votes    uint
+	Rank10No1Votes uint
+	Rank11         string
+	Rank11ID       uint
+	Rank11Votes    uint
+	Rank11No1Votes uint
+	Rank12         string
+	Rank12ID       uint
+	Rank12Votes    uint
+	Rank12No1Votes uint
+	Rank13         string
+	Rank13ID       uint
+	Rank13Votes    uint
+	Rank13No1Votes uint
+	Rank14         string
+	Rank14ID       uint
+	Rank14Votes    uint
+	Rank14No1Votes uint
+	Rank15         string
+	Rank15ID       uint
+	Rank15Votes    uint
+	Rank15No1Votes uint
+	Rank16         string
+	Rank16ID       uint
+	Rank16Votes    uint
+	Rank16No1Votes uint
+	Rank17         string
+	Rank17ID       uint
+	Rank17Votes    uint
+	Rank17No1Votes uint
+	Rank18         string
+	Rank18ID       uint
+	Rank18Votes    uint
+	Rank18No1Votes uint
+	Rank19         string
+	Rank19ID       uint
+	Rank19Votes    uint
+	Rank19No1Votes uint
+	Rank20         string
+	Rank20ID       uint
+	Rank20Votes    uint
+	Rank20No1Votes uint
+	Rank21         string
+	Rank21ID       uint
+	Rank21Votes    uint
+	Rank21No1Votes uint
+	Rank22         string
+	Rank22ID       uint
+	Rank22Votes    uint
+	Rank22No1Votes uint
+	Rank23         string
+	Rank23ID       uint
+	Rank23Votes    uint
+	Rank23No1Votes uint
+	Rank24         string
+	Rank24ID       uint
+	Rank24Votes    uint
+	Rank24No1Votes uint
+	Rank25         string
+	Rank25ID       uint
+	Rank25Votes    uint
+	Rank25No1Votes uint
 }
 
 func (s *CollegePollSubmission) AssignID(id uint) {
@@ -175,60 +175,60 @@ func (s *CollegePollSubmission) AssignID(id uint) {
 
 func (c *CollegePollOfficial) AssignRank(idx int, vote TeamVote) {
 	if idx == 0 {
-		c.RankOne = vote.Team
-		c.RankOneVotes = vote.TotalVotes
-		c.RankOneID = vote.TeamID
-		c.RankOneNo1Votes = vote.Number1Votes
+		c.Rank1 = vote.Team
+		c.Rank1Votes = vote.TotalVotes
+		c.Rank1ID = vote.TeamID
+		c.Rank1No1Votes = vote.Number1Votes
 	} else if idx == 1 {
-		c.RankTwo = vote.Team
-		c.RankTwoVotes = vote.TotalVotes
-		c.RankTwoID = vote.TeamID
-		c.RankTwoNo1Votes = vote.Number1Votes
+		c.Rank2 = vote.Team
+		c.Rank2Votes = vote.TotalVotes
+		c.Rank2ID = vote.TeamID
+		c.Rank2No1Votes = vote.Number1Votes
 	} else if idx == 2 {
-		c.RankThree = vote.Team
-		c.RankThreeVotes = vote.TotalVotes
-		c.RankThreeID = vote.TeamID
-		c.RankThreeNo1Votes = vote.Number1Votes
+		c.Rank3 = vote.Team
+		c.Rank3Votes = vote.TotalVotes
+		c.Rank3ID = vote.TeamID
+		c.Rank3No1Votes = vote.Number1Votes
 	} else if idx == 3 {
-		c.RankFour = vote.Team
-		c.RankFourVotes = vote.TotalVotes
-		c.RankFourID = vote.TeamID
-		c.RankFourNo1Votes = vote.Number1Votes
+		c.Rank4 = vote.Team
+		c.Rank4Votes = vote.TotalVotes
+		c.Rank4ID = vote.TeamID
+		c.Rank4No1Votes = vote.Number1Votes
 	} else if idx == 4 {
-		c.RankFive = vote.Team
-		c.RankFiveVotes = vote.TotalVotes
-		c.RankFiveID = vote.TeamID
-		c.RankFiveNo1Votes = vote.Number1Votes
+		c.Rank5 = vote.Team
+		c.Rank5Votes = vote.TotalVotes
+		c.Rank5ID = vote.TeamID
+		c.Rank5No1Votes = vote.Number1Votes
 	} else if idx == 5 {
-		c.RankSix = vote.Team
-		c.RankSixVotes = vote.TotalVotes
-		c.RankSixID = vote.TeamID
-		c.RankSixNo1Votes = vote.Number1Votes
+		c.Rank6 = vote.Team
+		c.Rank6Votes = vote.TotalVotes
+		c.Rank6ID = vote.TeamID
+		c.Rank6No1Votes = vote.Number1Votes
 	} else if idx == 6 {
-		c.RankSeven = vote.Team
-		c.RankSevenVotes = vote.TotalVotes
-		c.RankSevenID = vote.TeamID
-		c.RankSevenNo1Votes = vote.Number1Votes
+		c.Rank7 = vote.Team
+		c.Rank7Votes = vote.TotalVotes
+		c.Rank7ID = vote.TeamID
+		c.Rank7No1Votes = vote.Number1Votes
 	} else if idx == 7 {
-		c.RankEight = vote.Team
-		c.RankEightVotes = vote.TotalVotes
-		c.RankEightID = vote.TeamID
-		c.RankEightNo1Votes = vote.Number1Votes
+		c.Rank8 = vote.Team
+		c.Rank8Votes = vote.TotalVotes
+		c.Rank8ID = vote.TeamID
+		c.Rank8No1Votes = vote.Number1Votes
 	} else if idx == 8 {
-		c.RankNine = vote.Team
-		c.RankNineVotes = vote.TotalVotes
-		c.RankNineID = vote.TeamID
-		c.RankNineNo1Votes = vote.Number1Votes
+		c.Rank9 = vote.Team
+		c.Rank9Votes = vote.TotalVotes
+		c.Rank9ID = vote.TeamID
+		c.Rank9No1Votes = vote.Number1Votes
 	} else if idx == 9 {
-		c.RankTen = vote.Team
-		c.RankTenVotes = vote.TotalVotes
-		c.RankTenID = vote.TeamID
-		c.RankTenNo1Votes = vote.Number1Votes
+		c.Rank10 = vote.Team
+		c.Rank10Votes = vote.TotalVotes
+		c.Rank10ID = vote.TeamID
+		c.Rank10No1Votes = vote.Number1Votes
 	} else if idx == 10 {
-		c.RankEleven = vote.Team
-		c.RankElevenVotes = vote.TotalVotes
-		c.RankElevenID = vote.TeamID
-		c.RankElevenNo1Votes = vote.Number1Votes
+		c.Rank11 = vote.Team
+		c.Rank11Votes = vote.TotalVotes
+		c.Rank11ID = vote.TeamID
+		c.Rank11No1Votes = vote.Number1Votes
 	} else if idx == 11 {
 		c.Rank12 = vote.Team
 		c.Rank12Votes = vote.TotalVotes
