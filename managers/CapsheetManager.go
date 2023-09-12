@@ -51,7 +51,7 @@ func AllocateCapsheets() {
 		y5 := 0.0
 
 		for _, player := range players {
-			if player.IsGLeague || player.IsTwoWay {
+			if player.IsGLeague {
 				continue
 			}
 			contract := player.Contract
