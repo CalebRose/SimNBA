@@ -54,15 +54,22 @@ func SyncCollegePoll(w http.ResponseWriter, r *http.Request) {
 	managers.SyncCollegePollSubmissionForCurrentWeek()
 }
 
-func GetOfficialPollByWeekIDAndSeasonID(w http.ResponseWriter, r *http.Request) {
+func GetOfficialPollsBySeasonID(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	vars := mux.Vars(r)
-	weekID := vars["weekID"]
 	seasonID := vars["seasonID"]
-	if len(weekID) == 0 {
-		panic("User did not provide teamID")
+	if len(seasonID) == 0 {
+		panic("User did not provide seasonID")
 	}
-	poll := managers.GetOfficialPollByWeekIDAndSeasonID(weekID, seasonID)
+	polls := managers.GetOfficialPollBySeasonID(seasonID)
+	conferenceStandings := managers.GetAllConferenceStandingsBySeasonID(seasonID)
+	// collegeGames := managers.GetCBBMatchesBySeasonID(seasonID)
 
-	json.NewEncoder(w).Encode(poll)
+	res := structs.PollDataResponse{
+		OfficialPolls: polls,
+		// Matches:       collegeGames,
+		Standings: conferenceStandings,
+	}
+
+	json.NewEncoder(w).Encode(res)
 }

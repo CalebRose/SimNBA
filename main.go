@@ -155,8 +155,8 @@ func handleRequests() {
 	// Poll Controls
 	myRouter.HandleFunc("/college/poll/create/", controller.CreatePollSubmission).Methods("POST")
 	myRouter.HandleFunc("/college/poll/sync", controller.SyncCollegePoll).Methods("GET")
-	myRouter.HandleFunc("/college/poll/official/week/{weekID}/season/{seasonID}", controller.GetOfficialPollByWeekIDAndSeasonID).Methods("GET")
-	myRouter.HandleFunc("/college/poll/submission/{username}", controller.GetOfficialPollByWeekIDAndSeasonID).Methods("GET")
+	myRouter.HandleFunc("/college/poll/official/season/{seasonID}", controller.GetOfficialPollsBySeasonID).Methods("GET")
+	myRouter.HandleFunc("/college/poll/submission/{username}", controller.GetPollSubmission).Methods("GET")
 
 	// Recruit Controls
 	myRouter.HandleFunc("/recruiting/dashboard/{teamID}/", controller.GetRecruitingDataForOverviewPage).Methods("GET")

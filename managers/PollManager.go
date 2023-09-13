@@ -109,7 +109,7 @@ func SyncCollegePollSubmissionForCurrentWeek() {
 	}
 
 	sort.Slice(allVotes, func(i, j int) bool {
-		return allVotes[i].TotalVotes < allVotes[j].TotalVotes
+		return allVotes[i].TotalVotes > allVotes[j].TotalVotes
 	})
 
 	officialPoll := structs.CollegePollOfficial{}
@@ -128,6 +128,11 @@ func SyncCollegePollSubmissionForCurrentWeek() {
 func CreatePoll(dto structs.CollegePollSubmission) structs.CollegePollSubmission {
 	db := dbprovider.GetInstance().GetDB()
 	existingPoll := GetPollSubmissionBySubmissionID(strconv.Itoa(int(dto.ID)))
+	ts := GetTimestamp()
+	if (ts.GamesARan || ts.GamesBRan || ts.GamesCRan || ts.GamesDRan) && existingPoll.ID == 0 {
+		// Move up submission to next week
+		dto.MoveSubmissionToNextWeek(ts.CollegeWeekID+1, uint(ts.CollegeWeek)+1)
+	}
 	if existingPoll.ID > 0 {
 		dto.AssignID(existingPoll.ID)
 		db.Save(&dto)
@@ -138,13 +143,13 @@ func CreatePoll(dto structs.CollegePollSubmission) structs.CollegePollSubmission
 	return dto
 }
 
-func GetOfficialPollByWeekIDAndSeasonID(weekID, seasonID string) structs.CollegePollOfficial {
+func GetOfficialPollBySeasonID(seasonID string) []structs.CollegePollOfficial {
 	db := dbprovider.GetInstance().GetDB()
-	officialPoll := structs.CollegePollOfficial{}
+	officialPoll := []structs.CollegePollOfficial{}
 
-	err := db.Where("week_id = ? AND season_id = ?", weekID, seasonID).Find(&officialPoll).Error
+	err := db.Where("season_id = ?", seasonID).Find(&officialPoll).Error
 	if err != nil {
-		return structs.CollegePollOfficial{}
+		return []structs.CollegePollOfficial{}
 	}
 
 	return officialPoll

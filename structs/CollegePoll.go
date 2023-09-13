@@ -173,6 +173,11 @@ func (s *CollegePollSubmission) AssignID(id uint) {
 	s.ID = id
 }
 
+func (s *CollegePollSubmission) MoveSubmissionToNextWeek(weekID, week uint) {
+	s.WeekID = weekID
+	s.Week = week
+}
+
 func (c *CollegePollOfficial) AssignRank(idx int, vote TeamVote) {
 	if idx == 0 {
 		c.Rank1 = vote.Team
