@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/CalebRose/SimNBA/managers"
@@ -43,9 +42,6 @@ func UpdateGameplan(w http.ResponseWriter, r *http.Request) {
 	}
 
 	managers.UpdateGameplan(updateGameplanDto)
-
-	// fmt.Println("Updated Gameplans and Players")
-	// w.WriteHeader(http.StatusOK)
 }
 
 func GetNBAGameplanByTeamId(w http.ResponseWriter, r *http.Request) {
@@ -80,9 +76,6 @@ func UpdateNBAGameplan(w http.ResponseWriter, r *http.Request) {
 	}
 
 	managers.UpdateNBAGameplan(updateGameplanDto)
-
-	fmt.Println("Updated Gameplans and Players")
-	w.WriteHeader(http.StatusOK)
 }
 
 func SetAIGameplans(w http.ResponseWriter, r *http.Request) {
