@@ -74,6 +74,7 @@ func ImportMatchResults(w http.ResponseWriter, r *http.Request) {
 
 func SyncToNextWeek(w http.ResponseWriter, r *http.Request) {
 	managers.SyncToNextWeek()
+	managers.SyncCollegePollSubmissionForCurrentWeek()
 	w.WriteHeader(http.StatusOK)
 }
 
