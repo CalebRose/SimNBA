@@ -129,7 +129,7 @@ func CreatePoll(dto structs.CollegePollSubmission) structs.CollegePollSubmission
 	db := dbprovider.GetInstance().GetDB()
 	existingPoll := GetPollSubmissionBySubmissionID(strconv.Itoa(int(dto.ID)))
 	ts := GetTimestamp()
-	if (ts.GamesARan || ts.GamesBRan || ts.GamesCRan || ts.GamesDRan) && existingPoll.ID == 0 {
+	if existingPoll.ID == 0 {
 		// Move up submission to next week
 		dto.MoveSubmissionToNextWeek(ts.CollegeWeekID+1, uint(ts.CollegeWeek)+1)
 	}
