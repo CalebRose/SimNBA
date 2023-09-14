@@ -37,7 +37,7 @@ func GetPollSubmissionBySubmissionID(id string) structs.CollegePollSubmission {
 func GetPollSubmissionByUsernameWeekAndSeason(username string) structs.CollegePollSubmission {
 	db := dbprovider.GetInstance().GetDB()
 	ts := GetTimestamp()
-	weekID := strconv.Itoa(int(ts.CollegeWeekID))
+	weekID := strconv.Itoa(int(ts.CollegeWeekID + 1))
 	seasonID := strconv.Itoa(int(ts.SeasonID))
 
 	submission := structs.CollegePollSubmission{}
