@@ -84,3 +84,17 @@ func (t *NBATeam) AssignRatings(og string, dg string, ov string) {
 func (t *NBATeam) AssignWaiverOrder(order uint) {
 	t.WaiverOrder = order
 }
+
+type ISLTeamNeeds struct {
+	TeamNeedsMap  map[string]bool
+	PositionCount map[string]int
+	TotalCount    int
+}
+
+func (itn *ISLTeamNeeds) IncrementTotalCount() {
+	itn.TotalCount += 1
+}
+
+func (itn *ISLTeamNeeds) IncrementPositionCount(pos string) {
+	itn.PositionCount[pos] += 1
+}

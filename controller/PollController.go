@@ -35,7 +35,7 @@ func GetPollSubmission(w http.ResponseWriter, r *http.Request) {
 
 	ts := managers.GetTimestamp()
 	seasonID := strconv.Itoa(int(ts.SeasonID))
-	weekID := strconv.Itoa(int(ts.CollegeWeekID))
+	weekID := strconv.Itoa(int(ts.CollegeWeekID + 1))
 	poll := managers.GetPollSubmissionByUsernameWeekAndSeason(username)
 	conferenceStandings := managers.GetAllConferenceStandingsBySeasonID(seasonID)
 	collegeGames := managers.GetMatchesByWeekId(weekID, seasonID)

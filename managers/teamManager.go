@@ -2,6 +2,7 @@ package managers
 
 import (
 	"log"
+	"sort"
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
@@ -499,4 +500,129 @@ func GetNBATeamWithCapsheetByTeamID(teamId string) structs.NBATeam {
 		log.Fatal(err)
 	}
 	return team
+}
+
+func FormISLRosters() {
+	db := dbprovider.GetInstance().GetDB()
+	ts := GetTimestamp()
+	islTeams := GetAllActiveNBATeams()
+	playerSignedMap := make(map[uint]bool)
+	freeAgents := GetAllFreeAgents()
+	sort.Slice(freeAgents, func(i, j int) bool {
+		iVal := freeAgents[i].Overall
+		jVal := freeAgents[j].Overall
+		return iVal > jVal
+	})
+	maxRosterCount := 13
+	currentCount := 2
+	// Format Team Needs
+	islTeamNeedsMap := make(map[uint]structs.ISLTeamNeeds)
+	for _, t := range islTeams {
+		if t.LeagueID == 1 {
+			continue
+		}
+		teamID := strconv.Itoa(int(t.ID))
+		teamNeedsMap := make(map[string]bool)
+		positionCount := make(map[string]int)
+
+		roster := GetAllNBAPlayersByTeamID(teamID)
+
+		for _, r := range roster {
+			positionCount[r.Position] += 1
+		}
+
+		if positionCount["PG"] < 3 {
+			teamNeedsMap["PG"] = true
+		} else if positionCount["SG"] < 4 {
+			teamNeedsMap["SG"] = true
+		} else if positionCount["SF"] < 4 {
+			teamNeedsMap["SF"] = true
+		} else if positionCount["PF"] < 4 {
+			teamNeedsMap["PF"] = true
+		} else if positionCount["C"] < 3 {
+			teamNeedsMap["C"] = true
+		}
+
+		islTeamNeedsMap[t.ID] = structs.ISLTeamNeeds{
+			TeamNeedsMap:  teamNeedsMap,
+			PositionCount: positionCount,
+			TotalCount:    len(roster),
+		}
+	}
+
+	reverseOrder := islTeams
+	sort.Slice(reverseOrder, func(i, j int) bool {
+		iVal := reverseOrder[i].ID
+		jVal := reverseOrder[j].ID
+		return iVal > jVal
+	})
+
+	goReverse := false
+	oneYear := false
+	for currentCount < maxRosterCount {
+
+		order := islTeams
+		if goReverse {
+			order = reverseOrder
+		}
+
+		for _, t := range order {
+			teamNeeds := islTeamNeedsMap[t.ID]
+			teamName := t.Team + " " + t.Nickname
+
+			for _, fa := range freeAgents {
+				if playerSignedMap[fa.ID] {
+					continue
+				}
+				isSGSFPF := false
+				if fa.Position == "SG" || fa.Position == "SF" || fa.Position == "PF" {
+					isSGSFPF = true
+				}
+				if (teamNeeds.PositionCount[fa.Position] > 3 && isSGSFPF) || (teamNeeds.PositionCount[fa.Position] > 2 && !isSGSFPF) {
+					continue
+				}
+
+				// Increase Position Count Limit
+				teamNeeds.IncrementPositionCount(fa.Position)
+
+				// Sign Player
+				playerSignedMap[fa.ID] = true
+				fa.SignWithTeam(t.ID, teamName)
+
+				yearsOnContract := 1
+				y1 := 0.7
+				y2 := 0.0
+				if !oneYear {
+					yearsOnContract = 2
+					y2 = 0.7
+				}
+
+				Contract := structs.NBAContract{
+					PlayerID:       fa.PlayerID,
+					TeamID:         t.ID,
+					Team:           teamName,
+					OriginalTeamID: t.ID,
+					OriginalTeam:   teamName,
+					YearsRemaining: uint(yearsOnContract),
+					ContractType:   "Min",
+					Year1Total:     y1,
+					Year2Total:     y2,
+					TotalRemaining: y1 + y2,
+					IsActive:       true,
+					IsComplete:     false,
+					IsExtended:     false,
+				}
+
+				db.Create(&Contract)
+				db.Save(&fa)
+
+				// News Log
+				message := "FA " + fa.Position + " " + fa.FirstName + " " + fa.LastName + " has signed with the ISL Team " + teamName + " with a contract worth approximately $" + strconv.Itoa(int(Contract.ContractValue)) + " Million Dollars."
+				CreateNewsLog("NBA", message, "Free Agency", 0, ts)
+			}
+
+		}
+		currentCount += 1
+		oneYear = !oneYear
+	}
 }
