@@ -46,3 +46,8 @@ func GeneratePlaytimeExpectations(w http.ResponseWriter, r *http.Request) {
 	managers.GeneratePlaytimeExpectations()
 	json.NewEncoder(w).Encode("GENERATION COMPLETE")
 }
+
+func FormISLRosters(w http.ResponseWriter, r *http.Request) {
+	managers.GenerateInternationalPlayers()
+	json.NewEncoder(w).Encode("GENERATION COMPLETE")
+}

@@ -102,6 +102,7 @@ func handleRequests() {
 	// myRouter.HandleFunc("/admin/generateTeam", controller.GeneratePlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/generateCroots", controller.GenerateCroots).Methods("GET")
 	// myRouter.HandleFunc("/admin/generate/international", controller.GenerateInternationalPlayers).Methods("GET")
+	// myRouter.HandleFunc("/admin/allocate/international/rosters", controller.GenerateInternationalPlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/fix/height", controller.FixHeight).Methods("GET")
 	// myRouter.HandleFunc("/generate/playtime/expectations", controller.GeneratePlaytimeExpectations).Methods("GET")
 
