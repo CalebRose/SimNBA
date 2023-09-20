@@ -1,15 +1,16 @@
 package structs
 
 type ImportMatchResultsDTO struct {
-	Results []MatchResultsDTO
+	CBBResults []MatchResultsDTO
+	NBAResults []MatchResultsDTO
 }
 
 type MatchResultsDTO struct {
 	GameID    string
 	TeamOne   TeamResultsDTO
 	TeamTwo   TeamResultsDTO
-	RosterOne []CollegePlayerDTO
-	RosterTwo []CollegePlayerDTO
+	RosterOne []PlayerDTO
+	RosterTwo []PlayerDTO
 }
 
 type TeamResultsDTO struct {
@@ -48,7 +49,7 @@ type TeamStatsDTO struct {
 	Fouls              int
 }
 
-type CollegePlayerDTO struct {
+type PlayerDTO struct {
 	ID            int
 	FirstName     string
 	LastName      string
@@ -78,11 +79,11 @@ type CollegePlayerDTO struct {
 	ReboundingPer float64
 	DefensePer    float64
 	AssistPer     float64
-	Stats         CollegePlayerStatsDTO
+	Stats         PlayerStatsDTO
 }
 
-type CollegePlayerStatsDTO struct {
-	CollegePlayerID    int
+type PlayerStatsDTO struct {
+	PlayerID           int
 	Minutes            int
 	Possessions        int
 	FGM                int
