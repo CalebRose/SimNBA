@@ -3,6 +3,7 @@ package structs
 type CollegePlayerResponse struct {
 	FirstName             string
 	LastName              string
+	Archetype             string
 	Position              string
 	Age                   int
 	Year                  int

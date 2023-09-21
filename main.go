@@ -236,9 +236,17 @@ func handleRequests() {
 
 	// Timestamp Controls
 	myRouter.HandleFunc("/simbba/get/timestamp", controller.GetCurrentTimestamp).Methods("GET")
-
 	myRouter.HandleFunc("/cbb/easter/egg/collude/", controller.CollusionButton).Methods("POST")
 
+	// Discord Controls
+	myRouter.HandleFunc("/dis/cbb/player/{firstName}/{lastName}/{abbr}", controller.CBBPlayerByNameAndAbbr).Methods("GET")
+	myRouter.HandleFunc("/dis/nba/player/{firstName}/{lastName}/{abbr}", controller.NBAPlayerByNameAndAbbr).Methods("GET")
+	myRouter.HandleFunc("/dis/cbb/croot/{firstName}/{lastName}", controller.GetCrootsByName).Methods("GET")
+	myRouter.HandleFunc("/dis/cbb/team/{teamId}", controller.GetCollegeTeamData).Methods("GET")
+	myRouter.HandleFunc("/dis/nba/team/{teamId}", controller.GetNBATeamDataByID).Methods("GET")
+	myRouter.HandleFunc("/dis/cbb/conf/standings/{conferenceID}", controller.CollegeConferenceStandings).Methods("GET")
+	myRouter.HandleFunc("/dis/nba/conf/standings/{conferenceID}", controller.NBAConferenceStandings).Methods("GET")
+	myRouter.HandleFunc("/dis/cbb/conf/matches/{conferenceID}/{day}", controller.CollegeMatchesByConference).Methods("GET")
 	handler := cors.AllowAll().Handler(myRouter)
 
 	log.Fatal(http.ListenAndServe(":8081", handler))

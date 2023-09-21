@@ -119,6 +119,11 @@ func (n *NBAPlayer) ToggleIsNegotiating() {
 	n.IsAcceptingOffers = false
 }
 
+func (n *NBAPlayer) WaitUntilStartOfSeason() {
+	n.IsNegotiating = false
+	n.IsAcceptingOffers = false
+}
+
 func (np *NBAPlayer) ToggleTradeBlock() {
 	np.IsOnTradeBlock = !np.IsOnTradeBlock
 }
