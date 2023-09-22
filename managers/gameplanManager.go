@@ -97,8 +97,12 @@ func GetOpposingCollegiateTeamRoster(teamID string) []structs.CollegePlayer {
 	nextMatchType := ""
 	if !ts.GamesARan {
 		nextMatchType = "A"
-	} else {
+	} else if !ts.GamesBRan {
 		nextMatchType = "B"
+	} else if !ts.GamesCRan {
+		nextMatchType = "C"
+	} else {
+		nextMatchType = "D"
 	}
 
 	matches := GetTeamMatchesByWeekId(strconv.Itoa(int(ts.CollegeWeekID)), strconv.Itoa(int(ts.SeasonID)), nextMatchType, teamID)
@@ -119,6 +123,10 @@ func GetOpposingCollegiateTeamRoster(teamID string) []structs.CollegePlayer {
 		opposingTeamID = strconv.Itoa(int(designatedMatch.HomeTeamID))
 	}
 
+	if opposingTeamID == "0" {
+		return []structs.CollegePlayer{}
+	}
+
 	opposingRoster := GetCollegePlayersByTeamId(opposingTeamID)
 
 	return opposingRoster
@@ -132,11 +140,13 @@ func GetOpposingNBATeamRoster(teamID string) []structs.NBAPlayer {
 		nextMatchType = "A"
 	} else if !ts.GamesBRan {
 		nextMatchType = "B"
-	} else {
+	} else if !ts.GamesCRan {
 		nextMatchType = "C"
+	} else {
+		nextMatchType = "D"
 	}
 
-	matches := GetNBATeamMatchesByWeekId(strconv.Itoa(int(ts.CollegeWeekID)), strconv.Itoa(int(ts.SeasonID)), nextMatchType, teamID)
+	matches := GetNBATeamMatchesByWeekId(strconv.Itoa(int(ts.NBAWeekID)), strconv.Itoa(int(ts.SeasonID)), nextMatchType, teamID)
 	designatedMatch := structs.NBAMatch{}
 
 	for _, m := range matches {
