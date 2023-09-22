@@ -151,3 +151,31 @@ func ExportCBBPreseasonRanks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/csv")
 	managers.ExportCBBPreseasonRanks(w)
 }
+
+func ExportCBBRosterToCSV(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	w.Header().Set("Content-Type", "text/csv")
+
+	vars := mux.Vars(r)
+	teamId := vars["teamID"]
+
+	if len(teamId) == 0 {
+		panic("User did not provide TeamID")
+	}
+
+	managers.ExportCBBRosterToCSV(teamId, w)
+}
+
+func ExportNBARosterToCSV(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	w.Header().Set("Content-Type", "text/csv")
+
+	vars := mux.Vars(r)
+	teamId := vars["teamID"]
+
+	if len(teamId) == 0 {
+		panic("User did not provide TeamID")
+	}
+
+	managers.ExportNBARosterToCSV(teamId, w)
+}

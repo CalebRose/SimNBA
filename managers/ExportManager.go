@@ -196,3 +196,182 @@ func ExportCBBPreseasonRanks(w http.ResponseWriter) {
 		}
 	}
 }
+
+func ExportCBBRosterToCSV(TeamID string, w http.ResponseWriter) {
+	// Get Team Data
+	team := GetTeamByTeamID(TeamID)
+	w.Header().Set("Content-Disposition", "attachment;filename="+team.Team+".csv")
+	w.Header().Set("Transfer-Encoding", "chunked")
+	// Initialize writer
+	writer := csv.NewWriter(w)
+
+	// Get Players
+	players := GetCollegePlayersByTeamId(TeamID)
+
+	csvRoster := []structs.CollegePlayerResponse{}
+
+	for _, player := range players {
+		shooting2Grade := util.GetAttributeGrade(player.Shooting2)
+		shooting3Grade := util.GetAttributeGrade(player.Shooting3)
+		freeThrowGrade := util.GetAttributeGrade(player.FreeThrow)
+		finishingGrade := util.GetAttributeGrade(player.Finishing)
+		reboundingGrade := util.GetAttributeGrade(player.Rebounding)
+		ballworkGrade := util.GetAttributeGrade(player.Ballwork)
+		interiorDefenseGrade := util.GetAttributeGrade(player.InteriorDefense)
+		perimeterDefenseGrade := util.GetAttributeGrade(player.PerimeterDefense)
+		potentialGrade := util.GetPotentialGrade(player.Potential)
+		overallGrade := util.GetPlayerOverallGrade(player.Overall)
+
+		res := structs.CollegePlayerResponse{
+			FirstName:             player.FirstName,
+			LastName:              player.LastName,
+			Position:              player.Position,
+			Archetype:             player.Archetype,
+			Age:                   player.Age,
+			Year:                  player.Year,
+			State:                 player.State,
+			Country:               player.Country,
+			Stars:                 player.Stars,
+			Height:                player.Height,
+			PotentialGrade:        potentialGrade,
+			Shooting2Grade:        shooting2Grade,
+			Shooting3Grade:        shooting3Grade,
+			FreeThrowGrade:        freeThrowGrade,
+			FinishingGrade:        finishingGrade,
+			BallworkGrade:         ballworkGrade,
+			ReboundingGrade:       reboundingGrade,
+			InteriorDefenseGrade:  interiorDefenseGrade,
+			PerimeterDefenseGrade: perimeterDefenseGrade,
+			OverallGrade:          overallGrade,
+			Stamina:               player.Stamina,
+			PlaytimeExpectations:  player.PlaytimeExpectations,
+			Minutes:               player.Minutes,
+			Potential:             player.Potential,
+			Personality:           player.Personality,
+			RecruitingBias:        player.RecruitingBias,
+			WorkEthic:             player.WorkEthic,
+			AcademicBias:          player.AcademicBias,
+			PlayerID:              player.PlayerID,
+			TeamID:                player.TeamID,
+			TeamAbbr:              player.TeamAbbr,
+			IsRedshirting:         player.IsRedshirting,
+			IsRedshirt:            player.IsRedshirt,
+			PositionOne:           player.PositionOne,
+			PositionTwo:           player.PositionTwo,
+			PositionThree:         player.PositionThree,
+			P1Minutes:             player.P1Minutes,
+			P2Minutes:             player.P2Minutes,
+			P3Minutes:             player.P3Minutes,
+			InsideProportion:      player.InsideProportion,
+			MidRangeProportion:    player.MidRangeProportion,
+			ThreePointProportion:  player.ThreePointProportion,
+		}
+
+		csvRoster = append(csvRoster, res)
+	}
+
+	HeaderRow := []string{
+		"Team", "First Name", "Last Name", "Position",
+		"Archetype", "Year", "Age", "Stars",
+		"State", "Country", "Height", "Overall", "Finishing",
+		"Shooting2", "Shooting3", "FreeThrow",
+		"Ballwork", "Rebounding", "Interior Defense", "Perimeter Defense",
+		"Playtime Expectations", "Stamina", "Potential",
+		"Personality", "Recruiting Bias", "Work Ethic", "Academic Bias",
+		"RedshirtingStatus",
+	}
+
+	err := writer.Write(HeaderRow)
+	if err != nil {
+		log.Fatal("Cannot write header row", err)
+	}
+
+	for _, csvModel := range csvRoster {
+		redshirtStatus := ""
+		if csvModel.IsRedshirt {
+			redshirtStatus = "Former Redshirt"
+		} else if csvModel.IsRedshirting {
+			redshirtStatus = "Currently Redshirting"
+		}
+		playerRow := []string{
+			team.Team, csvModel.FirstName, csvModel.LastName, csvModel.Position,
+			csvModel.Archetype, strconv.Itoa(csvModel.Year), strconv.Itoa(csvModel.Age), strconv.Itoa(csvModel.Stars),
+			csvModel.State, csvModel.Country, csvModel.Height, csvModel.OverallGrade, csvModel.FinishingGrade,
+			csvModel.Shooting2Grade, csvModel.Shooting3Grade, csvModel.FreeThrowGrade,
+			csvModel.BallworkGrade, csvModel.ReboundingGrade, csvModel.InteriorDefenseGrade, csvModel.PerimeterDefenseGrade,
+			strconv.Itoa(csvModel.PlaytimeExpectations), strconv.Itoa(csvModel.Stamina), csvModel.PotentialGrade, csvModel.Personality,
+			csvModel.RecruitingBias, csvModel.WorkEthic, csvModel.AcademicBias, redshirtStatus,
+		}
+
+		err = writer.Write(playerRow)
+		if err != nil {
+			log.Fatal("Cannot write player row to CSV", err)
+		}
+
+		writer.Flush()
+		err = writer.Error()
+		if err != nil {
+			log.Fatal("Error while writing to file ::", err)
+		}
+	}
+}
+
+func ExportNBARosterToCSV(TeamID string, w http.ResponseWriter) {
+	// Get Team Data
+	team := GetNBATeamByTeamID(TeamID)
+	w.Header().Set("Content-Disposition", "attachment;filename="+team.Team+".csv")
+	w.Header().Set("Transfer-Encoding", "chunked")
+	// Initialize writer
+	writer := csv.NewWriter(w)
+
+	// Get Players
+	players := GetAllNBAPlayersByTeamID(TeamID)
+
+	HeaderRow := []string{
+		"Team", "First Name", "Last Name", "Position",
+		"Archetype", "Year", "Age", "Stars",
+		"State", "Country", "Height", "Overall", "Finishing",
+		"Shooting2", "Shooting3", "FreeThrow",
+		"Ballwork", "Rebounding", "Interior Defense", "Perimeter Defense",
+		"Playtime Expectations", "Stamina", "Potential",
+		"Personality", "Free Agency Bias", "Work Ethic", "NBA Status",
+	}
+
+	err := writer.Write(HeaderRow)
+	if err != nil {
+		log.Fatal("Cannot write header row", err)
+	}
+
+	for _, csvModel := range players {
+		nbaStatus := "Active"
+		if csvModel.IsGLeague {
+			nbaStatus = "G-League"
+		} else if csvModel.IsTwoWay {
+			nbaStatus = "Two-Way"
+		} else if csvModel.IsOnTradeBlock {
+			nbaStatus = "On Trade Block"
+		} else if csvModel.IsInternational {
+			nbaStatus = "International"
+		}
+		playerRow := []string{
+			team.Team, csvModel.FirstName, csvModel.LastName, csvModel.Position,
+			csvModel.Archetype, strconv.Itoa(csvModel.Year), strconv.Itoa(csvModel.Age), strconv.Itoa(csvModel.Stars),
+			csvModel.State, csvModel.Country, csvModel.Height, strconv.Itoa(csvModel.Overall), strconv.Itoa(csvModel.Finishing),
+			strconv.Itoa(csvModel.Shooting2), strconv.Itoa(csvModel.Shooting3), strconv.Itoa(csvModel.FreeThrow),
+			strconv.Itoa(csvModel.Ballwork), strconv.Itoa(csvModel.Rebounding), strconv.Itoa(csvModel.InteriorDefense), strconv.Itoa(csvModel.PerimeterDefense),
+			strconv.Itoa(csvModel.PlaytimeExpectations), strconv.Itoa(csvModel.Stamina), csvModel.PotentialGrade, csvModel.Personality,
+			csvModel.FreeAgency, csvModel.WorkEthic, nbaStatus,
+		}
+
+		err = writer.Write(playerRow)
+		if err != nil {
+			log.Fatal("Cannot write player row to CSV", err)
+		}
+
+		writer.Flush()
+		err = writer.Error()
+		if err != nil {
+			log.Fatal("Error while writing to file ::", err)
+		}
+	}
+}

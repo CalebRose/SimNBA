@@ -82,6 +82,8 @@ func handleRequests() {
 
 	// Exports
 	myRouter.HandleFunc("/export/cbb/preseason", controller.ExportCBBPreseasonRanks).Methods("GET")
+	myRouter.HandleFunc("/export/cbb/team/{teamID}", controller.ExportCBBRosterToCSV).Methods("GET")
+	myRouter.HandleFunc("/export/nba/team/{teamID}", controller.ExportNBARosterToCSV).Methods("GET")
 
 	// Free Agency Controls
 	myRouter.HandleFunc("/nba/freeagency/available/{teamID}", controller.FreeAgencyAvailablePlayers).Methods("GET")
