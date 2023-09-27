@@ -79,3 +79,12 @@ func (m *Match) AddTeam(isHome bool, id, rank uint, team, coach string) {
 		m.AwayTeamCoach = coach
 	}
 }
+
+func (m *Match) AssignRank(id, rank uint) {
+	isHome := id == m.HomeTeamID
+	if isHome {
+		m.HomeTeamRank = rank
+	} else {
+		m.AwayTeamRank = rank
+	}
+}

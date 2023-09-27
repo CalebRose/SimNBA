@@ -16,6 +16,7 @@ type CollegeStandings struct {
 	InvitationalParticipant bool
 	Invitational            string
 	InvitationalChampion    bool
+	Rank                    uint
 	BaseStandings
 }
 
@@ -96,4 +97,8 @@ func (cs *CollegeStandings) RegressCollegeStandings(game Match) {
 
 func (cs *CollegeStandings) UpdateCoach(coach string) {
 	cs.Coach = coach
+}
+
+func (cs *CollegeStandings) AssignRank(rank int) {
+	cs.Rank = uint(rank)
 }

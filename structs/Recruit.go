@@ -75,6 +75,10 @@ func (r *Recruit) AssignCollege(abbr string) {
 	r.TeamAbbr = abbr
 }
 
+func (r *Recruit) AssignRecruitModifier(mod int) {
+	r.RecruitModifier = mod
+}
+
 func (r *Recruit) UpdateSigningStatus() {
 	r.IsSigned = true
 }
