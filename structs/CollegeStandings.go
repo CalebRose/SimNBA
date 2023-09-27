@@ -27,6 +27,9 @@ func (cs *CollegeStandings) UpdateCollegeStandings(game Match) {
 		cs.TotalWins += 1
 		if isAway {
 			cs.AwayWins += 1
+			if game.HomeTeamRank > 0 && !game.IsPlayoffGame {
+				cs.RankedWins += 1
+			}
 		} else {
 			cs.HomeWins += 1
 		}
@@ -46,6 +49,12 @@ func (cs *CollegeStandings) UpdateCollegeStandings(game Match) {
 	} else {
 		cs.TotalLosses += 1
 		cs.Streak = 0
+		if isAway && game.HomeTeamRank > 0 && !game.IsPlayoffGame {
+			cs.RankedLosses += 1
+		}
+		if !isAway && game.AwayTeamRank > 0 && !game.IsPlayoffGame {
+			cs.RankedLosses += 1
+		}
 		if game.IsConference {
 			cs.ConferenceLosses += 1
 		}
