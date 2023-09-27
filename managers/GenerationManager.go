@@ -209,7 +209,8 @@ func GenerateCroots() {
 	var positionList []string = []string{"PG", "SG", "PF", "SF", "C"}
 
 	// Test Generation
-	requiredPlayers := util.GenerateIntFromRange(1031, 1061)
+	// requiredPlayers := util.GenerateIntFromRange(1031, 1061)
+	requiredPlayers := util.GenerateIntFromRange(70, 120)
 	// 1061 is the number of open spots on teams in the league.
 	// Currently 363 teams. 363 * 3 = 1089, the size of the average class.
 	// The plan is to ensure that every recruit is signed
@@ -609,19 +610,7 @@ func createRecruit(ethnicity string, position string, year int, firstNameList []
 	potentialGrade := util.GetWeightedPotentialGrade(potential)
 	proPotential := util.GeneratePotential()
 	stamina := util.GenerateIntFromRange(25, 38)
-	shooting2 := getAttribute(position, "Shooting2", false)
-	shooting3 := getAttribute(position, "Shooting3", false)
-	finishing := getAttribute(position, "Finishing", false)
-	freeThrow := getAttribute(position, "FreeThrow", false)
-	ballwork := getAttribute(position, "Ballwork", false)
-	rebounding := getAttribute(position, "Rebounding", false)
-	interiorDefense := getAttribute(position, "Interior Defense", false)
-	perimeterDefense := getAttribute(position, "Perimeter Defense", false)
 
-	overall := (int((shooting2 + shooting3 + freeThrow) / 3)) + finishing + ballwork + rebounding + int((interiorDefense+perimeterDefense)/2)
-	stars := getStarRating(overall)
-	recruitModifier := GetRecruitModifier(stars)
-	expectations := util.GetPlaytimeExpectations(stars, year, overall)
 	personality := util.GetPersonality()
 	academicBias := util.GetAcademicBias()
 	workEthic := util.GetWorkEthic()
@@ -629,52 +618,57 @@ func createRecruit(ethnicity string, position string, year int, firstNameList []
 	freeAgency := util.GetFreeAgencyBias(0, 0)
 
 	var basePlayer = structs.BasePlayer{
-		FirstName:            firstName,
-		LastName:             lastName,
-		Position:             position,
-		Age:                  age,
-		Year:                 year,
-		State:                state,
-		Country:              country,
-		Stars:                stars,
-		Height:               height,
-		Shooting2:            shooting2,
-		Shooting3:            shooting3,
-		FreeThrow:            freeThrow,
-		Finishing:            finishing,
-		Ballwork:             ballwork,
-		Rebounding:           rebounding,
-		InteriorDefense:      interiorDefense,
-		PerimeterDefense:     perimeterDefense,
-		Potential:            potential,
-		PotentialGrade:       potentialGrade,
-		ProPotentialGrade:    proPotential,
-		Stamina:              stamina,
-		PlaytimeExpectations: expectations,
-		Minutes:              0,
-		Overall:              overall,
-		Personality:          personality,
-		FreeAgency:           freeAgency,
-		RecruitingBias:       recruitingBias,
-		WorkEthic:            workEthic,
-		AcademicBias:         academicBias,
+		FirstName:         firstName,
+		LastName:          lastName,
+		Position:          position,
+		Age:               age,
+		Year:              year,
+		State:             state,
+		Country:           country,
+		Height:            height,
+		Potential:         potential,
+		PotentialGrade:    potentialGrade,
+		ProPotentialGrade: proPotential,
+		Stamina:           stamina,
+		Minutes:           0,
+		Personality:       personality,
+		FreeAgency:        freeAgency,
+		RecruitingBias:    recruitingBias,
+		WorkEthic:         workEthic,
+		AcademicBias:      academicBias,
 	}
 
 	var croot = structs.Recruit{
-		BasePlayer:      basePlayer,
-		PlayerID:        id,
-		TeamID:          0,
-		TeamAbbr:        "",
-		RecruitModifier: recruitModifier,
-		IsSigned:        false,
-		IsTransfer:      false,
+		BasePlayer: basePlayer,
+		PlayerID:   id,
+		TeamID:     0,
+		TeamAbbr:   "",
+		IsSigned:   false,
+		IsTransfer: false,
 	}
 
 	// Specialties
-	specs := util.GetSpecialties(croot.Position)
+	specs := util.GetSpecialties(position)
 	for _, spec := range specs {
 		croot.ToggleSpecialties(spec)
 	}
+
+	shooting2 := util.GetAttributeNew(position, "Shooting2", croot.SpecShooting2)
+	shooting3 := util.GetAttributeNew(position, "Shooting3", croot.SpecShooting3)
+	finishing := util.GetAttributeNew(position, "Finishing", croot.SpecFinishing)
+	freeThrow := util.GetAttributeNew(position, "FreeThrow", croot.SpecFreeThrow)
+	ballwork := util.GetAttributeNew(position, "Ballwork", croot.SpecBallwork)
+	rebounding := util.GetAttributeNew(position, "Rebounding", croot.SpecRebounding)
+	interiorDefense := util.GetAttributeNew(position, "Interior Defense", croot.SpecInteriorDefense)
+	perimeterDefense := util.GetAttributeNew(position, "Perimeter Defense", croot.SpecPerimeterDefense)
+
+	overall := (int((shooting2 + shooting3 + freeThrow) / 3)) + finishing + ballwork + rebounding + int((interiorDefense+perimeterDefense)/2)
+	stars := getStarRating(overall)
+	recruitModifier := GetRecruitModifier(stars)
+	expectations := util.GetPlaytimeExpectations(stars, year, overall)
+	croot.SetID(id)
+	croot.AssignRecruitModifier(recruitModifier)
+	croot.SetAttributes(shooting2, shooting3, finishing, freeThrow, ballwork, rebounding, interiorDefense, perimeterDefense, overall, stars, expectations)
 
 	croot.SetID(id)
 

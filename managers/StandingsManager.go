@@ -182,3 +182,11 @@ func RegressStandings(ts structs.Timestamp, MatchType string) {
 		}
 	}
 }
+
+func ResetCollegeStandingsRanks() {
+	db := dbprovider.GetInstance().GetDB()
+	ts := GetTimestamp()
+	seasonID := strconv.Itoa(int(ts.SeasonID))
+
+	db.Model(&structs.CollegeStandings{}).Where("season_id = ?", seasonID).Updates(structs.CollegeStandings{Rank: 0})
+}

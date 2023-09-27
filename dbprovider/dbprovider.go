@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/CalebRose/SimNBA/config"
+	"github.com/CalebRose/SimNBA/structs"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -45,7 +46,7 @@ func (p *Provider) InitDatabase() bool {
 	// db.AutoMigrate(&structs.TeamRecruitingProfile{})
 	// db.AutoMigrate(&structs.CollegeWeek{})
 	// db.AutoMigrate(&structs.CollegeConference{})
-	// db.AutoMigrate(&structs.CollegeStandings{})
+	db.AutoMigrate(&structs.CollegeStandings{})
 	// db.AutoMigrate(&structs.TeamStats{})
 	// db.AutoMigrate(&structs.TeamSeasonStats{})
 	// db.AutoMigrate(&structs.Team{})

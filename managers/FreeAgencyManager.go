@@ -607,10 +607,10 @@ func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *
 			team := GetNBATeamByTeamID(strconv.Itoa(int(Offer.TeamID)))
 			validation := validateFreeAgencyPref(FA, team, seasonID, idx)
 			// If the offer is valid and meets the player's free agency bias, reduce the minimum value required by 15%
-			if validation && FA.FreeAgency != "Average" {
+			if validation && FA.FreeAgency != "Average" && FA.Year > 2 {
 				minimumValueMultiplier = 0.85
 				// If the offer does not meet the player's free agency bias, increase the minimum value required by 15%
-			} else if !validation && FA.FreeAgency != "Average" {
+			} else if !validation && FA.FreeAgency != "Average" && FA.Year > 2 {
 				minimumValueMultiplier = 1.15
 			}
 			minimumValue = minimumValue * minimumValueMultiplier

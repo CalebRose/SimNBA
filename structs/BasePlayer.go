@@ -271,3 +271,17 @@ func (c *BasePlayer) SetPersonality(personality string) {
 func (c *BasePlayer) SetFreeAgencyBias(faBias string) {
 	c.FreeAgency = faBias
 }
+
+func (np *BasePlayer) SetAttributes(s2, s3, fn, ft, bl, rb, id, pd, ovr, stars, exp int) {
+	np.Shooting2 = s2
+	np.Shooting3 = s3
+	np.Finishing = fn
+	np.FreeThrow = ft
+	np.Ballwork = bl
+	np.Rebounding = rb
+	np.InteriorDefense = id
+	np.PerimeterDefense = pd
+	np.Overall = ovr
+	np.Stars = stars
+	np.PlaytimeExpectations = exp
+}

@@ -112,17 +112,40 @@ func SyncCollegePollSubmissionForCurrentWeek() {
 		return allVotes[i].TotalVotes > allVotes[j].TotalVotes
 	})
 
-	officialPoll := structs.CollegePollOfficial{}
+	officialPoll := structs.CollegePollOfficial{
+		WeekID:   ts.CollegeWeekID,
+		Week:     uint(ts.CollegeWeek),
+		SeasonID: ts.SeasonID,
+	}
 	for idx, v := range allVotes {
 		if idx > 24 {
 			break
 		}
 		officialPoll.AssignRank(idx, v)
+		// Get Standings
+		teamID := strconv.Itoa(int(v.TeamID))
+		teamStandings := GetStandingsRecordByTeamID(teamID, seasonID)
+		rank := idx + 1
+		teamStandings.AssignRank(rank)
+		db.Save(&teamStandings)
+
+		matches := GetMatchesByTeamIdAndSeasonId(teamID, seasonID)
+
+		for _, m := range matches {
+			if m.Week < uint(ts.CollegeWeek) {
+				continue
+			}
+			m.AssignRank(v.TeamID, uint(rank))
+			db.Save(&m)
+			if m.Week > uint(ts.CollegeWeek) {
+				break
+			}
+		}
 	}
 	ts.TogglePollRan()
 	db.Save(&ts)
 
-	db.Save(&officialPoll)
+	db.Create(&officialPoll)
 }
 
 func CreatePoll(dto structs.CollegePollSubmission) structs.CollegePollSubmission {
