@@ -122,3 +122,11 @@ func FixPlayerStatsFromLastSeason(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode("All done!")
 }
+
+func GetMatchesForSimulation(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+
+	matches := managers.GetMatchesForTimeslot()
+
+	json.NewEncoder(w).Encode(matches)
+}

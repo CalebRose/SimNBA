@@ -836,6 +836,15 @@ func GetAllNBADraftees() []structs.NBADraftee {
 	return players
 }
 
+func GetOnlyNBAPlayersByTeamID(teamID string) []structs.NBAPlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var players []structs.NBAPlayer
+
+	db.Where("team_id = ?", teamID).Find(&players)
+	return players
+}
+
 func GetAllNBAPlayersByTeamID(teamID string) []structs.NBAPlayer {
 	db := dbprovider.GetInstance().GetDB()
 

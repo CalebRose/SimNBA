@@ -479,6 +479,18 @@ func GetOnlyNBATeams() []structs.NBATeam {
 	return teams
 }
 
+func GetInternationalTeams() []structs.NBATeam {
+	db := dbprovider.GetInstance().GetDB()
+
+	var teams []structs.NBATeam
+
+	err := db.Where("league_id != 1").Find(&teams).Error
+	if err != nil {
+		log.Fatal(err)
+	}
+	return teams
+}
+
 func GetAllActiveNBATeams() []structs.NBATeam {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -505,7 +517,7 @@ func GetNBATeamWithCapsheetByTeamID(teamId string) structs.NBATeam {
 func FormISLRosters() {
 	db := dbprovider.GetInstance().GetDB()
 	ts := GetTimestamp()
-	islTeams := GetAllActiveNBATeams()
+	islTeams := GetInternationalTeams()
 	playerSignedMap := make(map[uint]bool)
 	freeAgents := GetAllFreeAgents()
 	sort.Slice(freeAgents, func(i, j int) bool {
@@ -531,16 +543,36 @@ func FormISLRosters() {
 			positionCount[r.Position] += 1
 		}
 
-		if positionCount["PG"] < 3 {
+		if _, ok := teamNeedsMap["PG"]; !ok {
 			teamNeedsMap["PG"] = true
-		} else if positionCount["SG"] < 4 {
+		}
+		if _, ok := teamNeedsMap["SG"]; !ok {
 			teamNeedsMap["SG"] = true
-		} else if positionCount["SF"] < 4 {
+		}
+		if _, ok := teamNeedsMap["SF"]; !ok {
 			teamNeedsMap["SF"] = true
-		} else if positionCount["PF"] < 4 {
+		}
+		if _, ok := teamNeedsMap["PF"]; !ok {
 			teamNeedsMap["PF"] = true
-		} else if positionCount["C"] < 3 {
+		}
+		if _, ok := teamNeedsMap["C"]; !ok {
 			teamNeedsMap["C"] = true
+		}
+
+		if _, ok := positionCount["PG"]; !ok {
+			positionCount["PG"] = 0
+		}
+		if _, ok := positionCount["SG"]; !ok {
+			positionCount["SG"] = 0
+		}
+		if _, ok := positionCount["SF"]; !ok {
+			positionCount["SF"] = 0
+		}
+		if _, ok := positionCount["PF"]; !ok {
+			positionCount["PF"] = 0
+		}
+		if _, ok := positionCount["C"]; !ok {
+			positionCount["C"] = 0
 		}
 
 		islTeamNeedsMap[t.ID] = structs.ISLTeamNeeds{
@@ -550,7 +582,8 @@ func FormISLRosters() {
 		}
 	}
 
-	reverseOrder := islTeams
+	reverseOrder := make([]structs.NBATeam, len(islTeams))
+	copy(reverseOrder, islTeams)
 	sort.Slice(reverseOrder, func(i, j int) bool {
 		iVal := reverseOrder[i].ID
 		jVal := reverseOrder[j].ID
@@ -619,6 +652,7 @@ func FormISLRosters() {
 				// News Log
 				message := "FA " + fa.Position + " " + fa.FirstName + " " + fa.LastName + " has signed with the ISL Team " + teamName + " with a contract worth approximately $" + strconv.Itoa(int(Contract.ContractValue)) + " Million Dollars."
 				CreateNewsLog("NBA", message, "Free Agency", 0, ts)
+				break
 			}
 
 		}

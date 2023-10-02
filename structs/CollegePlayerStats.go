@@ -8,6 +8,7 @@ type CollegePlayerStats struct {
 	MatchID            uint
 	SeasonID           uint
 	WeekID             uint
+	Week               uint
 	MatchType          string
 	Year               uint
 	Minutes            int

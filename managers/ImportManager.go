@@ -30,6 +30,7 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 	var teamStats []structs.TeamStats
 	var nbaTeamStats []structs.NBATeamStats
 
+	// Import College Game Results
 	for _, dto := range Results.CBBResults {
 		record := make(chan structs.Match)
 		go func() {
@@ -56,52 +57,7 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 			log.Fatalln("Could not convert string to int")
 		}
 
-		homeTeam := structs.TeamStats{
-			TeamID:                    uint(ht.ID),
-			MatchID:                   uint(matchID),
-			WeekID:                    gameRecord.WeekID,
-			SeasonID:                  uint(gameRecord.SeasonID),
-			Points:                    dto.TeamOne.Stats.Points,
-			Possessions:               dto.TeamOne.Stats.Possessions,
-			FGM:                       dto.TeamOne.Stats.FGM,
-			FGA:                       dto.TeamOne.Stats.FGA,
-			FGPercent:                 dto.TeamOne.Stats.FGPercent,
-			ThreePointsMade:           dto.TeamOne.Stats.ThreePointsMade,
-			ThreePointAttempts:        dto.TeamOne.Stats.ThreePointAttempts,
-			ThreePointPercent:         dto.TeamOne.Stats.ThreePointPercent,
-			FTM:                       dto.TeamOne.Stats.FTM,
-			FTA:                       dto.TeamOne.Stats.FTA,
-			FTPercent:                 dto.TeamOne.Stats.FTPercent,
-			Rebounds:                  dto.TeamOne.Stats.Rebounds,
-			OffRebounds:               dto.TeamOne.Stats.OffRebounds,
-			DefRebounds:               dto.TeamOne.Stats.DefRebounds,
-			Assists:                   dto.TeamOne.Stats.Assists,
-			Steals:                    dto.TeamOne.Stats.Steals,
-			Blocks:                    dto.TeamOne.Stats.Blocks,
-			TotalTurnovers:            dto.TeamOne.Stats.TotalTurnovers,
-			LargestLead:               dto.TeamOne.Stats.LargestLead,
-			FirstHalfScore:            dto.TeamOne.Stats.FirstHalfScore,
-			SecondHalfScore:           dto.TeamOne.Stats.SecondHalfScore,
-			OvertimeScore:             dto.TeamOne.Stats.OvertimeScore,
-			Fouls:                     dto.TeamOne.Stats.Fouls,
-			PointsAgainst:             dto.TeamTwo.Stats.Points,
-			FGMAgainst:                dto.TeamTwo.Stats.FGM,
-			FGAAgainst:                dto.TeamTwo.Stats.FGA,
-			FGPercentAgainst:          dto.TeamTwo.Stats.FGPercent,
-			ThreePointsMadeAgainst:    dto.TeamTwo.Stats.ThreePointsMade,
-			ThreePointAttemptsAgainst: dto.TeamTwo.Stats.ThreePointAttempts,
-			ThreePointPercentAgainst:  dto.TeamTwo.Stats.ThreePointPercent,
-			FTMAgainst:                dto.TeamTwo.Stats.FTM,
-			FTAAgainst:                dto.TeamTwo.Stats.FTA,
-			FTPercentAgainst:          dto.TeamTwo.Stats.FTPercent,
-			ReboundsAllowed:           dto.TeamTwo.Stats.Rebounds,
-			OffReboundsAllowed:        dto.TeamTwo.Stats.OffRebounds,
-			DefReboundsAllowed:        dto.TeamTwo.Stats.DefRebounds,
-			AssistsAllowed:            dto.TeamTwo.Stats.Assists,
-			StealsAllowed:             dto.TeamTwo.Stats.Steals,
-			BlocksAllowed:             dto.TeamTwo.Stats.Blocks,
-			TurnoversAllowed:          dto.TeamTwo.Stats.TotalTurnovers,
-		}
+		homeTeam := mapToCollegeTeamStatsObject(ht.ID, uint(matchID), timestamp.CollegeWeekID, uint(timestamp.NBAWeek), timestamp.SeasonID, dto.TeamOne, dto.TeamTwo)
 
 		teamStats = append(teamStats, homeTeam)
 
@@ -114,113 +70,19 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 		at := <-awayTeamChn
 		close(awayTeamChn)
 
-		awayTeam := structs.TeamStats{
-			TeamID:                    at.ID,
-			MatchID:                   uint(matchID),
-			WeekID:                    gameRecord.WeekID,
-			SeasonID:                  gameRecord.SeasonID,
-			Points:                    dto.TeamTwo.Stats.Points,
-			Possessions:               dto.TeamTwo.Stats.Possessions,
-			FGM:                       dto.TeamTwo.Stats.FGM,
-			FGA:                       dto.TeamTwo.Stats.FGA,
-			FGPercent:                 dto.TeamTwo.Stats.FGPercent,
-			ThreePointsMade:           dto.TeamTwo.Stats.ThreePointsMade,
-			ThreePointAttempts:        dto.TeamTwo.Stats.ThreePointAttempts,
-			ThreePointPercent:         dto.TeamTwo.Stats.ThreePointPercent,
-			FTM:                       dto.TeamTwo.Stats.FTM,
-			FTA:                       dto.TeamTwo.Stats.FTA,
-			FTPercent:                 dto.TeamTwo.Stats.FTPercent,
-			Rebounds:                  dto.TeamTwo.Stats.Rebounds,
-			OffRebounds:               dto.TeamTwo.Stats.OffRebounds,
-			DefRebounds:               dto.TeamTwo.Stats.DefRebounds,
-			Assists:                   dto.TeamTwo.Stats.Assists,
-			Steals:                    dto.TeamTwo.Stats.Steals,
-			Blocks:                    dto.TeamTwo.Stats.Blocks,
-			TotalTurnovers:            dto.TeamTwo.Stats.TotalTurnovers,
-			LargestLead:               dto.TeamTwo.Stats.LargestLead,
-			FirstHalfScore:            dto.TeamTwo.Stats.FirstHalfScore,
-			SecondHalfScore:           dto.TeamTwo.Stats.SecondHalfScore,
-			OvertimeScore:             dto.TeamTwo.Stats.OvertimeScore,
-			Fouls:                     dto.TeamTwo.Stats.Fouls,
-			PointsAgainst:             dto.TeamOne.Stats.Points,
-			FGMAgainst:                dto.TeamOne.Stats.FGM,
-			FGAAgainst:                dto.TeamOne.Stats.FGA,
-			FGPercentAgainst:          dto.TeamOne.Stats.FGPercent,
-			ThreePointsMadeAgainst:    dto.TeamOne.Stats.ThreePointsMade,
-			ThreePointAttemptsAgainst: dto.TeamOne.Stats.ThreePointAttempts,
-			ThreePointPercentAgainst:  dto.TeamOne.Stats.ThreePointPercent,
-			FTMAgainst:                dto.TeamOne.Stats.FTM,
-			FTAAgainst:                dto.TeamOne.Stats.FTA,
-			FTPercentAgainst:          dto.TeamOne.Stats.FTPercent,
-			ReboundsAllowed:           dto.TeamOne.Stats.Rebounds,
-			OffReboundsAllowed:        dto.TeamOne.Stats.OffRebounds,
-			DefReboundsAllowed:        dto.TeamOne.Stats.DefRebounds,
-			AssistsAllowed:            dto.TeamOne.Stats.Assists,
-			StealsAllowed:             dto.TeamOne.Stats.Steals,
-			BlocksAllowed:             dto.TeamOne.Stats.Blocks,
-			TurnoversAllowed:          dto.TeamOne.Stats.TotalTurnovers,
-		}
+		awayTeam := mapToCollegeTeamStatsObject(at.ID, uint(matchID), timestamp.CollegeWeekID, uint(timestamp.NBAWeek), timestamp.SeasonID, dto.TeamTwo, dto.TeamOne)
 
 		teamStats = append(teamStats, awayTeam)
 
 		for _, player := range dto.RosterOne {
 			id := player.ID
-			collegePlayerStats := structs.CollegePlayerStats{
-				CollegePlayerID:    uint(id),
-				MatchID:            uint(matchID),
-				SeasonID:           timestamp.SeasonID,
-				Minutes:            player.Stats.Minutes,
-				Possessions:        player.Stats.Possessions,
-				FGM:                player.Stats.FGM,
-				FGA:                player.Stats.FGA,
-				FGPercent:          player.Stats.FGPercent,
-				ThreePointsMade:    player.Stats.ThreePointsMade,
-				ThreePointAttempts: player.Stats.ThreePointAttempts,
-				ThreePointPercent:  player.Stats.ThreePointPercent,
-				FTM:                player.Stats.FTM,
-				FTA:                player.Stats.FTA,
-				FTPercent:          player.Stats.FTPercent,
-				Points:             player.Stats.Points,
-				TotalRebounds:      player.Stats.TotalRebounds,
-				OffRebounds:        player.Stats.OffRebounds,
-				DefRebounds:        player.Stats.DefRebounds,
-				Assists:            player.Stats.Assists,
-				Steals:             player.Stats.Steals,
-				Blocks:             player.Stats.Blocks,
-				Turnovers:          player.Stats.Turnovers,
-				Fouls:              player.Stats.Fouls,
-			}
+			collegePlayerStats := mapToCBBPlayerStatsObject(player, id, matchID, timestamp.SeasonID, timestamp.CollegeWeekID)
 			playerStats = append(playerStats, collegePlayerStats)
 		}
 
 		for _, player := range dto.RosterTwo {
 			id := player.ID
-			collegePlayerStats := structs.CollegePlayerStats{
-				CollegePlayerID:    uint(id),
-				MatchID:            uint(matchID),
-				SeasonID:           timestamp.SeasonID,
-				Minutes:            player.Stats.Minutes,
-				Possessions:        player.Stats.Possessions,
-				FGM:                player.Stats.FGM,
-				FGA:                player.Stats.FGA,
-				FGPercent:          player.Stats.FGPercent,
-				ThreePointsMade:    player.Stats.ThreePointsMade,
-				ThreePointAttempts: player.Stats.ThreePointAttempts,
-				ThreePointPercent:  player.Stats.ThreePointPercent,
-				FTM:                player.Stats.FTM,
-				FTA:                player.Stats.FTA,
-				FTPercent:          player.Stats.FTPercent,
-				Points:             player.Stats.Points,
-				TotalRebounds:      player.Stats.TotalRebounds,
-				OffRebounds:        player.Stats.OffRebounds,
-				DefRebounds:        player.Stats.DefRebounds,
-				Assists:            player.Stats.Assists,
-				Steals:             player.Stats.Steals,
-				Blocks:             player.Stats.Blocks,
-				Turnovers:          player.Stats.Turnovers,
-				Fouls:              player.Stats.Fouls,
-			}
-
+			collegePlayerStats := mapToCBBPlayerStatsObject(player, id, matchID, timestamp.SeasonID, timestamp.CollegeWeekID)
 			playerStats = append(playerStats, collegePlayerStats)
 		}
 
@@ -239,6 +101,7 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 		fmt.Println("Finished Game " + strconv.Itoa(int(gameRecord.ID)) + " Between " + gameRecord.HomeTeam + " and " + gameRecord.AwayTeam)
 	}
 
+	// Import NBA Game Results
 	for _, dto := range Results.NBAResults {
 		record := make(chan structs.NBAMatch)
 		go func() {
@@ -262,52 +125,7 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 
 		matchID := util.ConvertStringToInt(dto.GameID)
 
-		homeTeam := structs.NBATeamStats{
-			TeamID:                    uint(ht.ID),
-			MatchID:                   uint(matchID),
-			WeekID:                    gameRecord.WeekID,
-			SeasonID:                  uint(gameRecord.SeasonID),
-			Points:                    dto.TeamOne.Stats.Points,
-			Possessions:               dto.TeamOne.Stats.Possessions,
-			FGM:                       dto.TeamOne.Stats.FGM,
-			FGA:                       dto.TeamOne.Stats.FGA,
-			FGPercent:                 dto.TeamOne.Stats.FGPercent,
-			ThreePointsMade:           dto.TeamOne.Stats.ThreePointsMade,
-			ThreePointAttempts:        dto.TeamOne.Stats.ThreePointAttempts,
-			ThreePointPercent:         dto.TeamOne.Stats.ThreePointPercent,
-			FTM:                       dto.TeamOne.Stats.FTM,
-			FTA:                       dto.TeamOne.Stats.FTA,
-			FTPercent:                 dto.TeamOne.Stats.FTPercent,
-			Rebounds:                  dto.TeamOne.Stats.Rebounds,
-			OffRebounds:               dto.TeamOne.Stats.OffRebounds,
-			DefRebounds:               dto.TeamOne.Stats.DefRebounds,
-			Assists:                   dto.TeamOne.Stats.Assists,
-			Steals:                    dto.TeamOne.Stats.Steals,
-			Blocks:                    dto.TeamOne.Stats.Blocks,
-			TotalTurnovers:            dto.TeamOne.Stats.TotalTurnovers,
-			LargestLead:               dto.TeamOne.Stats.LargestLead,
-			FirstHalfScore:            dto.TeamOne.Stats.FirstHalfScore,
-			SecondHalfScore:           dto.TeamOne.Stats.SecondHalfScore,
-			OvertimeScore:             dto.TeamOne.Stats.OvertimeScore,
-			Fouls:                     dto.TeamOne.Stats.Fouls,
-			PointsAgainst:             dto.TeamTwo.Stats.Points,
-			FGMAgainst:                dto.TeamTwo.Stats.FGM,
-			FGAAgainst:                dto.TeamTwo.Stats.FGA,
-			FGPercentAgainst:          dto.TeamTwo.Stats.FGPercent,
-			ThreePointsMadeAgainst:    dto.TeamTwo.Stats.ThreePointsMade,
-			ThreePointAttemptsAgainst: dto.TeamTwo.Stats.ThreePointAttempts,
-			ThreePointPercentAgainst:  dto.TeamTwo.Stats.ThreePointPercent,
-			FTMAgainst:                dto.TeamTwo.Stats.FTM,
-			FTAAgainst:                dto.TeamTwo.Stats.FTA,
-			FTPercentAgainst:          dto.TeamTwo.Stats.FTPercent,
-			ReboundsAllowed:           dto.TeamTwo.Stats.Rebounds,
-			OffReboundsAllowed:        dto.TeamTwo.Stats.OffRebounds,
-			DefReboundsAllowed:        dto.TeamTwo.Stats.DefRebounds,
-			AssistsAllowed:            dto.TeamTwo.Stats.Assists,
-			StealsAllowed:             dto.TeamTwo.Stats.Steals,
-			BlocksAllowed:             dto.TeamTwo.Stats.Blocks,
-			TurnoversAllowed:          dto.TeamTwo.Stats.TotalTurnovers,
-		}
+		homeTeam := mapToNBATeamStatsObject(ht.ID, uint(matchID), timestamp.NBAWeekID, uint(timestamp.NBAWeek), timestamp.SeasonID, dto.TeamOne, dto.TeamTwo)
 
 		nbaTeamStats = append(nbaTeamStats, homeTeam)
 
@@ -320,113 +138,19 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 		at := <-awayTeamChn
 		close(awayTeamChn)
 
-		awayTeam := structs.NBATeamStats{
-			TeamID:                    at.ID,
-			MatchID:                   uint(matchID),
-			WeekID:                    gameRecord.WeekID,
-			SeasonID:                  gameRecord.SeasonID,
-			Points:                    dto.TeamTwo.Stats.Points,
-			Possessions:               dto.TeamTwo.Stats.Possessions,
-			FGM:                       dto.TeamTwo.Stats.FGM,
-			FGA:                       dto.TeamTwo.Stats.FGA,
-			FGPercent:                 dto.TeamTwo.Stats.FGPercent,
-			ThreePointsMade:           dto.TeamTwo.Stats.ThreePointsMade,
-			ThreePointAttempts:        dto.TeamTwo.Stats.ThreePointAttempts,
-			ThreePointPercent:         dto.TeamTwo.Stats.ThreePointPercent,
-			FTM:                       dto.TeamTwo.Stats.FTM,
-			FTA:                       dto.TeamTwo.Stats.FTA,
-			FTPercent:                 dto.TeamTwo.Stats.FTPercent,
-			Rebounds:                  dto.TeamTwo.Stats.Rebounds,
-			OffRebounds:               dto.TeamTwo.Stats.OffRebounds,
-			DefRebounds:               dto.TeamTwo.Stats.DefRebounds,
-			Assists:                   dto.TeamTwo.Stats.Assists,
-			Steals:                    dto.TeamTwo.Stats.Steals,
-			Blocks:                    dto.TeamTwo.Stats.Blocks,
-			TotalTurnovers:            dto.TeamTwo.Stats.TotalTurnovers,
-			LargestLead:               dto.TeamTwo.Stats.LargestLead,
-			FirstHalfScore:            dto.TeamTwo.Stats.FirstHalfScore,
-			SecondHalfScore:           dto.TeamTwo.Stats.SecondHalfScore,
-			OvertimeScore:             dto.TeamTwo.Stats.OvertimeScore,
-			Fouls:                     dto.TeamTwo.Stats.Fouls,
-			PointsAgainst:             dto.TeamOne.Stats.Points,
-			FGMAgainst:                dto.TeamOne.Stats.FGM,
-			FGAAgainst:                dto.TeamOne.Stats.FGA,
-			FGPercentAgainst:          dto.TeamOne.Stats.FGPercent,
-			ThreePointsMadeAgainst:    dto.TeamOne.Stats.ThreePointsMade,
-			ThreePointAttemptsAgainst: dto.TeamOne.Stats.ThreePointAttempts,
-			ThreePointPercentAgainst:  dto.TeamOne.Stats.ThreePointPercent,
-			FTMAgainst:                dto.TeamOne.Stats.FTM,
-			FTAAgainst:                dto.TeamOne.Stats.FTA,
-			FTPercentAgainst:          dto.TeamOne.Stats.FTPercent,
-			ReboundsAllowed:           dto.TeamOne.Stats.Rebounds,
-			OffReboundsAllowed:        dto.TeamOne.Stats.OffRebounds,
-			DefReboundsAllowed:        dto.TeamOne.Stats.DefRebounds,
-			AssistsAllowed:            dto.TeamOne.Stats.Assists,
-			StealsAllowed:             dto.TeamOne.Stats.Steals,
-			BlocksAllowed:             dto.TeamOne.Stats.Blocks,
-			TurnoversAllowed:          dto.TeamOne.Stats.TotalTurnovers,
-		}
+		awayTeam := mapToNBATeamStatsObject(at.ID, uint(matchID), timestamp.NBAWeekID, uint(timestamp.NBAWeek), timestamp.SeasonID, dto.TeamTwo, dto.TeamOne)
 
 		nbaTeamStats = append(nbaTeamStats, awayTeam)
 
 		for _, player := range dto.RosterOne {
 			id := player.ID
-			nbaPlayerStats := structs.NBAPlayerStats{
-				NBAPlayerID:        uint(id),
-				MatchID:            uint(matchID),
-				SeasonID:           timestamp.SeasonID,
-				Minutes:            player.Stats.Minutes,
-				Possessions:        player.Stats.Possessions,
-				FGM:                player.Stats.FGM,
-				FGA:                player.Stats.FGA,
-				FGPercent:          player.Stats.FGPercent,
-				ThreePointsMade:    player.Stats.ThreePointsMade,
-				ThreePointAttempts: player.Stats.ThreePointAttempts,
-				ThreePointPercent:  player.Stats.ThreePointPercent,
-				FTM:                player.Stats.FTM,
-				FTA:                player.Stats.FTA,
-				FTPercent:          player.Stats.FTPercent,
-				Points:             player.Stats.Points,
-				TotalRebounds:      player.Stats.TotalRebounds,
-				OffRebounds:        player.Stats.OffRebounds,
-				DefRebounds:        player.Stats.DefRebounds,
-				Assists:            player.Stats.Assists,
-				Steals:             player.Stats.Steals,
-				Blocks:             player.Stats.Blocks,
-				Turnovers:          player.Stats.Turnovers,
-				Fouls:              player.Stats.Fouls,
-			}
+			nbaPlayerStats := mapToNBAPlayerStatsObject(player, id, matchID, timestamp.SeasonID, timestamp.NBAWeekID)
 			playerStats = append(playerStats, nbaPlayerStats)
 		}
 
 		for _, player := range dto.RosterTwo {
 			id := player.ID
-			nbaPlayerStats := structs.NBAPlayerStats{
-				NBAPlayerID:        uint(id),
-				MatchID:            uint(matchID),
-				SeasonID:           timestamp.SeasonID,
-				Minutes:            player.Stats.Minutes,
-				Possessions:        player.Stats.Possessions,
-				FGM:                player.Stats.FGM,
-				FGA:                player.Stats.FGA,
-				FGPercent:          player.Stats.FGPercent,
-				ThreePointsMade:    player.Stats.ThreePointsMade,
-				ThreePointAttempts: player.Stats.ThreePointAttempts,
-				ThreePointPercent:  player.Stats.ThreePointPercent,
-				FTM:                player.Stats.FTM,
-				FTA:                player.Stats.FTA,
-				FTPercent:          player.Stats.FTPercent,
-				Points:             player.Stats.Points,
-				TotalRebounds:      player.Stats.TotalRebounds,
-				OffRebounds:        player.Stats.OffRebounds,
-				DefRebounds:        player.Stats.DefRebounds,
-				Assists:            player.Stats.Assists,
-				Steals:             player.Stats.Steals,
-				Blocks:             player.Stats.Blocks,
-				Turnovers:          player.Stats.Turnovers,
-				Fouls:              player.Stats.Fouls,
-			}
-
+			nbaPlayerStats := mapToNBAPlayerStatsObject(player, id, matchID, timestamp.SeasonID, timestamp.NBAWeekID)
 			playerStats = append(playerStats, nbaPlayerStats)
 		}
 
@@ -445,12 +169,14 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 		fmt.Println("Finished Game " + strconv.Itoa(int(gameRecord.ID)) + " Between " + gameRecord.HomeTeam + " and " + gameRecord.AwayTeam)
 	}
 
+	// Import all college team stats
 	for _, stats := range teamStats {
 		err := db.Create(&stats).Error
 		if err != nil {
 			log.Panicln("Could not save team stats!")
 		}
 	}
+	// Import All nba team stats
 	for _, stats := range nbaTeamStats {
 		err := db.Create(&stats).Error
 		if err != nil {
@@ -1012,4 +738,159 @@ func filterLotteryPicks(list []structs.DraftLottery, id uint) []structs.DraftLot
 		}
 	}
 	return newList
+}
+
+func mapToCollegeTeamStatsObject(teamID, matchID, weekID, week, seasonID uint, TeamOne, TeamTwo structs.TeamResultsDTO) structs.TeamStats {
+	return structs.TeamStats{
+		TeamID:                    teamID,
+		MatchID:                   matchID,
+		WeekID:                    weekID,
+		SeasonID:                  seasonID,
+		Points:                    TeamOne.Stats.Points,
+		Possessions:               TeamOne.Stats.Possessions,
+		FGM:                       TeamOne.Stats.FGM,
+		FGA:                       TeamOne.Stats.FGA,
+		FGPercent:                 TeamOne.Stats.FGPercent,
+		ThreePointsMade:           TeamOne.Stats.ThreePointsMade,
+		ThreePointAttempts:        TeamOne.Stats.ThreePointAttempts,
+		ThreePointPercent:         TeamOne.Stats.ThreePointPercent,
+		FTM:                       TeamOne.Stats.FTM,
+		FTA:                       TeamOne.Stats.FTA,
+		FTPercent:                 TeamOne.Stats.FTPercent,
+		Rebounds:                  TeamOne.Stats.Rebounds,
+		OffRebounds:               TeamOne.Stats.OffRebounds,
+		DefRebounds:               TeamOne.Stats.DefRebounds,
+		Assists:                   TeamOne.Stats.Assists,
+		Steals:                    TeamOne.Stats.Steals,
+		Blocks:                    TeamOne.Stats.Blocks,
+		TotalTurnovers:            TeamOne.Stats.TotalTurnovers,
+		LargestLead:               TeamOne.Stats.LargestLead,
+		FirstHalfScore:            TeamOne.Stats.FirstHalfScore,
+		SecondHalfScore:           TeamOne.Stats.SecondHalfScore,
+		OvertimeScore:             TeamOne.Stats.OvertimeScore,
+		Fouls:                     TeamOne.Stats.Fouls,
+		PointsAgainst:             TeamTwo.Stats.Points,
+		FGMAgainst:                TeamTwo.Stats.FGM,
+		FGAAgainst:                TeamTwo.Stats.FGA,
+		FGPercentAgainst:          TeamTwo.Stats.FGPercent,
+		ThreePointsMadeAgainst:    TeamTwo.Stats.ThreePointsMade,
+		ThreePointAttemptsAgainst: TeamTwo.Stats.ThreePointAttempts,
+		ThreePointPercentAgainst:  TeamTwo.Stats.ThreePointPercent,
+		FTMAgainst:                TeamTwo.Stats.FTM,
+		FTAAgainst:                TeamTwo.Stats.FTA,
+		FTPercentAgainst:          TeamTwo.Stats.FTPercent,
+		ReboundsAllowed:           TeamTwo.Stats.Rebounds,
+		OffReboundsAllowed:        TeamTwo.Stats.OffRebounds,
+		DefReboundsAllowed:        TeamTwo.Stats.DefRebounds,
+		AssistsAllowed:            TeamTwo.Stats.Assists,
+		StealsAllowed:             TeamTwo.Stats.Steals,
+		BlocksAllowed:             TeamTwo.Stats.Blocks,
+		TurnoversAllowed:          TeamTwo.Stats.TotalTurnovers,
+	}
+}
+
+func mapToNBATeamStatsObject(teamID, matchID, weekID, week, seasonID uint, TeamOne, TeamTwo structs.TeamResultsDTO) structs.NBATeamStats {
+	return structs.NBATeamStats{
+		TeamID:                    teamID,
+		MatchID:                   matchID,
+		WeekID:                    weekID,
+		SeasonID:                  seasonID,
+		Points:                    TeamOne.Stats.Points,
+		Possessions:               TeamOne.Stats.Possessions,
+		FGM:                       TeamOne.Stats.FGM,
+		FGA:                       TeamOne.Stats.FGA,
+		FGPercent:                 TeamOne.Stats.FGPercent,
+		ThreePointsMade:           TeamOne.Stats.ThreePointsMade,
+		ThreePointAttempts:        TeamOne.Stats.ThreePointAttempts,
+		ThreePointPercent:         TeamOne.Stats.ThreePointPercent,
+		FTM:                       TeamOne.Stats.FTM,
+		FTA:                       TeamOne.Stats.FTA,
+		FTPercent:                 TeamOne.Stats.FTPercent,
+		Rebounds:                  TeamOne.Stats.Rebounds,
+		OffRebounds:               TeamOne.Stats.OffRebounds,
+		DefRebounds:               TeamOne.Stats.DefRebounds,
+		Assists:                   TeamOne.Stats.Assists,
+		Steals:                    TeamOne.Stats.Steals,
+		Blocks:                    TeamOne.Stats.Blocks,
+		TotalTurnovers:            TeamOne.Stats.TotalTurnovers,
+		LargestLead:               TeamOne.Stats.LargestLead,
+		FirstHalfScore:            TeamOne.Stats.FirstHalfScore,
+		SecondHalfScore:           TeamOne.Stats.SecondHalfScore,
+		OvertimeScore:             TeamOne.Stats.OvertimeScore,
+		Fouls:                     TeamOne.Stats.Fouls,
+		PointsAgainst:             TeamTwo.Stats.Points,
+		FGMAgainst:                TeamTwo.Stats.FGM,
+		FGAAgainst:                TeamTwo.Stats.FGA,
+		FGPercentAgainst:          TeamTwo.Stats.FGPercent,
+		ThreePointsMadeAgainst:    TeamTwo.Stats.ThreePointsMade,
+		ThreePointAttemptsAgainst: TeamTwo.Stats.ThreePointAttempts,
+		ThreePointPercentAgainst:  TeamTwo.Stats.ThreePointPercent,
+		FTMAgainst:                TeamTwo.Stats.FTM,
+		FTAAgainst:                TeamTwo.Stats.FTA,
+		FTPercentAgainst:          TeamTwo.Stats.FTPercent,
+		ReboundsAllowed:           TeamTwo.Stats.Rebounds,
+		OffReboundsAllowed:        TeamTwo.Stats.OffRebounds,
+		DefReboundsAllowed:        TeamTwo.Stats.DefRebounds,
+		AssistsAllowed:            TeamTwo.Stats.Assists,
+		StealsAllowed:             TeamTwo.Stats.Steals,
+		BlocksAllowed:             TeamTwo.Stats.Blocks,
+		TurnoversAllowed:          TeamTwo.Stats.TotalTurnovers,
+	}
+}
+
+func mapToCBBPlayerStatsObject(player structs.PlayerDTO, id, matchID int, seasonID, weekID uint) structs.CollegePlayerStats {
+	return structs.CollegePlayerStats{
+		CollegePlayerID:    uint(id),
+		MatchID:            uint(matchID),
+		SeasonID:           seasonID,
+		Minutes:            player.Stats.Minutes,
+		Possessions:        player.Stats.Possessions,
+		FGM:                player.Stats.FGM,
+		FGA:                player.Stats.FGA,
+		FGPercent:          player.Stats.FGPercent,
+		ThreePointsMade:    player.Stats.ThreePointsMade,
+		ThreePointAttempts: player.Stats.ThreePointAttempts,
+		ThreePointPercent:  player.Stats.ThreePointPercent,
+		FTM:                player.Stats.FTM,
+		FTA:                player.Stats.FTA,
+		FTPercent:          player.Stats.FTPercent,
+		Points:             player.Stats.Points,
+		TotalRebounds:      player.Stats.TotalRebounds,
+		OffRebounds:        player.Stats.OffRebounds,
+		DefRebounds:        player.Stats.DefRebounds,
+		Assists:            player.Stats.Assists,
+		Steals:             player.Stats.Steals,
+		Blocks:             player.Stats.Blocks,
+		Turnovers:          player.Stats.Turnovers,
+		Fouls:              player.Stats.Fouls,
+	}
+}
+
+func mapToNBAPlayerStatsObject(player structs.PlayerDTO, id, matchID int, seasonID, weekID uint) structs.NBAPlayerStats {
+	return structs.NBAPlayerStats{
+		NBAPlayerID:        uint(id),
+		MatchID:            uint(matchID),
+		SeasonID:           seasonID,
+		WeekID:             weekID,
+		Minutes:            player.Stats.Minutes,
+		Possessions:        player.Stats.Possessions,
+		FGM:                player.Stats.FGM,
+		FGA:                player.Stats.FGA,
+		FGPercent:          player.Stats.FGPercent,
+		ThreePointsMade:    player.Stats.ThreePointsMade,
+		ThreePointAttempts: player.Stats.ThreePointAttempts,
+		ThreePointPercent:  player.Stats.ThreePointPercent,
+		FTM:                player.Stats.FTM,
+		FTA:                player.Stats.FTA,
+		FTPercent:          player.Stats.FTPercent,
+		Points:             player.Stats.Points,
+		TotalRebounds:      player.Stats.TotalRebounds,
+		OffRebounds:        player.Stats.OffRebounds,
+		DefRebounds:        player.Stats.DefRebounds,
+		Assists:            player.Stats.Assists,
+		Steals:             player.Stats.Steals,
+		Blocks:             player.Stats.Blocks,
+		Turnovers:          player.Stats.Turnovers,
+		Fouls:              player.Stats.Fouls,
+	}
 }

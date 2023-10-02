@@ -69,7 +69,6 @@ func ImportMatchResults(w http.ResponseWriter, r *http.Request) {
 	}
 
 	managers.ImportMatchResultsToDB(dto)
-	w.WriteHeader(http.StatusOK)
 }
 
 func SyncToNextWeek(w http.ResponseWriter, r *http.Request) {
