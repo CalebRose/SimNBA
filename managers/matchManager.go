@@ -3,6 +3,7 @@ package managers
 import (
 	"fmt"
 	"strconv"
+	"sync"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
@@ -26,108 +27,136 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 		matchType = "D"
 	}
 
-	matchesList := []structs.MatchResponse{}
+	// Wait Groups
+	var collegeMatchesWg, nbaMatchesWg sync.WaitGroup
+
+	// Mutex Lock
+	var mutex sync.Mutex
+
+	// Get College Matches
+	collegeMatches := GetMatchesByWeekIdAndMatchType(weekID, seasonID, matchType)
+	// Get Professional Matches
+	nbaMatches := GetNBATeamMatchesByMatchType(nbaWeekID, seasonID, matchType)
+
+	collegeMatchesWg.Add(len(collegeMatches))
+	nbaMatchesWg.Add(len(nbaMatches))
+
+	matchesList := make([]structs.MatchResponse, 0, len(collegeMatches)+len(nbaMatches))
 
 	if matchType == "" {
 		return structs.MatchStateResponse{Matches: matchesList}
 	}
-
-	// Get College Matches
-	collegeMatches := GetMatchesByWeekIdAndMatchType(weekID, seasonID, matchType)
+	sem := make(chan struct{}, 20) // Limit to 20 concurrent tasks
 
 	for _, c := range collegeMatches {
 		if c.GameComplete {
 			continue
 		}
+		sem <- struct{}{}
+		go func(c structs.Match) {
+			defer func() { <-sem }()
+			defer collegeMatchesWg.Done()
 
-		ht := GetTeamByTeamID(strconv.Itoa(int(c.HomeTeamID)))
-		at := GetTeamByTeamID(strconv.Itoa(int(c.AwayTeamID)))
+			ht := GetTeamByTeamID(strconv.Itoa(int(c.HomeTeamID)))
+			at := GetTeamByTeamID(strconv.Itoa(int(c.AwayTeamID)))
 
-		livestreamChannel := 0
-		if (c.HomeTeamCoach != "AI" && c.HomeTeamCoach != "") || (c.AwayTeamCoach != "AI" && c.AwayTeamCoach != "") {
-			livestreamChannel = 1
-		}
-		if ht.ConferenceID < 6 || ht.ConferenceID == 11 || at.ConferenceID < 6 || at.ConferenceID == 11 {
-			livestreamChannel = 2
-		} else {
-			livestreamChannel = 3
-		}
+			livestreamChannel := 0
+			if (c.HomeTeamCoach != "AI" && c.HomeTeamCoach != "") || (c.AwayTeamCoach != "AI" && c.AwayTeamCoach != "") {
+				livestreamChannel = 1
+			} else if ht.ConferenceID < 6 || ht.ConferenceID == 11 || at.ConferenceID < 6 || at.ConferenceID == 11 {
+				livestreamChannel = 2
+			} else {
+				livestreamChannel = 3
+			}
 
-		match := structs.MatchResponse{
-			MatchName:              c.MatchName,
-			ID:                     c.ID,
-			WeekID:                 c.WeekID,
-			Week:                   c.Week,
-			SeasonID:               c.SeasonID,
-			HomeTeamID:             c.HomeTeamID,
-			HomeTeam:               c.HomeTeam,
-			AwayTeamID:             c.AwayTeamID,
-			AwayTeam:               c.AwayTeam,
-			MatchOfWeek:            c.MatchOfWeek,
-			Arena:                  c.Arena,
-			City:                   c.City,
-			State:                  c.State,
-			IsNeutralSite:          c.IsNeutralSite,
-			IsNBAMatch:             false,
-			IsConference:           c.IsConference,
-			IsConferenceTournament: c.IsConferenceTournament,
-			IsNITGame:              c.IsNITGame,
-			IsPlayoffGame:          c.IsPlayoffGame,
-			IsNationalChampionship: c.IsNationalChampionship,
-			IsRivalryGame:          c.IsRivalryGame,
-			IsInvitational:         c.IsInvitational,
-			Channel:                uint(livestreamChannel),
-		}
+			match := structs.MatchResponse{
+				MatchName:              c.MatchName,
+				ID:                     c.ID,
+				WeekID:                 c.WeekID,
+				Week:                   c.Week,
+				SeasonID:               c.SeasonID,
+				HomeTeamID:             c.HomeTeamID,
+				HomeTeam:               c.HomeTeam,
+				AwayTeamID:             c.AwayTeamID,
+				AwayTeam:               c.AwayTeam,
+				MatchOfWeek:            c.MatchOfWeek,
+				Arena:                  c.Arena,
+				City:                   c.City,
+				State:                  c.State,
+				IsNeutralSite:          c.IsNeutralSite,
+				IsNBAMatch:             false,
+				IsConference:           c.IsConference,
+				IsConferenceTournament: c.IsConferenceTournament,
+				IsNITGame:              c.IsNITGame,
+				IsPlayoffGame:          c.IsPlayoffGame,
+				IsNationalChampionship: c.IsNationalChampionship,
+				IsRivalryGame:          c.IsRivalryGame,
+				IsInvitational:         c.IsInvitational,
+				Channel:                uint(livestreamChannel),
+			}
 
-		matchesList = append(matchesList, match)
+			mutex.Lock()
+			matchesList = append(matchesList, match)
+			mutex.Unlock()
+		}(c)
 	}
 
-	// Get Professional Matches
-	nbaMatches := GetNBATeamMatchesByMatchType(nbaWeekID, seasonID, matchType)
+	// Iterate NBA Matches
 	coinFlip := false
 	for _, n := range nbaMatches {
 		if n.GameComplete {
 			continue
 		}
+		sem <- struct{}{}
+		go func(n structs.NBAMatch) { // replace `YourNBAMatchType` with the actual type
+			defer func() { <-sem }()
+			defer nbaMatchesWg.Done()
+			livestreamChannel := 0
+			if coinFlip {
+				livestreamChannel = 4
+				coinFlip = !coinFlip
+			} else if !coinFlip {
+				livestreamChannel = 5
+				coinFlip = !coinFlip
+			}
+			if n.IsInternational {
+				livestreamChannel = 6
+			}
 
-		livestreamChannel := 0
-		if coinFlip {
-			livestreamChannel = 4
-			coinFlip = !coinFlip
-		} else if !coinFlip {
-			livestreamChannel = 5
-			coinFlip = !coinFlip
-		}
-		if n.IsInternational {
-			livestreamChannel = 6
-		}
+			match := structs.MatchResponse{
+				MatchName:              n.MatchName,
+				ID:                     n.ID,
+				WeekID:                 n.WeekID,
+				Week:                   n.Week,
+				SeasonID:               n.SeasonID,
+				HomeTeamID:             n.HomeTeamID,
+				HomeTeam:               n.HomeTeam,
+				AwayTeamID:             n.AwayTeamID,
+				AwayTeam:               n.AwayTeam,
+				MatchOfWeek:            n.MatchOfWeek,
+				Arena:                  n.Arena,
+				City:                   n.City,
+				State:                  n.State,
+				IsNeutralSite:          n.IsNeutralSite,
+				IsNBAMatch:             true,
+				IsConference:           n.IsConference,
+				IsConferenceTournament: n.IsConferenceTournament,
+				IsInternational:        n.IsInternational,
+				IsPlayoffGame:          n.IsPlayoffGame,
+				IsNationalChampionship: n.IsTheFinals,
+				IsRivalryGame:          n.IsRivalryGame,
+				Channel:                uint(livestreamChannel),
+			}
+			mutex.Lock()
+			matchesList = append(matchesList, match)
+			mutex.Unlock()
+		}(n)
+	}
+	collegeMatchesWg.Wait()
+	nbaMatchesWg.Wait()
 
-		match := structs.MatchResponse{
-			MatchName:              n.MatchName,
-			ID:                     n.ID,
-			WeekID:                 n.WeekID,
-			Week:                   n.Week,
-			SeasonID:               n.SeasonID,
-			HomeTeamID:             n.HomeTeamID,
-			HomeTeam:               n.HomeTeam,
-			AwayTeamID:             n.AwayTeamID,
-			AwayTeam:               n.AwayTeam,
-			MatchOfWeek:            n.MatchOfWeek,
-			Arena:                  n.Arena,
-			City:                   n.City,
-			State:                  n.State,
-			IsNeutralSite:          n.IsNeutralSite,
-			IsNBAMatch:             true,
-			IsConference:           n.IsConference,
-			IsConferenceTournament: n.IsConferenceTournament,
-			IsInternational:        n.IsInternational,
-			IsPlayoffGame:          n.IsPlayoffGame,
-			IsNationalChampionship: n.IsTheFinals,
-			IsRivalryGame:          n.IsRivalryGame,
-			Channel:                uint(livestreamChannel),
-		}
-
-		matchesList = append(matchesList, match)
+	for i := 0; i < cap(sem); i++ {
+		sem <- struct{}{}
 	}
 
 	return structs.MatchStateResponse{

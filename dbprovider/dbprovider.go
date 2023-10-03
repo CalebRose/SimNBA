@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 	"sync"
+	"time"
 
 	"github.com/CalebRose/SimNBA/config"
-	"github.com/CalebRose/SimNBA/structs"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -35,6 +35,16 @@ func (p *Provider) InitDatabase() bool {
 		log.Fatal(err)
 		return false
 	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatal("Failed to get underlying sql.DB:", err)
+		return false
+	}
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetConnMaxLifetime(time.Hour)
+
 	// db.AutoMigrate(&structs.GlobalPlayer{})
 	// db.AutoMigrate(&structs.CollegePlayerStats{})
 	// db.AutoMigrate(&structs.CollegePlayerSeasonStats{})
@@ -46,7 +56,7 @@ func (p *Provider) InitDatabase() bool {
 	// db.AutoMigrate(&structs.TeamRecruitingProfile{})
 	// db.AutoMigrate(&structs.CollegeWeek{})
 	// db.AutoMigrate(&structs.CollegeConference{})
-	db.AutoMigrate(&structs.CollegeStandings{})
+	// db.AutoMigrate(&structs.CollegeStandings{})
 	// db.AutoMigrate(&structs.TeamStats{})
 	// db.AutoMigrate(&structs.TeamSeasonStats{})
 	// db.AutoMigrate(&structs.Team{})

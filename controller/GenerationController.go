@@ -22,6 +22,11 @@ func GenerateInternationalPlayers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("GENERATION COMPLETE")
 }
 
+func GenerateInternationalRoster(w http.ResponseWriter, r *http.Request) {
+	managers.FormISLRosters()
+	json.NewEncoder(w).Encode("GENERATION COMPLETE")
+}
+
 func GenerateGlobalPlayerRecords(w http.ResponseWriter, r *http.Request) {
 	managers.GenerateGlobalPlayerRecords()
 	json.NewEncoder(w).Encode("GENERATION COMPLETE")

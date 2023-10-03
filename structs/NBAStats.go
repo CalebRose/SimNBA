@@ -81,6 +81,8 @@ type NBATeamStats struct {
 	MatchID                   uint
 	SeasonID                  uint
 	WeekID                    uint
+	Week                      uint
+	MatchType                 string
 	Points                    int
 	Possessions               int
 	FGM                       int
@@ -350,6 +352,7 @@ type NBAPlayerStats struct {
 	MatchID            uint
 	SeasonID           uint
 	WeekID             uint
+	Week               uint
 	MatchType          string
 	Year               uint
 	Minutes            int

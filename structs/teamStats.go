@@ -9,6 +9,8 @@ type TeamStats struct {
 	MatchID                   uint
 	SeasonID                  uint
 	WeekID                    uint
+	Week                      uint
+	MatchType                 string
 	Points                    int
 	Possessions               int
 	FGM                       int

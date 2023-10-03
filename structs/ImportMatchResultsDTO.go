@@ -84,6 +84,8 @@ type PlayerDTO struct {
 
 type PlayerStatsDTO struct {
 	PlayerID           int
+	Year               int
+	MatchType          string
 	Minutes            int
 	Possessions        int
 	FGM                int

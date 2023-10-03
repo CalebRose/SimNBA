@@ -231,8 +231,12 @@ func (p *BasePlayer) SetMinutes() {
 
 func (c *BasePlayer) UpdatePlayer(p1Minutes, p2Minutes, p3Minutes int, posOne, posTwo, posThree string, ins, mid, three float64) {
 	c.P1Minutes = p1Minutes
-	c.P2Minutes = p2Minutes
-	c.P3Minutes = p3Minutes
+	if posTwo != "" {
+		c.P2Minutes = p2Minutes
+	}
+	if posThree != "" {
+		c.P3Minutes = p3Minutes
+	}
 	c.PositionOne = posOne
 	c.PositionTwo = posTwo
 	c.PositionThree = posThree
