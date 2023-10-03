@@ -24,7 +24,7 @@ func (cs *NBAStandings) AssignID(id uint) {
 	cs.ID = id
 }
 
-func (cs *NBAStandings) UpdateNBAStandings(game Match) {
+func (cs *NBAStandings) UpdateNBAStandings(game NBAMatch) {
 	isAway := cs.TeamID == game.AwayTeamID
 	winner := (!isAway && game.HomeTeamWin) || (isAway && game.AwayTeamWin)
 	if winner {
@@ -54,7 +54,7 @@ func (cs *NBAStandings) UpdateNBAStandings(game Match) {
 	}
 }
 
-func (cs *NBAStandings) RegressNBAStandings(game Match) {
+func (cs *NBAStandings) RegressNBAStandings(game NBAMatch) {
 	isAway := cs.TeamID == game.AwayTeamID
 	winner := (!isAway && game.HomeTeamWin) || (isAway && game.AwayTeamWin)
 	if winner {

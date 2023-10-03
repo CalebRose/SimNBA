@@ -80,14 +80,7 @@ func SyncToNextWeek(w http.ResponseWriter, r *http.Request) {
 
 func ShowGames(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
-	vars := mux.Vars(r)
-	matchType := vars["matchType"]
-
-	if len(matchType) == 0 {
-		panic("User did not provide TeamID")
-	}
-
-	managers.ShowGames(matchType)
+	managers.ShowGames()
 	w.WriteHeader(http.StatusOK)
 
 }

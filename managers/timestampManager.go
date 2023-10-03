@@ -53,10 +53,23 @@ func SyncToNextWeek() {
 	}
 }
 
-func ShowGames(matchType string) {
+func ShowGames() {
 	db := dbprovider.GetInstance().GetDB()
 
 	ts := GetTimestamp()
+	matchType := ""
+	if !ts.GamesARan {
+		matchType = "A"
+	} else if !ts.GamesBRan {
+		matchType = "B"
+	} else if !ts.GamesCRan {
+		matchType = "C"
+	} else if !ts.GamesDRan {
+		matchType = "D"
+	}
+	if matchType == "" {
+		log.Fatalln("Cannot sync results!")
+	}
 	UpdateStandings(ts, matchType)
 	UpdateSeasonStats(ts, matchType)
 	ts.ToggleGames(matchType)

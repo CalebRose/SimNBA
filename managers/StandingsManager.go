@@ -154,6 +154,52 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 		// 	}
 		// }
 	}
+
+	nbaGames := GetNBATeamMatchesByMatchType(strconv.Itoa(int(ts.NBAWeekID)), strconv.Itoa(int(ts.SeasonID)), MatchType)
+
+	for _, game := range nbaGames {
+		HomeID := game.HomeTeamID
+		AwayID := game.AwayTeamID
+
+		homeStandings := GetNBAStandingsRecordByTeamID(strconv.Itoa(int(HomeID)), strconv.Itoa(int(ts.SeasonID)))
+		awayStandings := GetNBAStandingsRecordByTeamID(strconv.Itoa(int(AwayID)), strconv.Itoa(int(ts.SeasonID)))
+
+		homeStandings.UpdateNBAStandings(game)
+		awayStandings.UpdateNBAStandings(game)
+
+		err := db.Save(&homeStandings).Error
+		if err != nil {
+			log.Panicln("Could not save standings for team " + strconv.Itoa(int(HomeID)))
+		}
+
+		err = db.Save(&awayStandings).Error
+		if err != nil {
+			log.Panicln("Could not save standings for team " + strconv.Itoa(int(AwayID)))
+		}
+
+		if game.NextGameID > 0 {
+
+			nextGameID := strconv.Itoa(int(game.NextGameID))
+			winningTeamID := 0
+			winningTeam := ""
+			winningCoach := ""
+			winningTeamRank := 0
+			if game.HomeTeamWin {
+				winningTeamID = int(game.HomeTeamID)
+				winningTeam = game.HomeTeam
+				winningCoach = game.HomeTeamCoach
+			} else {
+				winningTeamID = int(game.AwayTeamID)
+				winningTeam = game.AwayTeam
+				winningCoach = game.AwayTeamCoach
+			}
+			nextGame := GetMatchByMatchId(nextGameID)
+
+			nextGame.AddTeam(game.NextGameHOA == "H", uint(winningTeamID), uint(winningTeamRank), winningTeam, winningCoach)
+
+			db.Save(&nextGame)
+		}
+	}
 }
 
 func RegressStandings(ts structs.Timestamp, MatchType string) {
