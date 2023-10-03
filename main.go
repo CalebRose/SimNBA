@@ -194,8 +194,8 @@ func handleRequests() {
 	myRouter.HandleFunc("/stats/team/{teamId}/season/{seasonId}", controller.GetTeamStatsBySeason).Methods("GET")
 	myRouter.HandleFunc("/stats/team/{teamId}/match/{matchId}", controller.GetCBBTeamStatsByMatch).Methods("GET")
 	myRouter.HandleFunc("/stats/cbb/fix/player/stats", controller.FixPlayerStatsFromLastSeason).Methods("GET")
-	myRouter.HandleFunc("/stats/cbb/{seasonID}/{weekID}/{viewType}", controller.GetCBBStatsPageData).Methods("GET")
-	myRouter.HandleFunc("/stats/nba/{seasonID}/{weekID}/{viewType}", controller.GetNBAStatsPageData).Methods("GET")
+	myRouter.HandleFunc("/stats/cbb/{seasonID}/{weekID}/{matchType}/{viewType}", controller.GetCBBStatsPageData).Methods("GET")
+	myRouter.HandleFunc("/stats/nba/{seasonID}/{weekID}/{matchType}/{viewType}", controller.GetNBAStatsPageData).Methods("GET")
 	myRouter.HandleFunc("/stats/nba/team/{teamId}/match/{matchId}", controller.GetNBATeamStatsByMatch).Methods("GET")
 	myRouter.HandleFunc("/stats/nba/match/{matchId}", controller.GetPlayerStatsByMatch).Methods("GET")
 

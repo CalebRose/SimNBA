@@ -354,7 +354,7 @@ func GetAllCollegePlayers() []structs.CollegePlayer {
 	return players
 }
 
-func GetAllCollegePlayersWithSeasonStats(seasonID, weekID, viewType string) []structs.CollegePlayerResponse {
+func GetAllCollegePlayersWithSeasonStats(seasonID, weekID, matchType, viewType string) []structs.CollegePlayerResponse {
 	db := dbprovider.GetInstance().GetDB()
 
 	ts := GetTimestamp()
@@ -370,7 +370,7 @@ func GetAllCollegePlayersWithSeasonStats(seasonID, weekID, viewType string) []st
 		db.Preload("SeasonStats", "season_id = ?", seasonID).
 			Where("id in ?", distinctCollegePlayerIDs).Find(&players)
 	} else {
-		db.Preload("Stats", "season_id = ? AND week_id = ?", seasonID, weekID).
+		db.Preload("Stats", "season_id = ? AND week_id = ? AND match_type = ?", seasonID, weekID, matchType).
 			Where("id in ?", distinctCollegePlayerIDs).Find(&players)
 	}
 
@@ -508,7 +508,7 @@ func GetAllCollegePlayersWithSeasonStats(seasonID, weekID, viewType string) []st
 	return playerList
 }
 
-func GetAllNBAPlayersWithSeasonStats(seasonID, weekID, viewType string) []structs.NBAPlayerResponse {
+func GetAllNBAPlayersWithSeasonStats(seasonID, weekID, matchType, viewType string) []structs.NBAPlayerResponse {
 	db := dbprovider.GetInstance().GetDB()
 
 	ts := GetTimestamp()
@@ -524,7 +524,7 @@ func GetAllNBAPlayersWithSeasonStats(seasonID, weekID, viewType string) []struct
 		db.Preload("SeasonStats", "season_id = ?", seasonID).
 			Where("id in ?", distinctNBAPlayerIDs).Find(&players)
 	} else {
-		db.Preload("Stats", "season_id = ? AND week_id = ? AND minutes > 0", seasonID, weekID).
+		db.Preload("Stats", "season_id = ? AND week_id = ? AND match_type = ? AND minutes > 0", seasonID, weekID, matchType).
 			Where("id in ?", distinctNBAPlayerIDs).Find(&players)
 	}
 

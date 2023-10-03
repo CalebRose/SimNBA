@@ -24,7 +24,7 @@ func GetAllActiveCollegeTeams() []structs.Team {
 	return teams
 }
 
-func GetAllActiveCollegeTeamsWithSeasonStats(seasonID, weekID, viewType string) []structs.CollegeTeamResponse {
+func GetAllActiveCollegeTeamsWithSeasonStats(seasonID, weekID, matchType, viewType string) []structs.CollegeTeamResponse {
 	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.Team
@@ -36,7 +36,7 @@ func GetAllActiveCollegeTeamsWithSeasonStats(seasonID, weekID, viewType string) 
 			log.Fatal(err)
 		}
 	} else {
-		err := db.Preload("TeamStats", "season_id = ? AND week_id = ?", seasonID, weekID).
+		err := db.Preload("TeamStats", "season_id = ? AND week_id = ? AND match_type = ?", seasonID, weekID, matchType).
 			Where("is_active = ?", true).
 			Find(&teams).Error
 		if err != nil {
@@ -172,7 +172,7 @@ func GetAllActiveCollegeTeamsWithSeasonStats(seasonID, weekID, viewType string) 
 	return ctResponse
 }
 
-func GetAllActiveNBATeamsWithSeasonStats(seasonID, weekID, viewType string) []structs.NBATeamResponse {
+func GetAllActiveNBATeamsWithSeasonStats(seasonID, weekID, matchType, viewType string) []structs.NBATeamResponse {
 	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.NBATeam
@@ -184,7 +184,7 @@ func GetAllActiveNBATeamsWithSeasonStats(seasonID, weekID, viewType string) []st
 			log.Fatal(err)
 		}
 	} else {
-		err := db.Preload("TeamStats", "season_id = ? AND week_id = ?", seasonID, weekID).
+		err := db.Preload("TeamStats", "season_id = ? AND week_id = ? AND match_type = ?", seasonID, weekID, matchType).
 			Where("is_active = ?", true).
 			Find(&teams).Error
 		if err != nil {

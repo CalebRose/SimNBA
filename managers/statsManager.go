@@ -9,7 +9,7 @@ import (
 	"github.com/CalebRose/SimNBA/structs"
 )
 
-func GetCBBStatsPageData(seasonID, weekID, viewType string) structs.StatsPageResponse {
+func GetCBBStatsPageData(seasonID, weekID, matchType, viewType string) structs.StatsPageResponse {
 	db := dbprovider.GetInstance().GetDB()
 
 	var teamList []structs.CollegeTeamResponse
@@ -22,12 +22,12 @@ func GetCBBStatsPageData(seasonID, weekID, viewType string) structs.StatsPageRes
 	playersChan := make(chan []structs.CollegePlayerResponse)
 
 	go func() {
-		ct := GetAllActiveCollegeTeamsWithSeasonStats(seasonID, weekID, viewType)
+		ct := GetAllActiveCollegeTeamsWithSeasonStats(seasonID, weekID, matchType, viewType)
 		teamsChan <- ct
 	}()
 
 	go func() {
-		cp := GetAllCollegePlayersWithSeasonStats(seasonID, weekID, viewType)
+		cp := GetAllCollegePlayersWithSeasonStats(seasonID, weekID, matchType, viewType)
 		playersChan <- cp
 	}()
 
@@ -45,7 +45,7 @@ func GetCBBStatsPageData(seasonID, weekID, viewType string) structs.StatsPageRes
 	}
 }
 
-func GetNBAStatsPageData(seasonID, weekID, viewType string) structs.NBAStatsPageResponse {
+func GetNBAStatsPageData(seasonID, weekID, matchType, viewType string) structs.NBAStatsPageResponse {
 	db := dbprovider.GetInstance().GetDB()
 
 	var teamList []structs.NBATeamResponse
@@ -58,12 +58,12 @@ func GetNBAStatsPageData(seasonID, weekID, viewType string) structs.NBAStatsPage
 	playersChan := make(chan []structs.NBAPlayerResponse)
 
 	go func() {
-		ct := GetAllActiveNBATeamsWithSeasonStats(seasonID, weekID, viewType)
+		ct := GetAllActiveNBATeamsWithSeasonStats(seasonID, weekID, matchType, viewType)
 		teamsChan <- ct
 	}()
 
 	go func() {
-		cp := GetAllNBAPlayersWithSeasonStats(seasonID, weekID, viewType)
+		cp := GetAllNBAPlayersWithSeasonStats(seasonID, weekID, matchType, viewType)
 		playersChan <- cp
 	}()
 
