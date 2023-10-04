@@ -57,6 +57,9 @@ func (s *CollegePlayerSeasonStats) AddStatsToSeasonRecord(stat CollegePlayerStat
 	s.Possessions += stat.Possessions
 	s.FGM += stat.FGM
 	s.FGA += stat.FGA
+	if s.Year == 0 {
+		s.Year = stat.Year
+	}
 	if s.FGA > 0 {
 		s.FGPercent = float64(s.FGM) / float64(s.FGA)
 	}
