@@ -130,3 +130,15 @@ func GetMatchesForSimulation(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(matches)
 }
+
+// Export Stats
+func ExportMatchResults(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	vars := mux.Vars(r)
+
+	seasonID := vars["seasonID"]
+	weekID := vars["weekID"]
+	matchType := vars["matchType"]
+	w.Header().Set("Content-Type", "text/csv")
+	managers.ExportMatchResults(w, seasonID, weekID, matchType)
+}

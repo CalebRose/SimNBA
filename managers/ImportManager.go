@@ -88,13 +88,13 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 
 		for _, player := range dto.RosterOne {
 			id := player.ID
-			collegePlayerStats := mapToCBBPlayerStatsObject(player, id, matchID, timestamp.SeasonID, timestamp.CollegeWeekID, matchType)
+			collegePlayerStats := mapToCBBPlayerStatsObject(player, id, matchID, timestamp.SeasonID, timestamp.CollegeWeekID, uint(timestamp.NBAWeek), matchType)
 			playerStats = append(playerStats, collegePlayerStats)
 		}
 
 		for _, player := range dto.RosterTwo {
 			id := player.ID
-			collegePlayerStats := mapToCBBPlayerStatsObject(player, id, matchID, timestamp.SeasonID, timestamp.CollegeWeekID, matchType)
+			collegePlayerStats := mapToCBBPlayerStatsObject(player, id, matchID, timestamp.SeasonID, timestamp.CollegeWeekID, uint(timestamp.NBAWeek), matchType)
 			playerStats = append(playerStats, collegePlayerStats)
 		}
 
@@ -156,13 +156,13 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 
 		for _, player := range dto.RosterOne {
 			id := player.ID
-			nbaPlayerStats := mapToNBAPlayerStatsObject(player, id, matchID, timestamp.SeasonID, timestamp.NBAWeekID, matchType)
+			nbaPlayerStats := mapToNBAPlayerStatsObject(player, id, matchID, timestamp.SeasonID, timestamp.NBAWeekID, uint(timestamp.NBAWeek), matchType)
 			playerStats = append(playerStats, nbaPlayerStats)
 		}
 
 		for _, player := range dto.RosterTwo {
 			id := player.ID
-			nbaPlayerStats := mapToNBAPlayerStatsObject(player, id, matchID, timestamp.SeasonID, timestamp.NBAWeekID, matchType)
+			nbaPlayerStats := mapToNBAPlayerStatsObject(player, id, matchID, timestamp.SeasonID, timestamp.NBAWeekID, uint(timestamp.NBAWeek), matchType)
 			playerStats = append(playerStats, nbaPlayerStats)
 		}
 
@@ -757,6 +757,7 @@ func mapToCollegeTeamStatsObject(teamID, matchID, weekID, week, seasonID uint, m
 		TeamID:                    teamID,
 		MatchID:                   matchID,
 		WeekID:                    weekID,
+		Week:                      week,
 		SeasonID:                  seasonID,
 		MatchType:                 matchType,
 		Points:                    TeamOne.Stats.Points,
@@ -807,6 +808,7 @@ func mapToNBATeamStatsObject(teamID, matchID, weekID, week, seasonID uint, match
 		TeamID:                    teamID,
 		MatchID:                   matchID,
 		WeekID:                    weekID,
+		Week:                      week,
 		SeasonID:                  seasonID,
 		MatchType:                 matchType,
 		Points:                    TeamOne.Stats.Points,
@@ -854,12 +856,15 @@ func mapToNBATeamStatsObject(teamID, matchID, weekID, week, seasonID uint, match
 	}
 }
 
-func mapToCBBPlayerStatsObject(player structs.PlayerDTO, id, matchID int, seasonID, weekID uint, matchType string) structs.CollegePlayerStats {
+func mapToCBBPlayerStatsObject(player structs.PlayerDTO, id, matchID int, seasonID, weekID, week uint, matchType string) structs.CollegePlayerStats {
 	return structs.CollegePlayerStats{
 		CollegePlayerID:    uint(id),
 		MatchID:            uint(matchID),
 		SeasonID:           seasonID,
 		MatchType:          matchType,
+		WeekID:             weekID,
+		Week:               week,
+		Year:               uint(player.Stats.Year),
 		Minutes:            player.Stats.Minutes,
 		Possessions:        player.Stats.Possessions,
 		FGM:                player.Stats.FGM,
@@ -883,12 +888,14 @@ func mapToCBBPlayerStatsObject(player structs.PlayerDTO, id, matchID int, season
 	}
 }
 
-func mapToNBAPlayerStatsObject(player structs.PlayerDTO, id, matchID int, seasonID, weekID uint, matchType string) structs.NBAPlayerStats {
+func mapToNBAPlayerStatsObject(player structs.PlayerDTO, id, matchID int, seasonID, weekID, week uint, matchType string) structs.NBAPlayerStats {
 	return structs.NBAPlayerStats{
 		NBAPlayerID:        uint(id),
 		MatchID:            uint(matchID),
 		SeasonID:           seasonID,
 		WeekID:             weekID,
+		Week:               week,
+		Year:               uint(player.Stats.Year),
 		MatchType:          matchType,
 		Minutes:            player.Stats.Minutes,
 		Possessions:        player.Stats.Possessions,

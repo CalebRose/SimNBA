@@ -123,6 +123,7 @@ func handleRequests() {
 
 	// Match Controls
 	myRouter.HandleFunc("/match/{matchId}", controller.GetMatchByMatchId).Methods("GET")
+	myRouter.HandleFunc("/match/export/results/{seasonID}/{weekID}/{matchType}", controller.ExportMatchResults).Methods("GET")
 	myRouter.HandleFunc("/match/result/cbb/{matchId}", controller.GetMatchResultByMatchID).Methods("GET")
 	myRouter.HandleFunc("/match/result/nba/{matchId}", controller.GetNBAMatchResultByMatchID).Methods("GET")
 	myRouter.HandleFunc("/match/team/{teamId}/season/{seasonId}", controller.GetMatchesByTeamIdAndSeasonId).Methods("GET")
@@ -132,6 +133,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/cbb/match/data/{homeTeamAbbr}/{awayTeamAbbr}", controller.GetCBBMatchData).Methods("GET")
 	myRouter.HandleFunc("/nba/match/data/{homeTeamID}/{awayTeamID}", controller.GetNBAMatchData).Methods("GET")
 	myRouter.HandleFunc("/nba/match/team/{teamId}/season/{seasonId}", controller.GetNBAMatchesByTeamIdAndSeasonId).Methods("GET")
+
 	// News Controls
 	myRouter.HandleFunc("/cbb/news/all/", controller.GetAllCBBNewsInASeason).Methods("GET")
 	myRouter.HandleFunc("/nba/news/all/", controller.GetAllNBANewsInASeason).Methods("GET")

@@ -383,6 +383,9 @@ func (s *NBAPlayerSeasonStats) AddStatsToSeasonRecord(stat NBAPlayerStats) {
 	if stat.Minutes > 0 {
 		s.GamesPlayed++
 	}
+	if s.Year == 0 {
+		s.Year = stat.Year
+	}
 	s.NBAPlayerID = stat.NBAPlayerID
 	s.SeasonID = stat.SeasonID
 	s.Minutes += stat.Minutes

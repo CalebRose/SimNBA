@@ -376,6 +376,134 @@ func ExportNBARosterToCSV(TeamID string, w http.ResponseWriter) {
 	}
 }
 
+func ExportMatchResults(w http.ResponseWriter, seasonID, weekID, matchType string) {
+	fileName := "wahoos_secret_results_list.csv"
+	w.Header().Set("Content-Disposition", "attachment;"+fileName)
+	w.Header().Set("Transfer-Encoding", "chunked")
+	writer := csv.NewWriter(w)
+
+	// Get All needed data
+	matchChn := make(chan []structs.Match)
+	nbaMatchChn := make(chan []structs.NBAMatch)
+	collegeTeamChn := make(chan []structs.CollegeTeamResponse)
+	nbaTeamChn := make(chan []structs.NBATeamResponse)
+	collegeTeamMap := make(map[uint]structs.CollegeTeamResponse)
+	nbaTeamMap := make(map[uint]structs.NBATeamResponse)
+
+	go func() {
+		matches := GetMatchesByWeekIdAndMatchType(weekID, seasonID, matchType)
+		matchChn <- matches
+	}()
+
+	go func() {
+		nbamatches := GetNBAMatchesByWeekIdAndMatchType(weekID, seasonID, matchType)
+		nbaMatchChn <- nbamatches
+	}()
+
+	go func() {
+		ct := GetAllActiveCollegeTeamsWithSeasonStats(seasonID, weekID, matchType, "WEEK")
+		collegeTeamChn <- ct
+	}()
+
+	go func() {
+		nt := GetAllActiveNBATeamsWithSeasonStats(seasonID, weekID, matchType, "WEEK")
+		nbaTeamChn <- nt
+	}()
+
+	collegeMatches := <-matchChn
+	close(matchChn)
+	nbaMatches := <-nbaMatchChn
+	close(nbaMatchChn)
+	collegeTeamSeasonStats := <-collegeTeamChn
+	close(collegeTeamChn)
+	nbaTeamSeasonStats := <-nbaTeamChn
+	close(nbaMatchChn)
+
+	for _, t := range collegeTeamSeasonStats {
+		collegeTeamMap[t.ID] = t
+	}
+
+	for _, t := range nbaTeamSeasonStats {
+		nbaTeamMap[t.ID] = t
+	}
+
+	HeaderRow := []string{
+		"League", "Week", "Match", "Home Team", "Home Coach", "Home Rank", "Home Score",
+		"Home Possessions", "Away Team", "Away Coach", "Away Rank", "Away Score",
+		"Away Possessions", "Neutral Site", "Conference", "Division",
+		"Match Name", "Arena", "City", "State/Country",
+	}
+
+	err := writer.Write(HeaderRow)
+	if err != nil {
+		log.Fatal("Cannot write header row", err)
+	}
+
+	for _, m := range collegeMatches {
+		homeTeam := collegeTeamMap[m.HomeTeamID]
+		awayTeam := collegeTeamMap[m.AwayTeamID]
+		neutralStr := "N"
+		if m.IsNeutralSite {
+			neutralStr = "Y"
+		}
+		confStr := "N"
+		if m.IsConference {
+			confStr = "Y"
+		}
+		divStr := "N"
+
+		row := []string{
+			"CBB", strconv.Itoa(int(m.Week)), m.MatchOfWeek, m.HomeTeam, m.AwayTeamCoach,
+			strconv.Itoa(int(m.HomeTeamRank)), strconv.Itoa(int(m.HomeTeamScore)), strconv.Itoa(int(homeTeam.Stats.Possessions)),
+			m.AwayTeam, m.AwayTeamCoach, strconv.Itoa(int(m.AwayTeamRank)), strconv.Itoa(int(m.AwayTeamScore)), strconv.Itoa(int(awayTeam.Stats.Possessions)),
+			neutralStr, confStr, divStr, m.MatchName, m.Arena, m.City, m.State,
+		}
+		err = writer.Write(row)
+		if err != nil {
+			log.Fatal("Cannot write croot row to CSV", err)
+		}
+
+		writer.Flush()
+		err = writer.Error()
+		if err != nil {
+			log.Fatal("Error while writing to file ::", err)
+		}
+	}
+	for _, m := range nbaMatches {
+		homeTeam := nbaTeamMap[m.HomeTeamID]
+		awayTeam := nbaTeamMap[m.AwayTeamID]
+		neutralStr := "N"
+		if m.IsNeutralSite {
+			neutralStr = "Y"
+		}
+		confStr := "N"
+		if m.IsConference {
+			confStr = "Y"
+		}
+		divStr := "N"
+		if m.IsDivisional {
+			divStr = "Y"
+		}
+
+		row := []string{
+			"CBB", strconv.Itoa(int(m.Week)), m.MatchOfWeek, m.HomeTeam, m.AwayTeamCoach,
+			"N/A", strconv.Itoa(int(m.HomeTeamScore)), strconv.Itoa(int(homeTeam.Stats.Possessions)),
+			m.AwayTeam, m.AwayTeamCoach, "N/A", strconv.Itoa(int(m.AwayTeamScore)), strconv.Itoa(int(awayTeam.Stats.Possessions)),
+			neutralStr, confStr, divStr, m.MatchName, m.Arena, m.City, m.State,
+		}
+		err = writer.Write(row)
+		if err != nil {
+			log.Fatal("Cannot write croot row to CSV", err)
+		}
+
+		writer.Flush()
+		err = writer.Error()
+		if err != nil {
+			log.Fatal("Error while writing to file ::", err)
+		}
+	}
+}
+
 func ExportStatsMain(w http.ResponseWriter, league, seasonID, weekID, matchType, viewType, playerView string) {
 	fileName := "babas_secret_" + league + "_" + viewType + "_" + playerView + "_stats_list.csv"
 	w.Header().Set("Content-Disposition", "attachment;"+fileName)
