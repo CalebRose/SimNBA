@@ -341,6 +341,16 @@ func GetNBATeamMatchesByWeekId(weekId, seasonID, matchType, teamID string) []str
 	return teamMatches
 }
 
+func GetNBAMatchesByWeekIdAndMatchType(weekId string, seasonID string, matchType string) []structs.NBAMatch {
+	db := dbprovider.GetInstance().GetDB()
+
+	var teamMatches []structs.NBAMatch
+
+	db.Where("week_id = ? AND season_id = ? AND match_of_week = ?", weekId, seasonID, matchType).Find(&teamMatches)
+
+	return teamMatches
+}
+
 func GetMatchesByWeekIdAndMatchType(weekId string, seasonID string, matchType string) []structs.Match {
 	db := dbprovider.GetInstance().GetDB()
 
