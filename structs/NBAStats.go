@@ -103,7 +103,9 @@ type NBATeamStats struct {
 	TotalTurnovers            int
 	LargestLead               int
 	FirstHalfScore            int
+	SecondQuarterScore        int
 	SecondHalfScore           int
+	FourthQuarterScore        int
 	OvertimeScore             int
 	Fouls                     int
 	PointsAgainst             int

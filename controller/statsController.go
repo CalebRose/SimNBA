@@ -173,3 +173,18 @@ func GetNBATeamStatsByMatch(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetTeamStatsByWeek | To be written
+
+// Export Stats
+func ExportStats(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	vars := mux.Vars(r)
+
+	league := vars["league"]
+	seasonID := vars["seasonID"]
+	weekID := vars["weekID"]
+	matchType := vars["matchType"]
+	viewType := vars["viewType"]
+	playerView := vars["playerView"]
+	w.Header().Set("Content-Type", "text/csv")
+	managers.ExportStatsMain(w, league, seasonID, weekID, matchType, viewType, playerView)
+}

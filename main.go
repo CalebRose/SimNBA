@@ -188,6 +188,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/nba/requests/revoke/", controller.RemoveNBAUserFromNBATeam).Methods("POST")
 
 	// Stats Controls
+	myRouter.HandleFunc("/stats/export/{league}/{seasonID}/{weekID}/{matchType}/{viewType}/{playerView}", controller.ExportStats).Methods("GET")
 	myRouter.HandleFunc("/stats/player/{playerId}", controller.GetPlayerStats).Methods("GET")
 	myRouter.HandleFunc("/stats/player/{playerId}/match/{matchId}", controller.GetPlayerStatsByMatch).Methods("GET")
 	myRouter.HandleFunc("/stats/player/{playerId}/season/{seasonId}", controller.GetPlayerStatsBySeason).Methods("GET")
