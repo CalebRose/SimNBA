@@ -138,7 +138,8 @@ func ExportMatchResults(w http.ResponseWriter, r *http.Request) {
 
 	seasonID := vars["seasonID"]
 	weekID := vars["weekID"]
+	nbaWeekID := vars["nbaWeekID"]
 	matchType := vars["matchType"]
 	w.Header().Set("Content-Type", "text/csv")
-	managers.ExportMatchResults(w, seasonID, weekID, matchType)
+	managers.ExportMatchResults(w, seasonID, weekID, nbaWeekID, matchType)
 }

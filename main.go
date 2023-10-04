@@ -123,7 +123,7 @@ func handleRequests() {
 
 	// Match Controls
 	myRouter.HandleFunc("/match/{matchId}", controller.GetMatchByMatchId).Methods("GET")
-	myRouter.HandleFunc("/match/export/results/{seasonID}/{weekID}/{matchType}", controller.ExportMatchResults).Methods("GET")
+	myRouter.HandleFunc("/match/export/results/{seasonID}/{weekID}/{nbaWeekID}/{matchType}", controller.ExportMatchResults).Methods("GET")
 	myRouter.HandleFunc("/match/result/cbb/{matchId}", controller.GetMatchResultByMatchID).Methods("GET")
 	myRouter.HandleFunc("/match/result/nba/{matchId}", controller.GetNBAMatchResultByMatchID).Methods("GET")
 	myRouter.HandleFunc("/match/team/{teamId}/season/{seasonId}", controller.GetMatchesByTeamIdAndSeasonId).Methods("GET")

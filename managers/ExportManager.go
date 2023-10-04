@@ -376,7 +376,7 @@ func ExportNBARosterToCSV(TeamID string, w http.ResponseWriter) {
 	}
 }
 
-func ExportMatchResults(w http.ResponseWriter, seasonID, weekID, matchType string) {
+func ExportMatchResults(w http.ResponseWriter, seasonID, weekID, nbaWeekID, matchType string) {
 	fileName := "wahoos_secret_results_list.csv"
 	w.Header().Set("Content-Disposition", "attachment;"+fileName)
 	w.Header().Set("Transfer-Encoding", "chunked")
@@ -396,7 +396,7 @@ func ExportMatchResults(w http.ResponseWriter, seasonID, weekID, matchType strin
 	}()
 
 	go func() {
-		nbamatches := GetNBAMatchesByWeekIdAndMatchType(weekID, seasonID, matchType)
+		nbamatches := GetNBAMatchesByWeekIdAndMatchType(nbaWeekID, seasonID, matchType)
 		nbaMatchChn <- nbamatches
 	}()
 
@@ -406,7 +406,7 @@ func ExportMatchResults(w http.ResponseWriter, seasonID, weekID, matchType strin
 	}()
 
 	go func() {
-		nt := GetAllActiveNBATeamsWithSeasonStats(seasonID, weekID, matchType, "WEEK")
+		nt := GetAllActiveNBATeamsWithSeasonStats(seasonID, nbaWeekID, matchType, "WEEK")
 		nbaTeamChn <- nt
 	}()
 
@@ -417,7 +417,7 @@ func ExportMatchResults(w http.ResponseWriter, seasonID, weekID, matchType strin
 	collegeTeamSeasonStats := <-collegeTeamChn
 	close(collegeTeamChn)
 	nbaTeamSeasonStats := <-nbaTeamChn
-	close(nbaMatchChn)
+	close(nbaTeamChn)
 
 	for _, t := range collegeTeamSeasonStats {
 		collegeTeamMap[t.ID] = t
@@ -486,7 +486,7 @@ func ExportMatchResults(w http.ResponseWriter, seasonID, weekID, matchType strin
 		}
 
 		row := []string{
-			"CBB", strconv.Itoa(int(m.Week)), m.MatchOfWeek, m.HomeTeam, m.AwayTeamCoach,
+			homeTeam.League, strconv.Itoa(int(m.Week)), m.MatchOfWeek, m.HomeTeam, m.AwayTeamCoach,
 			"N/A", strconv.Itoa(int(m.HomeTeamScore)), strconv.Itoa(int(homeTeam.Stats.Possessions)),
 			m.AwayTeam, m.AwayTeamCoach, "N/A", strconv.Itoa(int(m.AwayTeamScore)), strconv.Itoa(int(awayTeam.Stats.Possessions)),
 			neutralStr, confStr, divStr, m.MatchName, m.Arena, m.City, m.State,
