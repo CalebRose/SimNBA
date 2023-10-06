@@ -188,3 +188,8 @@ func ExportStats(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/csv")
 	managers.ExportStatsMain(w, league, seasonID, weekID, matchType, viewType, playerView)
 }
+
+func FixNBASeasonTables(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	managers.FixNBASeasonTables()
+}

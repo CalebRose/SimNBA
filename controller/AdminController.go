@@ -3,7 +3,6 @@ package controller
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/CalebRose/SimNBA/managers"
 	"github.com/CalebRose/SimNBA/structs"
@@ -55,10 +54,9 @@ func SyncAIBoards(w http.ResponseWriter, r *http.Request) {
 }
 
 func SyncRecruiting(w http.ResponseWriter, r *http.Request) {
-	ts := managers.GetTimestamp()
-	managers.SyncRecruiting(ts)
+	managers.SyncRecruiting()
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode("Recruiting Synced for Week " + strconv.Itoa(ts.CollegeWeek))
+	json.NewEncoder(w).Encode("Recruiting Synced for Week.")
 }
 
 func ImportMatchResults(w http.ResponseWriter, r *http.Request) {
