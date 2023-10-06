@@ -101,6 +101,16 @@ func GetPlayerStatsBySeason(playerId string, seasonId string) []structs.PlayerSt
 	return playerStats
 }
 
+func GetNBAPlayerStatsBySeason(playerId string, seasonId string) []structs.NBAPlayerStats {
+	db := dbprovider.GetInstance().GetDB()
+
+	var playerStats []structs.NBAPlayerStats
+
+	db.Where("nba_player_id = ? AND season_id = ?", playerId, seasonId).Find(&playerStats)
+
+	return playerStats
+}
+
 func GetPlayerStatsInConferenceBySeason(seasonId string, conference string) []structs.PlayerStats {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -211,7 +221,7 @@ func GetNBAPlayerSeasonStatsByPlayerID(playerID string, seasonID string) structs
 
 	var seasonStats structs.NBAPlayerSeasonStats
 
-	err := db.Where("college_player_id = ? AND season_id = ?", playerID, seasonID).Find(&seasonStats).Error
+	err := db.Where("nba_player_id = ? AND season_id = ?", playerID, seasonID).Find(&seasonStats).Error
 	if err != nil {
 		fmt.Println("Could not find existing record for player... generating new one.")
 	}
@@ -254,6 +264,9 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 	matches := GetMatchesByWeekIdAndMatchType(weekId, seasonId, MatchType)
 
 	for _, match := range matches {
+		if !match.GameComplete {
+			continue
+		}
 		homeTeamStats := GetCBBTeamStatsByMatch(strconv.Itoa(int(match.HomeTeamID)), strconv.Itoa(int(match.ID)))
 
 		homeSeasonStats := GetTeamSeasonStatsByTeamID(strconv.Itoa(int(match.HomeTeamID)), seasonId)
@@ -295,6 +308,9 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 	nbaGames := GetNBATeamMatchesByMatchType(strconv.Itoa(int(ts.NBAWeekID)), strconv.Itoa(int(ts.SeasonID)), MatchType)
 
 	for _, match := range nbaGames {
+		if !match.GameComplete {
+			continue
+		}
 		homeTeamStats := GetNBATeamStatsByMatch(strconv.Itoa(int(match.HomeTeamID)), strconv.Itoa(int(match.ID)))
 
 		homeSeasonStats := GetNBATeamSeasonStatsByTeamID(strconv.Itoa(int(match.HomeTeamID)), seasonId)
@@ -379,5 +395,24 @@ func RegressSeasonStats(ts structs.Timestamp, MatchType string) {
 				log.Fatalln("Could not save season stats for " + strconv.Itoa(int(playerSeasonStats.CollegePlayerID)))
 			}
 		}
+	}
+}
+
+func FixNBASeasonTables() {
+	db := dbprovider.GetInstance().GetDB()
+
+	ts := GetTimestamp()
+	seasonID := strconv.Itoa(int(ts.SeasonID))
+	nbaPlayers := GetAllNBAPlayers()
+
+	for _, p := range nbaPlayers {
+		id := strconv.Itoa(int(p.ID))
+		stats := GetNBAPlayerStatsBySeason(id, seasonID)
+		seasonStats := GetNBAPlayerSeasonStatsByPlayerID(id, seasonID)
+		for _, s := range stats {
+			seasonStats.AddStatsToSeasonRecord(s)
+		}
+
+		db.Create(&seasonStats)
 	}
 }

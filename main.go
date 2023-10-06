@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/CalebRose/SimNBA/controller"
 	"github.com/CalebRose/SimNBA/dbprovider"
@@ -12,6 +13,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/nelkinda/health-go"
 	"github.com/nelkinda/health-go/checks/sendgrid"
+	"github.com/robfig/cron/v3"
 	"github.com/rs/cors"
 )
 
@@ -261,11 +263,31 @@ func helloWorld(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello World.")
 }
 
+func handleCron() {
+	loc, err := time.LoadLocation("America/Los_Angeles")
+	if err != nil {
+		log.Fatalf("Error loading location: %v", err)
+	}
+	go func() {
+		c := cron.New(cron.WithLocation(loc))
+		c.AddFunc("0 9 * * 3", controller.SyncRecruitingViaCron)
+		c.AddFunc("0 23 * * 3,6", controller.SyncAIBoardsViaCron)
+		c.AddFunc("0 15 * * 1,3,5,6", controller.ShowGamesViaCron)
+		c.AddFunc("0 3 * * 4", controller.FillAIBoardsViaCron)
+		c.AddFunc("0 5 * * 0", controller.SyncToNextWeekViaCron)
+		c.AddFunc("0 5 * * 2", controller.SyncFreeAgencyOffersViaCron)
+		c.Start()
+	}()
+}
+
 func main() {
 	InitialMigration()
 	fmt.Println("Database initialized.")
 
-	handleRequests()
+	fmt.Println("Loading cron...")
+	handleCron()
 
+	fmt.Println("Loading Requests...")
+	handleRequests()
 	fmt.Println("Application Running")
 }

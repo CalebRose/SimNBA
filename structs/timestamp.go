@@ -32,6 +32,7 @@ type Timestamp struct {
 	Y4Capspace                float64
 	Y5Capspace                float64
 	FreeAgencyRound           uint
+	RunCron                   bool
 }
 
 func (t *Timestamp) MoveUpWeekCollege() {
@@ -69,6 +70,7 @@ func (t *Timestamp) ToggleGamesCRan() {
 
 func (t *Timestamp) ToggleRecruiting() {
 	t.RecruitingSynced = !t.RecruitingSynced
+	t.IsRecruitingLocked = false
 }
 
 func (t *Timestamp) ToggleAIRecruiting() {
