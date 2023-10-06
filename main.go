@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/CalebRose/SimNBA/controller"
 	"github.com/CalebRose/SimNBA/dbprovider"
@@ -264,18 +263,14 @@ func helloWorld(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleCron() {
-	loc, err := time.LoadLocation("America/Los_Angeles")
-	if err != nil {
-		log.Fatalf("Error loading location: %v", err)
-	}
 	go func() {
-		c := cron.New(cron.WithLocation(loc))
-		c.AddFunc("0 9 * * 3", controller.SyncRecruitingViaCron)
-		c.AddFunc("0 23 * * 3,6", controller.SyncAIBoardsViaCron)
-		c.AddFunc("0 15 * * 1,3,5,6", controller.ShowGamesViaCron)
-		c.AddFunc("0 3 * * 4", controller.FillAIBoardsViaCron)
-		c.AddFunc("0 5 * * 0", controller.SyncToNextWeekViaCron)
-		c.AddFunc("0 5 * * 2", controller.SyncFreeAgencyOffersViaCron)
+		c := cron.New()
+		c.AddFunc("0 16 * * 3", controller.SyncRecruitingViaCron)
+		c.AddFunc("0 6 * * 4,6", controller.SyncAIBoardsViaCron)
+		c.AddFunc("0 20 * * 1,3,5,6", controller.ShowGamesViaCron)
+		c.AddFunc("0 10 * * 4", controller.FillAIBoardsViaCron)
+		c.AddFunc("0 12 * * 0", controller.SyncToNextWeekViaCron)
+		c.AddFunc("0 12 * * 2", controller.SyncFreeAgencyOffersViaCron)
 		c.Start()
 	}()
 }
