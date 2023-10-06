@@ -1,6 +1,6 @@
 FROM golang:alpine as base-builder
 
-LABEL maintainer='@ctrose17 <>'
+LABEL maintainer='@ctrose17'
 
 WORKDIR /app
 
@@ -15,7 +15,9 @@ COPY . .
 
 RUN go build
 
-FROM alpine:latest
+FROM golang:alpine
+
+RUN apk add --no-cache tzdata
 
 WORKDIR /root/
 
