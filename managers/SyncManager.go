@@ -306,9 +306,9 @@ func FillAIRecruitingBoards() {
 			if team.AIQuality == "Blue Blood" && croot.Stars == 5 {
 				odds += 5
 			} else if team.AIQuality == "Cinderella" && croot.Stars == 4 {
-				odds += 15
+				odds += 10
 			} else if team.AIQuality == "P6" && croot.Stars == 4 {
-				odds += 8
+				odds += 15
 			} else if team.AIQuality == "P6" && croot.Stars == 3 {
 				odds += 15
 			} else if team.AIQuality == "Mid-Major" && croot.Stars < 4 {
