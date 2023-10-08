@@ -42,6 +42,7 @@ func (t *Timestamp) MoveUpWeekCollege() {
 
 func (t *Timestamp) MoveUpWeekNBA() {
 	t.NBAWeekID++
+	t.NBAWeek++
 }
 
 func (t *Timestamp) ToggleGames(matchType string) {
