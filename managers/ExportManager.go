@@ -440,6 +440,9 @@ func ExportMatchResults(w http.ResponseWriter, seasonID, weekID, nbaWeekID, matc
 	}
 
 	for _, m := range collegeMatches {
+		if !m.GameComplete {
+			continue
+		}
 		homeTeam := collegeTeamMap[m.HomeTeamID]
 		awayTeam := collegeTeamMap[m.AwayTeamID]
 		neutralStr := "N"
@@ -470,6 +473,9 @@ func ExportMatchResults(w http.ResponseWriter, seasonID, weekID, nbaWeekID, matc
 		}
 	}
 	for _, m := range nbaMatches {
+		if !m.GameComplete {
+			continue
+		}
 		homeTeam := nbaTeamMap[m.HomeTeamID]
 		awayTeam := nbaTeamMap[m.AwayTeamID]
 		neutralStr := "N"

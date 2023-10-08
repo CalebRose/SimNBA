@@ -195,11 +195,13 @@ func GetNBATeamResultsByMatch(teamId string, matchId string) structs.MatchResult
 	db.Where("team_id = ? AND match_id = ?", teamId, matchId).Find(&teamStats)
 
 	return structs.MatchResultsTeam{
-		FirstHalfScore:  teamStats.FirstHalfScore,
-		SecondHalfScore: teamStats.SecondHalfScore,
-		OvertimeScore:   teamStats.OvertimeScore,
-		Points:          teamStats.Points,
-		Possessions:     teamStats.Possessions,
+		FirstHalfScore:     teamStats.FirstHalfScore,
+		SecondQuarterScore: teamStats.SecondQuarterScore,
+		SecondHalfScore:    teamStats.SecondHalfScore,
+		FourthQuarterScore: teamStats.FourthQuarterScore,
+		OvertimeScore:      teamStats.OvertimeScore,
+		Points:             teamStats.Points,
+		Possessions:        teamStats.Possessions,
 	}
 }
 

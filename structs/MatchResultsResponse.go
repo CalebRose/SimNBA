@@ -8,12 +8,14 @@ type MatchResultsResponse struct {
 }
 
 type MatchResultsTeam struct {
-	Team            string
-	FirstHalfScore  int
-	SecondHalfScore int
-	OvertimeScore   int
-	Points          int
-	Possessions     int
+	Team               string
+	FirstHalfScore     int
+	SecondQuarterScore int
+	SecondHalfScore    int
+	FourthQuarterScore int
+	OvertimeScore      int
+	Points             int
+	Possessions        int
 }
 
 type MatchResultsPlayer struct {
