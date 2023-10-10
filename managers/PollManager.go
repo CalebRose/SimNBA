@@ -135,11 +135,11 @@ func SyncCollegePollSubmissionForCurrentWeek() {
 			if m.Week < uint(ts.CollegeWeek) {
 				continue
 			}
-			m.AssignRank(v.TeamID, uint(rank))
-			db.Save(&m)
 			if m.Week > uint(ts.CollegeWeek) {
 				break
 			}
+			m.AssignRank(v.TeamID, uint(rank))
+			db.Save(&m)
 		}
 	}
 	ts.TogglePollRan()
