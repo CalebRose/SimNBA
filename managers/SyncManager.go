@@ -26,6 +26,12 @@ func SyncRecruiting() {
 	if timestamp.RecruitingSynced {
 		log.Fatalln("Recruiting already ran for this week. Please wait until next week to sync recruiting again.")
 	}
+
+	if !timestamp.IsRecruitingLocked {
+		timestamp.ToggleLockRecruiting()
+		db.Save(&timestamp)
+	}
+
 	var modifier1 float64 = 75
 	var modifierFor5Star float64 = 125
 	weeksOfRecruiting := 15
@@ -195,7 +201,9 @@ func SyncRecruiting() {
 		fmt.Println(log)
 	}
 
-	timestamp.ToggleRecruiting()
+	if timestamp.IsRecruitingLocked {
+		timestamp.ToggleLockRecruiting()
+	}
 
 	err := db.Save(&timestamp).Error
 	if err != nil {
