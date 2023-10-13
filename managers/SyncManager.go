@@ -564,6 +564,7 @@ func getOddsIncrementByTalent(attr, stars int, attrspec, attrMatch bool, isMidMa
 
 func allocatePointsToRecruit(recruit structs.Recruit, recruitProfiles *[]structs.PlayerRecruitProfile, pointLimit float64, pointsPlaced *bool, timestamp structs.Timestamp, recruitProfilePointsMap *map[string]float64, db *gorm.DB) {
 	// numWorkers := 3
+	var mapMutex sync.Mutex
 	numWorkers := runtime.NumCPU()
 	if numWorkers > 3 {
 		numWorkers = 3
@@ -575,7 +576,10 @@ func allocatePointsToRecruit(recruit structs.Recruit, recruitProfiles *[]structs
 	for w := 1; w <= numWorkers; w++ {
 		go func(jobs <-chan int, results chan<- error, w int) {
 			for i := range jobs {
-				err := processRecruitProfile(i, recruit, recruitProfiles, pointLimit, pointsPlaced, timestamp, recruitProfilePointsMap, db)
+				if (*recruitProfiles)[i].CurrentWeeksPoints == 0 {
+					continue
+				}
+				err := processRecruitProfile(i, recruit, recruitProfiles, pointLimit, pointsPlaced, timestamp, recruitProfilePointsMap, &mapMutex, db)
 				results <- err
 			}
 		}(jobs, results, w)
@@ -598,8 +602,10 @@ func allocatePointsToRecruit(recruit structs.Recruit, recruitProfiles *[]structs
 	}
 }
 
-func processRecruitProfile(i int, recruit structs.Recruit, recruitProfiles *[]structs.PlayerRecruitProfile, pointLimit float64, pointsPlaced *bool, timestamp structs.Timestamp, recruitProfilePointsMap *map[string]float64, db *gorm.DB) error {
-	m := &sync.Mutex{}
+func processRecruitProfile(i int, recruit structs.Recruit, recruitProfiles *[]structs.PlayerRecruitProfile, pointLimit float64, pointsPlaced *bool, timestamp structs.Timestamp, recruitProfilePointsMap *map[string]float64, m *sync.Mutex, db *gorm.DB) error {
+	if (*recruitProfiles)[i].ProfileID == 0 {
+		return nil
+	}
 	regionBonus := 1.05
 	stateBonus := 1.1
 	*pointsPlaced = true
@@ -611,9 +617,7 @@ func processRecruitProfile(i int, recruit structs.Recruit, recruitProfiles *[]st
 		WeekID:           timestamp.CollegeWeekID,
 	}
 
-	var curr float64 = 0
-
-	var res float64 = 1 // recruitProfiles[i].RecruitingEfficiencyScore
+	var curr float64 = float64((*recruitProfiles)[i].CurrentWeeksPoints)
 
 	// Region / State bonus
 	if (*recruitProfiles)[i].HasRegionBonus && recruit.Stars != 5 {
@@ -630,17 +634,7 @@ func processRecruitProfile(i int, recruit structs.Recruit, recruitProfiles *[]st
 
 	rpa.UpdatePointsSpent(float64((*recruitProfiles)[i].CurrentWeeksPoints), curr)
 	(*recruitProfiles)[i].AllocateTotalPoints(curr)
-	(*recruitProfilePointsMap)[(*recruitProfiles)[i].TeamAbbreviation] += float64((*recruitProfiles)[i].CurrentWeeksPoints)
 
-	curr = float64((*recruitProfiles)[i].CurrentWeeksPoints) * res
-
-	if (*recruitProfiles)[i].CurrentWeeksPoints < 0 || float64((*recruitProfiles)[i].CurrentWeeksPoints) > pointLimit {
-		curr = 0
-		rpa.ApplyCaughtCheating()
-	}
-
-	rpa.UpdatePointsSpent(float64((*recruitProfiles)[i].CurrentWeeksPoints), curr)
-	(*recruitProfiles)[i].AllocateTotalPoints(curr)
 	m.Lock()
 	(*recruitProfilePointsMap)[(*recruitProfiles)[i].TeamAbbreviation] += float64((*recruitProfiles)[i].CurrentWeeksPoints)
 	m.Unlock()

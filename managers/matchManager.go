@@ -321,6 +321,16 @@ func GetTeamMatchesByWeekId(weekId, seasonID, matchType, teamID string) []struct
 	return teamMatches
 }
 
+func GetCollegeTeamMatchesBySeasonId(seasonID, teamID string) []structs.Match {
+	db := dbprovider.GetInstance().GetDB()
+
+	var teamMatches []structs.Match
+
+	db.Where("season_id = ?  AND (home_team_id = ? OR away_team_id = ?)", seasonID, teamID, teamID).Find(&teamMatches)
+
+	return teamMatches
+}
+
 func GetNBATeamMatchesByMatchType(weekId, seasonID, matchType string) []structs.NBAMatch {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -337,6 +347,16 @@ func GetNBATeamMatchesByWeekId(weekId, seasonID, matchType, teamID string) []str
 	var teamMatches []structs.NBAMatch
 
 	db.Where("week_id = ? AND season_id = ? AND match_of_week = ? AND (home_team_id = ? OR away_team_id = ?)", weekId, seasonID, matchType, teamID, teamID).Find(&teamMatches)
+
+	return teamMatches
+}
+
+func GetNBATeamMatchesBySeasonId(seasonID, teamID string) []structs.NBAMatch {
+	db := dbprovider.GetInstance().GetDB()
+
+	var teamMatches []structs.NBAMatch
+
+	db.Where("season_id = ? AND (home_team_id = ? OR away_team_id = ?)", seasonID, teamID, teamID).Find(&teamMatches)
 
 	return teamMatches
 }
