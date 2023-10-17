@@ -151,10 +151,10 @@ func SyncCollegePollSubmissionForCurrentWeek() {
 func CreatePoll(dto structs.CollegePollSubmission) structs.CollegePollSubmission {
 	db := dbprovider.GetInstance().GetDB()
 	existingPoll := GetPollSubmissionBySubmissionID(strconv.Itoa(int(dto.ID)))
-	ts := GetTimestamp()
+
 	if existingPoll.ID == 0 {
 		// Move up submission to next week
-		dto.MoveSubmissionToNextWeek(ts.CollegeWeekID+1, uint(ts.CollegeWeek)+1)
+		dto.MoveSubmissionToNextWeek(dto.WeekID+1, uint(dto.Week)+1)
 	}
 	if existingPoll.ID > 0 {
 		dto.AssignID(existingPoll.ID)

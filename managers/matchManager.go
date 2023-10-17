@@ -65,8 +65,10 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 				livestreamChannel = 1
 			} else if ht.ConferenceID < 6 || ht.ConferenceID == 11 || at.ConferenceID < 6 || at.ConferenceID == 11 {
 				livestreamChannel = 2
-			} else {
+			} else if !(ht.ConferenceID < 6 || ht.ConferenceID == 11 || at.ConferenceID < 6 || at.ConferenceID == 11) && ((ht.ConferenceID > 5 && ht.ConferenceID < 14) || (at.ConferenceID > 5 && at.ConferenceID < 14)) {
 				livestreamChannel = 3
+			} else {
+				livestreamChannel = 4
 			}
 
 			match := structs.MatchResponse{
@@ -113,14 +115,14 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 			defer nbaMatchesWg.Done()
 			livestreamChannel := 0
 			if coinFlip {
-				livestreamChannel = 4
+				livestreamChannel = 5
 				coinFlip = !coinFlip
 			} else if !coinFlip {
-				livestreamChannel = 5
+				livestreamChannel = 6
 				coinFlip = !coinFlip
 			}
 			if n.IsInternational {
-				livestreamChannel = 6
+				livestreamChannel = 7
 			}
 
 			match := structs.MatchResponse{
