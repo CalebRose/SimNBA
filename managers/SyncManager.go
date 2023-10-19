@@ -309,6 +309,9 @@ func FillAIRecruitingBoards() {
 				if croot.State == team.State {
 					odds += 33
 				}
+				if regionMap[croot.State] != team.Region && croot.State != team.State && team.AIQuality == "Mid-Major" {
+					odds -= 5
+				}
 			}
 			/* Initial Base */
 			if team.AIQuality == "Blue Blood" && croot.Stars == 5 {
