@@ -309,6 +309,9 @@ func FillAIRecruitingBoards() {
 				if croot.State == team.State {
 					odds += 33
 				}
+				if regionMap[croot.State] != team.Region && croot.State != team.State && team.AIQuality == "Mid-Major" {
+					odds -= 5
+				}
 			}
 			/* Initial Base */
 			if team.AIQuality == "Blue Blood" && croot.Stars == 5 {
@@ -577,6 +580,7 @@ func allocatePointsToRecruit(recruit structs.Recruit, recruitProfiles *[]structs
 		go func(jobs <-chan int, results chan<- error, w int) {
 			for i := range jobs {
 				if (*recruitProfiles)[i].CurrentWeeksPoints == 0 {
+					results <- nil
 					continue
 				}
 				err := processRecruitProfile(i, recruit, recruitProfiles, pointLimit, pointsPlaced, timestamp, recruitProfilePointsMap, &mapMutex, db)
@@ -603,9 +607,6 @@ func allocatePointsToRecruit(recruit structs.Recruit, recruitProfiles *[]structs
 }
 
 func processRecruitProfile(i int, recruit structs.Recruit, recruitProfiles *[]structs.PlayerRecruitProfile, pointLimit float64, pointsPlaced *bool, timestamp structs.Timestamp, recruitProfilePointsMap *map[string]float64, m *sync.Mutex, db *gorm.DB) error {
-	if (*recruitProfiles)[i].ProfileID == 0 {
-		return nil
-	}
 	regionBonus := 1.05
 	stateBonus := 1.1
 	*pointsPlaced = true
