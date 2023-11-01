@@ -401,6 +401,32 @@ func AllocatePointsToAIBoards() {
 		if team.SpentPoints >= team.WeeklyPoints || team.TotalCommitments >= team.RecruitClassSize {
 			continue
 		}
+		id := strconv.Itoa(int(team.ID))
+
+		currentRoster := GetCollegePlayersByTeamId(id)
+		signedCroots := GetSignedRecruitsByTeamProfileID(id)
+		teamNeedsMap := make(map[string]bool)
+		positionCount := make(map[string]int)
+
+		for _, r := range currentRoster {
+			positionCount[r.Position] += 1
+		}
+
+		for _, r := range signedCroots {
+			positionCount[r.Position] += 1
+		}
+
+		if positionCount["PG"] < 3 {
+			teamNeedsMap["PG"] = true
+		} else if positionCount["SG"] < 4 {
+			teamNeedsMap["SG"] = true
+		} else if positionCount["SF"] < 4 {
+			teamNeedsMap["SF"] = true
+		} else if positionCount["PF"] < 4 {
+			teamNeedsMap["PF"] = true
+		} else if positionCount["C"] < 3 {
+			teamNeedsMap["C"] = true
+		}
 
 		teamRecruits := GetAllRecruitsByProfileID(strconv.Itoa(int(team.ID)))
 
@@ -412,9 +438,10 @@ func AllocatePointsToAIBoards() {
 			}
 
 			// If a croot was signed OR has points already placed on the croot, move on to the next croot
-			if croot.IsSigned || croot.CurrentWeeksPoints > 0 || croot.ScholarshipRevoked {
+			if croot.IsSigned || croot.CurrentWeeksPoints > 0 || croot.ScholarshipRevoked || !teamNeedsMap[croot.Recruit.Position] {
 				continue
 			}
+
 			removeCrootFromBoard := false
 			num := 0
 			// If a croot is locked and signed with a different team, remove from the team board and continue
@@ -504,6 +531,19 @@ func AllocatePointsToAIBoards() {
 			// Save croot
 			db.Save(&croot)
 			fmt.Println(team.TeamAbbr + " allocating " + strconv.Itoa(num) + " points to " + croot.Recruit.FirstName + " " + croot.Recruit.LastName)
+
+			positionCount[croot.Recruit.Position] += 1
+			if positionCount["PG"] >= 3 {
+				teamNeedsMap["PG"] = false
+			} else if positionCount["SG"] >= 4 {
+				teamNeedsMap["SG"] = false
+			} else if positionCount["SF"] >= 4 {
+				teamNeedsMap["SF"] = false
+			} else if positionCount["PF"] >= 4 {
+				teamNeedsMap["PF"] = false
+			} else if positionCount["C"] >= 3 {
+				teamNeedsMap["C"] = false
+			}
 		}
 		// Save Team Profile after iterating through recruits
 		fmt.Println("Saved " + team.TeamAbbr + " Recruiting Board!")
