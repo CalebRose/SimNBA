@@ -152,10 +152,6 @@ func CreatePoll(dto structs.CollegePollSubmission) structs.CollegePollSubmission
 	db := dbprovider.GetInstance().GetDB()
 	existingPoll := GetPollSubmissionBySubmissionID(strconv.Itoa(int(dto.ID)))
 
-	if existingPoll.ID == 0 {
-		// Move up submission to next week
-		dto.MoveSubmissionToNextWeek(dto.WeekID+1, uint(dto.Week)+1)
-	}
 	if existingPoll.ID > 0 {
 		dto.AssignID(existingPoll.ID)
 		db.Save(&dto)
