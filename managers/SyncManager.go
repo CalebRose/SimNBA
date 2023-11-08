@@ -260,6 +260,9 @@ func FillAIRecruitingBoards() {
 		positionCount := make(map[string]int)
 
 		for _, r := range currentRoster {
+			if r.WillDeclare {
+				continue
+			}
 			positionCount[r.Position] += 1
 		}
 
@@ -409,6 +412,9 @@ func AllocatePointsToAIBoards() {
 		positionCount := make(map[string]int)
 
 		for _, r := range currentRoster {
+			if r.WillDeclare {
+				continue
+			}
 			positionCount[r.Position] += 1
 		}
 
