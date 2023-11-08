@@ -227,12 +227,6 @@ func FillAIRecruitingBoards() {
 	UnsignedRecruits := GetAllUnsignedRecruits()
 	recruitProfileMap := fetchRecruitProfiles(UnsignedRecruits)
 
-	for _, croot := range UnsignedRecruits {
-		// Call DB to get profile records
-		crootProfiles := GetRecruitPlayerProfilesByRecruitId(strconv.Itoa(int(croot.ID)))
-		recruitProfileMap[croot.ID] = crootProfiles
-	}
-
 	regionMap := util.GetRegionMap()
 
 	boardCount := 30
@@ -259,6 +253,38 @@ func FillAIRecruitingBoards() {
 		teamNeedsMap := make(map[string]bool)
 		positionCount := make(map[string]int)
 
+		if _, ok := teamNeedsMap["PG"]; !ok {
+			teamNeedsMap["PG"] = true
+		}
+		if _, ok := teamNeedsMap["SG"]; !ok {
+			teamNeedsMap["SG"] = true
+		}
+		if _, ok := teamNeedsMap["SF"]; !ok {
+			teamNeedsMap["SF"] = true
+		}
+		if _, ok := teamNeedsMap["PF"]; !ok {
+			teamNeedsMap["PF"] = true
+		}
+		if _, ok := teamNeedsMap["C"]; !ok {
+			teamNeedsMap["C"] = true
+		}
+
+		if _, ok := positionCount["PG"]; !ok {
+			positionCount["PG"] = 0
+		}
+		if _, ok := positionCount["SG"]; !ok {
+			positionCount["SG"] = 0
+		}
+		if _, ok := positionCount["SF"]; !ok {
+			positionCount["SF"] = 0
+		}
+		if _, ok := positionCount["PF"]; !ok {
+			positionCount["PF"] = 0
+		}
+		if _, ok := positionCount["C"]; !ok {
+			positionCount["C"] = 0
+		}
+
 		for _, r := range currentRoster {
 			if r.WillDeclare {
 				continue
@@ -266,16 +292,16 @@ func FillAIRecruitingBoards() {
 			positionCount[r.Position] += 1
 		}
 
-		if positionCount["PG"] < 3 {
-			teamNeedsMap["PG"] = true
-		} else if positionCount["SG"] < 4 {
-			teamNeedsMap["SG"] = true
-		} else if positionCount["SF"] < 4 {
-			teamNeedsMap["SF"] = true
-		} else if positionCount["PF"] < 4 {
-			teamNeedsMap["PF"] = true
-		} else if positionCount["C"] < 3 {
-			teamNeedsMap["C"] = true
+		if positionCount["PG"] >= 3 {
+			teamNeedsMap["PG"] = false
+		} else if positionCount["SG"] >= 4 {
+			teamNeedsMap["SG"] = false
+		} else if positionCount["SF"] >= 4 {
+			teamNeedsMap["SF"] = false
+		} else if positionCount["PF"] >= 4 {
+			teamNeedsMap["PF"] = false
+		} else if positionCount["C"] >= 3 {
+			teamNeedsMap["C"] = false
 		}
 
 		for _, croot := range UnsignedRecruits {
@@ -292,10 +318,10 @@ func FillAIRecruitingBoards() {
 				continue
 			}
 
-			crootProfiles := GetRecruitPlayerProfilesByRecruitId(strconv.Itoa(int(croot.ID)))
+			crootProfiles := recruitProfileMap[croot.ID]
 
 			leadingVal := util.IsAITeamContendingForCroot(crootProfiles)
-			if leadingVal > 11 {
+			if leadingVal > 14 {
 				continue
 			}
 
@@ -318,13 +344,13 @@ func FillAIRecruitingBoards() {
 			}
 			/* Initial Base */
 			if team.AIQuality == "Blue Blood" && croot.Stars == 5 {
-				odds += 5
+				odds += 10
 			} else if team.AIQuality == "Cinderella" && croot.Stars == 4 {
 				odds += 10
 			} else if team.AIQuality == "P6" && croot.Stars == 4 {
-				odds += 15
+				odds += 20
 			} else if team.AIQuality == "P6" && croot.Stars == 3 {
-				odds += 15
+				odds += 25
 			} else if team.AIQuality == "Mid-Major" && croot.Stars < 4 {
 				odds += 1
 			} else if team.AIQuality == "Mid-Major" && croot.Stars < 3 {
@@ -411,6 +437,38 @@ func AllocatePointsToAIBoards() {
 		teamNeedsMap := make(map[string]bool)
 		positionCount := make(map[string]int)
 
+		if _, ok := teamNeedsMap["PG"]; !ok {
+			teamNeedsMap["PG"] = true
+		}
+		if _, ok := teamNeedsMap["SG"]; !ok {
+			teamNeedsMap["SG"] = true
+		}
+		if _, ok := teamNeedsMap["SF"]; !ok {
+			teamNeedsMap["SF"] = true
+		}
+		if _, ok := teamNeedsMap["PF"]; !ok {
+			teamNeedsMap["PF"] = true
+		}
+		if _, ok := teamNeedsMap["C"]; !ok {
+			teamNeedsMap["C"] = true
+		}
+
+		if _, ok := positionCount["PG"]; !ok {
+			positionCount["PG"] = 0
+		}
+		if _, ok := positionCount["SG"]; !ok {
+			positionCount["SG"] = 0
+		}
+		if _, ok := positionCount["SF"]; !ok {
+			positionCount["SF"] = 0
+		}
+		if _, ok := positionCount["PF"]; !ok {
+			positionCount["PF"] = 0
+		}
+		if _, ok := positionCount["C"]; !ok {
+			positionCount["C"] = 0
+		}
+
 		for _, r := range currentRoster {
 			if r.WillDeclare {
 				continue
@@ -422,16 +480,16 @@ func AllocatePointsToAIBoards() {
 			positionCount[r.Position] += 1
 		}
 
-		if positionCount["PG"] < 3 {
-			teamNeedsMap["PG"] = true
-		} else if positionCount["SG"] < 4 {
-			teamNeedsMap["SG"] = true
-		} else if positionCount["SF"] < 4 {
-			teamNeedsMap["SF"] = true
-		} else if positionCount["PF"] < 4 {
-			teamNeedsMap["PF"] = true
-		} else if positionCount["C"] < 3 {
-			teamNeedsMap["C"] = true
+		if positionCount["PG"] >= 3 {
+			teamNeedsMap["PG"] = false
+		} else if positionCount["SG"] >= 4 {
+			teamNeedsMap["SG"] = false
+		} else if positionCount["SF"] >= 4 {
+			teamNeedsMap["SF"] = false
+		} else if positionCount["PF"] >= 4 {
+			teamNeedsMap["PF"] = false
+		} else if positionCount["C"] >= 3 {
+			teamNeedsMap["C"] = false
 		}
 
 		teamRecruits := GetAllRecruitsByProfileID(strconv.Itoa(int(team.ID)))
@@ -770,8 +828,10 @@ func fetchRecruitProfiles(UnsignedRecruits []structs.Recruit) map[uint][]structs
 	recruitProfileMap := make(map[uint][]structs.PlayerRecruitProfile)
 	var mu sync.Mutex     // to safely update the map
 	var wg sync.WaitGroup // to wait for all goroutines to finish
+	semaphore := make(chan struct{}, 10)
 
 	for _, croot := range UnsignedRecruits {
+		semaphore <- struct{}{}
 		wg.Add(1)
 		go func(c structs.Recruit) {
 			defer wg.Done()
@@ -779,9 +839,12 @@ func fetchRecruitProfiles(UnsignedRecruits []structs.Recruit) map[uint][]structs
 			mu.Lock()
 			recruitProfileMap[c.ID] = crootProfiles
 			mu.Unlock()
+
+			<-semaphore
 		}(croot)
 	}
 
 	wg.Wait()
+	close(semaphore)
 	return recruitProfileMap
 }
