@@ -103,6 +103,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/nba/gameplans/update", controller.UpdateNBAGameplan).Methods("POST")
 
 	// Generation Controls
+	// myRouter.HandleFunc("/admin/generateCoaches", controller.GenerateCoaches).Methods("GET")
 	// myRouter.HandleFunc("/admin/generateTeam", controller.GeneratePlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/generateCroots", controller.GenerateCroots).Methods("GET")
 	// myRouter.HandleFunc("/admin/generate/international", controller.GenerateInternationalPlayers).Methods("GET")

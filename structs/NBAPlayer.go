@@ -15,8 +15,6 @@ type NBAPlayer struct {
 	DraftPick           uint
 	DraftedTeamID       uint
 	DraftedTeamAbbr     string
-	PreviousTeamID      uint
-	PreviousTeam        string
 	PrimeAge            uint
 	IsNBA               bool
 	MaxRequested        bool
