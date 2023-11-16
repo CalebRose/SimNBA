@@ -231,13 +231,9 @@ func FillAIRecruitingBoards() {
 
 	boardCount := 30
 
-	if ts.CollegeWeek > 3 {
-		boardCount = 15
-	}
-
 	for _, team := range AITeams {
 		count := 0
-		if !team.IsAI || team.TotalCommitments >= team.RecruitClassSize || team.ScholarshipsAvailable == 0 {
+		if !team.IsAI || team.TotalCommitments >= team.RecruitClassSize || team.ScholarshipsAvailable == 0 || team.SpentPoints == 50 {
 			continue
 		}
 		id := strconv.Itoa(int(team.ID))
@@ -308,7 +304,8 @@ func FillAIRecruitingBoards() {
 			if count == boardCount {
 				break
 			}
-			if croot.IsCustomCroot || (!teamNeedsMap[croot.Position] && ts.CollegeWeek < 10) ||
+			recruitingNeed := teamNeedsMap[croot.Position]
+			if croot.IsCustomCroot || (!recruitingNeed && ts.CollegeWeek < 12) ||
 				(croot.Stars == 5 && team.AIQuality != "Blue Blood") {
 				continue
 			}
@@ -321,7 +318,7 @@ func FillAIRecruitingBoards() {
 			crootProfiles := recruitProfileMap[croot.ID]
 
 			leadingVal := util.IsAITeamContendingForCroot(crootProfiles)
-			if leadingVal > 14 {
+			if leadingVal > 13 {
 				continue
 			}
 
@@ -339,7 +336,7 @@ func FillAIRecruitingBoards() {
 					odds += 33
 				}
 				if regionMap[croot.State] != team.Region && croot.State != team.State && team.AIQuality == "Mid-Major" {
-					odds -= 5
+					odds -= 10
 				}
 			}
 			/* Initial Base */
@@ -351,8 +348,6 @@ func FillAIRecruitingBoards() {
 				odds += 20
 			} else if team.AIQuality == "P6" && croot.Stars == 3 {
 				odds += 25
-			} else if team.AIQuality == "Mid-Major" && croot.Stars < 4 {
-				odds += 1
 			} else if team.AIQuality == "Mid-Major" && croot.Stars < 3 {
 				odds += 10
 			}
@@ -494,6 +489,12 @@ func AllocatePointsToAIBoards() {
 
 		teamRecruits := GetAllRecruitsByProfileID(strconv.Itoa(int(team.ID)))
 
+		sort.Slice(teamRecruits, func(i, j int) bool {
+			iCroot := teamRecruits[i].Recruit
+			jCroot := teamRecruits[j].Recruit
+			return iCroot.Stars > jCroot.Stars
+		})
+
 		for _, croot := range teamRecruits {
 			// If a team has no more points to spend, break the loop
 			pointsRemaining := team.WeeklyPoints - team.SpentPoints
@@ -501,8 +502,9 @@ func AllocatePointsToAIBoards() {
 				break
 			}
 
+			recruitingNeed := teamNeedsMap[croot.Recruit.Position]
 			// If a croot was signed OR has points already placed on the croot, move on to the next croot
-			if croot.IsSigned || croot.CurrentWeeksPoints > 0 || croot.ScholarshipRevoked || !teamNeedsMap[croot.Recruit.Position] {
+			if croot.IsSigned || croot.CurrentWeeksPoints > 0 || croot.ScholarshipRevoked || !recruitingNeed {
 				continue
 			}
 
@@ -520,7 +522,7 @@ func AllocatePointsToAIBoards() {
 				if croot.PreviouslySpentPoints > 0 {
 					leadingTeamVal := util.IsAITeamContendingForCroot(profiles)
 					// If the allocation to be placed keeps the team in the lead, or if the lead is by 11 points or less
-					if float64(croot.PreviouslySpentPoints)+croot.TotalPoints >= float64(leadingTeamVal)*0.66 || leadingTeamVal < 11 {
+					if float64(croot.PreviouslySpentPoints)+croot.TotalPoints >= float64(leadingTeamVal)*0.66 || leadingTeamVal < 14 {
 						num = croot.PreviouslySpentPoints
 						if num > pointsRemaining {
 							num = pointsRemaining
@@ -562,7 +564,7 @@ func AllocatePointsToAIBoards() {
 					if float64(num)+croot.TotalPoints < float64(leadingValPoints)*0.66 {
 						removeCrootFromBoard = true
 					}
-					if leadingValPoints < 11 {
+					if leadingValPoints < 14 {
 						removeCrootFromBoard = false
 					}
 				}
@@ -657,9 +659,6 @@ func getOddsIncrementByPotential(init int, potential int, isMidMajor bool) int {
 
 func getOddsIncrementByTalent(attr, stars int, attrspec, attrMatch bool, isMidMajor bool) int {
 	attrRequirement := 14
-	if isMidMajor {
-		attrRequirement = 10
-	}
 	if attrMatch && (attrspec || attr > attrRequirement) {
 		if stars > 3 && isMidMajor {
 			return 10

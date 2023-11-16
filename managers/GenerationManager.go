@@ -16,6 +16,42 @@ import (
 	"golang.org/x/text/language"
 )
 
+func GenerateCoachesForAITeams() {
+	db := dbprovider.GetInstance().GetDB()
+
+	teams := GetOnlyAITeamRecruitingProfiles()
+	firstNameMap, lastNameMap := getNameMaps()
+
+	coachList := []structs.CollegeCoach{}
+	allActiveCoaches := GetAllCollegeCoaches()
+
+	retiredPlayers := GetAllRetiredPlayers()
+	retireeMap := make(map[uint]bool)
+	coachMap := make(map[uint]bool)
+
+	for _, coach := range allActiveCoaches {
+		if coach.FormerPlayerID > 0 {
+			coachMap[coach.FormerPlayerID] = true
+		}
+	}
+
+	for _, team := range teams {
+		// Skip over teams currently controlled by a user
+		if !team.IsAI {
+			continue
+		}
+
+		pickedEthnicity := pickEthnicity()
+		almaMater := pickAlmaMater(teams)
+		coach := createCollegeCoach(team, almaMater.ID, almaMater.TeamAbbr, pickedEthnicity, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], retiredPlayers, &retireeMap, &coachMap)
+		coachList = append(coachList, coach)
+	}
+
+	for _, coach := range coachList {
+		db.Create(&coach)
+	}
+}
+
 func GenerateNewTeams() {
 	db := dbprovider.GetInstance().GetDB()
 	var lastPlayerRecord structs.GlobalPlayer
@@ -586,7 +622,7 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 	}
 
 	for i := 1; i < year && year > 1; i++ {
-		collegePlayer = ProgressCollegePlayer(collegePlayer, true)
+		collegePlayer = ProgressCollegePlayer(collegePlayer, 0, true)
 	}
 
 	return collegePlayer
@@ -752,6 +788,125 @@ func createInternationalPlayer(teamID uint, team, country, ethnicity, position s
 	player.SetAttributes(shooting2, shooting3, finishing, freeThrow, ballwork, rebounding, interiorDefense, perimeterDefense, overall, stars, expectations)
 
 	return player
+}
+
+func createCollegeCoach(team structs.TeamRecruitingProfile, almaMaterID uint, almaMater, ethnicity string, firstNameList, lastNameList [][]string, retiredPlayers []structs.RetiredPlayer, retireeMap, coachMap *map[uint]bool) structs.CollegeCoach {
+	firstName := ""
+	lastName := ""
+	diceRoll := util.GenerateIntFromRange(1, 20)
+	formerPlayerID := uint(0)
+	almaID := almaMaterID
+	alma := almaMater
+	age := 32
+	if diceRoll == 20 {
+		// Get a former player as a coach
+		idx := util.GenerateIntFromRange(0, len(retiredPlayers)-1)
+		retiree := retiredPlayers[idx]
+		for (*retireeMap)[retiree.ID] || (*coachMap)[retiree.ID] {
+			idx = util.GenerateIntFromRange(0, len(retiredPlayers)-1)
+			retiree = retiredPlayers[idx]
+		}
+		(*retireeMap)[retiree.ID] = true
+		(*coachMap)[retiree.ID] = true
+		formerPlayerID = retiree.ID
+		almaID = retiree.CollegeID
+		alma = retiree.College
+		firstName = retiree.FirstName
+		lastName = retiree.LastName
+		age = retiree.Age + 1
+	} else {
+		fName := getName(firstNameList)
+		lName := getName(lastNameList)
+		caser := cases.Title(language.English)
+		firstName = caser.String(strings.ToLower(fName))
+		lastName = caser.String(strings.ToLower(lName))
+		age = getCoachAge()
+	}
+	fullName := firstName + " " + lastName
+
+	schoolQuality := team.AIQuality
+	adminBehavior := team.AIBehavior
+	goodHire := getGoodHire(schoolQuality, adminBehavior)
+	starMin, starMax := getStarRange(schoolQuality, goodHire)
+	pointMin, pointmax := getPointRange(schoolQuality, goodHire)
+	odds1 := 0
+	odds2 := 0
+	odds3 := 0
+	odds4 := 0
+	odds5 := 0
+
+	starList := make([]int, 5)
+	for i := starMin; i <= starMax; i++ {
+		starList = append(starList, i)
+	}
+
+	for _, star := range starList {
+		if star == 1 {
+			odds1 = 10
+		} else if star == 2 {
+			odds2 = 10
+		} else if star == 3 {
+			odds3 = 8
+		} else if star == 4 {
+			odds4 = 5
+		} else if star == 5 {
+			odds5 = 5
+		}
+	}
+
+	schemeRoll := util.GenerateIntFromRange(1, 6)
+	scheme := "Traditional"
+	if schemeRoll == 6 {
+		schemeList := []string{"Traditional", "Small Ball", "Microball", "Jumbo"}
+		scheme = util.PickFromStringList(schemeList)
+	}
+	contractLength := util.GenerateIntFromRange(2, 5)
+	startingPrestige := getStartingPrestige(goodHire)
+
+	if goodHire {
+		fmt.Println("Good hire for " + team.TeamAbbr + "!")
+	}
+	formerPlayer := formerPlayerID > 0
+
+	if formerPlayer {
+		fmt.Println("Former SimNBA Player " + fullName + " is committing to coach for " + team.TeamAbbr + "!")
+	}
+
+	coach := structs.CollegeCoach{
+		Name:           fullName,
+		Age:            age,
+		TeamID:         team.ID,
+		Team:           team.TeamAbbr,
+		FormerPlayerID: formerPlayerID,
+		AlmaMaterID:    almaID,
+		AlmaMater:      alma,
+		Prestige:       startingPrestige,
+		PointMin:       pointMin,
+		PointMax:       pointmax,
+		StarMin:        starMin,
+		StarMax:        starMax,
+		Odds1:          odds1,
+		Odds2:          odds2,
+		Odds3:          odds3,
+		Odds4:          odds4,
+		Odds5:          odds5,
+		Scheme:         scheme,
+		SchoolTenure:   0,
+		CareerTenure:   0,
+		ContractLength: contractLength,
+		YearsRemaining: contractLength,
+		IsRetired:      false,
+		IsFormerPlayer: formerPlayer,
+	}
+
+	if startingPrestige > 1 {
+		for i := 0; i < startingPrestige; i++ {
+			selectStar := util.GenerateIntFromRange(starMin, starMax)
+			coach.IncrementOdds(selectStar)
+		}
+	}
+
+	return coach
 }
 
 func getNameList(ethnicity string, isFirstName bool) [][]string {
@@ -1425,4 +1580,123 @@ func getName(list [][]string) string {
 		}
 	}
 	return name
+}
+
+func pickAlmaMater(teams []structs.TeamRecruitingProfile) structs.TeamRecruitingProfile {
+	start := 0
+	end := len(teams) - 1
+	idx := util.GenerateIntFromRange(start, end)
+	return teams[idx]
+}
+
+func getCoachAge() int {
+	num := util.GenerateIntFromRange(1, 100)
+
+	if num < 10 {
+		return util.GenerateIntFromRange(32, 36)
+	} else if num < 25 {
+		return util.GenerateIntFromRange(37, 39)
+	} else if num < 55 {
+		return util.GenerateIntFromRange(40, 49)
+	} else if num < 80 {
+		return util.GenerateIntFromRange(50, 59)
+	} else if num < 95 {
+		return util.GenerateIntFromRange(60, 65)
+	} else {
+		return util.GenerateIntFromRange(66, 70)
+	}
+}
+
+func getGoodHire(schoolQuality, adminBehavior string) bool {
+	diceRoll := util.GenerateIntFromRange(1, 20)
+	mod := 0
+	if schoolQuality == "P6" || schoolQuality == "Cinderella" {
+		mod += 1
+	} else if schoolQuality == "Blue Blood" {
+		mod += 3
+	}
+	if adminBehavior == "Aggressive" {
+		mod += 3
+	} else if adminBehavior == "Conservative" {
+		mod -= 3
+	}
+
+	sum := diceRoll + mod
+	goodHire := sum > 12
+	return goodHire
+}
+
+func getStarRange(schoolQuality string, goodHire bool) (int, int) {
+
+	if schoolQuality == "Blue Blood" {
+		if goodHire {
+			return 3, 5
+		} else {
+			return 3, 4
+		}
+	} else if schoolQuality == "Cinderella" {
+		if goodHire {
+			return 2, 4
+		} else {
+			return 2, 3
+		}
+	} else if schoolQuality == "P6" {
+		if goodHire {
+			return 2, 4
+		} else {
+			return 2, 3
+		}
+	} else {
+		if goodHire {
+			return 1, 3
+		} else {
+			return 1, 2
+		}
+	}
+}
+
+func getPointRange(schoolQuality string, goodHire bool) (int, int) {
+	min := 0
+	max := 15
+	if schoolQuality == "Blue Blood" {
+		if goodHire {
+			min = util.GenerateIntFromRange(7, 8)
+			max = util.GenerateIntFromRange(12, 15)
+		} else {
+			min = util.GenerateIntFromRange(6, 7)
+			max = util.GenerateIntFromRange(10, 12)
+		}
+	} else if schoolQuality == "Cinderella" {
+		if goodHire {
+			min = util.GenerateIntFromRange(5, 7)
+			max = util.GenerateIntFromRange(10, 15)
+		} else {
+			min = util.GenerateIntFromRange(4, 6)
+			max = util.GenerateIntFromRange(10, 12)
+		}
+	} else if schoolQuality == "P6" {
+		if goodHire {
+			min = util.GenerateIntFromRange(5, 8)
+			max = util.GenerateIntFromRange(10, 14)
+		} else {
+			min = util.GenerateIntFromRange(4, 6)
+			max = util.GenerateIntFromRange(8, 12)
+		}
+	} else {
+		if goodHire {
+			min = util.GenerateIntFromRange(3, 6)
+			max = util.GenerateIntFromRange(8, 12)
+		} else {
+			min = 4
+			max = util.GenerateIntFromRange(6, 8)
+		}
+	}
+	return min, max
+}
+
+func getStartingPrestige(goodHire bool) int {
+	if goodHire {
+		return util.GenerateIntFromRange(3, 7)
+	}
+	return util.GenerateIntFromRange(1, 5)
 }

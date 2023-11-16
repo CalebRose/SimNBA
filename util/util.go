@@ -977,7 +977,7 @@ func GetAttributeNew(position, attribute string, spec bool) int {
 			attribute == "Ballwork" {
 			mod += GenerateIntFromRange(1, 2)
 		} else if attribute == "Rebounding" || attribute == "Interior Defense" {
-			mod -= GenerateIntFromRange(0, 2)
+			mod -= GenerateIntFromRange(0, 1)
 		}
 	} else if position == "SG" || position == "SF" {
 		if attribute == "Perimeter Defense" {
@@ -987,7 +987,7 @@ func GetAttributeNew(position, attribute string, spec bool) int {
 		if attribute == "Finishing" {
 			mod += GenerateIntFromRange(1, 2)
 		} else if attribute == "Shooting3" {
-			mod -= GenerateIntFromRange(0, 2)
+			mod -= GenerateIntFromRange(0, 1)
 		}
 	} else if position == "C" {
 		if attribute == "Finishing" || attribute == "Interior Defense" ||
@@ -995,7 +995,7 @@ func GetAttributeNew(position, attribute string, spec bool) int {
 			mod += GenerateIntFromRange(1, 2)
 		} else if attribute == "Shooting2" || attribute == "Shooting3" ||
 			attribute == "FreeThrow" || attribute == "Ballwork" {
-			mod -= GenerateIntFromRange(0, 2)
+			mod -= GenerateIntFromRange(0, 1)
 		}
 	}
 	return GenerateIntFromRange(4, 14) + mod
