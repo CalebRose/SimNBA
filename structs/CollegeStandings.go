@@ -4,13 +4,19 @@ import "github.com/jinzhu/gorm"
 
 type CollegeStandings struct {
 	gorm.Model
-	TeamID               uint
-	TeamName             string
-	SeasonID             uint
-	Season               int
-	ConferenceID         uint
-	PostSeasonStatus     string
-	IsConferenceChampion bool
+	TeamID                  uint
+	TeamName                string
+	TeamAbbr                string
+	SeasonID                uint
+	Season                  int
+	ConferenceID            uint
+	ConferenceName          string
+	PostSeasonStatus        string
+	IsConferenceChampion    bool
+	InvitationalParticipant bool
+	Invitational            string
+	InvitationalChampion    bool
+	Rank                    uint
 	BaseStandings
 }
 
@@ -21,6 +27,9 @@ func (cs *CollegeStandings) UpdateCollegeStandings(game Match) {
 		cs.TotalWins += 1
 		if isAway {
 			cs.AwayWins += 1
+			if game.HomeTeamRank > 0 && !game.IsPlayoffGame {
+				cs.RankedWins += 1
+			}
 		} else {
 			cs.HomeWins += 1
 		}
@@ -28,11 +37,32 @@ func (cs *CollegeStandings) UpdateCollegeStandings(game Match) {
 			cs.ConferenceWins += 1
 		}
 		cs.Streak += 1
+		if game.IsInvitational && game.MatchName == "Championship" {
+			cs.InvitationalChampion = true
+		}
+		if game.IsConferenceTournament && game.MatchName == "Championship" {
+			cs.PostSeasonStatus = "Conference Champion"
+		}
+		if game.IsPlayoffGame && game.IsNationalChampionship {
+			cs.PostSeasonStatus = "National Champion"
+		}
 	} else {
 		cs.TotalLosses += 1
 		cs.Streak = 0
+		if isAway && game.HomeTeamRank > 0 && !game.IsPlayoffGame {
+			cs.RankedLosses += 1
+		}
+		if !isAway && game.AwayTeamRank > 0 && !game.IsPlayoffGame {
+			cs.RankedLosses += 1
+		}
 		if game.IsConference {
 			cs.ConferenceLosses += 1
+		}
+		if game.IsPlayoffGame {
+			cs.PostSeasonStatus = game.MatchName
+		}
+		if game.IsNationalChampionship {
+			cs.PostSeasonStatus = "National Champion Runner-Up"
 		}
 	}
 	if isAway {
@@ -44,6 +74,40 @@ func (cs *CollegeStandings) UpdateCollegeStandings(game Match) {
 	}
 }
 
+func (cs *CollegeStandings) RegressCollegeStandings(game Match) {
+	isAway := cs.TeamID == game.AwayTeamID
+	winner := (!isAway && game.HomeTeamWin) || (isAway && game.AwayTeamWin)
+	if winner {
+		cs.TotalWins -= 1
+		if isAway {
+			cs.AwayWins -= 1
+		} else {
+			cs.HomeWins -= 1
+		}
+		if game.IsConference {
+			cs.ConferenceWins -= 1
+		}
+		cs.Streak -= 1
+	} else {
+		cs.TotalLosses -= 1
+		cs.Streak = 0
+		if game.IsConference {
+			cs.ConferenceLosses -= 1
+		}
+	}
+	if isAway {
+		cs.PointsFor -= game.AwayTeamScore
+		cs.PointsAgainst -= game.HomeTeamScore
+	} else {
+		cs.PointsFor -= game.HomeTeamScore
+		cs.PointsAgainst -= game.AwayTeamScore
+	}
+}
+
 func (cs *CollegeStandings) UpdateCoach(coach string) {
 	cs.Coach = coach
+}
+
+func (cs *CollegeStandings) AssignRank(rank int) {
+	cs.Rank = uint(rank)
 }

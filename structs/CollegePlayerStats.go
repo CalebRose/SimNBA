@@ -7,17 +7,21 @@ type CollegePlayerStats struct {
 	CollegePlayerID    uint
 	MatchID            uint
 	SeasonID           uint
+	WeekID             uint
+	Week               uint
+	MatchType          string
+	Year               uint
 	Minutes            int
 	Possessions        int
 	FGM                int
 	FGA                int
-	FGPercent          float32
+	FGPercent          float64
 	ThreePointsMade    int
 	ThreePointAttempts int
-	ThreePointPercent  float32
+	ThreePointPercent  float64
 	FTM                int
 	FTA                int
-	FTPercent          float32
+	FTPercent          float64
 	Points             int
 	TotalRebounds      int
 	OffRebounds        int
@@ -26,4 +30,10 @@ type CollegePlayerStats struct {
 	Steals             int
 	Blocks             int
 	Turnovers          int
+	Fouls              int
+}
+
+func (s *CollegePlayerStats) MapNewProperties(weekID uint, matchType string) {
+	s.WeekID = weekID
+	s.MatchType = matchType
 }

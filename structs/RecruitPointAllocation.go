@@ -4,20 +4,20 @@ import "github.com/jinzhu/gorm"
 
 type RecruitPointAllocation struct {
 	gorm.Model
-	RecruitID          uint
-	TeamProfileID      int
-	RecruitProfileID   int
-	WeekID             int
-	Points             float64
-	RESAffectedPoints  float64
-	AffinityOneApplied bool
-	AffinityTwoApplied bool
-	CaughtCheating     bool
+	RecruitID           uint
+	TeamProfileID       uint
+	RecruitProfileID    uint
+	WeekID              uint
+	Points              float64
+	BonusAffectedPoints float64
+	AffinityOneApplied  bool
+	AffinityTwoApplied  bool
+	CaughtCheating      bool
 }
 
-func (rpa *RecruitPointAllocation) UpdatePointsSpent(points float64, res float64) {
+func (rpa *RecruitPointAllocation) UpdatePointsSpent(points float64, curr float64) {
 	rpa.Points = points
-	rpa.RESAffectedPoints = res
+	rpa.BonusAffectedPoints = curr
 }
 
 func (rpa *RecruitPointAllocation) ApplyAffinityOne() {

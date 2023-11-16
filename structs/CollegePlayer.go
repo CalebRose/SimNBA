@@ -1,8 +1,6 @@
 package structs
 
 import (
-	"math/rand"
-
 	"github.com/jinzhu/gorm"
 )
 
@@ -16,7 +14,16 @@ type CollegePlayer struct {
 	IsRedshirting bool
 	HasGraduated  bool
 	HasProgressed bool
-	Stats         []CollegePlayerStats `gorm:"foreignKey:CollegePlayerID"`
+	WillDeclare   bool
+	Stats         []CollegePlayerStats     `gorm:"foreignKey:CollegePlayerID"`
+	SeasonStats   CollegePlayerSeasonStats `gorm:"foreignKey:CollegePlayerID"`
+}
+
+func (c *CollegePlayer) SetRedshirtingStatus() {
+	c.IsRedshirting = true
+	if c.WillDeclare {
+		c.WillDeclare = false
+	}
 }
 
 func (c *CollegePlayer) UpdateMinutes(newMinutes int) {
@@ -28,85 +35,50 @@ func (c *CollegePlayer) SetID(id uint) {
 }
 
 func (cp *CollegePlayer) Progress(attr CollegePlayerProgressions) {
-	// cp.Age++
-	// cp.Year++
-	cp.Ballwork = attr.Ballwork
-	cp.Shooting2 = attr.Shooting2
-	cp.Shooting3 = attr.Shooting3
-	cp.Finishing = attr.Finishing
-	cp.Defense = attr.Defense
-	cp.Rebounding = attr.Rebounding
-	cp.Overall = attr.Overall
+	cp.Age++
+	cp.Year++
+	cp.Ballwork += attr.Ballwork
+	cp.Shooting2 += attr.Shooting2
+	cp.Shooting3 += attr.Shooting3
+	cp.FreeThrow += attr.FreeThrow
+	cp.Finishing += attr.Finishing
+	cp.InteriorDefense += attr.InteriorDefense
+	cp.PerimeterDefense += attr.PerimeterDefense
+	cp.Rebounding += attr.Rebounding
+	cp.PotentialGrade = attr.PotentialGrade
+	cp.Stamina = attr.Stamina
+	cp.Overall = (int((cp.Shooting2 + cp.Shooting3 + cp.FreeThrow) / 3)) + cp.Finishing + cp.Ballwork + cp.Rebounding + int((cp.InteriorDefense+cp.PerimeterDefense)/2)
 	cp.HasProgressed = true
 }
 
-func (cp *CollegePlayer) GetPotentialGrade() {
-	adjust := rand.Intn(20) - 10
-	if adjust == 0 {
-		test := rand.Intn(2000) - 1000
-
-		if test > 0 {
-			adjust += 1
-		} else if test < 0 {
-			adjust -= 1
-		} else {
-			adjust = 0
-		}
-	}
-	potential := cp.Potential + adjust
-	if potential > 80 {
-		cp.PotentialGrade = "A+"
-	} else if potential > 70 {
-		cp.PotentialGrade = "A"
-	} else if potential > 65 {
-		cp.PotentialGrade = "A-"
-	} else if potential > 60 {
-		cp.PotentialGrade = "B+"
-	} else if potential > 55 {
-		cp.PotentialGrade = "B"
-	} else if potential > 50 {
-		cp.PotentialGrade = "B-"
-	} else if potential > 40 {
-		cp.PotentialGrade = "C+"
-	} else if potential > 30 {
-		cp.PotentialGrade = "C"
-	} else if potential > 25 {
-		cp.PotentialGrade = "C-"
-	} else if potential > 20 {
-		cp.PotentialGrade = "D+"
-	} else if potential > 15 {
-		cp.PotentialGrade = "D"
-	} else if potential > 10 {
-		cp.PotentialGrade = "D-"
-	} else {
-		cp.PotentialGrade = "F"
-	}
-}
-
-func (cp *CollegePlayer) MapFromRecruit(r Recruit, t Team) {
+func (cp *CollegePlayer) MapFromRecruit(r Recruit) {
 	cp.ID = r.ID
-	cp.TeamID = t.ID
-	cp.TeamAbbr = t.Abbr
+	cp.TeamID = r.TeamID
+	cp.TeamAbbr = r.TeamAbbr
 	cp.PlayerID = r.PlayerID
 	cp.State = r.State
 	cp.Country = r.Country
-	cp.Year = r.Age - 18
+	cp.Year = 1
 	cp.IsRedshirt = false
 	cp.IsRedshirting = false
 	cp.HasGraduated = false
-	cp.Age = r.Age + 1
+	cp.HasProgressed = true
+	cp.Age = 19
 	cp.FirstName = r.FirstName
 	cp.LastName = r.LastName
 	cp.Position = r.Position
+	cp.Archetype = r.Archetype
 	cp.Height = r.Height
 	cp.Stars = r.Stars
 	cp.Overall = r.Overall
 	cp.Shooting2 = r.Shooting2
 	cp.Shooting3 = r.Shooting3
+	cp.FreeThrow = r.FreeThrow
 	cp.Finishing = r.Finishing
 	cp.Ballwork = r.Ballwork
 	cp.Rebounding = r.Rebounding
-	cp.Defense = r.Defense
+	cp.InteriorDefense = r.InteriorDefense
+	cp.PerimeterDefense = r.PerimeterDefense
 	cp.Stamina = r.Stamina
 	cp.Potential = r.Potential
 	cp.ProPotentialGrade = r.ProPotentialGrade
@@ -116,6 +88,15 @@ func (cp *CollegePlayer) MapFromRecruit(r Recruit, t Team) {
 	cp.RecruitingBias = r.RecruitingBias
 	cp.WorkEthic = r.WorkEthic
 	cp.AcademicBias = r.AcademicBias
+	cp.SpecBallwork = r.SpecBallwork
+	cp.SpecFinishing = r.SpecFinishing
+	cp.SpecFreeThrow = r.SpecFreeThrow
+	cp.SpecCount = r.SpecCount
+	cp.SpecInteriorDefense = r.SpecInteriorDefense
+	cp.SpecPerimeterDefense = r.SpecPerimeterDefense
+	cp.SpecRebounding = r.SpecRebounding
+	cp.SpecShooting2 = r.SpecShooting2
+	cp.SpecShooting3 = r.SpecShooting3
 }
 
 func (cp *CollegePlayer) GraduatePlayer() {
@@ -139,4 +120,31 @@ func (p *CollegePlayer) FixAge() {
 	if p.IsRedshirt {
 		p.Age++
 	}
+}
+
+func (p *CollegePlayer) SetMinutes(val int) {
+	p.Minutes = val
+}
+
+func (p *CollegePlayer) SetNewAttributes(ft int, id int, pd int) {
+	p.FreeThrow = ft
+	p.InteriorDefense = id
+	p.PerimeterDefense = pd
+}
+
+func (b *CollegePlayer) SetNewPosition(pos string) {
+	b.Position = pos
+}
+
+func (b *CollegePlayer) SetDeclarationStatus() {
+	b.WillDeclare = true
+}
+
+// Sorting Funcs
+type ByPlayerOverall []CollegePlayer
+
+func (cp ByPlayerOverall) Len() int      { return len(cp) }
+func (cp ByPlayerOverall) Swap(i, j int) { cp[i], cp[j] = cp[j], cp[i] }
+func (cp ByPlayerOverall) Less(i, j int) bool {
+	return cp[i].Overall > cp[j].Overall
 }

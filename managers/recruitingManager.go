@@ -4,12 +4,78 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math/rand"
+	"sort"
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
-	"github.com/jinzhu/gorm"
+	"github.com/CalebRose/SimNBA/util"
+	"gorm.io/gorm"
 )
+
+// GetRecruitingProfileForDashboardByTeamID -- Dashboard
+func GetRecruitingProfileForDashboardByTeamID(TeamID string) structs.TeamRecruitingProfile {
+	db := dbprovider.GetInstance().GetDB()
+
+	var profile structs.TeamRecruitingProfile
+
+	err := db.Preload("Recruits.Recruit.RecruitProfiles", func(db *gorm.DB) *gorm.DB {
+		return db.Order("total_points DESC").Where("total_points > 0")
+	}).Where("id = ?", TeamID).Find(&profile).Error
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	return profile
+}
+
+func GetRecruitingProfileForTeamBoardByTeamID(TeamID string) structs.SimTeamBoardResponse {
+	db := dbprovider.GetInstance().GetDB()
+
+	var profile structs.TeamRecruitingProfile
+
+	err := db.Preload("Recruits.Recruit.RecruitProfiles", func(db *gorm.DB) *gorm.DB {
+		return db.Order("total_points DESC")
+	}).Where("id = ?", TeamID).Find(&profile).Error
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	var teamProfileResponse structs.SimTeamBoardResponse
+	var crootProfiles []structs.CrootProfile
+
+	// iterate through player recruit profiles --> get recruit with preload to player profiles
+	for i := 0; i < len(profile.Recruits); i++ {
+		var crootProfile structs.CrootProfile
+		var croot structs.Croot
+
+		croot.Map(profile.Recruits[i].Recruit)
+
+		crootProfile.Map(profile.Recruits[i], croot)
+
+		crootProfiles = append(crootProfiles, crootProfile)
+	}
+
+	sort.Sort(structs.ByCrootProfileTotal(crootProfiles))
+
+	teamProfileResponse.Map(profile, crootProfiles)
+
+	return teamProfileResponse
+}
+
+func GetTeamRecruitingProfilesForRecruitSync() []structs.TeamRecruitingProfile {
+	db := dbprovider.GetInstance().GetDB()
+
+	var profiles []structs.TeamRecruitingProfile
+
+	err := db.Find(&profiles).Error
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	return profiles
+}
 
 func GetRecruitingProfileByTeamId(teamId string) structs.TeamRecruitingProfile {
 	var profile structs.TeamRecruitingProfile
@@ -23,14 +89,40 @@ func GetRecruitingProfileByTeamId(teamId string) structs.TeamRecruitingProfile {
 	return profile
 }
 
-func GetOnlyRecruitingProfileByTeamId(teamId string) structs.TeamRecruitingProfile {
-	var profile structs.TeamRecruitingProfile
+// GetRecruitingProfileByTeamID
+func GetOnlyTeamRecruitingProfileByTeamID(TeamID string) structs.TeamRecruitingProfile {
 	db := dbprovider.GetInstance().GetDB()
-	err := db.Where("id = ?", teamId).Find(&profile).Error
+
+	var profile structs.TeamRecruitingProfile
+
+	err := db.Where("id = ?", TeamID).Find(&profile).Error
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	return profile
+}
+
+func GetOnlyAITeamRecruitingProfiles() []structs.TeamRecruitingProfile {
+	db := dbprovider.GetInstance().GetDB()
+
+	var AIProfiles []structs.TeamRecruitingProfile
+
+	err := db.Where("is_ai = ?", true).Find(&AIProfiles).Error
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return AIProfiles
+}
+
+func GetRecruitByRecruitID(RecruitID string) structs.Recruit {
+	db := dbprovider.GetInstance().GetDB()
+	var recruit structs.Recruit
+
+	db.Where("id = ?", RecruitID).Find(&recruit)
+
+	return recruit
 }
 
 func GetAllRecruitsByProfileID(profileID string) []structs.PlayerRecruitProfile {
@@ -38,15 +130,62 @@ func GetAllRecruitsByProfileID(profileID string) []structs.PlayerRecruitProfile 
 
 	var recruitPoints []structs.PlayerRecruitProfile
 
-	db.Preload("Recruit").Where("profile_id = ?", profileID).Find(&recruitPoints)
+	db.Preload("Recruit", func(db *gorm.DB) *gorm.DB {
+		return db.Order("stars DESC")
+	}).Where("profile_id = ? AND removed_from_board = ?", profileID, false).Order("total_points DESC").Order("").Find(&recruitPoints)
 
 	return recruitPoints
 }
 
-func CreateRecruitingPointsProfileForRecruit(recruitPointsDto structs.CreateRecruitPointsDto) structs.PlayerRecruitProfile {
+func GetAllUnsignedRecruits() []structs.Recruit {
 	db := dbprovider.GetInstance().GetDB()
 
-	recruitProfile := GetRecruitingPointsProfileByPlayerId(strconv.Itoa(recruitPointsDto.PlayerId), strconv.Itoa(recruitPointsDto.ProfileId))
+	var croots []structs.Recruit
+
+	db.Order("stars DESC").Order("overall DESC").Where("is_signed = ?", false).Find(&croots)
+
+	return croots
+}
+
+func GetSignedRecruitsByTeamProfileID(ProfileID string) []structs.Recruit {
+	db := dbprovider.GetInstance().GetDB()
+
+	var croots []structs.Recruit
+
+	err := db.Order("overall DESC").Where("team_id = ? AND is_signed = ?", ProfileID, true).Find(&croots).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return []structs.Recruit{}
+		} else {
+			log.Fatal(err)
+		}
+	}
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return croots
+}
+
+func GetRecruitPlayerProfilesByRecruitId(recruitID string) []structs.PlayerRecruitProfile {
+	db := dbprovider.GetInstance().GetDB()
+
+	var croots []structs.PlayerRecruitProfile
+	err := db.Where("recruit_id = ? AND removed_from_board = false", recruitID).Order("total_points desc").Find(&croots).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return []structs.PlayerRecruitProfile{}
+		} else {
+			log.Fatal(err)
+		}
+	}
+	return croots
+}
+
+func AddRecruitToTeamBoard(recruitProfileDto structs.CreateRecruitProfileDto) structs.PlayerRecruitProfile {
+	db := dbprovider.GetInstance().GetDB()
+
+	recruitProfile := GetPlayerRecruitProfileByPlayerId(strconv.Itoa(recruitProfileDto.PlayerId), strconv.Itoa(recruitProfileDto.ProfileId))
 
 	// If Recruit Already Exists
 	if recruitProfile.RecruitID != 0 && recruitProfile.ProfileID != 0 {
@@ -55,43 +194,43 @@ func CreateRecruitingPointsProfileForRecruit(recruitPointsDto structs.CreateRecr
 		return recruitProfile
 	}
 
-	recruitingPointProfile := structs.PlayerRecruitProfile{
-		SeasonID:               uint(recruitPointsDto.SeasonId),
-		RecruitID:              uint(recruitPointsDto.PlayerId),
-		ProfileID:              uint(recruitPointsDto.ProfileId),
-		TeamAbbreviation:       recruitPointsDto.Team,
-		TotalPoints:            0,
-		CurrentWeeksPoints:     0,
-		Scholarship:            false,
-		InterestLevel:          "None",
-		InterestLevelThreshold: 0,
-		IsSigned:               false,
-		RemovedFromBoard:       false,
+	newProfileForRecruit := structs.PlayerRecruitProfile{
+		SeasonID:           uint(recruitProfileDto.SeasonId),
+		RecruitID:          uint(recruitProfileDto.PlayerId),
+		ProfileID:          uint(recruitProfileDto.ProfileId),
+		TeamAbbreviation:   recruitProfileDto.Team,
+		TotalPoints:        0,
+		CurrentWeeksPoints: 0,
+		Scholarship:        false,
+		InterestLevel:      "None",
+		IsSigned:           false,
+		RemovedFromBoard:   false,
+		HasStateBonus:      recruitProfileDto.HasStateBonus,
+		HasRegionBonus:     recruitProfileDto.HasRegionBonus,
 	}
 
-	db.Create(&recruitingPointProfile)
+	db.Create(&newProfileForRecruit)
 
-	return recruitingPointProfile
+	return newProfileForRecruit
 }
 
-func GetRecruitingPointsProfileByPlayerId(playerId string, profileId string) structs.PlayerRecruitProfile {
+func GetPlayerRecruitProfileByPlayerId(playerId string, profileId string) structs.PlayerRecruitProfile {
 	db := dbprovider.GetInstance().GetDB()
 
 	var recruitingPoints structs.PlayerRecruitProfile
-	err := db.Where("player_id = ? AND profile_id = ?", playerId, profileId).Find(&recruitingPoints).Error
+	err := db.Where("recruit_id = ? AND profile_id = ?", playerId, profileId).Find(&recruitingPoints).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return structs.PlayerRecruitProfile{
-				SeasonID:               0,
-				RecruitID:              0,
-				ProfileID:              0,
-				TotalPoints:            0,
-				CurrentWeeksPoints:     0,
-				Scholarship:            false,
-				InterestLevel:          "None",
-				InterestLevelThreshold: 0,
-				IsSigned:               false,
-				RemovedFromBoard:       false,
+				SeasonID:           0,
+				RecruitID:          0,
+				ProfileID:          0,
+				TotalPoints:        0,
+				CurrentWeeksPoints: 0,
+				Scholarship:        false,
+				InterestLevel:      "None",
+				IsSigned:           false,
+				RemovedFromBoard:   false,
 			}
 		} else {
 			log.Fatal(err)
@@ -99,6 +238,29 @@ func GetRecruitingPointsProfileByPlayerId(playerId string, profileId string) str
 
 	}
 	return recruitingPoints
+}
+
+func GetRecruitingProfileForRecruitSync() []structs.TeamRecruitingProfile {
+	db := dbprovider.GetInstance().GetDB()
+
+	var profiles []structs.TeamRecruitingProfile
+
+	err := db.Find(&profiles).Error
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	return profiles
+}
+
+func GetRecruitWithPlayerProfilesByRecruitID(recruitID string) structs.Recruit {
+	db := dbprovider.GetInstance().GetDB()
+
+	var croot structs.Recruit
+
+	db.Preload("PlayerRecruitProfiles").Where("id = ?", recruitID).Find(&croot)
+
+	return croot
 }
 
 func GetRecruitingPointsByTeamId(id string) []structs.PlayerRecruitProfile {
@@ -109,8 +271,8 @@ func GetRecruitingPointsByTeamId(id string) []structs.PlayerRecruitProfile {
 	return recruits
 }
 
-func GetRecruitFromRecruitsList(id int, recruits []structs.PlayerRecruitProfile) structs.PlayerRecruitProfile {
-	var recruit structs.PlayerRecruitProfile
+func GetRecruitFromRecruitsList(id int, recruits []structs.CrootProfile) structs.CrootProfile {
+	var recruit structs.CrootProfile
 
 	for i := 0; i < len(recruits); i++ {
 		if recruits[i].RecruitID == uint(id) {
@@ -127,7 +289,7 @@ func AllocateRecruitingPointsForRecruit(updateRecruitPointsDto structs.UpdateRec
 
 	recruitingProfile := GetRecruitingProfileByTeamId(strconv.Itoa(updateRecruitPointsDto.ProfileId))
 
-	recruitingPointsProfile := GetRecruitingPointsProfileByPlayerId(
+	recruitingPointsProfile := GetPlayerRecruitProfileByPlayerId(
 		strconv.Itoa(updateRecruitPointsDto.PlayerId),
 		strconv.Itoa(updateRecruitPointsDto.ProfileId),
 	)
@@ -148,28 +310,28 @@ func AllocateRecruitingPointsForRecruit(updateRecruitPointsDto structs.UpdateRec
 func SendScholarshipToRecruit(updateRecruitPointsDto structs.UpdateRecruitPointsDto) (structs.PlayerRecruitProfile, structs.TeamRecruitingProfile) {
 	db := dbprovider.GetInstance().GetDB()
 
-	recruitingProfile := GetRecruitingProfileByTeamId(strconv.Itoa(updateRecruitPointsDto.ProfileId))
+	recruitingProfile := GetOnlyTeamRecruitingProfileByTeamID(strconv.Itoa(updateRecruitPointsDto.ProfileId))
 
 	if recruitingProfile.ScholarshipsAvailable == 0 {
 		log.Fatalf("\nTeamId: " + strconv.Itoa(updateRecruitPointsDto.ProfileId) + " does not have any availabe scholarships")
 	}
 
-	recruitingPointsProfile := GetRecruitingPointsProfileByPlayerId(
+	crootProfile := GetPlayerRecruitProfileByPlayerId(
 		strconv.Itoa(updateRecruitPointsDto.PlayerId),
 		strconv.Itoa(updateRecruitPointsDto.ProfileId),
 	)
 
-	if recruitingPointsProfile.Scholarship {
-		log.Fatalf("\nRecruit " + strconv.Itoa(int(recruitingPointsProfile.RecruitID)) + "already has a scholarship")
+	crootProfile.ToggleScholarship(updateRecruitPointsDto.RewardScholarship, updateRecruitPointsDto.RevokeScholarship)
+	if crootProfile.Scholarship {
+		recruitingProfile.SubtractScholarshipsAvailable()
+	} else {
+		recruitingProfile.ReallocateScholarship()
 	}
 
-	recruitingPointsProfile.AllocateScholarship()
-	recruitingProfile.SubtractScholarshipsAvailable()
-
-	db.Save(&recruitingPointsProfile)
+	db.Save(&crootProfile)
 	db.Save(&recruitingProfile)
 
-	return recruitingPointsProfile, recruitingProfile
+	return crootProfile, recruitingProfile
 }
 
 func RevokeScholarshipFromRecruit(updateRecruitPointsDto structs.UpdateRecruitPointsDto) (structs.PlayerRecruitProfile, structs.TeamRecruitingProfile) {
@@ -177,7 +339,7 @@ func RevokeScholarshipFromRecruit(updateRecruitPointsDto structs.UpdateRecruitPo
 
 	recruitingProfile := GetRecruitingProfileByTeamId(strconv.Itoa(updateRecruitPointsDto.ProfileId))
 
-	recruitingPointsProfile := GetRecruitingPointsProfileByPlayerId(
+	recruitingPointsProfile := GetPlayerRecruitProfileByPlayerId(
 		strconv.Itoa(updateRecruitPointsDto.PlayerId),
 		strconv.Itoa(updateRecruitPointsDto.ProfileId),
 	)
@@ -199,7 +361,7 @@ func RevokeScholarshipFromRecruit(updateRecruitPointsDto structs.UpdateRecruitPo
 func RemoveRecruitFromBoard(updateRecruitPointsDto structs.UpdateRecruitPointsDto) structs.PlayerRecruitProfile {
 	db := dbprovider.GetInstance().GetDB()
 
-	recruitingPointsProfile := GetRecruitingPointsProfileByPlayerId(
+	recruitingPointsProfile := GetPlayerRecruitProfileByPlayerId(
 		strconv.Itoa(updateRecruitPointsDto.PlayerId),
 		strconv.Itoa(updateRecruitPointsDto.ProfileId),
 	)
@@ -219,7 +381,7 @@ func UpdateRecruitingProfile(updateRecruitingBoardDto structs.UpdateRecruitingBo
 
 	var teamId = strconv.Itoa(updateRecruitingBoardDto.TeamID)
 
-	var profile = GetOnlyRecruitingProfileByTeamId(teamId)
+	var profile = GetOnlyTeamRecruitingProfileByTeamID(teamId)
 
 	var recruitingPoints = GetRecruitingPointsByTeamId(teamId)
 
@@ -230,8 +392,7 @@ func UpdateRecruitingProfile(updateRecruitingBoardDto structs.UpdateRecruitingBo
 	for i := 0; i < len(recruitingPoints); i++ {
 		updatedRecruit := GetRecruitFromRecruitsList(int(recruitingPoints[i].RecruitID), updatedRecruits)
 
-		if updatedRecruit.CurrentWeeksPoints > 0 &&
-			recruitingPoints[i].CurrentWeeksPoints != updatedRecruit.CurrentWeeksPoints {
+		if recruitingPoints[i].CurrentWeeksPoints != updatedRecruit.CurrentWeeksPoints {
 
 			// Allocate Points to Profile
 			currentPoints += updatedRecruit.CurrentWeeksPoints
@@ -240,10 +401,13 @@ func UpdateRecruitingProfile(updateRecruitingBoardDto structs.UpdateRecruitingBo
 			if profile.SpentPoints <= profile.WeeklyPoints {
 				recruitingPoints[i].AllocatePoints(updatedRecruit.CurrentWeeksPoints)
 				fmt.Println("Saving recruit " + strconv.Itoa(int(recruitingPoints[i].RecruitID)))
-				db.Save(&recruitingPoints[i])
 			} else {
 				panic("Error: Allocated more points for Profile " + strconv.Itoa(int(profile.TeamID)) + " than what is allowed.")
 			}
+			db.Save(&recruitingPoints[i])
+		} else {
+			currentPoints += recruitingPoints[i].CurrentWeeksPoints
+			profile.AllocateSpentPoints(currentPoints)
 		}
 	}
 
@@ -251,4 +415,82 @@ func UpdateRecruitingProfile(updateRecruitingBoardDto structs.UpdateRecruitingBo
 	db.Save(&profile)
 
 	return profile
+}
+
+func CreateRecruit(dto structs.CreateRecruitDTO) {
+	db := dbprovider.GetInstance().GetDB()
+
+	var lastPlayerRecord structs.GlobalPlayer
+
+	err := db.Last(&lastPlayerRecord).Error
+	if err != nil {
+		log.Fatalln("Could not grab last player record from players table...")
+	}
+
+	newID := lastPlayerRecord.ID + 1
+	threshold := GetRecruitModifier(dto.Stars)
+	expectations := util.GetPlaytimeExpectations(dto.Stars, 1, 0)
+	rankMod := 0.95 + rand.Float64()*(1.05-0.95)
+
+	collegeRecruit := &structs.Recruit{
+		PlayerID:        newID,
+		RecruitModifier: threshold,
+		TopRankModifier: rankMod,
+	}
+	collegeRecruit.Map(dto, newID, expectations)
+
+	playerRecord := structs.GlobalPlayer{
+		RecruitID:       newID,
+		CollegePlayerID: newID,
+		NBAPlayerID:     newID,
+	}
+	specs := util.GetSpecialties(collegeRecruit.Position)
+	for _, spec := range specs {
+		collegeRecruit.ToggleSpecialties(spec)
+	}
+
+	playerRecord.SetID(newID)
+	// Create Player Record
+	db.Create(&playerRecord)
+	// Save Recruit
+	db.Create(&collegeRecruit)
+}
+
+func GetRecruitingClassByTeamID(id string) []structs.Croot {
+	db := dbprovider.GetInstance().GetDB()
+
+	var class []structs.Recruit
+	var recruitingClass []structs.Croot
+
+	db.Where("is_signed = true AND team_id = ?", id).Find(&class)
+
+	for i := 0; i < len(class); i++ {
+		var croot structs.Croot
+
+		croot.Map(class[i])
+
+		recruitingClass = append(recruitingClass, croot)
+	}
+
+	return recruitingClass
+}
+
+func DetermineRecruitingClassSize() {
+	db := dbprovider.GetInstance().GetDB()
+	recruitingProfiles := GetRecruitingProfileForRecruitSync()
+	limit := 13
+	for _, rp := range recruitingProfiles {
+		existingRoster := GetCollegePlayersByTeamId(strconv.Itoa(int(rp.ID)))
+		count := 0
+		for _, p := range existingRoster {
+			if p.WillDeclare {
+				count++
+			}
+		}
+		nonLeaving := limit - count
+		classSize := limit - nonLeaving
+		rp.SetClassSize(classSize)
+
+		db.Save(&rp)
+	}
 }

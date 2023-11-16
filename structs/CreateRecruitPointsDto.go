@@ -1,9 +1,11 @@
 package structs
 
-// CreateRecruitPointsDto - Data Transfer Object from UI to API
-type CreateRecruitPointsDto struct {
-	ProfileId int
-	PlayerId  int
-	SeasonId  int
-	Team      string
+// CreateRecruitProfileDto - Data Transfer Object from UI to API
+type CreateRecruitProfileDto struct {
+	ProfileId      int
+	PlayerId       int
+	SeasonId       int
+	HasStateBonus  bool
+	HasRegionBonus bool
+	Team           string
 }
