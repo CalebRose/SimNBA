@@ -123,15 +123,17 @@ func GetCollegeTeamDataByID(id string) structs.CollegeTeamResponseData {
 	matches := GetMatchesByTeamIdAndSeasonId(id, seasonId)
 	matchList := []structs.Match{}
 	for _, m := range matches {
-		if m.Week < uint(ts.CollegeWeek) ||
-			(m.MatchOfWeek == "A" && !ts.GamesARan) ||
-			(m.MatchOfWeek == "B" && !ts.GamesBRan) ||
-			(m.MatchOfWeek == "C" && !ts.GamesCRan) ||
-			(m.MatchOfWeek == "D" && !ts.GamesDRan) {
+		if m.Week < uint(ts.CollegeWeek) {
 			continue
 		}
 		if m.Week > uint(ts.CollegeWeek) {
 			break
+		}
+		if (m.MatchOfWeek == "A" && !ts.GamesARan) ||
+			(m.MatchOfWeek == "B" && !ts.GamesBRan) ||
+			(m.MatchOfWeek == "C" && !ts.GamesCRan) ||
+			(m.MatchOfWeek == "D" && !ts.GamesDRan) {
+			m.HideScore()
 		}
 		matchList = append(matchList, m)
 	}

@@ -47,6 +47,13 @@ type Match struct {
 	GameComplete           bool
 }
 
+func (m *Match) HideScore() {
+	m.HomeTeamScore = 0
+	m.AwayTeamScore = 0
+	m.HomeTeamWin = false
+	m.AwayTeamWin = false
+}
+
 func (m *Match) UpdateScore(homeTeamScore int, awayTeamScore int) {
 	m.HomeTeamScore = homeTeamScore
 	m.AwayTeamScore = awayTeamScore
