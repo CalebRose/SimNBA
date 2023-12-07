@@ -16,9 +16,10 @@ type TeamRecruitingProfile struct {
 	TotalCommitments      int
 	RecruitClassSize      int
 	IsAI                  bool
-	AIBehavior            string
-	AIQuality             string
+	AIBehavior            string // Aggressive, Normal, Conservative -- will be for determining how likely they'll generate a good coach
+	AIQuality             string // Blue Blood, P6, Cinderella, Mid-Major
 	AIValue               string // Star, Talent, Potential
+	AIPrestige            string // A new column which will be used to determine how likely a school/boosters will fire a coach pending on how they do. "Very High", "High", "Average", "Low", "Very Low"
 	AIAttribute1          string
 	AIAttribute2          string
 	ESPNScore             float64

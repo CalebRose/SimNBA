@@ -26,6 +26,7 @@ type Team struct {
 	DefenseGrade      string
 	IsNBA             bool
 	IsActive          bool
+	IsUserCoached     bool
 	Gameplan          []Gameplan            `gorm:"foreignKey:TeamID"`
 	TeamStats         []TeamStats           `gorm:"foreignKey:TeamID"`
 	TeamSeasonStats   TeamSeasonStats       `gorm:"foreignKey:TeamID"`
@@ -39,10 +40,15 @@ func (t *Team) GetTeam(w http.ResponseWriter, r *http.Request) {
 
 func (t *Team) AssignUserToTeam(username string) {
 	t.Coach = username
+
 }
 
 func (t *Team) RemoveUser() {
 	t.Coach = ""
+}
+
+func (t *Team) ToggleUserCoach() {
+	t.IsUserCoached = !t.IsUserCoached
 }
 
 func (t *Team) AssignRatings(off string, def string, ovr string) {

@@ -23,3 +23,13 @@ func GetNBAUserByUsername(username string) structs.NBAUser {
 
 	return user
 }
+
+func GetAllCollegeCoaches() []structs.CollegeCoach {
+	db := dbprovider.GetInstance().GetDB()
+
+	coaches := []structs.CollegeCoach{}
+
+	db.Find(&coaches)
+
+	return coaches
+}
