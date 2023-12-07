@@ -46,7 +46,7 @@ func GetAllNBAConferenceStandingsBySeasonID(seasonID string) []structs.NBAStandi
 
 	var standings []structs.NBAStandings
 
-	db.Where("season_id = ?", seasonID).Order("conference_id asc").Order("conference_losses asc").Order("conference_wins desc").
+	db.Where("season_id = ?", seasonID).Order("conference_id asc").
 		Order("total_losses asc").Order("total_wins desc").Find(&standings)
 
 	return standings
