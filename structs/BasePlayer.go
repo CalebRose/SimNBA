@@ -52,6 +52,8 @@ type BasePlayer struct {
 	RecruitingBias       string
 	WorkEthic            string
 	AcademicBias         string
+	PreviousTeamID       uint
+	PreviousTeam         string
 }
 
 func (b *BasePlayer) ToggleSpecialties(str string) {

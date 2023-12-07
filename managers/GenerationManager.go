@@ -1661,10 +1661,10 @@ func getPointRange(schoolQuality string, goodHire bool) (int, int) {
 	if schoolQuality == "Blue Blood" {
 		if goodHire {
 			min = util.GenerateIntFromRange(7, 8)
-			max = util.GenerateIntFromRange(12, 15)
+			max = util.GenerateIntFromRange(12, 16)
 		} else {
 			min = util.GenerateIntFromRange(6, 7)
-			max = util.GenerateIntFromRange(10, 12)
+			max = util.GenerateIntFromRange(10, 13)
 		}
 	} else if schoolQuality == "Cinderella" {
 		if goodHire {

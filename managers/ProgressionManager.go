@@ -26,6 +26,7 @@ func ProgressionMain() {
 		// roster := GetAllCollegePlayersWithStatsByTeamID(teamID, SeasonID)
 		roster := GetCollegePlayersByTeamIdForProgression(teamID)
 		croots := GetSignedRecruitsByTeamProfileID(teamID)
+		recruitingProfile := GetOnlyTeamRecruitingProfileByTeamID(teamID)
 
 		for _, player := range roster {
 			if player.HasProgressed {
@@ -36,20 +37,24 @@ func ProgressionMain() {
 				// }
 				continue
 			}
-			player = ProgressCollegePlayer(player, false)
+
+			minutesPerGame := getMinutesPlayed(player)
+
+			willTransfer := determineTransferStatus(minutesPerGame, player)
+
+			status := determineStatusLevel(recruitingProfile, player)
+			isSenior := (player.Year == 4 && !player.IsRedshirt) || (player.Year == 5 && player.IsRedshirt)
+			player = ProgressCollegePlayer(player, minutesPerGame, false)
 			if player.IsRedshirting {
 				player.SetRedshirtStatus()
 			}
 
 			player.SetExpectations(util.GetPlaytimeExpectations(player.Stars, player.Year, player.Overall))
 
-			if player.WillDeclare {
+			if player.WillDeclare && isSenior {
 				player.GraduatePlayer()
 
 				message := player.Position + " " + player.FirstName + " " + player.LastName + " has graduated from " + player.TeamAbbr + "!"
-				if (player.Year < 5 && player.IsRedshirt) || (player.Year < 4 && !player.IsRedshirt) {
-					message = player.Position + " " + player.FirstName + " " + player.LastName + " is declaring early from " + player.TeamAbbr + ", and will be eligible to draft in SimNBA!"
-				}
 
 				CreateNewsLog("CBB", message, "Graduation", int(player.TeamID), ts)
 
@@ -78,6 +83,18 @@ func ProgressionMain() {
 					log.Panicln("Could not delete old college player record.")
 				}
 			} else {
+				message := ""
+				if player.WillDeclare {
+					message = player.Position + " " + player.FirstName + " " + player.LastName + " plans to declare early from " + player.TeamAbbr + " for the upcoming SimNBA Draft!"
+					player.SetLeavingStatus(status)
+					CreateNewsLog("CBB", message, "Graduation", int(player.TeamID), ts)
+				} else if willTransfer {
+					player.SetTransferStatus()
+					player.SetLeavingStatus(status)
+					message = player.Position + " " + player.FirstName + " " + player.LastName + " intends to transfer from " + player.TeamAbbr + "."
+					CreateNewsLog("CBB", message, "Transfer Portal", int(player.TeamID), ts)
+				}
+
 				err := db.Save(&player).Error
 				if err != nil {
 					log.Panicln("Could not save player record")
@@ -261,18 +278,8 @@ func ProgressNBAPlayer(np structs.NBAPlayer) structs.NBAPlayer {
 	return np
 }
 
-func ProgressCollegePlayer(cp structs.CollegePlayer, isGeneration bool) structs.CollegePlayer {
-	stats := cp.Stats
-	totalMinutes := 0
-
-	for _, stat := range stats {
-		totalMinutes += stat.Minutes
-	}
-
-	var MinutesPerGame int = 0
-	if len(stats) > 0 {
-		MinutesPerGame = totalMinutes / len(stats)
-	}
+func ProgressCollegePlayer(cp structs.CollegePlayer, mpg int, isGeneration bool) structs.CollegePlayer {
+	var MinutesPerGame int = mpg
 
 	if isGeneration {
 		MinutesPerGame = 100
@@ -563,4 +570,53 @@ func GetPointLimit(pot int) int {
 		roof = 10
 	}
 	return util.GenerateIntFromRange(int(roundUp), roof)
+}
+
+func getMinutesPlayed(cp structs.CollegePlayer) int {
+	stats := cp.Stats
+	totalMinutes := 0
+
+	for _, stat := range stats {
+		totalMinutes += stat.Minutes
+	}
+
+	var MinutesPerGame int = 0
+	if len(stats) > 0 {
+		MinutesPerGame = totalMinutes / len(stats)
+	}
+
+	return MinutesPerGame
+}
+
+func determineTransferStatus(mpg int, cp structs.CollegePlayer) bool {
+	if cp.WillDeclare || cp.IsRedshirting {
+		return false
+	}
+
+	return mpg < cp.PlaytimeExpectations
+}
+
+func determineStatusLevel(rtp structs.TeamRecruitingProfile, cp structs.CollegePlayer) string {
+	if cp.WillDeclare {
+		return "High"
+	}
+
+	ovrRate := cp.Overall / 10
+	mod := 0
+	if rtp.AIQuality == "Blue Blood" {
+		mod += 3
+	} else if rtp.AIQuality == "P6" {
+		mod += 2
+	} else {
+		mod += 1
+	}
+
+	sum := ovrRate + mod
+
+	if sum > 7 {
+		return "High"
+	} else if sum > 3 {
+		return "Medium"
+	}
+	return "Low"
 }
