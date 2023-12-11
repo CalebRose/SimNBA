@@ -90,6 +90,9 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 
 	for i := 0; i < len(games); i++ {
 		game := games[i]
+		if !game.GameComplete {
+			continue
+		}
 		HomeID := game.HomeTeamID
 		AwayID := game.AwayTeamID
 
@@ -158,6 +161,9 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 	nbaGames := GetNBATeamMatchesByMatchType(strconv.Itoa(int(ts.NBAWeekID)), strconv.Itoa(int(ts.SeasonID)), MatchType)
 
 	for _, game := range nbaGames {
+		if !game.GameComplete {
+			continue
+		}
 		HomeID := game.HomeTeamID
 		AwayID := game.AwayTeamID
 
