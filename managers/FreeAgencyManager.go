@@ -732,6 +732,7 @@ func faSyncGLeaguePlayers(gLeaguePlayers []structs.NBAPlayer, ts structs.Timesta
 					db.Save(&contract)
 					message := g.Position + " " + g.FirstName + " " + g.LastName + " was picked up from the GLeague by " + WinningOffer.Team
 					CreateNewsLog("NBA", message, "Free Agency", int(WinningOffer.TeamID), ts)
+					db.Save(&g)
 				} else if ts.IsNBAOffseason {
 					g.WaitUntilStartOfSeason()
 					db.Save(&g)

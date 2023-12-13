@@ -141,6 +141,8 @@ func (np *NBAPlayer) RemoveFromTradeBlock() {
 }
 
 func (np *NBAPlayer) WaivePlayer() {
+	np.PreviousTeamID = np.TeamID
+	np.PreviousTeam = np.TeamAbbr
 	np.TeamID = 0
 	np.TeamAbbr = ""
 	np.IsWaived = true
