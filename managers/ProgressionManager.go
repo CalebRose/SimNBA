@@ -136,7 +136,7 @@ func ProgressNBAPlayers() {
 
 		for _, player := range roster {
 			playerID := strconv.Itoa(int(player.ID))
-			player = ProgressNBAPlayer(player)
+			player = ProgressNBAPlayer(player, false)
 
 			contract := GetNBAContractsByPlayerID(playerID)
 			// Retiring Logic
@@ -167,7 +167,7 @@ func ProgressNBAPlayers() {
 	}
 }
 
-func ProgressNBAPlayer(np structs.NBAPlayer) structs.NBAPlayer {
+func ProgressNBAPlayer(np structs.NBAPlayer, isISLGen bool) structs.NBAPlayer {
 	stats := np.Stats
 	totalMinutes := 0
 
@@ -238,23 +238,25 @@ func ProgressNBAPlayer(np structs.NBAPlayer) structs.NBAPlayer {
 		attributeList[i], attributeList[j] = attributeList[j], attributeList[i]
 	})
 
+	developingPlayer := np.IsGLeague || isISLGen
+
 	for _, attr := range attributeList {
 		if attr == "Shooting2" {
-			shooting2 = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecShooting2, np.IsGLeague)
+			shooting2 = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecShooting2, developingPlayer)
 		} else if attr == "Shooting3" {
-			shooting3 = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecShooting3, np.IsGLeague)
+			shooting3 = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecShooting3, developingPlayer)
 		} else if attr == "FreeThrow" {
-			freeThrow = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecFreeThrow, np.IsGLeague)
+			freeThrow = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecFreeThrow, developingPlayer)
 		} else if attr == "Finishing" {
-			finishing = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecFinishing, np.IsGLeague)
+			finishing = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecFinishing, developingPlayer)
 		} else if attr == "Ballwork" {
-			ballwork = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecBallwork, np.IsGLeague)
+			ballwork = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecBallwork, developingPlayer)
 		} else if attr == "Rebounding" {
-			rebounding = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecRebounding, np.IsGLeague)
+			rebounding = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecRebounding, developingPlayer)
 		} else if attr == "InteriorDefense" {
-			interiorDefense = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecInteriorDefense, np.IsGLeague)
+			interiorDefense = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecInteriorDefense, developingPlayer)
 		} else if attr == "PerimeterDefense" {
-			perimeterDefense = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecPerimeterDefense, np.IsGLeague)
+			perimeterDefense = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecPerimeterDefense, developingPlayer)
 		}
 	}
 
@@ -493,7 +495,7 @@ func PlayerProgression(progression int, ageDifference int, mpg int, mr int, spec
 
 func ProgressStamina(stamina int, ageDifference int) int {
 	min := -1
-	max := 2
+	max := 5
 	if ageDifference > 0 && ageDifference < 3 {
 		min = -2
 		max = 1

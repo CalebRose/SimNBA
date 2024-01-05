@@ -298,17 +298,82 @@ func GenerateInternationalPlayers() {
 	// Get all ISL teams
 	allProfessionalTeams := GetAllActiveNBATeams()
 
-	requiredPlayers := 2
-
 	for _, team := range allProfessionalTeams {
 		// If an NBA team, skip
 		if team.LeagueID == 1 {
 			continue
 		}
 		count := 0
+		teamID := strconv.Itoa(int(team.ID))
+		currentPlayers := GetAllNBAPlayersByTeamID(teamID)
+		requiredPlayers := 13 - len(currentPlayers)
+
+		teamNeedsMap := make(map[string]bool)
+		positionCount := make(map[string]int)
+
+		if _, ok := teamNeedsMap["PG"]; !ok {
+			teamNeedsMap["PG"] = true
+		}
+		if _, ok := teamNeedsMap["SG"]; !ok {
+			teamNeedsMap["SG"] = true
+		}
+		if _, ok := teamNeedsMap["SF"]; !ok {
+			teamNeedsMap["SF"] = true
+		}
+		if _, ok := teamNeedsMap["PF"]; !ok {
+			teamNeedsMap["PF"] = true
+		}
+		if _, ok := teamNeedsMap["C"]; !ok {
+			teamNeedsMap["C"] = true
+		}
+
+		if _, ok := positionCount["PG"]; !ok {
+			positionCount["PG"] = 0
+		}
+		if _, ok := positionCount["SG"]; !ok {
+			positionCount["SG"] = 0
+		}
+		if _, ok := positionCount["SF"]; !ok {
+			positionCount["SF"] = 0
+		}
+		if _, ok := positionCount["PF"]; !ok {
+			positionCount["PF"] = 0
+		}
+		if _, ok := positionCount["C"]; !ok {
+			positionCount["C"] = 0
+		}
+
+		for _, r := range currentPlayers {
+			positionCount[r.Position] += 1
+		}
+
+		if positionCount["PG"] >= 3 {
+			teamNeedsMap["PG"] = false
+		} else if positionCount["SG"] >= 4 {
+			teamNeedsMap["SG"] = false
+		} else if positionCount["SF"] >= 4 {
+			teamNeedsMap["SF"] = false
+		} else if positionCount["PF"] >= 4 {
+			teamNeedsMap["PF"] = false
+		} else if positionCount["C"] >= 3 {
+			teamNeedsMap["C"] = false
+		}
+
+		positionNeedList := []string{}
+
+		for _, pos := range positionList {
+			if (pos == "PG" || pos == "C") && positionCount[pos] >= 3 {
+				continue
+			}
+			if (pos == "SG" || pos == "SF" || pos == "PF") && positionCount[pos] >= 4 {
+				continue
+			}
+			positionNeedList = append(positionNeedList, pos)
+		}
+
 		// Generate two international players from the team's host country
 		for count < requiredPlayers {
-			pickedPosition := util.PickFromStringList(positionList)
+			pickedPosition := util.PickFromStringList(positionNeedList)
 			pickedEthnicity := pickISLEthnicity(team.Country)
 			year := 1
 			player := createInternationalPlayer(team.ID, team.Team, team.Country, pickedEthnicity, pickedPosition, year, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], newID)
@@ -786,6 +851,14 @@ func createInternationalPlayer(teamID uint, team, country, ethnicity, position s
 
 	player.SetID(id)
 	player.SetAttributes(shooting2, shooting3, finishing, freeThrow, ballwork, rebounding, interiorDefense, perimeterDefense, overall, stars, expectations)
+
+	if age > 18 && age < 23 {
+		diff := 22 - age
+
+		for i := 0; i < diff; i++ {
+			player = ProgressNBAPlayer(player, true)
+		}
+	}
 
 	return player
 }
