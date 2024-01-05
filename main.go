@@ -10,6 +10,7 @@ import (
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/gorilla/mux"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/joho/godotenv"
 	"github.com/nelkinda/health-go"
 	"github.com/nelkinda/health-go/checks/sendgrid"
 	"github.com/robfig/cron/v3"
@@ -26,7 +27,6 @@ func InitialMigration() {
 
 func handleRequests() {
 	myRouter := mux.NewRouter().StrictSlash(true)
-	myRouter.HandleFunc("/", helloWorld).Methods("GET")
 	// Health Controls
 	HealthCheck := health.New(
 		health.Health{
@@ -259,10 +259,12 @@ func handleRequests() {
 	log.Fatal(http.ListenAndServe(":8081", handler))
 }
 
-func helloWorld(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello World.")
+func loadEnvs() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		fmt.Println("CANNOT LOAD ENV VARIABLES")
+	}
 }
-
 func handleCron() {
 	go func() {
 		c := cron.New()
@@ -277,6 +279,7 @@ func handleCron() {
 }
 
 func main() {
+	loadEnvs()
 	InitialMigration()
 	fmt.Println("Database initialized.")
 
