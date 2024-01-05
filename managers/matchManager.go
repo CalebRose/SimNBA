@@ -11,6 +11,13 @@ import (
 
 func GetMatchesForTimeslot() structs.MatchStateResponse {
 	ts := GetTimestamp()
+	if !ts.RunCron {
+		return structs.MatchStateResponse{
+			Matches:   []structs.MatchResponse{},
+			MatchType: "",
+			Week:      0,
+		}
+	}
 	seasonID := strconv.Itoa(int(ts.SeasonID))
 	weekID := strconv.Itoa(int(ts.CollegeWeekID))
 	nbaWeekID := strconv.Itoa(int(ts.NBAWeekID))

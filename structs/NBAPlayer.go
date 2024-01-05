@@ -15,8 +15,6 @@ type NBAPlayer struct {
 	DraftPick           uint
 	DraftedTeamID       uint
 	DraftedTeamAbbr     string
-	PreviousTeamID      uint
-	PreviousTeam        string
 	PrimeAge            uint
 	IsNBA               bool
 	MaxRequested        bool
@@ -71,6 +69,7 @@ func (n *NBAPlayer) BecomeFreeAgent() {
 	n.IsGLeague = false
 	n.IsTwoWay = false
 	n.IsAcceptingOffers = true
+	n.ResetMinutes()
 }
 
 func (n *NBAPlayer) SignWithTeam(teamID uint, team string) {
@@ -87,6 +86,7 @@ func (n *NBAPlayer) SignWithTeam(teamID uint, team string) {
 	} else {
 		n.IsInternational = true
 	}
+	n.ResetMinutes()
 }
 
 func (n *NBAPlayer) Progress(p NBAPlayerProgressions) {
@@ -141,6 +141,8 @@ func (np *NBAPlayer) RemoveFromTradeBlock() {
 }
 
 func (np *NBAPlayer) WaivePlayer() {
+	np.PreviousTeamID = np.TeamID
+	np.PreviousTeam = np.TeamAbbr
 	np.TeamID = 0
 	np.TeamAbbr = ""
 	np.IsWaived = true
@@ -148,6 +150,7 @@ func (np *NBAPlayer) WaivePlayer() {
 	np.IsGLeague = false
 	np.IsTwoWay = false
 	np.IsAcceptingOffers = true
+	np.ResetMinutes()
 }
 
 func (np *NBAPlayer) ConvertWaivedPlayerToFA() {
@@ -167,6 +170,10 @@ func (np *NBAPlayer) TradePlayer(id uint, team string) {
 	np.TeamID = id
 	np.TeamAbbr = team
 	np.IsOnTradeBlock = false
+	np.ResetMinutes()
+}
+
+func (np *NBAPlayer) ResetMinutes() {
 	np.P1Minutes = 0
 	np.P2Minutes = 0
 	np.P3Minutes = 0

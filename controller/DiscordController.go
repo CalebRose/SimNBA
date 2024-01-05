@@ -65,8 +65,8 @@ func GetCollegeTeamData(w http.ResponseWriter, r *http.Request) {
 		panic("User did not provide enough information for call")
 	}
 
-	player := managers.GetCollegeTeamDataByID(teamId)
-	json.NewEncoder(w).Encode(player)
+	team := managers.GetCollegeTeamDataByID(teamId)
+	json.NewEncoder(w).Encode(team)
 }
 
 // NBA Team Data

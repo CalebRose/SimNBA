@@ -129,6 +129,12 @@ func GetCollegeTeamDataByID(id string) structs.CollegeTeamResponseData {
 		if m.Week > uint(ts.CollegeWeek) {
 			break
 		}
+		if (m.MatchOfWeek == "A" && !ts.GamesARan) ||
+			(m.MatchOfWeek == "B" && !ts.GamesBRan) ||
+			(m.MatchOfWeek == "C" && !ts.GamesCRan) ||
+			(m.MatchOfWeek == "D" && !ts.GamesDRan) {
+			m.HideScore()
+		}
 		matchList = append(matchList, m)
 	}
 

@@ -15,6 +15,8 @@ type CollegePlayer struct {
 	HasGraduated  bool
 	HasProgressed bool
 	WillDeclare   bool
+	WillTransfer  bool
+	LeavingStatus string
 	Stats         []CollegePlayerStats     `gorm:"foreignKey:CollegePlayerID"`
 	SeasonStats   CollegePlayerSeasonStats `gorm:"foreignKey:CollegePlayerID"`
 }
@@ -138,6 +140,26 @@ func (b *CollegePlayer) SetNewPosition(pos string) {
 
 func (b *CollegePlayer) SetDeclarationStatus() {
 	b.WillDeclare = true
+}
+
+func (b *CollegePlayer) StayHome() {
+	b.WillDeclare = false
+}
+
+func (b *CollegePlayer) SetTransferStatus() {
+	b.WillTransfer = true
+}
+
+func (b *CollegePlayer) TransferOut() {
+	b.WillTransfer = false
+	b.PreviousTeam = b.TeamAbbr
+	b.PreviousTeamID = b.TeamID
+	b.TeamAbbr = ""
+	b.TeamID = 0
+}
+
+func (b *CollegePlayer) SetLeavingStatus(status string) {
+	b.LeavingStatus = status
 }
 
 // Sorting Funcs

@@ -624,8 +624,8 @@ func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *
 			// If the offer being iterated through ISN'T the winning offer, cancel the offer.
 			if Offer.IsActive && WinningOffer.ID != 0 && WinningOffer.ID != Offer.ID {
 				Offer.CancelOffer()
-				db.Save(&Offer)
 			}
+			db.Save(&Offer)
 		}
 
 		// If there is a winning offer, sign the player
@@ -732,6 +732,7 @@ func faSyncGLeaguePlayers(gLeaguePlayers []structs.NBAPlayer, ts structs.Timesta
 					db.Save(&contract)
 					message := g.Position + " " + g.FirstName + " " + g.LastName + " was picked up from the GLeague by " + WinningOffer.Team
 					CreateNewsLog("NBA", message, "Free Agency", int(WinningOffer.TeamID), ts)
+					db.Save(&g)
 				} else if ts.IsNBAOffseason {
 					g.WaitUntilStartOfSeason()
 					db.Save(&g)
@@ -777,7 +778,7 @@ func faSyncISLPlayers(islPlayers []structs.NBAPlayer, ts structs.Timestamp, db *
 			contract.TradePlayer(ownerOffer.TeamID, ownerOffer.Team)
 			db.Save(&contract)
 			i.SignWithTeam(ownerOffer.TeamID, ownerOffer.Team)
-			message := i.Position + " " + i.FirstName + " " + i.LastName + " was picked up from the GLeague by " + ownerOffer.Team
+			message := i.Position + " " + i.FirstName + " " + i.LastName + " was picked up from the ISL by " + ownerOffer.Team
 			CreateNewsLog("NBA", message, "Free Agency", int(ownerOffer.TeamID), ts)
 		} else {
 			sort.Slice(Offers, func(i, j int) bool {

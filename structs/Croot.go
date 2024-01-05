@@ -119,7 +119,7 @@ func (c *Croot) Map(r Recruit) {
 	}
 
 	for i := 0; i < len(sortedProfiles); i++ {
-		if (!sortedProfiles[i].Scholarship && r.TeamAbbr == "" && sortedProfiles[i].TotalPoints == 0) || sortedProfiles[i].TeamReachedMax {
+		if (!sortedProfiles[i].Scholarship && r.TeamAbbr == "" && sortedProfiles[i].TotalPoints == 0) || sortedProfiles[i].TeamReachedMax || sortedProfiles[i].RemovedFromBoard {
 			continue
 		}
 		var odds float64 = 0

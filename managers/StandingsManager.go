@@ -24,7 +24,7 @@ func GetNBAConferenceStandingsByConferenceID(id string, seasonID string) []struc
 
 	var standings []structs.NBAStandings
 
-	db.Where("conference_id = ? AND season_id = ?", id, seasonID).Order("conference_losses asc").Order("conference_wins desc").
+	db.Where("conference_id = ? AND season_id = ?", id, seasonID).
 		Order("total_losses asc").Order("total_wins desc").Find(&standings)
 
 	return standings
@@ -46,7 +46,7 @@ func GetAllNBAConferenceStandingsBySeasonID(seasonID string) []structs.NBAStandi
 
 	var standings []structs.NBAStandings
 
-	db.Where("season_id = ?", seasonID).Order("conference_id asc").Order("conference_losses asc").Order("conference_wins desc").
+	db.Where("season_id = ?", seasonID).Order("conference_id asc").
 		Order("total_losses asc").Order("total_wins desc").Find(&standings)
 
 	return standings
@@ -90,6 +90,9 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 
 	for i := 0; i < len(games); i++ {
 		game := games[i]
+		if !game.GameComplete {
+			continue
+		}
 		HomeID := game.HomeTeamID
 		AwayID := game.AwayTeamID
 
@@ -158,6 +161,9 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 	nbaGames := GetNBATeamMatchesByMatchType(strconv.Itoa(int(ts.NBAWeekID)), strconv.Itoa(int(ts.SeasonID)), MatchType)
 
 	for _, game := range nbaGames {
+		if !game.GameComplete {
+			continue
+		}
 		HomeID := game.HomeTeamID
 		AwayID := game.AwayTeamID
 
