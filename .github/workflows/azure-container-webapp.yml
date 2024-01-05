@@ -27,14 +27,14 @@
 name: CI/CD Pipeline to Azure Web App
 
 env:
-  AZURE_WEBAPP_NAME: simnba  # set this to the name of your Azure Web App
+  AZURE_WEBAPP_NAME: simnba # set this to the name of your Azure Web App
   DB: ${{secrets.DB}}
   CS: ${{secrets.CS}}
   SFAKEY: ${{secrets.SFAKEY}}
   SFAUSER: ${{secrets.SFA}}
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   workflow_dispatch:
 
 permissions:
@@ -56,9 +56,8 @@ jobs:
         run: |
           go build -v ./...
 
-
       - name: Log in to Docker Registry
-        run: echo ${{ secrets.DOCKER_P }} | docker login simfba.azurecr.io --username ${{ secrets.DOCKER_U }} --password-stdin
+        run: echo ${{ secrets.DOCKER_P }} | docker login simnba.azurecr.io --username ${{ secrets.DOCKER_U }} --password-stdin
 
       - name: Build Docker Image
         run: docker build -t simnba.azurecr.io/simnba_api:${{ github.sha }} .
