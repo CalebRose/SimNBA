@@ -6,14 +6,14 @@ import (
 
 func FillAIBoardsViaCron() {
 	ts := managers.GetTimestamp()
-	if ts.RunCron && ts.CollegeWeek < 15 {
+	if ts.RunCron && ts.CollegeWeek < 15 && ts.CollegeWeek > 0 {
 		managers.FillAIRecruitingBoards()
 	}
 }
 
 func SyncAIBoardsViaCron() {
 	ts := managers.GetTimestamp()
-	if ts.RunCron && ts.CollegeWeek < 15 {
+	if ts.RunCron && ts.CollegeWeek < 15 && ts.CollegeWeek > 0 {
 		managers.ResetAIBoardsForCompletedTeams()
 		managers.AllocatePointsToAIBoards()
 	}
@@ -21,7 +21,7 @@ func SyncAIBoardsViaCron() {
 
 func SyncRecruitingViaCron() {
 	ts := managers.GetTimestamp()
-	if ts.RunCron && ts.CollegeWeek < 15 {
+	if ts.RunCron && ts.CollegeWeek < 15 && ts.CollegeWeek > 0 {
 		managers.SyncRecruiting()
 	}
 }
