@@ -107,9 +107,9 @@ func SyncRecruiting() {
 		secondMod := float64(eligibleTeams) / (float64(recruit.RecruitModifier) / 100)
 		thirdMod := math.Log10(float64(weeksOfRecruiting - timestamp.CollegeWeek))
 		signThreshold = firstMod * secondMod * thirdMod
-		recruit.ApplySigningStatus(totalPointsOnRecruit, signThreshold)
 		// Change logic to withold teams without available scholarships
 		passedTheSigningThreshold := totalPointsOnRecruit > signThreshold && eligibleTeams > 0 && pointsPlaced
+		recruit.ApplySigningStatus(totalPointsOnRecruit, signThreshold, passedTheSigningThreshold)
 		if passedTheSigningThreshold {
 			var winningTeamID uint = 0
 			var odds float64 = 0
@@ -233,6 +233,7 @@ func FillAIRecruitingBoards() {
 
 	for _, team := range AITeams {
 		count := 0
+		lateSeasonCount := 0
 		if !team.IsAI || team.TotalCommitments >= team.RecruitClassSize || team.ScholarshipsAvailable == 0 || team.SpentPoints == 50 {
 			continue
 		}
@@ -301,24 +302,29 @@ func FillAIRecruitingBoards() {
 		}
 
 		for _, croot := range UnsignedRecruits {
-			if count == boardCount {
+			if count == boardCount || (ts.CollegeWeek > 12 && lateSeasonCount > 12) {
 				break
 			}
 			recruitingNeed := teamNeedsMap[croot.Position]
+			willPursue := true
 			if croot.IsCustomCroot || (!recruitingNeed && ts.CollegeWeek < 12) ||
 				(croot.Stars == 5 && team.AIQuality != "Blue Blood") {
-				continue
+				willPursue = false
 			}
 
 			crootProfile := GetPlayerRecruitProfileByPlayerId(strconv.Itoa(int(croot.ID)), strconv.Itoa(int(team.ID)))
-			if crootProfile.ID > 0 || crootProfile.RemovedFromBoard || crootProfile.IsLocked {
-				continue
-			}
-
 			crootProfiles := recruitProfileMap[croot.ID]
 
 			leadingVal := util.IsAITeamContendingForCroot(crootProfiles)
 			if leadingVal > 13 {
+				willPursue = false
+			}
+
+			if ts.CollegeWeek > 12 {
+				willPursue = true
+			}
+
+			if !willPursue || crootProfile.RemovedFromBoard || crootProfile.IsLocked || crootProfile.ID > 0 {
 				continue
 			}
 
@@ -326,6 +332,10 @@ func FillAIRecruitingBoards() {
 
 			if ts.CollegeWeek > 5 {
 				odds = 15
+			}
+
+			if ts.CollegeWeek > 12 {
+				odds = 35
 			}
 
 			if croot.Country == "USA" {
@@ -381,7 +391,15 @@ func FillAIRecruitingBoards() {
 				}
 			}
 
-			if chance <= odds && len(teamsWithBoards) < 25 {
+			teamLimit := 25
+			if ts.CollegeWeek > 12 {
+				teamLimit = 5
+			}
+
+			if chance <= odds && len(teamsWithBoards) < teamLimit {
+				if ts.CollegeWeek > 12 {
+					lateSeasonCount += 1
+				}
 				playerProfile := structs.PlayerRecruitProfile{
 					RecruitID:          croot.ID,
 					ProfileID:          team.ID,
@@ -396,6 +414,8 @@ func FillAIRecruitingBoards() {
 					IsSigned:           false,
 					IsLocked:           false,
 				}
+				crootProfiles = append(crootProfiles, playerProfile)
+				recruitProfileMap[croot.ID] = crootProfiles
 
 				err := db.Save(&playerProfile).Error
 				if err != nil {
@@ -577,7 +597,11 @@ func AllocatePointsToAIBoards() {
 					team.ReallocateScholarship()
 				}
 				croot.RemoveRecruitFromBoard()
-				fmt.Println("Because " + croot.Recruit.FirstName + " " + croot.Recruit.LastName + " is heavily considering other teams, they are being removed from " + team.TeamAbbr + "'s Recruiting Board.")
+				if croot.IsLocked {
+					fmt.Println("Because " + croot.Recruit.FirstName + " " + croot.Recruit.LastName + " signed with a different team, they are being removed from " + team.TeamAbbr + "'s Recruiting Board.")
+				} else {
+					fmt.Println("Because " + croot.Recruit.FirstName + " " + croot.Recruit.LastName + " is heavily considering other teams, they are being removed from " + team.TeamAbbr + "'s Recruiting Board.")
+				}
 				db.Save(&croot)
 				continue
 			}

@@ -413,22 +413,25 @@ func ImportCBBGames() {
 		if matchType == "Conf" {
 			isConf = true
 		}
-		homeTeamAbbr := row[5]
-		awayTeamAbbr := row[6]
+		htRank := util.ConvertStringToInt(row[5])
+		atRank := util.ConvertStringToInt(row[8])
+		homeTeamAbbr := row[6]
+		awayTeamAbbr := row[7]
 		homeTeam := collegeMap[homeTeamAbbr]
 		awayTeam := collegeMap[awayTeamAbbr]
-		gameTitle := row[25]
-		nextGameID := util.ConvertStringToInt(row[18])
-		hoA := row[19]
-		neutralSite := util.ConvertStringToBool(row[12])
-		invitational := util.ConvertStringToBool(row[13])
-		conferenceTournament := util.ConvertStringToBool(row[14])
-		nit := util.ConvertStringToBool(row[15])
-		tournament := util.ConvertStringToBool(row[16])
-		nationalChamp := util.ConvertStringToBool(row[17])
-		arena := row[22]
-		city := row[23]
-		state := row[24]
+		gameTitle := row[26]
+		nextGameID := util.ConvertStringToInt(row[28])
+		hoA := row[29]
+		neutralSite := util.ConvertStringToBool(row[14])
+		invitational := util.ConvertStringToBool(row[15])
+		conferenceTournament := util.ConvertStringToBool(row[16])
+		cbi := util.ConvertStringToBool(row[17])
+		nit := util.ConvertStringToBool(row[18])
+		tournament := util.ConvertStringToBool(row[19])
+		nationalChamp := util.ConvertStringToBool(row[20])
+		arena := row[23]
+		city := row[24]
+		state := row[25]
 		homeCoach := homeTeam.Coach
 		if homeCoach == "" {
 			homeCoach = "AI"
@@ -449,8 +452,10 @@ func ImportCBBGames() {
 			HomeTeamID:             homeTeam.ID,
 			AwayTeamID:             awayTeam.ID,
 			HomeTeamCoach:          homeCoach,
+			HomeTeamRank:           uint(htRank),
 			AwayTeam:               awayTeamAbbr,
 			AwayTeamCoach:          awayCoach,
+			AwayTeamRank:           uint(atRank),
 			MatchName:              gameTitle,
 			NextGameID:             uint(nextGameID),
 			NextGameHOA:            hoA,
@@ -458,6 +463,7 @@ func ImportCBBGames() {
 			IsInvitational:         invitational,
 			IsConferenceTournament: conferenceTournament,
 			IsNITGame:              nit,
+			IsCBIGame:              cbi,
 			IsPlayoffGame:          tournament,
 			IsNationalChampionship: nationalChamp,
 			Arena:                  arena,

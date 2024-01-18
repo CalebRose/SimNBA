@@ -40,6 +40,7 @@ type Match struct {
 	IsConference           bool
 	IsConferenceTournament bool
 	IsNITGame              bool
+	IsCBIGame              bool
 	IsPlayoffGame          bool
 	IsNationalChampionship bool
 	IsRivalryGame          bool

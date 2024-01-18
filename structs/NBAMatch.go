@@ -9,6 +9,7 @@ type NBAMatch struct {
 	WeekID                 uint
 	Week                   uint
 	SeasonID               uint
+	SeriesID               uint
 	HomeTeamID             uint
 	HomeTeam               string
 	HomeTeamCoach          string
@@ -55,4 +56,29 @@ func (m *NBAMatch) UpdateCoach(TeamID int, Username string) {
 	} else if m.AwayTeamID == uint(TeamID) {
 		m.AwayTeamCoach = Username
 	}
+}
+
+type NBASeries struct {
+	gorm.Model
+	SeriesName      string // For Post-Season matchups
+	SeasonID        uint
+	HomeTeamID      uint
+	HomeTeam        string
+	HomeTeamCoach   string
+	HomeTeamWins    uint
+	HomeTeamWin     bool
+	HomeTeamRank    uint
+	AwayTeamID      uint
+	AwayTeam        string
+	AwayTeamCoach   string
+	AwayTeamWins    uint
+	AwayTeamWin     bool
+	AwayTeamRank    uint
+	GameCount       uint
+	NextSeriesID    uint
+	NextSeriesHOA   string
+	IsInternational bool
+	IsPlayoffGame   bool
+	IsTheFinals     bool
+	SeriesComplete  bool
 }

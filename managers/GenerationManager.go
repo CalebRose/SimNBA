@@ -246,7 +246,7 @@ func GenerateCroots() {
 
 	// Test Generation
 	// requiredPlayers := util.GenerateIntFromRange(1031, 1061)
-	requiredPlayers := util.GenerateIntFromRange(70, 120)
+	requiredPlayers := util.GenerateIntFromRange(203, 205)
 	// 1061 is the number of open spots on teams in the league.
 	// Currently 363 teams. 363 * 3 = 1089, the size of the average class.
 	// The plan is to ensure that every recruit is signed

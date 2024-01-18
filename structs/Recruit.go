@@ -118,7 +118,7 @@ func (r *Recruit) AssignRankValues(rank247 float64, espnRank float64, rivalsRank
 	r.TopRankModifier = modifier
 }
 
-func (r *Recruit) ApplySigningStatus(num float64, threshold float64) {
+func (r *Recruit) ApplySigningStatus(num float64, threshold float64, signing bool) {
 	percentage := num / threshold
 
 	if threshold == 0 || num == 0 || percentage < 0.26 {
@@ -132,6 +132,10 @@ func (r *Recruit) ApplySigningStatus(num float64, threshold float64) {
 	} else if percentage < 1 {
 		r.SigningStatus = "Ready to Sign"
 	} else {
+		r.SigningStatus = "Signed"
+	}
+
+	if signing {
 		r.SigningStatus = "Signed"
 	}
 }
