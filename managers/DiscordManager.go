@@ -121,6 +121,10 @@ func GetCollegeTeamDataByID(id string) structs.CollegeTeamResponseData {
 	team := GetTeamByTeamID(id)
 	standings := GetStandingsRecordByTeamID(id, seasonId)
 	matches := GetMatchesByTeamIdAndSeasonId(id, seasonId)
+	wins := 0
+	losses := 0
+	confWins := 0
+	confLosses := 0
 	matchList := []structs.Match{}
 	for _, m := range matches {
 		if m.Week < uint(ts.CollegeWeek) {
@@ -128,6 +132,24 @@ func GetCollegeTeamDataByID(id string) structs.CollegeTeamResponseData {
 		}
 		if m.Week > uint(ts.CollegeWeek) {
 			break
+		}
+		gameWasSynced := (m.MatchOfWeek == "A" && ts.GamesARan) ||
+			(m.MatchOfWeek == "B" && ts.GamesBRan) ||
+			(m.MatchOfWeek == "C" && ts.GamesCRan) ||
+			(m.MatchOfWeek == "D" && ts.GamesDRan)
+
+		if ((strconv.Itoa(int(m.HomeTeamID)) == id && m.HomeTeamWin) ||
+			(strconv.Itoa(int(m.AwayTeamID)) == id && m.AwayTeamWin)) && gameWasSynced {
+			wins += 1
+			if m.IsConference {
+				confWins += 1
+			}
+		} else if ((strconv.Itoa(int(m.HomeTeamID)) == id && m.AwayTeamWin) ||
+			(strconv.Itoa(int(m.AwayTeamID)) == id && m.HomeTeamWin)) && gameWasSynced {
+			losses += 1
+			if m.IsConference {
+				confLosses += 1
+			}
 		}
 		if (m.MatchOfWeek == "A" && !ts.GamesARan) ||
 			(m.MatchOfWeek == "B" && !ts.GamesBRan) ||
@@ -137,6 +159,8 @@ func GetCollegeTeamDataByID(id string) structs.CollegeTeamResponseData {
 		}
 		matchList = append(matchList, m)
 	}
+
+	standings.MaskGames(wins, losses, confWins, confLosses)
 
 	return structs.CollegeTeamResponseData{
 		TeamData:        team,
