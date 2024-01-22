@@ -78,6 +78,14 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 				livestreamChannel = 4
 			}
 
+			if c.IsPlayoffGame {
+				livestreamChannel = 1
+			} else if c.IsNITGame {
+				livestreamChannel = 3
+			} else if c.IsCBIGame {
+				livestreamChannel = 4
+			}
+
 			match := structs.MatchResponse{
 				MatchName:              c.MatchName,
 				ID:                     c.ID,
