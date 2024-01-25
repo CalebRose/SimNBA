@@ -86,7 +86,7 @@ func (m *Match) AddTeam(isHome bool, id, rank uint, team, coach, arena, city, st
 		m.AwayTeamRank = rank
 		m.AwayTeamCoach = coach
 	}
-	if !m.IsNeutralSite {
+	if !m.IsNeutralSite && isHome {
 		m.Arena = arena
 		m.City = city
 		m.State = state
