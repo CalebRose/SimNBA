@@ -86,11 +86,9 @@ func ProgressionMain() {
 				message := ""
 				if player.WillDeclare {
 					message = player.Position + " " + player.FirstName + " " + player.LastName + " plans to declare early from " + player.TeamAbbr + " for the upcoming SimNBA Draft!"
-					player.SetLeavingStatus(status)
 					CreateNewsLog("CBB", message, "Graduation", int(player.TeamID), ts)
 				} else if willTransfer {
-					player.SetTransferStatus()
-					player.SetLeavingStatus(status)
+					player.DeclareTransferIntention(status)
 					message = player.Position + " " + player.FirstName + " " + player.LastName + " intends to transfer from " + player.TeamAbbr + "."
 					CreateNewsLog("CBB", message, "Transfer Portal", int(player.TeamID), ts)
 				}

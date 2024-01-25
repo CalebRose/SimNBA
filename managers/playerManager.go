@@ -354,6 +354,16 @@ func GetAllCollegePlayers() []structs.CollegePlayer {
 	return players
 }
 
+func GetTransferPortalPlayers() []structs.CollegePlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var players []structs.CollegePlayer
+
+	db.Where("transfer_status > 0").Find(&players)
+
+	return players
+}
+
 func GetAllCollegePlayersWithSeasonStats(seasonID, weekID, matchType, viewType string) []structs.CollegePlayerResponse {
 	db := dbprovider.GetInstance().GetDB()
 

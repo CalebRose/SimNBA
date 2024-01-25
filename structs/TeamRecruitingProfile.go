@@ -15,6 +15,7 @@ type TeamRecruitingProfile struct {
 	SpentPoints           int
 	TotalCommitments      int
 	RecruitClassSize      int
+	PortalReputation      int // A value between 1-100 signifying the coach's reputation and behavior in the transfer portal.
 	IsAI                  bool
 	AIBehavior            string // Aggressive, Normal, Conservative -- will be for determining how likely they'll generate a good coach
 	AIQuality             string // Blue Blood, P6, Cinderella, Mid-Major
