@@ -5,18 +5,18 @@ import "github.com/jinzhu/gorm"
 type HistoricCollegePlayer struct {
 	gorm.Model
 	BasePlayer
-	PlayerID      uint
-	TeamID        uint
-	TeamAbbr      string
-	IsRedshirt    bool
-	IsRedshirting bool
-	HasGraduated  bool
-	HasProgressed bool
-	WillDeclare   bool
-	WillTransfer  bool
-	LeavingStatus string
-	Stats         []CollegePlayerStats     `gorm:"foreignKey:CollegePlayerID"`
-	SeasonStats   CollegePlayerSeasonStats `gorm:"foreignKey:CollegePlayerID"`
+	PlayerID           uint
+	TeamID             uint
+	TeamAbbr           string
+	IsRedshirt         bool
+	IsRedshirting      bool
+	HasGraduated       bool
+	HasProgressed      bool
+	WillDeclare        bool
+	TransferStatus     int                      // 1 == Intends, 2 == Is Transferring
+	TransferLikeliness string                   // Low, Medium, High
+	Stats              []CollegePlayerStats     `gorm:"foreignKey:CollegePlayerID"`
+	SeasonStats        CollegePlayerSeasonStats `gorm:"foreignKey:CollegePlayerID"`
 }
 
 func (h *HistoricCollegePlayer) Map(cp CollegePlayer) {

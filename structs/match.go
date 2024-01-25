@@ -74,7 +74,7 @@ func (m *Match) UpdateCoach(TeamID int, Username string) {
 	}
 }
 
-func (m *Match) AddTeam(isHome bool, id, rank uint, team, coach string) {
+func (m *Match) AddTeam(isHome bool, id, rank uint, team, coach, arena, city, state string) {
 	if isHome {
 		m.HomeTeam = team
 		m.HomeTeamID = id
@@ -85,6 +85,11 @@ func (m *Match) AddTeam(isHome bool, id, rank uint, team, coach string) {
 		m.AwayTeamID = id
 		m.AwayTeamRank = rank
 		m.AwayTeamCoach = coach
+	}
+	if !m.IsNeutralSite {
+		m.Arena = arena
+		m.City = city
+		m.State = state
 	}
 }
 

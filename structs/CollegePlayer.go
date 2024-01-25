@@ -7,18 +7,18 @@ import (
 type CollegePlayer struct {
 	gorm.Model
 	BasePlayer
-	PlayerID      uint
-	TeamID        uint
-	TeamAbbr      string
-	IsRedshirt    bool
-	IsRedshirting bool
-	HasGraduated  bool
-	HasProgressed bool
-	WillDeclare   bool
-	WillTransfer  bool
-	LeavingStatus string
-	Stats         []CollegePlayerStats     `gorm:"foreignKey:CollegePlayerID"`
-	SeasonStats   CollegePlayerSeasonStats `gorm:"foreignKey:CollegePlayerID"`
+	PlayerID           uint
+	TeamID             uint
+	TeamAbbr           string
+	IsRedshirt         bool
+	IsRedshirting      bool
+	HasGraduated       bool
+	HasProgressed      bool
+	WillDeclare        bool
+	TransferStatus     int                      // 1 == Intends, 2 == Is Transferring
+	TransferLikeliness string                   // Low, Medium, High
+	Stats              []CollegePlayerStats     `gorm:"foreignKey:CollegePlayerID"`
+	SeasonStats        CollegePlayerSeasonStats `gorm:"foreignKey:CollegePlayerID"`
 }
 
 func (c *CollegePlayer) SetRedshirtingStatus() {
@@ -146,20 +146,22 @@ func (b *CollegePlayer) StayHome() {
 	b.WillDeclare = false
 }
 
-func (b *CollegePlayer) SetTransferStatus() {
-	b.WillTransfer = true
+func (cp *CollegePlayer) DeclareTransferIntention(status string) {
+	cp.TransferStatus = 1
+	cp.TransferLikeliness = status
 }
 
-func (b *CollegePlayer) TransferOut() {
-	b.WillTransfer = false
-	b.PreviousTeam = b.TeamAbbr
-	b.PreviousTeamID = b.TeamID
-	b.TeamAbbr = ""
-	b.TeamID = 0
+func (cp *CollegePlayer) WillStay() {
+	cp.TransferStatus = 0
+	cp.WillDeclare = false
 }
 
-func (b *CollegePlayer) SetLeavingStatus(status string) {
-	b.LeavingStatus = status
+func (cp *CollegePlayer) WillTransfer() {
+	cp.TransferStatus = 2
+	cp.PreviousTeam = cp.TeamAbbr
+	cp.PreviousTeamID = cp.TeamID
+	cp.TeamAbbr = ""
+	cp.TeamID = 0
 }
 
 // Sorting Funcs

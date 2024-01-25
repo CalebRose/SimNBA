@@ -56,14 +56,14 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 	sem := make(chan struct{}, 20) // Limit to 20 concurrent tasks
 
 	for _, c := range collegeMatches {
-		if c.GameComplete {
-			continue
-		}
 		sem <- struct{}{}
+		localC := c
 		go func(c structs.Match) {
 			defer func() { <-sem }()
 			defer collegeMatchesWg.Done()
-
+			if c.GameComplete {
+				return
+			}
 			ht := GetTeamByTeamID(strconv.Itoa(int(c.HomeTeamID)))
 			at := GetTeamByTeamID(strconv.Itoa(int(c.AwayTeamID)))
 
@@ -115,19 +115,19 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 			mutex.Lock()
 			matchesList = append(matchesList, match)
 			mutex.Unlock()
-		}(c)
+		}(localC)
 	}
 
 	// Iterate NBA Matches
 	coinFlip := false
 	for _, n := range nbaMatches {
-		if n.GameComplete {
-			continue
-		}
 		sem <- struct{}{}
-		go func(n structs.NBAMatch) { // replace `YourNBAMatchType` with the actual type
+		go func(m structs.NBAMatch) { // replace `YourNBAMatchType` with the actual type
 			defer func() { <-sem }()
 			defer nbaMatchesWg.Done()
+			if m.GameComplete {
+				return
+			}
 			livestreamChannel := 0
 			if coinFlip {
 				livestreamChannel = 5
@@ -136,32 +136,32 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 				livestreamChannel = 6
 				coinFlip = !coinFlip
 			}
-			if n.IsInternational {
+			if m.IsInternational {
 				livestreamChannel = 7
 			}
 
 			match := structs.MatchResponse{
-				MatchName:              n.MatchName,
-				ID:                     n.ID,
-				WeekID:                 n.WeekID,
-				Week:                   n.Week,
-				SeasonID:               n.SeasonID,
-				HomeTeamID:             n.HomeTeamID,
-				HomeTeam:               n.HomeTeam,
-				AwayTeamID:             n.AwayTeamID,
-				AwayTeam:               n.AwayTeam,
-				MatchOfWeek:            n.MatchOfWeek,
-				Arena:                  n.Arena,
-				City:                   n.City,
-				State:                  n.State,
-				IsNeutralSite:          n.IsNeutralSite,
+				MatchName:              m.MatchName,
+				ID:                     m.ID,
+				WeekID:                 m.WeekID,
+				Week:                   m.Week,
+				SeasonID:               m.SeasonID,
+				HomeTeamID:             m.HomeTeamID,
+				HomeTeam:               m.HomeTeam,
+				AwayTeamID:             m.AwayTeamID,
+				AwayTeam:               m.AwayTeam,
+				MatchOfWeek:            m.MatchOfWeek,
+				Arena:                  m.Arena,
+				City:                   m.City,
+				State:                  m.State,
+				IsNeutralSite:          m.IsNeutralSite,
 				IsNBAMatch:             true,
-				IsConference:           n.IsConference,
-				IsConferenceTournament: n.IsConferenceTournament,
-				IsInternational:        n.IsInternational,
-				IsPlayoffGame:          n.IsPlayoffGame,
-				IsNationalChampionship: n.IsTheFinals,
-				IsRivalryGame:          n.IsRivalryGame,
+				IsConference:           m.IsConference,
+				IsConferenceTournament: m.IsConferenceTournament,
+				IsInternational:        m.IsInternational,
+				IsPlayoffGame:          m.IsPlayoffGame,
+				IsNationalChampionship: m.IsTheFinals,
+				IsRivalryGame:          m.IsRivalryGame,
 				Channel:                uint(livestreamChannel),
 			}
 			mutex.Lock()

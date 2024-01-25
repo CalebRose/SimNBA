@@ -14,10 +14,12 @@ type NBAMatch struct {
 	HomeTeam               string
 	HomeTeamCoach          string
 	HomeTeamWin            bool
+	HomeTeamRank           uint
 	AwayTeamID             uint
 	AwayTeam               string
 	AwayTeamCoach          string
 	AwayTeamWin            bool
+	AwayTeamRank           uint
 	MatchOfWeek            string
 	HomeTeamScore          int
 	AwayTeamScore          int
@@ -55,6 +57,25 @@ func (m *NBAMatch) UpdateCoach(TeamID int, Username string) {
 		m.HomeTeamCoach = Username
 	} else if m.AwayTeamID == uint(TeamID) {
 		m.AwayTeamCoach = Username
+	}
+}
+
+func (m *NBAMatch) AddTeam(isHome bool, id, rank uint, team, coach, arena, city, state string) {
+	if isHome {
+		m.HomeTeam = team
+		m.HomeTeamID = id
+		m.HomeTeamRank = rank
+		m.HomeTeamCoach = coach
+	} else {
+		m.AwayTeam = team
+		m.AwayTeamID = id
+		m.AwayTeamRank = rank
+		m.AwayTeamCoach = coach
+	}
+	if !m.IsNeutralSite {
+		m.Arena = arena
+		m.City = city
+		m.State = state
 	}
 }
 

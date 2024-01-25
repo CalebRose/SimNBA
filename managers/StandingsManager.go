@@ -133,7 +133,8 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 
 			nextGame := GetMatchByMatchId(nextGameID)
 
-			nextGame.AddTeam(game.NextGameHOA == "H", uint(winningTeamID), uint(winningTeamRank), winningTeam, winningCoach)
+			nextGame.AddTeam(game.NextGameHOA == "H", uint(winningTeamID), uint(winningTeamRank),
+				winningTeam, winningCoach, game.Arena, game.City, game.State)
 
 			db.Save(&nextGame)
 		}
@@ -199,9 +200,10 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 				winningTeam = game.AwayTeam
 				winningCoach = game.AwayTeamCoach
 			}
-			nextGame := GetMatchByMatchId(nextGameID)
+			nextGame := GetNBAMatchByMatchId(nextGameID)
 
-			nextGame.AddTeam(game.NextGameHOA == "H", uint(winningTeamID), uint(winningTeamRank), winningTeam, winningCoach)
+			nextGame.AddTeam(game.NextGameHOA == "H", uint(winningTeamID), uint(winningTeamRank), winningTeam, winningCoach,
+				game.Arena, game.City, game.State)
 
 			db.Save(&nextGame)
 		}
