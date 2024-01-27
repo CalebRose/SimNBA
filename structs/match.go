@@ -101,3 +101,11 @@ func (m *Match) AssignRank(id, rank uint) {
 		m.AwayTeamRank = rank
 	}
 }
+
+func (m *Match) Reset() {
+	m.GameComplete = false
+	m.HomeTeamWin = false
+	m.HomeTeamScore = 0
+	m.AwayTeamScore = 0
+	m.AwayTeamWin = false
+}

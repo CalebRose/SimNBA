@@ -24,6 +24,17 @@ func GetAllActiveCollegeTeams() []structs.Team {
 	return teams
 }
 
+func GetCollegeTeamMap() map[uint]structs.Team {
+	teams := GetAllActiveCollegeTeams()
+	teamMap := make(map[uint]structs.Team)
+
+	for _, t := range teams {
+		teamMap[t.ID] = t
+	}
+
+	return teamMap
+}
+
 func GetAllActiveCollegeTeamsWithSeasonStats(seasonID, weekID, matchType, viewType string) []structs.CollegeTeamResponse {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -501,6 +512,17 @@ func GetAllActiveNBATeams() []structs.NBATeam {
 		log.Fatal(err)
 	}
 	return teams
+}
+
+func GetProfessionalTeamMap() map[uint]structs.NBATeam {
+	teams := GetAllActiveNBATeams()
+	teamMap := make(map[uint]structs.NBATeam)
+
+	for _, t := range teams {
+		teamMap[t.ID] = t
+	}
+
+	return teamMap
 }
 
 // GetTeamByTeamID - straightforward

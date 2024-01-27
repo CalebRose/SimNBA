@@ -397,6 +397,9 @@ func RegressSeasonStats(ts structs.Timestamp, MatchType string) {
 				log.Fatalln("Could not save season stats for " + strconv.Itoa(int(playerSeasonStats.CollegePlayerID)))
 			}
 		}
+
+		match.Reset()
+		db.Save(&match)
 	}
 }
 

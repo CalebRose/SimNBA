@@ -89,7 +89,7 @@ func RegressBGamesByOneWeek(w http.ResponseWriter, r *http.Request) {
 }
 
 func RegressAGamesByOneWeek(w http.ResponseWriter, r *http.Request) {
-	managers.RegressGames("A")
+	managers.RegressGames("D")
 	w.WriteHeader(http.StatusOK)
 }
 
