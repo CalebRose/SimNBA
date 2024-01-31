@@ -198,18 +198,13 @@ func GetRecruitingBias() string {
 	list := []string{"Prefers to play in a different state",
 		"Prefers to play for an up-and-coming team",
 		"Open-Minded",
-		"Prefers to play with former teammates",
-		"Fanboy",
-		"Multi-Sport",
 		"Prefers to play for a team where he can start immediately",
-		"Is going to school mainly for academics",
 		"Prefers to be close to home",
 		"Prefers to play for a national championship contender",
 		"Prefers to play for a specific coach",
 		"Average",
 		"Legacy",
-		"Prefers to play for a team with a rich history",
-		"Wants that NIL money"}
+		"Prefers to play for a team with a rich history"}
 
 	return PickFromStringList(list)
 }

@@ -119,7 +119,7 @@ func handleRequests() {
 	// myRouter.HandleFunc("/import/fa/preferences", controller.ImportFAPreferences).Methods("GET")
 	// myRouter.HandleFunc("/import/positions", controller.ImportNewPositions).Methods("GET")
 	// myRouter.HandleFunc("/import/ai/values", controller.MigrateNewAIRecruitingValues).Methods("GET")
-	// myRouter.HandleFunc("/import/nba/personalities", controller.ImportNBAPersonalities).Methods("GET")
+	// myRouter.HandleFunc("/import/new/personalities", controller.ImportPersonalities).Methods("GET")
 	// myRouter.HandleFunc("/import/nba/picks", controller.ImportDraftPicks).Methods("GET")
 	// myRouter.HandleFunc("/migrate/remaining/croots", controller.MigrateRecruits).Methods("GET")
 
@@ -240,6 +240,9 @@ func handleRequests() {
 	myRouter.HandleFunc("/admin/trades/accept/sync/{proposalID}", controller.SyncAcceptedTrade).Methods("GET")
 	myRouter.HandleFunc("/admin/trades/veto/sync/{proposalID}", controller.VetoAcceptedTrade).Methods("GET")
 	myRouter.HandleFunc("/admin/trades/cleanup", controller.CleanUpRejectedTrades).Methods("GET")
+
+	// Transfer Intentions
+	// myRouter.HandleFunc("/simcbb/sync/transfer/intention", controller.ProcessTransferIntention).Methods("GET")
 
 	// Timestamp Controls
 	myRouter.HandleFunc("/simbba/get/timestamp", controller.GetCurrentTimestamp).Methods("GET")

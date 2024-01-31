@@ -24,7 +24,7 @@ func GenerateCoachesForAITeams() {
 
 	coachList := []structs.CollegeCoach{}
 	allActiveCoaches := GetAllCollegeCoaches()
-
+	collegeTeamMap := GetCollegeTeamMap()
 	retiredPlayers := GetAllRetiredPlayers()
 	retireeMap := make(map[uint]bool)
 	coachMap := make(map[uint]bool)
@@ -45,6 +45,12 @@ func GenerateCoachesForAITeams() {
 		almaMater := pickAlmaMater(teams)
 		coach := createCollegeCoach(team, almaMater.ID, almaMater.TeamAbbr, pickedEthnicity, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], retiredPlayers, &retireeMap, &coachMap)
 		coachList = append(coachList, coach)
+		collegeTeam := collegeTeamMap[team.TeamID]
+		collegeTeam.AssignCoach(coach.Name)
+		team.UpdateAIBehavior(true, true, coach.StarMax, coach.StarMin, coach.PointMin, coach.PointMax, coach.Scheme, coach.DefensiveScheme)
+		team.AssignRecruiter(coach.Name)
+		db.Save(&collegeTeam)
+		db.Save(&team)
 	}
 
 	for _, coach := range coachList {
@@ -933,9 +939,20 @@ func createCollegeCoach(team structs.TeamRecruitingProfile, almaMaterID uint, al
 		schemeList := []string{"Traditional", "Small Ball", "Microball", "Jumbo"}
 		scheme = util.PickFromStringList(schemeList)
 	}
+	defensiveScheme := "Man-to-Man"
+	defensiveSchemeList := []string{"Man-to-Man", "1-3-1 Zone", "3-2 Zone", "2-3 Zone", "Box-and-One Zone"}
+	schemeRoll = util.GenerateIntFromRange(1, 6)
+	if schemeRoll == 6 {
+		defensiveScheme = util.PickFromStringList(defensiveSchemeList)
+	}
 	contractLength := util.GenerateIntFromRange(2, 5)
 	startingPrestige := getStartingPrestige(goodHire)
-
+	teamBuildingList := []string{"Recruiting", "Transfer", "Average"}
+	teamBuildPref := util.PickFromStringList(teamBuildingList)
+	careerPrefList := []string{"Average", "Prefers to Stay at Current Job", "Wants to coach Alma-Mater", "Wants a more competitive job", "Average"}
+	careerPref := util.PickFromStringList(careerPrefList)
+	promiseTendencyList := []string{"Average", "Under-Promise", "Over-Promise"}
+	promiseTendency := util.PickFromStringList(promiseTendencyList)
 	if goodHire {
 		fmt.Println("Good hire for " + team.TeamAbbr + "!")
 	}
@@ -946,30 +963,35 @@ func createCollegeCoach(team structs.TeamRecruitingProfile, almaMaterID uint, al
 	}
 
 	coach := structs.CollegeCoach{
-		Name:           fullName,
-		Age:            age,
-		TeamID:         team.ID,
-		Team:           team.TeamAbbr,
-		FormerPlayerID: formerPlayerID,
-		AlmaMaterID:    almaID,
-		AlmaMater:      alma,
-		Prestige:       startingPrestige,
-		PointMin:       pointMin,
-		PointMax:       pointmax,
-		StarMin:        starMin,
-		StarMax:        starMax,
-		Odds1:          odds1,
-		Odds2:          odds2,
-		Odds3:          odds3,
-		Odds4:          odds4,
-		Odds5:          odds5,
-		Scheme:         scheme,
-		SchoolTenure:   0,
-		CareerTenure:   0,
-		ContractLength: contractLength,
-		YearsRemaining: contractLength,
-		IsRetired:      false,
-		IsFormerPlayer: formerPlayer,
+		Name:                   fullName,
+		Age:                    age,
+		TeamID:                 team.ID,
+		Team:                   team.TeamAbbr,
+		FormerPlayerID:         formerPlayerID,
+		AlmaMaterID:            almaID,
+		AlmaMater:              alma,
+		Prestige:               startingPrestige,
+		PointMin:               pointMin,
+		PointMax:               pointmax,
+		StarMin:                starMin,
+		StarMax:                starMax,
+		Odds1:                  odds1,
+		Odds2:                  odds2,
+		Odds3:                  odds3,
+		Odds4:                  odds4,
+		Odds5:                  odds5,
+		Scheme:                 scheme,
+		SchoolTenure:           0,
+		CareerTenure:           0,
+		ContractLength:         contractLength,
+		YearsRemaining:         contractLength,
+		IsRetired:              false,
+		IsFormerPlayer:         formerPlayer,
+		DefensiveScheme:        defensiveScheme,
+		TeambuildingPreference: teamBuildPref,
+		CareerPreference:       careerPref,
+		PromiseTendency:        promiseTendency,
+		PortalReputation:       100,
 	}
 
 	if startingPrestige > 1 {

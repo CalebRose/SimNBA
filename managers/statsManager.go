@@ -421,3 +421,24 @@ func FixNBASeasonTables() {
 		db.Create(&seasonStats)
 	}
 }
+
+func GetCollegePlayerSeasonStatsBySeason(SeasonID string) []structs.CollegePlayerSeasonStats {
+	db := dbprovider.GetInstance().GetDB()
+
+	var playerStats []structs.CollegePlayerSeasonStats
+
+	db.Where("season_id = ?", SeasonID).Find(&playerStats)
+
+	return playerStats
+}
+
+func GetCollegePlayerSeasonStatMap(seasonID string) map[uint]structs.CollegePlayerSeasonStats {
+	seasonStatMap := make(map[uint]structs.CollegePlayerSeasonStats)
+
+	seasonStats := GetCollegePlayerSeasonStatsBySeason(seasonID)
+	for _, stat := range seasonStats {
+		seasonStatMap[stat.CollegePlayerID] = stat
+	}
+
+	return seasonStatMap
+}

@@ -494,3 +494,14 @@ func DetermineRecruitingClassSize() {
 		db.Save(&rp)
 	}
 }
+
+func GetTeamProfileMap() map[string]*structs.TeamRecruitingProfile {
+	teamRecruitingProfiles := GetRecruitingProfileForRecruitSync()
+
+	teamMap := make(map[string]*structs.TeamRecruitingProfile)
+	for i := 0; i < len(teamRecruitingProfiles); i++ {
+		teamMap[strconv.Itoa(int(teamRecruitingProfiles[i].ID))] = &teamRecruitingProfiles[i]
+	}
+
+	return teamMap
+}

@@ -269,3 +269,14 @@ func ResetCollegeStandingsRanks() {
 
 	db.Model(&structs.CollegeStandings{}).Where("season_id = ?", seasonID).Updates(structs.CollegeStandings{Rank: 0})
 }
+
+func GetCollegeStandingsMap(seasonID string) map[uint]structs.CollegeStandings {
+	standingsMap := make(map[uint]structs.CollegeStandings)
+
+	standings := GetAllConferenceStandingsBySeasonID(seasonID)
+	for _, stat := range standings {
+		standingsMap[stat.ID] = stat
+	}
+
+	return standingsMap
+}

@@ -367,19 +367,31 @@ func ImportFAPreferences() {
 	}
 }
 
-func ImportNBAPersonalities() {
+func ImportPersonalities() {
 	fmt.Println(time.Now().UnixNano())
 	db := dbprovider.GetInstance().GetDB()
-	nbaPlayers := GetAllNBAPlayers()
+	recruits := GetAllRecruitRecords()
 
-	for _, p := range nbaPlayers {
-		freeAgency := util.GetFreeAgencyBias(p.Age, p.Overall)
-		workEthic := util.GetWorkEthic()
-		personality := util.GetPersonality()
+	for _, p := range recruits {
+		if len(p.RecruitingBias) > 0 {
+			continue
+		}
+		recruitingBias := util.GetRecruitingBias()
 
-		p.SetFreeAgencyBias(freeAgency)
-		p.SetWorkEthic(workEthic)
-		p.SetPersonality(personality)
+		p.SetRecruitingBias(recruitingBias)
+
+		db.Save(&p)
+	}
+
+	collegePlayers := GetAllCollegePlayers()
+
+	for _, p := range collegePlayers {
+		if len(p.RecruitingBias) > 0 {
+			continue
+		}
+		recruitingBias := util.GetRecruitingBias()
+
+		p.SetRecruitingBias(recruitingBias)
 
 		db.Save(&p)
 	}

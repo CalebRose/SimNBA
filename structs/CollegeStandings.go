@@ -43,6 +43,15 @@ func (cs *CollegeStandings) UpdateCollegeStandings(game Match) {
 		if game.IsConferenceTournament && game.MatchName == "Championship" {
 			cs.PostSeasonStatus = "Conference Champion"
 		}
+		if game.IsPlayoffGame {
+			cs.PostSeasonStatus = game.MatchName
+		}
+		if game.IsNITGame {
+			cs.PostSeasonStatus = game.MatchName
+		}
+		if game.IsCBIGame {
+			cs.PostSeasonStatus = game.MatchName
+		}
 		if game.IsPlayoffGame && game.IsNationalChampionship {
 			cs.PostSeasonStatus = "National Champion"
 		}

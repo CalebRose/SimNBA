@@ -39,12 +39,17 @@ func (t *Team) GetTeam(w http.ResponseWriter, r *http.Request) {
 }
 
 func (t *Team) AssignUserToTeam(username string) {
-	t.Coach = username
+	t.AssignCoach(username)
+	t.IsUserCoached = true
+}
 
+func (t *Team) AssignCoach(username string) {
+	t.Coach = username
 }
 
 func (t *Team) RemoveUser() {
 	t.Coach = ""
+	t.IsUserCoached = false
 }
 
 func (t *Team) ToggleUserCoach() {

@@ -258,7 +258,7 @@ func ProgressNBAPlayer(np structs.NBAPlayer, isISLGen bool) structs.NBAPlayer {
 		}
 	}
 
-	stamina := ProgressStamina(np.Stamina, ageDifference)
+	stamina := ProgressStamina(np.Stamina, ageDifference, true)
 
 	progressions := structs.NBAPlayerProgressions{
 		Shooting2:        shooting2,
@@ -424,7 +424,7 @@ func ProgressCollegePlayer(cp structs.CollegePlayer, mpg int, isGeneration bool)
 	}
 
 	// Primary Progressions
-	staminaCheck := ProgressStamina(cp.Stamina, 0)
+	staminaCheck := ProgressStamina(cp.Stamina, 0, false)
 
 	potentialGrade := util.GetWeightedPotentialGrade(cp.Potential)
 
@@ -491,8 +491,13 @@ func PlayerProgression(progression int, ageDifference int, mpg int, mr int, spec
 	return util.GenerateIntFromRange(min, max)
 }
 
-func ProgressStamina(stamina int, ageDifference int) int {
+func ProgressStamina(stamina, ageDifference int, isNBA bool) int {
 	min := -1
+	if !isNBA {
+		min = 1
+	} else if isNBA && ageDifference == 0 {
+		min = 0
+	}
 	max := 5
 	if ageDifference > 0 && ageDifference < 3 {
 		min = -2
@@ -505,7 +510,11 @@ func ProgressStamina(stamina int, ageDifference int) int {
 		max = 0
 	}
 
-	return stamina + util.GenerateIntFromRange(min, max)
+	newStamina := stamina + util.GenerateIntFromRange(min, max)
+	if newStamina > 48 {
+		newStamina = 48
+	}
+	return newStamina
 }
 
 func CollegePlayerProgression(progression int, mpg int, minutesRequired int, spec bool, isRedshirting bool) int {

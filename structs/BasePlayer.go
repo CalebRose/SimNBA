@@ -50,6 +50,7 @@ type BasePlayer struct {
 	Personality          string
 	FreeAgency           string
 	RecruitingBias       string
+	RecruitingBiasValue  string
 	WorkEthic            string
 	AcademicBias         string
 	PreviousTeamID       uint
@@ -272,6 +273,10 @@ func (c *BasePlayer) SetPersonality(personality string) {
 
 func (c *BasePlayer) SetFreeAgencyBias(faBias string) {
 	c.FreeAgency = faBias
+}
+
+func (c *BasePlayer) SetRecruitingBias(recBias string) {
+	c.RecruitingBias = recBias
 }
 
 func (np *BasePlayer) SetAttributes(s2, s3, fn, ft, bl, rb, id, pd, ovr, stars, exp int) {

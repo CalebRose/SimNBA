@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"sort"
+	"strconv"
+	"sync"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
@@ -924,4 +926,38 @@ func CutNBAPlayer(playerID string) {
 	player.WaivePlayer()
 
 	db.Save(&player)
+}
+
+func GetFullTeamRosterWithCrootsMap() map[uint][]structs.CollegePlayer {
+	m := &sync.Mutex{}
+	var wg sync.WaitGroup
+	collegeTeams := GetAllActiveCollegeTeams()
+	fullMap := make(map[uint][]structs.CollegePlayer)
+	wg.Add(len(collegeTeams))
+	semaphore := make(chan struct{}, 10)
+	for _, team := range collegeTeams {
+		semaphore <- struct{}{}
+		go func(t structs.Team) {
+			defer wg.Done()
+			id := strconv.Itoa(int(t.ID))
+			collegePlayers := GetCollegePlayersByTeamId(id)
+			croots := GetSignedRecruitsByTeamProfileID(id)
+			fullList := collegePlayers
+			for _, croot := range croots {
+				p := structs.CollegePlayer{}
+				p.MapFromRecruit(croot)
+
+				fullList = append(fullList, p)
+			}
+
+			m.Lock()
+			fullMap[t.ID] = fullList
+			m.Unlock()
+			<-semaphore
+		}(team)
+	}
+
+	wg.Wait()
+	close(semaphore)
+	return fullMap
 }

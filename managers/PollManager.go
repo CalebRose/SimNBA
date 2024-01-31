@@ -54,6 +54,9 @@ func SyncCollegePollSubmissionForCurrentWeek() {
 	db := dbprovider.GetInstance().GetDB()
 
 	ts := GetTimestamp()
+	if ts.CollegeWeek > 15 && ts.CollegeWeek < 20 {
+		return
+	}
 
 	weekID := strconv.Itoa(int(ts.CollegeWeekID))
 	seasonID := strconv.Itoa(int(ts.SeasonID))
