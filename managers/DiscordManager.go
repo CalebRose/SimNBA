@@ -135,14 +135,16 @@ func GetCollegeTeamDataByID(id string) structs.CollegeTeamResponseData {
 			(m.MatchOfWeek == "C" && !ts.GamesCRan) ||
 			(m.MatchOfWeek == "D" && !ts.GamesDRan)
 
-		if (m.Week < uint(ts.CollegeWeek)) || ((strconv.Itoa(int(m.HomeTeamID)) == id && m.HomeTeamWin) ||
-			(strconv.Itoa(int(m.AwayTeamID)) == id && m.AwayTeamWin)) && !gameNotRan {
+		earlierWeek := m.Week < uint(ts.CollegeWeek)
+
+		if ((strconv.Itoa(int(m.HomeTeamID)) == id && m.HomeTeamWin) ||
+			(strconv.Itoa(int(m.AwayTeamID)) == id && m.AwayTeamWin)) && (earlierWeek || !gameNotRan) {
 			wins += 1
 			if m.IsConference {
 				confWins += 1
 			}
-		} else if (m.Week < uint(ts.CollegeWeek)) || ((strconv.Itoa(int(m.HomeTeamID)) == id && m.AwayTeamWin) ||
-			(strconv.Itoa(int(m.AwayTeamID)) == id && m.HomeTeamWin)) && !gameNotRan {
+		} else if ((strconv.Itoa(int(m.HomeTeamID)) == id && m.AwayTeamWin) ||
+			(strconv.Itoa(int(m.AwayTeamID)) == id && m.HomeTeamWin)) && (earlierWeek || !gameNotRan) {
 			losses += 1
 			if m.IsConference {
 				confLosses += 1
