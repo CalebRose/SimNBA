@@ -235,7 +235,6 @@ func GetPlayerRecruitProfileByPlayerId(playerId string, profileId string) struct
 		} else {
 			log.Fatal(err)
 		}
-
 	}
 	return recruitingPoints
 }

@@ -1,7 +1,9 @@
 package managers
 
 import (
+	"errors"
 	"fmt"
+	"log"
 	"sort"
 	"strconv"
 	"sync"
@@ -9,10 +11,12 @@ import (
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
+	"gorm.io/gorm"
 )
 
 func ProcessTransferIntention() {
 	ts := GetTimestamp()
+	db := dbprovider.GetInstance().GetDB()
 	seasonID := strconv.Itoa(int(ts.SeasonID))
 	allCollegePlayers := GetAllCollegePlayers()
 	seasonStatMap := GetCollegePlayerSeasonStatMap(seasonID)
@@ -21,17 +25,6 @@ func ProcessTransferIntention() {
 	collegeTeamMap := GetCollegeTeamMap()
 	// teamProfileMap := GetTeamProfileMap()
 	transferCount := 0
-	freshmanCount := 0
-	redshirtFreshmanCount := 0
-	sophomoreCount := 0
-	redshirtSophomoreCount := 0
-	juniorCount := 0
-	redshirtJuniorCount := 0
-	seniorCount := 0
-	redshirtSeniorCount := 0
-	lowCount := 0
-	mediumCount := 0
-	highCount := 0
 
 	upcomingTeam := "Prefers to play for an up-and-coming team"
 	differentState := "Prefers to play in a different state"
@@ -194,72 +187,147 @@ func ProcessTransferIntention() {
 			continue
 		}
 
-		if p.Year == 1 {
-			fmt.Println("Dice Roll: ", diceRoll)
-		}
-
 		// Is Intending to transfer
 		p.DeclareTransferIntention(strconv.Itoa(int(transferWeight)))
 		transferCount++
-		if p.Year == 1 && !p.IsRedshirt {
-			freshmanCount++
-		} else if p.Year == 2 && p.IsRedshirt {
-			redshirtFreshmanCount++
-		} else if p.Year == 2 && !p.IsRedshirt {
-			sophomoreCount++
-		} else if p.Year == 3 && p.IsRedshirt {
-			redshirtSophomoreCount++
-		} else if p.Year == 3 && !p.IsRedshirt {
-			juniorCount++
-		} else if p.Year == 4 && p.IsRedshirt {
-			redshirtJuniorCount++
-		} else if p.Year == 4 && !p.IsRedshirt {
-			seniorCount++
-		} else if p.Year == 5 && p.IsRedshirt {
-			redshirtSeniorCount++
-		}
-
-		if transferWeight < 25 {
-			lowCount++
-		} else if transferWeight < 45 {
-			mediumCount++
-		} else {
-			highCount++
+		if p.Stars > 3 {
+			message := "Breaking News! " + strconv.Itoa(p.Stars) + " star " + p.Position + " " + p.FirstName + " " + p.LastName + " has announced their intention to transfer from " + p.TeamAbbr + "!"
+			CreateNewsLog("CBB", message, "Transfer Portal", int(p.TeamID), ts)
 		}
 		fmt.Println(strconv.Itoa(p.Year)+" YEAR "+p.TeamAbbr+" "+p.Position+" "+p.FirstName+" "+p.LastName+" HAS ANNOUNCED THEIR INTENTION TO TRANSFER | Weight: ", int(transferWeight))
 	}
-	fmt.Println("Total number of players entering the transfer portal: ", transferCount)
-	fmt.Println("Total number of freshmen entering the transfer portal: ", freshmanCount)
-	fmt.Println("Total number of redshirt freshmen entering the transfer portal: ", redshirtFreshmanCount)
-	fmt.Println("Total number of sophomores entering the transfer portal: ", sophomoreCount)
-	fmt.Println("Total number of redshirt sophomores entering the transfer portal: ", redshirtSophomoreCount)
-	fmt.Println("Total number of juniors entering the transfer portal: ", juniorCount)
-	fmt.Println("Total number of redshirt juniors entering the transfer portal: ", redshirtJuniorCount)
-	fmt.Println("Total number of seniors entering the transfer portal: ", seniorCount)
-	fmt.Println("Total number of redshirt seniors entering the transfer portal: ", redshirtSeniorCount)
-	fmt.Println("Total number of players with low likeliness to enter transfer portal: ", lowCount)
-	fmt.Println("Total number of players with medium likeliness to enter transfer portal: ", mediumCount)
-	fmt.Println("Total number of players with high likeliness to enter transfer portal: ", highCount)
+	transferPortalMessage := "Breaking News! About " + strconv.Itoa(transferCount) + " players intend to transfer from their current schools. Teams have one week to commit promises to retain players."
+	CreateNewsLog("CBB", transferPortalMessage, "Transfer Portal", 0, ts)
+	ts.NextTransferPortalPhase()
+	db.Save(&ts)
 }
 
 func AICoachPromisePhase() {
 
 }
 
-func CreatePromise() {
+func GetCollegePromiseByID(id string) structs.CollegePromise {
+	db := dbprovider.GetInstance().GetDB()
 
+	p := structs.CollegePromise{}
+
+	err := db.Where("id = ?", id).Find(&p).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return structs.CollegePromise{}
+		} else {
+			log.Fatal(err)
+		}
+	}
+	return p
 }
 
-func UpdatePromise() {
+func GetCollegePromiseByCollegePlayerID(id string) structs.CollegePromise {
+	db := dbprovider.GetInstance().GetDB()
 
+	p := structs.CollegePromise{}
+
+	err := db.Where("college_player_id = ?", id).Find(&p).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return structs.CollegePromise{}
+		} else {
+			log.Fatal(err)
+		}
+	}
+	return p
 }
 
-func DeletePromise() {
+func CreatePromise(promise structs.CollegePromise) structs.CollegePromise {
+	db := dbprovider.GetInstance().GetDB()
+	id := strconv.Itoa(int(promise.ID))
+	existingPromise := GetCollegePromiseByID(id)
 
+	if existingPromise.ID != 0 && existingPromise.ID > 0 {
+		existingPromise.Reactivate(promise.PromiseType, promise.PromiseWeight, promise.Benchmark)
+		db.Save(&existingPromise)
+		return existingPromise
+	}
+
+	db.Create(&promise)
+	return promise
+}
+
+func UpdatePromise(promise structs.CollegePromise) {
+	db := dbprovider.GetInstance().GetDB()
+	id := strconv.Itoa(int(promise.ID))
+	existingPromise := GetCollegePromiseByID(id)
+	existingPromise.UpdatePromise(promise.PromiseType, promise.PromiseWeight, promise.Benchmark)
+	db.Save(&existingPromise)
+}
+
+func CancelPromise(id string) {
+	db := dbprovider.GetInstance().GetDB()
+	promise := GetCollegePromiseByID(id)
+	promise.Deactivate()
+	db.Save(&promise)
 }
 
 func EnterTheTransferPortal() {
+	db := dbprovider.GetInstance().GetDB()
+	ts := GetTimestamp()
+	// Get All Teams
+	teams := GetAllActiveCollegeTeams()
 
+	for _, t := range teams {
+		teamID := strconv.Itoa(int(t.ID))
+		roster := GetCollegePlayersByTeamId(teamID)
+
+		for _, p := range roster {
+			if p.TransferStatus != 1 {
+				continue
+			}
+
+			playerID := strconv.Itoa(int(p.ID))
+
+			promise := GetCollegePromiseByCollegePlayerID(playerID)
+			if promise.ID == 0 {
+				p.WillTransfer()
+				db.Save(&p)
+				continue
+			}
+			// 1-100
+			baseFloor := getTransferFloor(p.TransferLikeliness)
+			// 20, 40, 60
+			promiseModifier := getPromiseFloor(promise.PromiseWeight)
+			difference := baseFloor - promiseModifier
+
+			diceRoll := util.GenerateIntFromRange(1, 100)
+
+			// Lets say the difference is 40. 60-20.
+			if diceRoll < difference {
+				// If the dice roll is within the 40%. They leave.
+				// Okay this makes sense.
+
+				p.WillTransfer()
+				if p.Stars > 3 {
+					// Create News Log
+					message := "Breaking News! " + p.TeamAbbr + " " + strconv.Itoa(p.Stars) + " Star " + p.Position + " " + p.FirstName + " " + p.LastName + " has officially entered the transfer portal!"
+					CreateNewsLog("CBB", message, "Transfer Portal", int(p.PreviousTeamID), ts)
+				}
+				db.Save(&p)
+				db.Delete(promise)
+				continue
+			}
+			if p.Stars > 3 {
+				// Create News Log
+				message := "Breaking News! " + p.TeamAbbr + " " + strconv.Itoa(p.Stars) + " Star " + p.Position + " " + p.FirstName + " " + p.LastName + " has withdrawn their name from the transfer portal!"
+				CreateNewsLog("CBB", message, "Transfer Portal", int(p.PreviousTeamID), ts)
+			}
+			promise.MakePromise()
+			db.Save(&promise)
+			p.WillStay()
+			db.Save(&p)
+		}
+	}
+
+	ts.NextTransferPortalPhase()
+	db.Save(&ts)
 }
 
 func AddTransferPlayerToBoard() {
@@ -375,4 +443,30 @@ func filterRosterByPosition(roster []structs.CollegePlayer, pos string) []struct
 	})
 
 	return filteredList
+}
+
+// GetTransferFloor -- Get the Base Floor to determine if a player will transfer or not based on a promise
+func getTransferFloor(likeliness string) int {
+	min := 15
+	max := 100
+	if likeliness == "Low" {
+		max = 33
+	} else if likeliness == "Medium" {
+		min = 34
+		max = 60
+	} else {
+		min = 61
+	}
+
+	return util.GenerateIntFromRange(min, max)
+}
+
+// getPromiseFloor -- Get the modifier towards the floor value above
+func getPromiseFloor(weight string) int {
+	if weight == "Low" {
+		return 20
+	} else if weight == "Medium" {
+		return 40
+	}
+	return 60
 }

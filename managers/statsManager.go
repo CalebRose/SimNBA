@@ -231,6 +231,16 @@ func GetNBAPlayerSeasonStatsByPlayerID(playerID string, seasonID string) structs
 	return seasonStats
 }
 
+func GetNBATeamStatsBySeason(teamID, seasonId string) []structs.NBATeamStats {
+	db := dbprovider.GetInstance().GetDB()
+
+	var teamStats []structs.NBATeamStats
+
+	db.Where("team_id = ? AND season_id = ?", teamID, seasonId).Find(&teamStats)
+
+	return teamStats
+}
+
 func GetTeamSeasonStatsByTeamID(teamID string, seasonID string) structs.TeamSeasonStats {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -408,17 +418,54 @@ func FixNBASeasonTables() {
 
 	ts := GetTimestamp()
 	seasonID := strconv.Itoa(int(ts.SeasonID))
-	nbaPlayers := GetAllNBAPlayers()
+	// nbaPlayers := GetAllNBAPlayers()
+	// teams := GetAllActiveNBATeams()
 
-	for _, p := range nbaPlayers {
-		id := strconv.Itoa(int(p.ID))
-		stats := GetNBAPlayerStatsBySeason(id, seasonID)
-		seasonStats := GetNBAPlayerSeasonStatsByPlayerID(id, seasonID)
-		for _, s := range stats {
-			seasonStats.AddStatsToSeasonRecord(s)
+	// for _, p := range nbaPlayers {
+	// 	id := strconv.Itoa(int(p.ID))
+	// 	stats := GetNBAPlayerStatsBySeason(id, seasonID)
+	// 	if len(stats) == 0 {
+	// 		continue
+	// 	}
+	// 	seasonStats := GetNBAPlayerSeasonStatsByPlayerID(id, seasonID)
+	// 	seasonStats.ResetSeasonsRecord()
+	// 	for _, s := range stats {
+	// 		seasonStats.AddStatsToSeasonRecord(s)
+	// 	}
+	// 	db.Save(&seasonStats)
+	// }
+
+	// for _, team := range teams {
+	// 	id := strconv.Itoa(int(team.ID))
+	// 	teamStats := GetNBATeamStatsBySeason(id, seasonID)
+	// 	if len(teamStats) == 0 {
+	// 		continue
+	// 	}
+	// 	seasonStats := GetNBATeamSeasonStatsByTeamID(id, seasonID)
+	// 	seasonStats.ResetSeasonsRecord()
+	// 	for _, s := range teamStats {
+	// 		seasonStats.AddStatsToSeasonRecord(s)
+	// 	}
+
+	// 	db.Save(&seasonStats)
+	// }
+
+	standings := GetAllNBAConferenceStandingsBySeasonID(seasonID)
+
+	for _, s := range standings {
+		id := strconv.Itoa(int(s.TeamID))
+		nbaMatches := GetNBATeamMatchesBySeasonId(seasonID, id)
+		if len(nbaMatches) == 0 {
+			continue
 		}
-
-		db.Create(&seasonStats)
+		s.ResetStandings()
+		for _, m := range nbaMatches {
+			if !m.GameComplete {
+				continue
+			}
+			s.UpdateNBAStandings(m)
+		}
+		db.Save(&s)
 	}
 }
 

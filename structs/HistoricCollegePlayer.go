@@ -17,6 +17,7 @@ type HistoricCollegePlayer struct {
 	TransferLikeliness string                   // Low, Medium, High
 	Stats              []CollegePlayerStats     `gorm:"foreignKey:CollegePlayerID"`
 	SeasonStats        CollegePlayerSeasonStats `gorm:"foreignKey:CollegePlayerID"`
+	Profiles           []TransferPortalProfile  `gorm:"foreignKey:CollegePlayerID"`
 }
 
 func (h *HistoricCollegePlayer) Map(cp CollegePlayer) {

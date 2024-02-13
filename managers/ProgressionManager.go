@@ -117,10 +117,14 @@ func ProgressionMain() {
 		}
 
 	}
+	ts.ToggleCollegeProgression()
+	ts.NextTransferPortalPhase()
+	db.Save(&ts)
 }
 
 func ProgressNBAPlayers() {
 	db := dbprovider.GetInstance().GetDB()
+	ts := GetTimestamp()
 	fmt.Println(time.Now().UnixNano())
 
 	nbaTeams := GetAllActiveNBATeams()
@@ -161,8 +165,9 @@ func ProgressNBAPlayers() {
 				db.Save(&player)
 			}
 		}
-
 	}
+	ts.ToggleProfessionalProgression()
+	db.Save(&ts)
 }
 
 func ProgressNBAPlayer(np structs.NBAPlayer, isISLGen bool) structs.NBAPlayer {

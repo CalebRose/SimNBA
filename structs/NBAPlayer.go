@@ -34,6 +34,7 @@ type NBAPlayer struct {
 	MinimumValue        float64
 	SigningRound        uint
 	NegotiationRound    uint
+	HasProgressed       bool
 	Offers              []NBAContractOffer   `gorm:"foreignKey:PlayerID"`
 	WaiverOffers        []NBAWaiverOffer     `gorm:"foreignKey:PlayerID"`
 	Contract            NBAContract          `gorm:"foreignKey:PlayerID"`

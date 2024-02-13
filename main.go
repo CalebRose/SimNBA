@@ -108,7 +108,7 @@ func handleRequests() {
 	// myRouter.HandleFunc("/admin/generateCroots", controller.GenerateCroots).Methods("GET")
 	// myRouter.HandleFunc("/admin/generate/international", controller.GenerateInternationalPlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/allocate/international/rosters", controller.GenerateInternationalRoster).Methods("GET")
-	// myRouter.HandleFunc("/admin/fix/height", controller.FixHeight).Methods("GET")
+	// myRouter.HandleFunc("/admin/fix/nba/records", controller.FixNBASeasonTables).Methods("GET")
 	// myRouter.HandleFunc("/generate/playtime/expectations", controller.GeneratePlaytimeExpectations).Methods("GET")
 
 	// Import

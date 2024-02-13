@@ -303,6 +303,46 @@ func (s *NBATeamSeasonStats) RemoveStatsToSeasonRecord(stat NBATeamStats) {
 	s.FoulsPerGame = float64(s.Fouls) / float64(s.GamesPlayed)
 }
 
+func (s *NBATeamSeasonStats) ResetSeasonsRecord() {
+	s.GamesPlayed = 0
+	s.Possessions = 0
+	s.FGM = 0
+	s.FGA = 0
+	s.FGPercent = 0
+	s.FGMAgainst = 0
+	s.FGAAgainst = 0
+	s.FGPercentAgainst = 0
+	s.ThreePointsMade = 0
+	s.ThreePointAttempts = 0
+	s.ThreePointPercent = 0
+	s.ThreePointsMadeAgainst = 0
+	s.ThreePointAttemptsAgainst = 0
+	s.ThreePointPercentAgainst = 0
+	s.FTM = 0
+	s.FTA = 0
+	s.FTPercent = 0
+	s.FTMAgainst = 0
+	s.FTAAgainst = 0
+	s.FTPercentAgainst = 0
+	s.Points = 0
+	s.PointsAgainst = 0
+	s.Rebounds = 0
+	s.OffRebounds = 0
+	s.DefRebounds = 0
+	s.ReboundsAllowed = 0
+	s.OffReboundsAllowed = 0
+	s.DefReboundsAllowed = 0
+	s.Assists = 0
+	s.AssistsAllowed = 0
+	s.Steals = 0
+	s.StealsAllowed = 0
+	s.Blocks = 0
+	s.BlocksAllowed = 0
+	s.TotalTurnovers = 0
+	s.TurnoversAllowed = 0
+	s.Fouls = 0
+}
+
 type NBAPlayerSeasonStats struct {
 	gorm.Model
 	GamesPlayed               uint
@@ -484,4 +524,45 @@ func (s *NBAPlayerSeasonStats) RemoveStatsToSeasonRecord(stat NBAPlayerStats) {
 	s.BlocksPerGame = float64(s.Blocks) / float64(s.GamesPlayed)
 	s.TurnoversPerGame = float64(s.Turnovers) / float64(s.GamesPlayed)
 	s.FoulsPerGame = float64(s.Fouls) / float64(s.GamesPlayed)
+}
+
+func (s *NBAPlayerSeasonStats) ResetSeasonsRecord() {
+	s.GamesPlayed = 0
+	s.Minutes = 0
+	s.Possessions = 0
+	s.FGM = 0
+	s.FGA = 0
+	s.FGPercent = 0
+	s.ThreePointsMade = 0
+	s.ThreePointAttempts = 0
+	s.ThreePointPercent = 0
+	s.FTM = 0
+	s.FTA = 0
+	s.FTPercent = 0
+	s.Points = 0
+	s.TotalRebounds = 0
+	s.OffRebounds = 0
+	s.DefRebounds = 0
+	s.Assists = 0
+	s.Steals = 0
+	s.Blocks = 0
+	s.Turnovers = 0
+	s.Fouls = 0
+	s.PPG = 0
+	s.PossessionsPerGame = 0
+	s.MinutesPerGame = 0
+	s.FGMPG = 0
+	s.FGAPG = 0
+	s.ThreePointsMadePerGame = 0
+	s.ThreePointAttemptsPerGame = 0
+	s.FTMPG = 0
+	s.FTAPG = 0
+	s.ReboundsPerGame = 0
+	s.OffReboundsPerGame = 0
+	s.DefReboundsPerGame = 0
+	s.AssistsPerGame = 0
+	s.StealsPerGame = 0
+	s.BlocksPerGame = 0
+	s.TurnoversPerGame = 0
+	s.FoulsPerGame = 0
 }

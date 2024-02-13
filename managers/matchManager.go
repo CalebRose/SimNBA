@@ -420,4 +420,23 @@ func GetUpcomingMatchesByTeamIdAndSeasonId(teamId string, seasonId string) []str
 	return teamMatches
 }
 
-// SAVE
+// GetNBASeriesBySeriesID -- Get an NBA Playoff Series Record
+func GetNBASeriesBySeriesID(seriesID string) structs.NBASeries {
+	db := dbprovider.GetInstance().GetDB()
+
+	var nbaSeries structs.NBASeries
+
+	db.Where("id = ?", seriesID).Find(&nbaSeries)
+
+	return nbaSeries
+}
+
+func GetAllActiveNBASeries() []structs.NBASeries {
+	db := dbprovider.GetInstance().GetDB()
+
+	var nbaSeries []structs.NBASeries
+
+	db.Where("series_complete = ?", false).Find(&nbaSeries)
+
+	return nbaSeries
+}

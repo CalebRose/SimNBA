@@ -24,27 +24,48 @@ func SyncRecruitingViaCron() {
 	if ts.RunCron && ts.CollegeWeek < 15 && ts.CollegeWeek > 0 {
 		managers.SyncRecruiting()
 	}
+	if ts.RunCron && ts.IsOffSeason {
+		// Run First Phase of Transfer Portal
+		if ts.TransferPortalPhase == 1 {
+			managers.ProcessTransferIntention()
+		} else if ts.TransferPortalPhase == 2 && !ts.ProgressedCollegePlayers {
+			// Run Second Phase of Transfer Portal (Progressions & Move Players Over)
+			// If CBB Progression wasn't ran
+			managers.ProgressionMain()
+			managers.SyncPromises()
+			managers.EnterTheTransferPortal()
+		} else if ts.TransferPortalPhase == 3 {
+			// Run Transfer Portal (Rounds 1-10)
+			managers.SyncTransferPortal()
+		}
+	}
 }
 
 func SyncToNextWeekViaCron() {
 	ts := managers.GetTimestamp()
-	if ts.RunCron {
-		managers.ResetCollegeStandingsRanks()
+	if ts.RunCron && (!ts.IsOffSeason || !ts.IsNBAOffseason) {
 		managers.SyncToNextWeek()
-		managers.SyncCollegePollSubmissionForCurrentWeek()
 	}
+
+	if ts.RunCron && ts.IsNBAOffseason && ts.IsFreeAgencyLocked {
+		// If NBA Progression Wasn't Ran, Run Progression
+		if !ts.ProgressedProfessionalPlayers {
+			managers.ProgressNBAPlayers()
+		}
+	}
+
 }
 
 func ShowGamesViaCron() {
 	ts := managers.GetTimestamp()
-	if ts.RunCron {
+	if ts.RunCron && (!ts.IsOffSeason || !ts.IsNBAOffseason) {
 		managers.ShowGames()
 	}
 }
 
 func SyncFreeAgencyOffersViaCron() {
 	ts := managers.GetTimestamp()
-	if ts.RunCron {
+	if ts.RunCron && !ts.IsFreeAgencyLocked {
 		managers.SyncFreeAgencyOffers()
 		managers.MoveUpInOffseasonFreeAgency()
 	}

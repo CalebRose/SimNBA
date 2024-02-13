@@ -103,3 +103,35 @@ type NBASeries struct {
 	IsTheFinals     bool
 	SeriesComplete  bool
 }
+
+func (s *NBASeries) AddTeam(isHome bool, id, rank uint, team, coach string) {
+	if isHome {
+		s.HomeTeam = team
+		s.HomeTeamID = id
+		s.HomeTeamRank = rank
+		s.HomeTeamCoach = coach
+	} else {
+		s.AwayTeam = team
+		s.AwayTeamID = id
+		s.AwayTeamRank = rank
+		s.AwayTeamCoach = coach
+	}
+}
+
+func (s *NBASeries) UpdateWinCount(homeTeamWin bool) {
+	if homeTeamWin {
+		s.HomeTeamWins += 1
+	} else {
+		s.AwayTeamWins += 1
+	}
+	s.GameCount += 1
+	if s.HomeTeamWins > 3 && !s.IsInternational {
+		s.HomeTeamWin = true
+		s.SeriesComplete = true
+	}
+	if s.AwayTeamWins > 3 && !s.IsInternational {
+		s.AwayTeamWin = true
+		s.SeriesComplete = true
+	}
+
+}

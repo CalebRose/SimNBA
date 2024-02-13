@@ -52,7 +52,7 @@ func AllCoachedTeams(w http.ResponseWriter, r *http.Request) {
 	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.Team
-	db.Where("coach is not null AND coach NOT IN (?,?)", "", "AI").Order("team asc").Find(&teams)
+	db.Where("is_user_coached = ?", true).Order("team asc").Find(&teams)
 	json.NewEncoder(w).Encode(teams)
 }
 

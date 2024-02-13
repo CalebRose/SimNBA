@@ -5,34 +5,38 @@ import "github.com/jinzhu/gorm"
 // Timestamp - The Global Timestamp for the Season
 type Timestamp struct {
 	gorm.Model
-	SeasonID                  uint
-	Season                    int
-	CollegeWeekID             uint
-	NBAWeekID                 uint
-	CollegeWeek               int
-	NBAWeek                   int
-	GamesARan                 bool
-	GamesBRan                 bool
-	GamesCRan                 bool
-	GamesDRan                 bool
-	CollegePollRan            bool
-	RecruitingSynced          bool
-	GMActionsComplete         bool
-	IsRecruitingLocked        bool
-	AIBoardsCreated           bool
-	AIPointAllocationComplete bool
-	IsOffSeason               bool
-	IsNBAOffseason            bool
-	NBAPreseason              bool
-	IsFreeAgencyLocked        bool
-	IsDraftTime               bool
-	Y1Capspace                float64
-	Y2Capspace                float64
-	Y3Capspace                float64
-	Y4Capspace                float64
-	Y5Capspace                float64
-	FreeAgencyRound           uint
-	RunCron                   bool
+	SeasonID                      uint
+	Season                        int
+	CollegeWeekID                 uint
+	NBAWeekID                     uint
+	CollegeWeek                   int
+	NBAWeek                       int
+	GamesARan                     bool
+	GamesBRan                     bool
+	GamesCRan                     bool
+	GamesDRan                     bool
+	CollegePollRan                bool
+	RecruitingSynced              bool
+	GMActionsComplete             bool
+	IsRecruitingLocked            bool
+	AIBoardsCreated               bool
+	AIPointAllocationComplete     bool
+	IsOffSeason                   bool
+	IsNBAOffseason                bool
+	NBAPreseason                  bool
+	IsFreeAgencyLocked            bool
+	IsDraftTime                   bool
+	ProgressedCollegePlayers      bool
+	ProgressedProfessionalPlayers bool
+	Y1Capspace                    float64
+	Y2Capspace                    float64
+	Y3Capspace                    float64
+	Y4Capspace                    float64
+	Y5Capspace                    float64
+	FreeAgencyRound               uint
+	RunCron                       bool
+	TransferPortalPhase           uint
+	TransferPortalRound           uint
 }
 
 func (t *Timestamp) MoveUpWeekCollege() {
@@ -94,18 +98,37 @@ func (t *Timestamp) ToggleFALock() {
 	t.IsFreeAgencyLocked = !t.IsFreeAgencyLocked
 }
 
+func (t *Timestamp) ToggleCollegeProgression() {
+	t.ProgressedCollegePlayers = !t.ProgressedCollegePlayers
+}
+
+func (t *Timestamp) ToggleProfessionalProgression() {
+	t.ProgressedProfessionalPlayers = !t.ProgressedProfessionalPlayers
+	t.IsFreeAgencyLocked = false
+	t.IsDraftTime = true
+}
+
 func (t *Timestamp) SyncToNextWeek() {
-	t.MoveUpWeekCollege()
-	t.MoveUpWeekNBA()
-	// Reset Toggles
-	t.GamesARan = false
-	t.GamesBRan = false
-	t.GamesCRan = false
-	t.GamesDRan = false
-	t.RecruitingSynced = false
-	t.AIPointAllocationComplete = false
-	t.GMActionsComplete = false
-	t.TogglePollRan()
+	if t.CollegeWeek < 21 {
+		t.MoveUpWeekCollege()
+	}
+	if !t.IsNBAOffseason {
+		t.MoveUpWeekNBA()
+		t.GMActionsComplete = false
+	}
+	if !t.IsOffSeason || t.CollegeWeek < 21 {
+		t.RecruitingSynced = false
+		t.AIPointAllocationComplete = false
+		t.TogglePollRan()
+	}
+
+	if !t.IsOffSeason || !t.IsNBAOffseason {
+		// Reset Toggles
+		t.GamesARan = false
+		t.GamesBRan = false
+		t.GamesCRan = false
+		t.GamesDRan = false
+	}
 }
 
 func (t *Timestamp) MoveUpFreeAgencyRound() {
@@ -120,4 +143,29 @@ func (t *Timestamp) MoveUpFreeAgencyRound() {
 func (t *Timestamp) ToggleDraftTime() {
 	t.IsDraftTime = !t.IsDraftTime
 	// t.IsNBAOffseason = false
+}
+
+func (t *Timestamp) EndTheCollegeSeason() {
+	t.IsOffSeason = true
+	t.TransferPortalPhase = 1
+}
+
+func (t *Timestamp) NextTransferPortalPhase() {
+	t.TransferPortalPhase += 1
+	if t.TransferPortalPhase == 3 {
+		t.TransferPortalRound = 1
+	}
+}
+
+func (t *Timestamp) IncrementTransferPortalRound() {
+	if t.TransferPortalRound < 10 {
+		t.TransferPortalRound += 1
+	}
+}
+
+func (t *Timestamp) EndTheProfessionalSeason() {
+	t.IsNBAOffseason = true
+	t.FreeAgencyRound = 1
+	t.IsDraftTime = false
+	t.IsFreeAgencyLocked = true
 }
