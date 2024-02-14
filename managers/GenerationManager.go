@@ -76,6 +76,9 @@ func GenerateNewTeams() {
 	var positionList []string = []string{"PG", "SG", "PF", "SF", "C"}
 
 	for _, team := range teams {
+		if team.ID != 367 {
+			continue
+		}
 		// Test Generation
 		yearList := []int{}
 		players := GetCollegePlayersByTeamId(strconv.Itoa(int(team.ID)))
@@ -634,10 +637,10 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 	overall := (int((shooting2 + shooting3 + freeThrow) / 3)) + finishing + ballwork + rebounding + int((interiorDefense+perimeterDefense)/2)
 	stars := getStarRating(overall)
 
-	potential -= util.GenerateIntFromRange(20, 30)
+	potential -= util.GenerateIntFromRange(1, 30)
 
 	if potential < 0 {
-		potential = util.GenerateIntFromRange(5, 25)
+		potential = util.GenerateIntFromRange(5, 30)
 	}
 
 	expectations := util.GetPlaytimeExpectations(stars, year, overall)
