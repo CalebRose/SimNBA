@@ -24,7 +24,7 @@ func SyncRecruitingViaCron() {
 	if ts.RunCron && ts.CollegeWeek < 15 && ts.CollegeWeek > 0 {
 		managers.SyncRecruiting()
 	}
-	if ts.RunCron && ts.IsOffSeason {
+	if ts.RunCron && ts.IsOffSeason && ts.CollegeSeasonOver {
 		// Run First Phase of Transfer Portal
 		if ts.TransferPortalPhase == 1 {
 			managers.ProcessTransferIntention()
@@ -39,6 +39,14 @@ func SyncRecruitingViaCron() {
 			managers.SyncTransferPortal()
 		}
 	}
+
+	if ts.RunCron && ts.IsOffSeason && !ts.CrootsGenerated {
+		managers.GenerateCroots()
+		// Reset Team Profiles, allocate bonus points where necessary
+		// Generate Standings Records too
+		managers.GenerateCollegeStandings()
+		managers.GenerateNBAStandings()
+	}
 }
 
 func SyncToNextWeekViaCron() {
@@ -49,7 +57,7 @@ func SyncToNextWeekViaCron() {
 
 	if ts.RunCron && ts.IsNBAOffseason && ts.IsFreeAgencyLocked {
 		// If NBA Progression Wasn't Ran, Run Progression
-		if !ts.ProgressedProfessionalPlayers {
+		if !ts.ProgressedProfessionalPlayers && ts.NBASeasonOver {
 			managers.ProgressNBAPlayers()
 		}
 	}

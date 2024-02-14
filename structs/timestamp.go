@@ -28,6 +28,9 @@ type Timestamp struct {
 	IsDraftTime                   bool
 	ProgressedCollegePlayers      bool
 	ProgressedProfessionalPlayers bool
+	CollegeSeasonOver             bool
+	NBASeasonOver                 bool
+	CrootsGenerated               bool
 	Y1Capspace                    float64
 	Y2Capspace                    float64
 	Y3Capspace                    float64
@@ -37,6 +40,24 @@ type Timestamp struct {
 	RunCron                       bool
 	TransferPortalPhase           uint
 	TransferPortalRound           uint
+}
+
+func (t *Timestamp) MoveUpASeason() {
+	t.SeasonID++
+	t.Season++
+	t.CollegeSeasonOver = false
+	t.NBASeasonOver = false
+	t.CollegeWeek = 0
+	t.CollegeWeekID += 1
+	t.NBAWeek = 0
+	t.NBAWeekID += 1
+	t.TransferPortalPhase = 0
+	t.CrootsGenerated = false
+	t.Y1Capspace = t.Y2Capspace
+	t.Y2Capspace = t.Y3Capspace
+	t.Y3Capspace = t.Y4Capspace
+	t.Y4Capspace = t.Y5Capspace
+	t.Y5Capspace = t.Y5Capspace + 5
 }
 
 func (t *Timestamp) MoveUpWeekCollege() {
@@ -86,6 +107,10 @@ func (t *Timestamp) ToggleLockRecruiting() {
 	t.IsRecruitingLocked = !t.IsRecruitingLocked
 }
 
+func (t *Timestamp) ToggleGeneratedCroots() {
+	t.CrootsGenerated = !t.CrootsGenerated
+}
+
 func (t *Timestamp) ToggleGMActions() {
 	t.GMActionsComplete = !t.GMActionsComplete
 }
@@ -129,6 +154,10 @@ func (t *Timestamp) SyncToNextWeek() {
 		t.GamesCRan = false
 		t.GamesDRan = false
 	}
+
+	if t.CollegeSeasonOver && t.NBASeasonOver {
+		t.MoveUpASeason()
+	}
 }
 
 func (t *Timestamp) MoveUpFreeAgencyRound() {
@@ -148,13 +177,11 @@ func (t *Timestamp) ToggleDraftTime() {
 func (t *Timestamp) EndTheCollegeSeason() {
 	t.IsOffSeason = true
 	t.TransferPortalPhase = 1
+	t.CollegeSeasonOver = true
 }
 
 func (t *Timestamp) NextTransferPortalPhase() {
 	t.TransferPortalPhase += 1
-	if t.TransferPortalPhase == 3 {
-		t.TransferPortalRound = 1
-	}
 }
 
 func (t *Timestamp) IncrementTransferPortalRound() {
@@ -168,4 +195,5 @@ func (t *Timestamp) EndTheProfessionalSeason() {
 	t.FreeAgencyRound = 1
 	t.IsDraftTime = false
 	t.IsFreeAgencyLocked = true
+	t.NBASeasonOver = true
 }

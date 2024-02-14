@@ -212,7 +212,7 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 				series := GetNBASeriesBySeriesID(seriesID)
 				series.UpdateWinCount(game.HomeTeamWin)
 
-				if series.GameCount < 7 || (series.HomeTeamWins < 4 && series.AwayTeamWins < 4) {
+				if series.GameCount < 7 && (series.HomeTeamWins < 4 && series.AwayTeamWins < 4) {
 
 					homeTeamID := 0
 					nextHomeTeam := ""
@@ -292,32 +292,33 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 					}
 
 					db.Create(&nextGame)
-				} else if !series.IsTheFinals {
-					// Promote Team to Next Series
-					nextSeriesID := strconv.Itoa(int(series.NextSeriesID))
-					nextSeriesHoa := series.NextSeriesHOA
-					nextSeries := GetNBASeriesBySeriesID(nextSeriesID)
-					var teamID uint = 0
-					teamLabel := ""
-					teamCoach := ""
-					teamRank := 0
-					if series.HomeTeamWin {
-						teamID = series.HomeTeamID
-						teamLabel = series.HomeTeam
-						teamCoach = series.HomeTeamCoach
-						teamRank = int(series.HomeTeamRank)
-					} else {
-						teamID = series.AwayTeamID
-						teamLabel = series.AwayTeam
-						teamCoach = series.AwayTeamCoach
-						teamRank = int(series.AwayTeamRank)
-					}
-
-					nextSeries.AddTeam(nextSeriesHoa == "H", teamID, uint(teamRank), teamLabel, teamCoach)
-					db.Save(&nextSeries)
 				} else {
-					// Officially End the season
-					ts.EndTheProfessionalSeason()
+					if !series.IsTheFinals {
+						// Promote Team to Next Series
+						nextSeriesID := strconv.Itoa(int(series.NextSeriesID))
+						nextSeriesHoa := series.NextSeriesHOA
+						nextSeries := GetNBASeriesBySeriesID(nextSeriesID)
+						var teamID uint = 0
+						teamLabel := ""
+						teamCoach := ""
+						teamRank := 0
+						if series.HomeTeamWin {
+							teamID = series.HomeTeamID
+							teamLabel = series.HomeTeam
+							teamCoach = series.HomeTeamCoach
+							teamRank = int(series.HomeTeamRank)
+						} else {
+							teamID = series.AwayTeamID
+							teamLabel = series.AwayTeam
+							teamCoach = series.AwayTeamCoach
+							teamRank = int(series.AwayTeamRank)
+						}
+						nextSeries.AddTeam(nextSeriesHoa == "H", teamID, uint(teamRank), teamLabel, teamCoach)
+						db.Save(&nextSeries)
+					} else {
+						// Officially End the season
+						ts.EndTheProfessionalSeason()
+					}
 				}
 			}
 		}
@@ -369,4 +370,67 @@ func GetCollegeStandingsMap(seasonID string) map[uint]structs.CollegeStandings {
 	}
 
 	return standingsMap
+}
+
+func GenerateCollegeStandings() {
+	db := dbprovider.GetInstance().GetDB()
+	ts := GetTimestamp()
+	teams := GetAllActiveCollegeTeams()
+
+	for _, t := range teams {
+		if !t.IsActive {
+			continue
+		}
+
+		standings := structs.CollegeStandings{
+			TeamID:           t.ID,
+			TeamName:         t.Team,
+			TeamAbbr:         t.Abbr,
+			SeasonID:         ts.SeasonID,
+			Season:           ts.Season,
+			ConferenceID:     t.ConferenceID,
+			ConferenceName:   t.Conference,
+			PostSeasonStatus: "None",
+			BaseStandings: structs.BaseStandings{
+				Coach: t.Coach,
+			},
+		}
+
+		db.Create(&standings)
+	}
+}
+
+func GenerateNBAStandings() {
+	db := dbprovider.GetInstance().GetDB()
+	ts := GetTimestamp()
+	teams := GetAllActiveNBATeams()
+
+	for _, t := range teams {
+		if !t.IsActive {
+			continue
+		}
+		coachName := t.NBACoachName
+		if coachName == "AI" || len(coachName) == 0 {
+			coachName = t.NBAOwnerName
+		}
+		standings := structs.NBAStandings{
+			TeamID:           t.ID,
+			TeamName:         t.Team,
+			TeamAbbr:         t.Abbr,
+			SeasonID:         ts.SeasonID,
+			Season:           ts.Season,
+			ConferenceID:     t.ConferenceID,
+			ConferenceName:   t.Conference,
+			DivisionID:       t.DivisionID,
+			DivisionName:     t.Division,
+			LeagueID:         t.LeagueID,
+			League:           t.League,
+			PostSeasonStatus: "None",
+			BaseStandings: structs.BaseStandings{
+				Coach: coachName,
+			},
+		}
+
+		db.Create(&standings)
+	}
 }

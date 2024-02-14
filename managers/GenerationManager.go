@@ -237,6 +237,7 @@ func GenerateGlobalPlayerRecords() {
 func GenerateCroots() {
 	db := dbprovider.GetInstance().GetDB()
 	var lastPlayerRecord structs.GlobalPlayer
+	ts := GetTimestamp()
 
 	err := db.Last(&lastPlayerRecord).Error
 	if err != nil {
@@ -282,6 +283,8 @@ func GenerateCroots() {
 		count++
 		newID++
 	}
+	ts.ToggleGeneratedCroots()
+	db.Save(&ts)
 	// return playerList
 }
 
