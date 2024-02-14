@@ -545,8 +545,6 @@ func CollegePlayerProgression(progression int, mpg int, minutesRequired int, spe
 		} else if diff > 1 {
 			regressionMax = 1
 		}
-
-		max = 0
 		min = min - regressionMax
 	}
 	if spec && max > 0 {
