@@ -88,6 +88,8 @@ func GetTeamRosterForRosterPage(teamId string) []structs.CollegePlayerResponse {
 			InsideProportion:      p.InsideProportion,
 			MidRangeProportion:    p.MidRangeProportion,
 			ThreePointProportion:  p.ThreePointProportion,
+			TransferStatus:        p.TransferStatus,
+			TransferLikeliness:    p.TransferLikeliness,
 		}
 
 		responseList = append(responseList, res)
@@ -356,14 +358,76 @@ func GetAllCollegePlayers() []structs.CollegePlayer {
 	return players
 }
 
-func GetTransferPortalPlayers() []structs.CollegePlayer {
+func GetTransferPortalPlayers() []structs.CollegePlayerResponse {
 	db := dbprovider.GetInstance().GetDB()
 
 	var players []structs.CollegePlayer
 
 	db.Where("transfer_status > 0").Find(&players)
 
-	return players
+	playerList := []structs.CollegePlayerResponse{}
+
+	for _, p := range players {
+		shooting2Grade := util.GetAttributeGrade(p.Shooting2)
+		shooting3Grade := util.GetAttributeGrade(p.Shooting3)
+		freeThrowGrade := util.GetAttributeGrade(p.FreeThrow)
+		finishingGrade := util.GetAttributeGrade(p.Finishing)
+		reboundingGrade := util.GetAttributeGrade(p.Rebounding)
+		ballworkGrade := util.GetAttributeGrade(p.Ballwork)
+		interiorDefenseGrade := util.GetAttributeGrade(p.InteriorDefense)
+		perimeterDefenseGrade := util.GetAttributeGrade(p.PerimeterDefense)
+		potentialGrade := util.GetPotentialGrade(p.Potential)
+		overallGrade := util.GetPlayerOverallGrade(p.Overall)
+		res := structs.CollegePlayerResponse{
+			FirstName:             p.FirstName,
+			LastName:              p.LastName,
+			Position:              p.Position,
+			Age:                   p.Age,
+			Year:                  p.Year,
+			State:                 p.State,
+			Country:               p.Country,
+			Stars:                 p.Stars,
+			Height:                p.Height,
+			PotentialGrade:        potentialGrade,
+			Shooting2Grade:        shooting2Grade,
+			Shooting3Grade:        shooting3Grade,
+			FreeThrowGrade:        freeThrowGrade,
+			FinishingGrade:        finishingGrade,
+			BallworkGrade:         ballworkGrade,
+			ReboundingGrade:       reboundingGrade,
+			InteriorDefenseGrade:  interiorDefenseGrade,
+			PerimeterDefenseGrade: perimeterDefenseGrade,
+			OverallGrade:          overallGrade,
+			Stamina:               p.Stamina,
+			PlaytimeExpectations:  p.PlaytimeExpectations,
+			Minutes:               p.Minutes,
+			Potential:             p.Potential,
+			Personality:           p.Personality,
+			RecruitingBias:        p.RecruitingBias,
+			WorkEthic:             p.WorkEthic,
+			AcademicBias:          p.AcademicBias,
+			PlayerID:              p.PlayerID,
+			TeamID:                p.TeamID,
+			TeamAbbr:              p.TeamAbbr,
+			IsRedshirting:         p.IsRedshirting,
+			IsRedshirt:            p.IsRedshirt,
+			PositionOne:           p.PositionOne,
+			PositionTwo:           p.PositionTwo,
+			PositionThree:         p.PositionThree,
+			P1Minutes:             p.P1Minutes,
+			P2Minutes:             p.P2Minutes,
+			P3Minutes:             p.P3Minutes,
+			InsideProportion:      p.InsideProportion,
+			MidRangeProportion:    p.MidRangeProportion,
+			ThreePointProportion:  p.ThreePointProportion,
+			TransferStatus:        p.TransferStatus,
+			TransferLikeliness:    p.TransferLikeliness,
+		}
+
+		playerList = append(playerList, res)
+	}
+
+	return playerList
 }
 
 func GetCollegePlayerMap() map[uint]structs.CollegePlayer {
