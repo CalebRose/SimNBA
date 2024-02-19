@@ -36,6 +36,7 @@ type CollegePlayerResponse struct {
 	OverallGrade          string
 	Personality           string
 	RecruitingBias        string
+	RecruitingBiasValue   string
 	WorkEthic             string
 	AcademicBias          string
 	PlayerID              uint
@@ -43,6 +44,8 @@ type CollegePlayerResponse struct {
 	TeamAbbr              string
 	IsRedshirting         bool
 	IsRedshirt            bool
+	PreviousTeamID        uint
+	PreviousTeam          string
 	TransferStatus        int    // 1 == Intends, 2 == Is Transferring
 	TransferLikeliness    string // Low, Medium, High
 	LegacyID              uint   // Either a legacy school or a legacy coach

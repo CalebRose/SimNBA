@@ -358,7 +358,17 @@ func GetAllCollegePlayers() []structs.CollegePlayer {
 	return players
 }
 
-func GetTransferPortalPlayers() []structs.CollegePlayerResponse {
+func GetTransferPortalPlayers() []structs.CollegePlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var players []structs.CollegePlayer
+
+	db.Where("transfer_status > 0").Find(&players)
+
+	return players
+}
+
+func GetTransferPortalPlayersForPage() []structs.CollegePlayerResponse {
 	db := dbprovider.GetInstance().GetDB()
 
 	var players []structs.CollegePlayer
@@ -422,6 +432,9 @@ func GetTransferPortalPlayers() []structs.CollegePlayerResponse {
 			ThreePointProportion:  p.ThreePointProportion,
 			TransferStatus:        p.TransferStatus,
 			TransferLikeliness:    p.TransferLikeliness,
+			PreviousTeamID:        p.PreviousTeamID,
+			PreviousTeam:          p.PreviousTeam,
+			RecruitingBiasValue:   p.RecruitingBiasValue,
 		}
 
 		playerList = append(playerList, res)

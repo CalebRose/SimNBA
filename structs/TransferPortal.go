@@ -104,6 +104,6 @@ func (p *TransferPortalProfile) ToggleRolledOnPromise() {
 type TransferPortalResponse struct {
 	Team         TeamRecruitingProfile
 	TeamBoard    []TransferPortalProfile
-	TeamPromises []CollegePromise // List of all promises
-	Players      []CollegePlayer  // List of all Transfer Portal Players
+	TeamPromises []CollegePromise        // List of all promises
+	Players      []CollegePlayerResponse // List of all Transfer Portal Players
 }

@@ -1041,7 +1041,7 @@ func GetTransferPortalData(teamID string) structs.TransferPortalResponse {
 	var waitgroup sync.WaitGroup
 	waitgroup.Add(4)
 	profileChan := make(chan structs.TeamRecruitingProfile)
-	playersChan := make(chan []structs.CollegePlayer)
+	playersChan := make(chan []structs.CollegePlayerResponse)
 	boardChan := make(chan []structs.TransferPortalProfile)
 	promiseChan := make(chan []structs.CollegePromise)
 
@@ -1060,7 +1060,7 @@ func GetTransferPortalData(teamID string) structs.TransferPortalResponse {
 	}()
 	go func() {
 		defer waitgroup.Done()
-		tpPlayers := GetTransferPortalPlayers()
+		tpPlayers := GetTransferPortalPlayersForPage()
 		playersChan <- tpPlayers
 	}()
 	go func() {
