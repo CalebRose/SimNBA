@@ -17,6 +17,7 @@ type CollegePlayer struct {
 	WillDeclare        bool
 	TransferStatus     int                      // 1 == Intends, 2 == Is Transferring
 	TransferLikeliness string                   // Low, Medium, High
+	LegacyID           uint                     // Either a legacy school or a legacy coach
 	Stats              []CollegePlayerStats     `gorm:"foreignKey:CollegePlayerID"`
 	SeasonStats        CollegePlayerSeasonStats `gorm:"foreignKey:CollegePlayerID"`
 	Profiles           []TransferPortalProfile  `gorm:"foreignKey:CollegePlayerID"`
@@ -163,6 +164,19 @@ func (cp *CollegePlayer) WillTransfer() {
 	cp.PreviousTeamID = cp.TeamID
 	cp.TeamAbbr = ""
 	cp.TeamID = 0
+}
+
+func (cp *CollegePlayer) WillReturn() {
+	cp.TransferStatus = 0
+	cp.TeamAbbr = cp.PreviousTeam
+	cp.TeamID = cp.PreviousTeamID
+	cp.PreviousTeam = ""
+	cp.PreviousTeamID = 0
+}
+func (cp *CollegePlayer) SignWithNewTeam(teamID uint, teamAbbr string) {
+	cp.TransferStatus = 0
+	cp.TeamAbbr = teamAbbr
+	cp.TeamID = teamID
 }
 
 // Sorting Funcs

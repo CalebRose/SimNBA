@@ -366,6 +366,19 @@ func GetTransferPortalPlayers() []structs.CollegePlayer {
 	return players
 }
 
+func GetCollegePlayerMap() map[uint]structs.CollegePlayer {
+
+	portalMap := make(map[uint]structs.CollegePlayer)
+
+	players := GetAllCollegePlayers()
+
+	for _, p := range players {
+		portalMap[p.ID] = p
+	}
+
+	return portalMap
+}
+
 func GetAllCollegePlayersWithSeasonStats(seasonID, weekID, matchType, viewType string) []structs.CollegePlayerResponse {
 	db := dbprovider.GetInstance().GetDB()
 

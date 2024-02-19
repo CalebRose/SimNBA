@@ -52,6 +52,16 @@ func GetAllNBAConferenceStandingsBySeasonID(seasonID string) []structs.NBAStandi
 	return standings
 }
 
+func GetStandingsHistoryByTeamID(id string) []structs.CollegeStandings {
+	db := dbprovider.GetInstance().GetDB()
+
+	var standings []structs.CollegeStandings
+
+	db.Where("team_id = ?", id).Find(&standings)
+
+	return standings
+}
+
 func GetStandingsRecordByTeamID(id string, seasonID string) structs.CollegeStandings {
 	db := dbprovider.GetInstance().GetDB()
 

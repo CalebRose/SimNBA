@@ -18,6 +18,18 @@ func FilterOutRecruitingProfile(profiles []structs.PlayerRecruitProfile, ID int)
 	return rp
 }
 
+func FilterOutPortalProfile(profiles []structs.TransferPortalProfile, ID uint) []structs.TransferPortalProfile {
+	var rp []structs.TransferPortalProfile
+
+	for _, profile := range profiles {
+		if profile.ID != ID {
+			rp = append(rp, profile)
+		}
+	}
+
+	return rp
+}
+
 func Get247TeamRanking(rp structs.TeamRecruitingProfile, signedCroots []structs.Recruit) float64 {
 	stddev := 10
 
@@ -61,57 +73,108 @@ func GetRivalsTeamRanking(rp structs.TeamRecruitingProfile, signedCroots []struc
 
 func GetRegionMap() map[string]string {
 	return map[string]string{
-		"Alaska":         "Pacific",
-		"California":     "Pacific",
-		"Hawai'i":        "Pacific",
-		"Idaho":          "Pacific",
-		"Nevada":         "Pacific",
-		"Oregon":         "Pacific",
-		"Utah":           "Pacific",
-		"Washington":     "Pacific",
-		"Arizona":        "Southwest",
-		"Arkansas":       "Southwest",
-		"New Mexico":     "Southwest",
-		"Oklahoma":       "Southwest",
-		"Texas":          "Southwest",
-		"Colorado":       "Plains",
-		"Kansas":         "Plains",
-		"Montana":        "Plains",
-		"Nebraska":       "Plains",
-		"North Dakota":   "Plains",
-		"South Dakota":   "Plains",
-		"Wyoming":        "Plains",
-		"Illinois":       "Midwest",
-		"Indiana":        "Midwest",
-		"Iowa":           "Midwest",
-		"Kentucky":       "Midwest",
-		"Michigan":       "Midwest",
-		"Minnesota":      "Midwest",
-		"Missouri":       "Midwest",
-		"Ohio":           "Midwest",
-		"Wisconsin":      "Midwest",
-		"Alabama":        "Southeast",
-		"Florida":        "Southeast",
-		"Georgia":        "Southeast",
-		"Louisiana":      "Southeast",
-		"Mississippi":    "Southeast",
-		"North Carolina": "Southeast",
-		"South Carolina": "Southeast",
-		"Tennessee":      "Southeast",
-		"Delaware":       "Mid-Atlantic",
-		"Maryland":       "Mid-Atlantic",
-		"New Jersey":     "Mid-Atlantic",
-		"New York":       "Mid-Atlantic",
-		"Pennsylvania":   "Mid-Atlantic",
-		"Virginia":       "Mid-Atlantic",
-		"West Virginia":  "Mid-Atlantic",
-		"DC":             "Mid-Atlantic",
-		"Connecticut":    "Northeast",
-		"Maine":          "Northeast",
-		"Massachusetts":  "Northeast",
-		"New Hampshire":  "Northeast",
-		"Rhode Island":   "Northeast",
-		"Vermont":        "Northeast",
+		"Alaska":               "Pacific",
+		"AK":                   "Pacific",
+		"California":           "Pacific",
+		"CA":                   "Pacific",
+		"Hawai'i":              "Pacific",
+		"HI":                   "Pacific",
+		"Idaho":                "Pacific",
+		"ID":                   "Pacific",
+		"Nevada":               "Pacific",
+		"NV":                   "Pacific",
+		"Oregon":               "Pacific",
+		"OR":                   "Pacific",
+		"Utah":                 "Pacific",
+		"UT":                   "Pacific",
+		"Washington":           "Pacific",
+		"WA":                   "Pacific",
+		"Arizona":              "Southwest",
+		"AZ":                   "Southwest",
+		"Arkansas":             "Southwest",
+		"AR":                   "Southwest",
+		"New Mexico":           "Southwest",
+		"NM":                   "Southwest",
+		"Oklahoma":             "Southwest",
+		"OK":                   "Southwest",
+		"Texas":                "Southwest",
+		"TX":                   "Southwest",
+		"Colorado":             "Plains",
+		"CO":                   "Plains",
+		"Kansas":               "Plains",
+		"KS":                   "Plains",
+		"Montana":              "Plains",
+		"MT":                   "Plains",
+		"Nebraska":             "Plains",
+		"NE":                   "Plains",
+		"North Dakota":         "Plains",
+		"ND":                   "Plains",
+		"South Dakota":         "Plains",
+		"SD":                   "Plains",
+		"Wyoming":              "Plains",
+		"WY":                   "Plains",
+		"Illinois":             "Midwest",
+		"IL":                   "Midwest",
+		"Indiana":              "Midwest",
+		"IN":                   "Midwest",
+		"Iowa":                 "Midwest",
+		"IA":                   "Midwest",
+		"Kentucky":             "Midwest",
+		"KY":                   "Midwest",
+		"Michigan":             "Midwest",
+		"MI":                   "Midwest",
+		"Minnesota":            "Midwest",
+		"MN":                   "Midwest",
+		"Missouri":             "Midwest",
+		"MO":                   "Midwest",
+		"Ohio":                 "Midwest",
+		"OH":                   "Midwest",
+		"Wisconsin":            "Midwest",
+		"WI":                   "Midwest",
+		"Alabama":              "Southeast",
+		"AL":                   "Southeast",
+		"Florida":              "Southeast",
+		"FL":                   "Southeast",
+		"Georgia":              "Southeast",
+		"GA":                   "Southeast",
+		"Louisiana":            "Southeast",
+		"LA":                   "Southeast",
+		"Mississippi":          "Southeast",
+		"MS":                   "Southeast",
+		"North Carolina":       "Southeast",
+		"NC":                   "Southeast",
+		"South Carolina":       "Southeast",
+		"SC":                   "Southeast",
+		"Tennessee":            "Southeast",
+		"TN":                   "Southeast",
+		"Delaware":             "Mid-Atlantic",
+		"DE":                   "Mid-Atlantic",
+		"Maryland":             "Mid-Atlantic",
+		"MD":                   "Mid-Atlantic",
+		"New Jersey":           "Mid-Atlantic",
+		"NJ":                   "Mid-Atlantic",
+		"New York":             "Mid-Atlantic",
+		"NY":                   "Mid-Atlantic",
+		"Pennsylvania":         "Mid-Atlantic",
+		"PA":                   "Mid-Atlantic",
+		"Virginia":             "Mid-Atlantic",
+		"VA":                   "Mid-Atlantic",
+		"West Virginia":        "Mid-Atlantic",
+		"WV":                   "Mid-Atlantic",
+		"District of Columbia": "Mid-Atlantic",
+		"DC":                   "Mid-Atlantic",
+		"Connecticut":          "Northeast",
+		"CT":                   "Northeast",
+		"Maine":                "Northeast",
+		"ME":                   "Northeast",
+		"Massachusetts":        "Northeast",
+		"MA":                   "Northeast",
+		"New Hampshire":        "Northeast",
+		"NH":                   "Northeast",
+		"Rhode Island":         "Northeast",
+		"RI":                   "Northeast",
+		"Vermont":              "Northeast",
+		"VT":                   "Northeast",
 	}
 }
 
@@ -139,6 +202,20 @@ func IsPlayerDefensivelyStrong(r structs.Recruit) bool {
 
 func IsPlayerHighPotential(r structs.Recruit) bool {
 	return r.Potential > 70
+}
+
+func IsAITeamContendingForPortalPlayer(profiles []structs.TransferPortalProfile) int {
+	if len(profiles) == 0 {
+		return 0
+	}
+	leadingVal := 0
+	for _, profile := range profiles {
+		if profile.TotalPoints != 0 && profile.TotalPoints > float64(leadingVal) {
+			leadingVal = int(profile.TotalPoints)
+		}
+	}
+
+	return leadingVal
 }
 
 func IsAITeamContendingForCroot(profiles []structs.PlayerRecruitProfile) int {
