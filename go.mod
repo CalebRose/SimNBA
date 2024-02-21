@@ -15,6 +15,7 @@ require (
 require (
 	github.com/joho/godotenv v1.5.1
 	github.com/robfig/cron/v3 v3.0.1
+	golang.org/x/crypto v0.0.0-20200604202706-70a84ac30bf9
 )
 
 require (
@@ -22,4 +23,5 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/nelkinda/http-go v0.0.1 // indirect
+	golang.org/x/sys v0.5.0 // indirect
 )
