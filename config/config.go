@@ -34,7 +34,14 @@ func GetSSHConfig() SshTunnelConfig {
 			LocalPort:   localPort,
 		}
 	}
-	fmt.Println("WARNING! COULD NOT GET ENV VARIABLES")
+	fmt.Println("WARNING! COULD NOT GET ENV VARIABLES. TRYING ALT METHOD")
+	hostName = os.Getenv("SSHHN")
+	sshPort = os.Getenv("SSHPO")
+	sshUser = os.Getenv("SSHU")
+	sshPassword = os.Getenv("SSHP")
+	dbHost = os.Getenv("DBH")
+	dbPort = os.Getenv("DBP")
+	localPort = os.Getenv("LCP")
 	return SshTunnelConfig{
 		SshHost:     hostName,
 		SshPort:     sshPort,
@@ -61,9 +68,13 @@ func Config(local string) map[string]string {
 		}
 	}
 	dbName = os.Getenv("DB")
-	csUserName = os.Getenv("CS")
+	csUserName = os.Getenv("CSUSERNAME")
+	csPW = os.Getenv("CSPW")
+	hostDB = os.Getenv("DBNAME")
+	lcp = os.Getenv("LCP")
+	connstring := csUserName + ":" + csPW + "@tcp(localhost:" + lcp + ")/" + hostDB + "?parseTime=true"
 	return map[string]string{
 		"db": dbName,
-		"cs": csUserName,
+		"cs": connstring,
 	}
 }
