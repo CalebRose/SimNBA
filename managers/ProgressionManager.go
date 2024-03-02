@@ -249,7 +249,7 @@ func ProgressNBAPlayer(np structs.NBAPlayer, isISLGen bool) structs.NBAPlayer {
 		attributeList[i], attributeList[j] = attributeList[j], attributeList[i]
 	})
 
-	developingPlayer := np.IsGLeague || isISLGen
+	developingPlayer := np.IsGLeague || isISLGen || (np.TeamID > 32 && np.Age <= 18 && MinutesPerGame == 0)
 
 	for _, attr := range attributeList {
 		if attr == "Shooting2" {
