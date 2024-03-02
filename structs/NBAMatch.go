@@ -60,6 +60,13 @@ func (m *NBAMatch) UpdateCoach(TeamID int, Username string) {
 	}
 }
 
+func (m *NBAMatch) HideScore() {
+	m.HomeTeamScore = 0
+	m.AwayTeamScore = 0
+	m.HomeTeamWin = false
+	m.AwayTeamWin = false
+}
+
 func (m *NBAMatch) AddTeam(isHome bool, id, rank uint, team, coach, arena, city, state string) {
 	if isHome {
 		m.HomeTeam = team
