@@ -229,9 +229,52 @@ func FixPlayerStatsFromLastSeason() {
 }
 
 func GetSchedulePageData(seasonId string) structs.MatchPageResponse {
+	ts := GetTimestamp()
 	collegeMatches := GetCBBMatchesBySeasonID(seasonId)
 	nbaMatches := GetNBAMatchesBySeasonID(seasonId)
 	islMatches := GetISLMatchesBySeasonID(seasonId)
+
+	for _, m := range collegeMatches {
+		showResults := m.Week <= uint(ts.CollegeWeek)
+
+		if m.Week == uint(ts.CollegeWeek) && m.GameComplete &&
+			((m.MatchOfWeek == "A" && !ts.GamesARan) || (m.MatchOfWeek == "B" && !ts.GamesBRan) ||
+				(m.MatchOfWeek == "C" && !ts.GamesCRan) || (m.MatchOfWeek == "D" && !ts.GamesDRan)) {
+			showResults = false
+		}
+
+		if !showResults {
+			m.HideScore()
+		}
+	}
+
+	for _, m := range nbaMatches {
+		showResults := m.Week <= uint(ts.NBAWeek)
+
+		if m.Week == uint(ts.NBAWeek) && m.GameComplete &&
+			((m.MatchOfWeek == "A" && !ts.GamesARan) || (m.MatchOfWeek == "B" && !ts.GamesBRan) ||
+				(m.MatchOfWeek == "C" && !ts.GamesCRan) || (m.MatchOfWeek == "D" && !ts.GamesDRan)) {
+			showResults = false
+		}
+
+		if !showResults {
+			m.HideScore()
+		}
+	}
+
+	for _, m := range islMatches {
+		showResults := m.Week <= uint(ts.NBAWeek)
+
+		if m.Week == uint(ts.NBAWeek) && m.GameComplete &&
+			((m.MatchOfWeek == "A" && !ts.GamesARan) || (m.MatchOfWeek == "B" && !ts.GamesBRan) ||
+				(m.MatchOfWeek == "C" && !ts.GamesCRan) || (m.MatchOfWeek == "D" && !ts.GamesDRan)) {
+			showResults = false
+		}
+
+		if !showResults {
+			m.HideScore()
+		}
+	}
 
 	return structs.MatchPageResponse{
 		CBBGames: collegeMatches,
