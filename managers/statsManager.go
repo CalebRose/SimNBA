@@ -91,12 +91,12 @@ func GetPlayerStatsByPlayerId(playerId string) []structs.PlayerStats {
 	return playerStats
 }
 
-func GetPlayerStatsBySeason(playerId string, seasonId string) []structs.PlayerStats {
+func GetPlayerStatsBySeason(playerId string, seasonId string) structs.CollegePlayerSeasonStats {
 	db := dbprovider.GetInstance().GetDB()
 
-	var playerStats []structs.PlayerStats
+	var playerStats structs.CollegePlayerSeasonStats
 
-	db.Where("player_id = ? AND season_id = ?", playerId, seasonId).Find(&playerStats)
+	db.Where("college_player_id = ? AND season_id = ?", playerId, seasonId).Find(&playerStats)
 
 	return playerStats
 }
