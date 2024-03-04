@@ -537,7 +537,7 @@ func AICoachFillBoardsPhase() {
 			teamNeedsMap["C"] = false
 		}
 		for _, tp := range transferPortalPlayers {
-			if teamNeedsMap[tp.Position] == false || tp.PreviousTeamID == team.ID {
+			if !teamNeedsMap[tp.Position] || tp.PreviousTeamID == team.ID {
 				continue
 			}
 
@@ -1155,13 +1155,15 @@ func getPromiseFloor(weight string) int {
 
 func getPromiseWeightByMinutesOrWins(benchmark int) string {
 	weight := "Medium"
-	if benchmark >= 25 {
+	if benchmark <= 40 {
 		weight = "Very High"
-	} else if benchmark >= 20 {
+	} else if benchmark <= 25 {
 		weight = "High"
-	} else if benchmark >= 10 {
+	} else if benchmark <= 20 {
+		return weight
+	} else if benchmark <= 10 {
 		weight = "Low"
-	} else if benchmark >= 5 {
+	} else if benchmark <= 5 {
 		weight = "Very Low"
 	}
 	return weight

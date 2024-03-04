@@ -57,3 +57,19 @@ func CancelPromise(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintf(w, "Promise Cancelled.")
 }
+
+func GetPromiseByPlayerID(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	vars := mux.Vars(r)
+	id := vars["playerID"]
+	teamID := vars["teamID"]
+	if len(id) == 0 {
+		panic("User did not provide proper IDs")
+	}
+
+	promise := managers.GetCollegePromiseByCollegePlayerID(id, teamID)
+
+	json.NewEncoder(w).Encode(promise)
+
+	fmt.Fprintf(w, "New Promise Created")
+}
