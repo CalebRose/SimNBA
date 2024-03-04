@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/CalebRose/SimNBA/managers"
@@ -69,7 +70,11 @@ func GetPromiseByPlayerID(w http.ResponseWriter, r *http.Request) {
 
 	promise := managers.GetCollegePromiseByCollegePlayerID(id, teamID)
 
-	json.NewEncoder(w).Encode(promise)
-
-	fmt.Fprintf(w, "New Promise Created")
+	encodedJson, err := json.Marshal(promise)
+	if err != nil {
+		log.Printf("Error encoding JSON: %v", err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(encodedJson)
 }
