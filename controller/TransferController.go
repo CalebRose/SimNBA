@@ -78,3 +78,22 @@ func GetPromiseByPlayerID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(encodedJson)
 }
+
+func GetTransferPortalPageData(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	vars := mux.Vars(r)
+	teamID := vars["teamID"]
+	if len(teamID) == 0 {
+		panic("User did not provide proper IDs")
+	}
+
+	data := managers.GetTransferPortalData(teamID)
+
+	encodedJson, err := json.Marshal(data)
+	if err != nil {
+		log.Printf("Error encoding JSON: %v", err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(encodedJson)
+}

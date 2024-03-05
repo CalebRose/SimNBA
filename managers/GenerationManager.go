@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
@@ -55,6 +56,43 @@ func GenerateCoachesForAITeams() {
 
 	for _, coach := range coachList {
 		db.Create(&coach)
+	}
+}
+
+func GenerateTestPlayersForTP() {
+	db := dbprovider.GetInstance().GetDB()
+	var lastPlayerRecord structs.GlobalPlayer
+
+	err := db.Last(&lastPlayerRecord).Error
+	if err != nil {
+		log.Fatalln("Could not grab last player record from players table...")
+	}
+
+	newID := lastPlayerRecord.ID + 1
+	firstNameMap, lastNameMap := getNameMaps()
+	var positionList []string = []string{"PG", "SG", "PF", "SF", "C"}
+
+	for i := 0; i < 15; i++ {
+		pickedEthnicity := pickEthnicity()
+		pickedPosition := util.PickFromStringList(positionList)
+		year := util.GenerateIntFromRange(1, 3)
+		emptyTeam := structs.Team{}
+		player := createCollegePlayer(emptyTeam, pickedEthnicity, pickedPosition, year, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], newID)
+		// playerList = append(playerList, player)
+		err = db.Create(&player).Error
+		if err != nil {
+			log.Panicln("Could not save player record")
+		}
+
+		globalPlayer := structs.GlobalPlayer{
+			Model:           gorm.Model{ID: newID},
+			CollegePlayerID: newID,
+			RecruitID:       newID,
+			NBAPlayerID:     newID,
+		}
+
+		db.Create(&globalPlayer)
+		newID++
 	}
 }
 
@@ -167,6 +205,10 @@ func GenerateNewTeams() {
 
 			positionQueue = append(positionQueue, pickedPosition)
 		}
+
+		rand.Shuffle(len(positionQueue), func(i, j int) {
+			positionQueue[i], positionQueue[j] = positionQueue[j], positionQueue[i]
+		})
 
 		for count < requiredPlayers {
 			pickedEthnicity := pickEthnicity()
@@ -637,19 +679,13 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 	overall := (int((shooting2 + shooting3 + freeThrow) / 3)) + finishing + ballwork + rebounding + int((interiorDefense+perimeterDefense)/2)
 	stars := getStarRating(overall)
 
-	potential -= util.GenerateIntFromRange(1, 30)
-
-	if potential < 0 {
-		potential = util.GenerateIntFromRange(5, 30)
-	}
-
 	expectations := util.GetPlaytimeExpectations(stars, year, overall)
 	personality := util.GetPersonality()
 	academicBias := util.GetAcademicBias()
 	workEthic := util.GetWorkEthic()
 	recruitingBias := util.GetRecruitingBias()
 	freeAgency := util.GetFreeAgencyBias(0, 0)
-
+	potentialGrade := util.GetWeightedPotentialGrade(potential)
 	var basePlayer = structs.BasePlayer{
 		FirstName:            firstName,
 		LastName:             lastName,
@@ -679,6 +715,7 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 		RecruitingBias:       recruitingBias,
 		WorkEthic:            workEthic,
 		AcademicBias:         academicBias,
+		PotentialGrade:       potentialGrade,
 	}
 
 	var collegePlayer = structs.CollegePlayer{
@@ -1569,9 +1606,6 @@ func getHeight(position string) string {
 }
 
 func getAttribute(position string, attribute string, isGeneration bool) int {
-	if isGeneration {
-		return util.GenerateIntFromRange(1, 11)
-	}
 	if position == "PG" || position == "SG" {
 		if attribute == "Shooting2" {
 			return util.GenerateIntFromRange(7, 17)

@@ -12,6 +12,11 @@ func GenerateCoaches(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("GENERATION COMPLETE")
 }
 
+func GenerateTestPlayers(w http.ResponseWriter, r *http.Request) {
+	managers.GenerateTestPlayersForTP()
+	json.NewEncoder(w).Encode("GENERATION COMPLETE")
+}
+
 func GeneratePlayers(w http.ResponseWriter, r *http.Request) {
 	managers.GenerateNewTeams()
 	json.NewEncoder(w).Encode("GENERATION COMPLETE")

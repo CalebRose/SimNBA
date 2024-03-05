@@ -105,6 +105,7 @@ func handleRequests() {
 	// Generation Controls
 	// myRouter.HandleFunc("/admin/generateCoaches", controller.GenerateCoaches).Methods("GET")
 	// myRouter.HandleFunc("/admin/generateTeam", controller.GeneratePlayers).Methods("GET")
+	// myRouter.HandleFunc("/admin/generateTestPlayers", controller.GenerateTestPlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/generateCroots", controller.GenerateCroots).Methods("GET")
 	// myRouter.HandleFunc("/admin/generate/international", controller.GenerateInternationalPlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/allocate/international/rosters", controller.GenerateInternationalRoster).Methods("GET")
@@ -242,6 +243,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/admin/trades/cleanup", controller.CleanUpRejectedTrades).Methods("GET")
 
 	// Transfer Intentions
+	myRouter.HandleFunc("/portal/page/data/{teamID}", controller.GetTransferPortalPageData).Methods("GET")
 	myRouter.HandleFunc("/portal/promise/create", controller.CreatePromise).Methods("POST")
 	myRouter.HandleFunc("/portal/promise/cancel/{promiseID}", controller.CancelPromise).Methods("GET")
 	myRouter.HandleFunc("/portal/promise/player/{playerID}/{teamID}", controller.GetPromiseByPlayerID).Methods("GET")
