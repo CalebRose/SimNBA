@@ -166,6 +166,7 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 
 			if game.IsNationalChampionship {
 				ts.EndTheCollegeSeason()
+				db.Save(&ts)
 			}
 
 			// if games[i].HomeTeamCoach != "AI" {
@@ -328,6 +329,7 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 					} else {
 						// Officially End the season
 						ts.EndTheProfessionalSeason()
+						db.Save(&ts)
 					}
 				}
 			}

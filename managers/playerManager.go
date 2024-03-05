@@ -1051,3 +1051,18 @@ func GetFullTeamRosterWithCrootsMap() map[uint][]structs.CollegePlayer {
 	close(semaphore)
 	return fullMap
 }
+
+func ProcessEarlyDeclareeAnnouncements() {
+	collegePlayers := GetAllCollegePlayers()
+	ts := GetTimestamp()
+	for _, c := range collegePlayers {
+		if (!c.WillDeclare) ||
+			(c.WillDeclare && c.Year == 4 && !c.IsRedshirt) ||
+			(c.WillDeclare && c.Year == 5 && c.IsRedshirt) {
+			continue
+		}
+		playerLabel := c.TeamAbbr + " " + strconv.Itoa(c.Stars) + " star " + c.Position + " " + c.FirstName + " " + c.LastName
+		message := "Breaking News! " + playerLabel + " has announced their early declaration for the upcoming SimNBA Draft!"
+		CreateNewsLog("CBB", message, "Graduation", int(c.TeamID), ts)
+	}
+}
