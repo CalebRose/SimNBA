@@ -843,7 +843,7 @@ func SyncTransferPortal() {
 		}
 
 		// If no one has a profile on them during round 10
-		if len(portalProfiles) == 0 && ts.TransferPortalRound == 10 {
+		if len(portalProfiles) == 0 && ts.TransferPortalRound == 10 && len(portalPlayer.TransferLikeliness) > 0 {
 			portalPlayer.WillReturn()
 			db.Save(&portalPlayer)
 			continue

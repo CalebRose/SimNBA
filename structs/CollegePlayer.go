@@ -186,6 +186,7 @@ func (cp *CollegePlayer) SignWithNewTeam(teamID uint, teamAbbr string) {
 	cp.TransferStatus = 0
 	cp.TeamAbbr = teamAbbr
 	cp.TeamID = teamID
+	cp.TransferLikeliness = ""
 	cp.ResetMinutes()
 }
 
