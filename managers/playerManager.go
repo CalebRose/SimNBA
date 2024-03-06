@@ -1015,6 +1015,13 @@ func CutCBBPlayer(playerID string) {
 
 	player.DismissFromTeam()
 
+	if !ts.CollegeSeasonOver && !ts.IsOffSeason && ts.CollegeWeek == 0 {
+		teamID := strconv.Itoa(int(player.PreviousTeamID))
+		teamProfile := GetRecruitingProfileByTeamId(teamID)
+		teamProfile.IncreaseClassSize()
+		db.Save(&teamProfile)
+	}
+
 	message := "Breaking News! " + strconv.Itoa(player.Stars) + " star " + player.Position + " " + player.FirstName + " " + player.LastName + " has been dismissed from the " + player.PreviousTeam + " basketball team. They will immediately enter the transfer portal."
 	CreateNewsLog("CBB", message, "Transfer Portal", int(player.PreviousTeamID), ts)
 

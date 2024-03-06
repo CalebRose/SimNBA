@@ -131,3 +131,7 @@ func (r *TeamRecruitingProfile) UpdateAIBehavior(isAi, autoOffer bool, starMax, 
 func (r *TeamRecruitingProfile) AssignRecruiter(name string) {
 	r.Recruiter = name
 }
+
+func (r *TeamRecruitingProfile) IncreaseClassSize() {
+	r.RecruitClassSize += 1
+}
