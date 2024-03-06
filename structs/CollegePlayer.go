@@ -151,6 +151,8 @@ func (b *CollegePlayer) StayHome() {
 func (b *CollegePlayer) DismissFromTeam() {
 	b.PreviousTeamID = b.TeamID
 	b.PreviousTeam = b.TeamAbbr
+	b.TeamID = 0
+	b.TeamAbbr = ""
 	b.TransferStatus = 2
 }
 

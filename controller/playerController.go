@@ -168,7 +168,7 @@ func CutPlayerFromCBBTeam(w http.ResponseWriter, r *http.Request) {
 		panic("User did not provide playerID")
 	}
 
-	managers.CutNBAPlayer(playerID)
+	managers.CutCBBPlayer(playerID)
 
 	json.NewEncoder(w).Encode("Player " + playerID + " placed on trade block.")
 }
