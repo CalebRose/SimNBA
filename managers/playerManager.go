@@ -373,7 +373,7 @@ func GetTransferPortalPlayersForPage() []structs.TransferPlayerResponse {
 
 	var players []structs.CollegePlayer
 
-	db.Preload("Profiles").Where("transfer_status > 0").Find(&players)
+	db.Preload("Profiles").Where("transfer_status = 2").Find(&players)
 
 	playerList := []structs.TransferPlayerResponse{}
 
