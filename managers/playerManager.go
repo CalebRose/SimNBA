@@ -1008,6 +1008,19 @@ func AssignPlayerAsTwoWay(playerID string) {
 	db.Save(&player)
 }
 
+func CutCBBPlayer(playerID string) {
+	db := dbprovider.GetInstance().GetDB()
+	ts := GetTimestamp()
+	player := GetCollegePlayerByPlayerID(playerID)
+
+	player.DismissFromTeam()
+
+	message := "Breaking News! " + strconv.Itoa(player.Stars) + " star " + player.Position + " " + player.FirstName + " " + player.LastName + " has been dismissed from the " + player.PreviousTeam + " basketball team. They will immediately enter the transfer portal."
+	CreateNewsLog("CBB", message, "Transfer Portal", int(player.PreviousTeamID), ts)
+
+	db.Save(&player)
+}
+
 func CutNBAPlayer(playerID string) {
 	db := dbprovider.GetInstance().GetDB()
 

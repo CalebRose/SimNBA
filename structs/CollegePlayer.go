@@ -148,6 +148,12 @@ func (b *CollegePlayer) StayHome() {
 	b.WillDeclare = false
 }
 
+func (b *CollegePlayer) DismissFromTeam() {
+	b.PreviousTeamID = b.TeamID
+	b.PreviousTeam = b.TeamAbbr
+	b.TransferStatus = 2
+}
+
 func (cp *CollegePlayer) DeclareTransferIntention(status string) {
 	cp.TransferStatus = 1
 	cp.TransferLikeliness = status

@@ -188,13 +188,16 @@ func ProcessTransferIntention() {
 			continue
 		}
 
+		status := getTransferStatus(int(transferWeight))
+
 		// Is Intending to transfer
-		p.DeclareTransferIntention(strconv.Itoa(int(transferWeight)))
+		p.DeclareTransferIntention(status)
 		transferCount++
-		if p.Stars > 3 {
+		if p.Stars > 2 {
 			message := "Breaking News! " + strconv.Itoa(p.Stars) + " star " + p.Position + " " + p.FirstName + " " + p.LastName + " has announced their intention to transfer from " + p.TeamAbbr + "!"
 			CreateNewsLog("CBB", message, "Transfer Portal", int(p.TeamID), ts)
 		}
+		db.Save(&p)
 		fmt.Println(strconv.Itoa(p.Year)+" YEAR "+p.TeamAbbr+" "+p.Position+" "+p.FirstName+" "+p.LastName+" HAS ANNOUNCED THEIR INTENTION TO TRANSFER | Weight: ", int(transferWeight))
 	}
 	transferPortalMessage := "Breaking News! About " + strconv.Itoa(transferCount) + " players intend to transfer from their current schools. Teams have one week to commit promises to retain players."
@@ -373,7 +376,7 @@ func EnterTheTransferPortal() {
 			}
 			// 1-100
 			baseFloor := getTransferFloor(p.TransferLikeliness)
-			// 20, 40, 60
+			// 10, 20, 40, 60, 70
 			promiseModifier := getPromiseFloor(promise.PromiseWeight)
 			difference := baseFloor - promiseModifier
 
@@ -1145,12 +1148,19 @@ func getTransferFloor(likeliness string) int {
 
 // getPromiseFloor -- Get the modifier towards the floor value above
 func getPromiseFloor(weight string) int {
+	if weight == "Very Low" {
+		return 10
+	}
 	if weight == "Low" {
 		return 20
-	} else if weight == "Medium" {
+	}
+	if weight == "Medium" {
 		return 40
 	}
-	return 60
+	if weight == "High" {
+		return 60
+	}
+	return util.GenerateIntFromRange(70, 80)
 }
 
 func getPromiseWeightByMinutesOrWins(benchmark int) string {
@@ -1205,6 +1215,16 @@ func getBasePromiseOdds(tbPref, ptTendency string) int {
 	}
 
 	return promiseOdds
+}
+
+func getTransferStatus(weight int) string {
+	if weight < 20 {
+		return "Low"
+	}
+	if weight < 40 {
+		return "Medium"
+	}
+	return "High"
 }
 
 func getPromiseLevel(pt string) int {

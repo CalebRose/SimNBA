@@ -161,6 +161,19 @@ func AssignNBAPlayerAsTwoWay(w http.ResponseWriter, r *http.Request) {
 }
 
 // CutPlayerFromNBATeam
+func CutPlayerFromCBBTeam(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	playerID := vars["playerID"]
+	if len(playerID) == 0 {
+		panic("User did not provide playerID")
+	}
+
+	managers.CutNBAPlayer(playerID)
+
+	json.NewEncoder(w).Encode("Player " + playerID + " placed on trade block.")
+}
+
+// CutPlayerFromNBATeam
 func CutPlayerFromNBATeam(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	playerID := vars["playerID"]

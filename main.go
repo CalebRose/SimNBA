@@ -157,6 +157,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/players/nba", controller.AllNBAPlayers).Methods("GET")
 	myRouter.HandleFunc("/players/nba/freeAgents", controller.AllNBAFreeAgents).Methods("GET")
 	myRouter.HandleFunc("/nba/players/{teamId}", controller.GetNBARosterByTeamID).Methods("GET")
+	myRouter.HandleFunc("/cbb/players/cut/{playerID}", controller.CutPlayerFromCBBTeam).Methods("GET")
 	myRouter.HandleFunc("/nba/players/cut/{playerID}", controller.CutPlayerFromNBATeam).Methods("GET")
 	myRouter.HandleFunc("/nba/players/place/gleague/{playerID}", controller.PlaceNBAPlayerInGLeague).Methods("GET")
 	myRouter.HandleFunc("/nba/players/place/twoway/{playerID}", controller.AssignNBAPlayerAsTwoWay).Methods("GET")
@@ -243,6 +244,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/admin/trades/cleanup", controller.CleanUpRejectedTrades).Methods("GET")
 
 	// Transfer Intentions
+	myRouter.HandleFunc("/portal/transfer/intention", controller.ProcessTransferIntention).Methods("GET")
 	myRouter.HandleFunc("/portal/page/data/{teamID}", controller.GetTransferPortalPageData).Methods("GET")
 	myRouter.HandleFunc("/portal/promise/create", controller.CreatePromise).Methods("POST")
 	myRouter.HandleFunc("/portal/promise/cancel/{promiseID}", controller.CancelPromise).Methods("GET")
