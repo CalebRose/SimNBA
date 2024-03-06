@@ -160,6 +160,8 @@ func (c *TransferPlayerResponse) Map(r CollegePlayer) {
 	c.State = r.State
 	c.Country = r.Country
 	c.TeamAbbr = r.TeamAbbr
+	c.PreviousTeam = r.PreviousTeam
+	c.PreviousTeamID = r.PreviousTeamID
 
 	var totalPoints float64 = 0
 	var runningThreshold float64 = 0
