@@ -379,7 +379,8 @@ func GetTransferPortalPlayersForPage() []structs.TransferPlayerResponse {
 
 	for _, p := range players {
 		res := structs.TransferPlayerResponse{}
-		res.Map(p)
+		ovr := util.GetOverallGrade(p.Overall)
+		res.Map(p, ovr)
 
 		playerList = append(playerList, res)
 	}

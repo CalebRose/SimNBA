@@ -1,6 +1,8 @@
 package structs
 
-import "sort"
+import (
+	"sort"
+)
 
 type CollegePlayerResponse struct {
 	FirstName             string
@@ -104,6 +106,7 @@ type TransferPlayerResponse struct {
 	Stars                int
 	Height               string
 	PotentialGrade       string
+	Overall              string
 	Shooting2            string
 	Shooting3            string
 	FreeThrow            string
@@ -136,7 +139,7 @@ type TransferPlayerResponse struct {
 	LeadingTeams         []LeadingTeams
 }
 
-func (c *TransferPlayerResponse) Map(r CollegePlayer) {
+func (c *TransferPlayerResponse) Map(r CollegePlayer, ovr string) {
 	c.PlayerID = r.PlayerID
 	c.TeamID = r.TeamID
 	c.FirstName = r.FirstName
@@ -152,6 +155,7 @@ func (c *TransferPlayerResponse) Map(r CollegePlayer) {
 	c.Rebounding = attributeMapper(r.Rebounding)
 	c.InteriorDefense = attributeMapper(r.InteriorDefense)
 	c.PerimeterDefense = attributeMapper(r.PerimeterDefense)
+	c.OverallGrade = ovr
 	c.PotentialGrade = r.PotentialGrade
 	c.Personality = r.Personality
 	c.RecruitingBias = r.RecruitingBias
