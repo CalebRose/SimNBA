@@ -38,7 +38,7 @@ func GenerateCoachesForAITeams() {
 
 	for _, team := range teams {
 		// Skip over teams currently controlled by a user
-		if !team.IsAI {
+		if !team.IsAI || team.ID != 368 {
 			continue
 		}
 

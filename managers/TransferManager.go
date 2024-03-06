@@ -1042,11 +1042,12 @@ func GetOnlyTransferPortalProfileByPlayerID(playerId, teamId string) structs.Tra
 
 func GetTransferPortalData(teamID string) structs.TransferPortalResponse {
 	var waitgroup sync.WaitGroup
-	waitgroup.Add(4)
+	waitgroup.Add(5)
 	profileChan := make(chan structs.TeamRecruitingProfile)
 	playersChan := make(chan []structs.TransferPlayerResponse)
 	boardChan := make(chan []structs.TransferPortalProfile)
 	promiseChan := make(chan []structs.CollegePromise)
+	teamsChan := make(chan []structs.Team)
 
 	go func() {
 		waitgroup.Wait()
@@ -1054,6 +1055,7 @@ func GetTransferPortalData(teamID string) structs.TransferPortalResponse {
 		close(playersChan)
 		close(boardChan)
 		close(promiseChan)
+		close(teamsChan)
 	}()
 
 	go func() {
@@ -1076,17 +1078,24 @@ func GetTransferPortalData(teamID string) structs.TransferPortalResponse {
 		cPromises := GetPromisesByTeamID(teamID)
 		promiseChan <- cPromises
 	}()
+	go func() {
+		defer waitgroup.Done()
+		cTeams := GetAllActiveCollegeTeams()
+		teamsChan <- cTeams
+	}()
 
 	teamProfile := <-profileChan
 	players := <-playersChan
 	board := <-boardChan
 	promises := <-promiseChan
+	teams := <-teamsChan
 
 	return structs.TransferPortalResponse{
 		Team:         teamProfile,
 		Players:      players,
 		TeamBoard:    board,
 		TeamPromises: promises,
+		TeamList:     teams,
 	}
 }
 

@@ -106,4 +106,5 @@ type TransferPortalResponse struct {
 	TeamBoard    []TransferPortalProfile
 	TeamPromises []CollegePromise         // List of all promises
 	Players      []TransferPlayerResponse // List of all Transfer Portal Players
+	TeamList     []Team
 }
