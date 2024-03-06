@@ -154,6 +154,7 @@ func (b *CollegePlayer) DismissFromTeam() {
 	b.TeamID = 0
 	b.TeamAbbr = ""
 	b.TransferStatus = 2
+	b.ResetMinutes()
 }
 
 func (cp *CollegePlayer) DeclareTransferIntention(status string) {
@@ -185,6 +186,7 @@ func (cp *CollegePlayer) SignWithNewTeam(teamID uint, teamAbbr string) {
 	cp.TransferStatus = 0
 	cp.TeamAbbr = teamAbbr
 	cp.TeamID = teamID
+	cp.ResetMinutes()
 }
 
 // Sorting Funcs

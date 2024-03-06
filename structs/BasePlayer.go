@@ -292,3 +292,13 @@ func (np *BasePlayer) SetAttributes(s2, s3, fn, ft, bl, rb, id, pd, ovr, stars, 
 	np.Stars = stars
 	np.PlaytimeExpectations = exp
 }
+
+func (np *BasePlayer) ResetMinutes() {
+	np.P1Minutes = 0
+	np.P2Minutes = 0
+	np.P3Minutes = 0
+	np.InsideProportion = 0
+	np.MidRangeProportion = 0
+	np.ThreePointProportion = 0
+	np.Minutes = 0
+}

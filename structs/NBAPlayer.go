@@ -174,16 +174,6 @@ func (np *NBAPlayer) TradePlayer(id uint, team string) {
 	np.ResetMinutes()
 }
 
-func (np *NBAPlayer) ResetMinutes() {
-	np.P1Minutes = 0
-	np.P2Minutes = 0
-	np.P3Minutes = 0
-	np.InsideProportion = 0
-	np.MidRangeProportion = 0
-	np.ThreePointProportion = 0
-	np.Minutes = 0
-}
-
 func (np *NBAPlayer) AssignMinimumContractValue(val float64) {
 	np.MinimumValue = val
 }
