@@ -1044,7 +1044,7 @@ func GetTransferPortalData(teamID string) structs.TransferPortalResponse {
 	var waitgroup sync.WaitGroup
 	waitgroup.Add(4)
 	profileChan := make(chan structs.TeamRecruitingProfile)
-	playersChan := make(chan []structs.CollegePlayerResponse)
+	playersChan := make(chan []structs.TransferPlayerResponse)
 	boardChan := make(chan []structs.TransferPortalProfile)
 	promiseChan := make(chan []structs.CollegePromise)
 
