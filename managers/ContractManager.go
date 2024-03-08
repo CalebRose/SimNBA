@@ -25,6 +25,15 @@ func GetNBAContractsByPlayerID(playerID string) structs.NBAContract {
 	return contracts
 }
 
+func GetNBAContractByID(contractID string) structs.NBAContract {
+	db := dbprovider.GetInstance().GetDB()
+
+	var contract structs.NBAContract
+
+	db.Where("id = ? AND is_active = true", contractID).Find(&contract)
+	return contract
+}
+
 func GetNBAContractOffersByPlayerID(playerID string, seasonID string, weekID string) []structs.NBAContractOffer {
 	db := dbprovider.GetInstance().GetDB()
 

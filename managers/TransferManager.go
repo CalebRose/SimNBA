@@ -224,7 +224,7 @@ func AICoachPromisePhase() {
 		teamID := strconv.Itoa(int(team.ID))
 		roster := GetCollegePlayersByTeamId(teamID)
 		for _, p := range roster {
-			if p.TransferStatus != 1 {
+			if p.TransferStatus > 1 || p.TransferStatus == 0 {
 				continue
 			}
 			collegePlayerID := strconv.Itoa(int(p.ID))
@@ -271,6 +271,10 @@ func AICoachPromisePhase() {
 						promiseBenchmark -= 5
 					}
 					promiseWeight = getPromiseWeightByMinutesOrWins(promiseBenchmark)
+				}
+
+				if promiseType == "" {
+					continue
 				}
 
 				collegePromise := structs.CollegePromise{
@@ -1176,13 +1180,17 @@ func getPromiseWeightByMinutesOrWins(benchmark int) string {
 	weight := "Medium"
 	if benchmark <= 40 {
 		weight = "Very High"
-	} else if benchmark <= 25 {
+	}
+	if benchmark <= 25 {
 		weight = "High"
-	} else if benchmark <= 20 {
-		return weight
-	} else if benchmark <= 10 {
+	}
+	if benchmark <= 20 {
+		weight = "Medium"
+	}
+	if benchmark <= 10 {
 		weight = "Low"
-	} else if benchmark <= 5 {
+	}
+	if benchmark <= 5 {
 		weight = "Very Low"
 	}
 	return weight

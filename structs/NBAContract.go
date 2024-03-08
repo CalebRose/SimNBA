@@ -104,3 +104,10 @@ func (c *NBAContract) TradePlayer(TeamID uint, Team string) {
 func (c *NBAContract) MakeContractActive() {
 	c.IsActive = true
 }
+
+func (c *NBAContract) ActivateOption() {
+	c.Year2Opt = false
+	if c.Year2Total == 0 {
+		c.Year2Total = c.Year1Total * (1.05)
+	}
+}

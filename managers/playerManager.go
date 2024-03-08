@@ -913,6 +913,16 @@ func GetNBAPlayersWithContractsByTeamID(TeamID string) []structs.NBAPlayer {
 	return players
 }
 
+func GetNBAPlayersWithContractsAndExtensionsByTeamID(TeamID string) []structs.NBAPlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var players []structs.NBAPlayer
+
+	db.Preload("Contract").Preload("Extensions").Where("team_id = ?", TeamID).Order("overall desc").Find(&players)
+
+	return players
+}
+
 func GetNBAPlayerRecord(playerID string) structs.NBAPlayer {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -951,6 +961,16 @@ func AssignPlayerAsTwoWay(playerID string) {
 	player.ToggleTwoWay()
 
 	db.Save(&player)
+}
+
+func ActivateNextYearOption(contractID string) {
+	db := dbprovider.GetInstance().GetDB()
+
+	contract := GetNBAContractsByPlayerID(contractID)
+	if contract.Year2Opt {
+		contract.ActivateOption()
+		db.Save(&contract)
+	}
 }
 
 func CutCBBPlayer(playerID string) {
@@ -1007,6 +1027,32 @@ func GetFullTeamRosterWithCrootsMap() map[uint][]structs.CollegePlayer {
 
 			m.Lock()
 			fullMap[t.ID] = fullList
+			m.Unlock()
+			<-semaphore
+		}(team)
+	}
+
+	wg.Wait()
+	close(semaphore)
+	return fullMap
+}
+
+func GetFullRosterNBAMap() map[uint][]structs.NBAPlayer {
+	m := &sync.Mutex{}
+	var wg sync.WaitGroup
+	collegeTeams := GetAllActiveCollegeTeams()
+	fullMap := make(map[uint][]structs.NBAPlayer)
+	wg.Add(len(collegeTeams))
+	semaphore := make(chan struct{}, 10)
+	for _, team := range collegeTeams {
+		semaphore <- struct{}{}
+		go func(t structs.Team) {
+			defer wg.Done()
+			id := strconv.Itoa(int(t.ID))
+			nbaPlayers := GetOnlyNBAPlayersByTeamID(id)
+
+			m.Lock()
+			fullMap[t.ID] = nbaPlayers
 			m.Unlock()
 			<-semaphore
 		}(team)

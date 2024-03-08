@@ -186,6 +186,19 @@ func CutPlayerFromNBATeam(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("Player " + playerID + " placed on trade block.")
 }
 
+// AssignNBAPlayerAsTwoWay
+func ActivateOption(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	playerID := vars["contractID"]
+	if len(playerID) == 0 {
+		panic("User did not provide contractID")
+	}
+
+	managers.AssignPlayerAsTwoWay(playerID)
+
+	json.NewEncoder(w).Encode("Player " + playerID + " placed on trade block.")
+}
+
 func ExportCollegePlayers(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	w.Header().Set("Content-Type", "text/csv")

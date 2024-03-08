@@ -34,9 +34,11 @@ type RetiredPlayer struct {
 	MinimumValue        float64
 	SigningRound        uint
 	NegotiationRound    uint
+	Rejections          int8
 	HasProgressed       bool
 	Offers              []NBAContractOffer   `gorm:"foreignKey:PlayerID"`
 	WaiverOffers        []NBAWaiverOffer     `gorm:"foreignKey:PlayerID"`
+	Extensions          []NBAExtensionOffer  `gorm:"foreignKey:NBAPlayerID"`
 	Contract            NBAContract          `gorm:"foreignKey:PlayerID"`
 	Stats               []NBAPlayerStats     `gorm:"foreignKey:NBAPlayerID"`
 	SeasonStats         NBAPlayerSeasonStats `gorm:"foreignKey:NBAPlayerID"`

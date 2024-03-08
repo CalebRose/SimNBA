@@ -49,3 +49,8 @@ func RollbackNBASeason(w http.ResponseWriter, r *http.Request) {
 func ImportDraftPicks(w http.ResponseWriter, r *http.Request) {
 	managers.ImportDraftPicks()
 }
+
+// Run Controls
+func RunPromises(w http.ResponseWriter, r *http.Request) {
+	managers.AICoachPromisePhase()
+}

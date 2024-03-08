@@ -34,9 +34,11 @@ type NBAPlayer struct {
 	MinimumValue        float64
 	SigningRound        uint
 	NegotiationRound    uint
+	Rejections          int8
 	HasProgressed       bool
 	Offers              []NBAContractOffer   `gorm:"foreignKey:PlayerID"`
 	WaiverOffers        []NBAWaiverOffer     `gorm:"foreignKey:PlayerID"`
+	Extensions          []NBAExtensionOffer  `gorm:"foreignKey:NBAPlayerID"`
 	Contract            NBAContract          `gorm:"foreignKey:PlayerID"`
 	Stats               []NBAPlayerStats     `gorm:"foreignKey:NBAPlayerID"`
 	SeasonStats         NBAPlayerSeasonStats `gorm:"foreignKey:NBAPlayerID"`
@@ -185,4 +187,11 @@ func (np *NBAPlayer) ToggleSuperMax() {
 
 func (np *NBAPlayer) ToggleMaxRequested() {
 	np.MaxRequested = !np.MaxRequested
+}
+
+func (f *NBAPlayer) DeclineOffer(week int) {
+	f.Rejections += 1
+	if week >= 30 {
+		f.Rejections += 2
+	}
 }

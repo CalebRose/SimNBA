@@ -93,6 +93,8 @@ func handleRequests() {
 	myRouter.HandleFunc("/nba/freeagency/cancel/offer", controller.CancelFreeAgencyOffer).Methods("POST")
 	myRouter.HandleFunc("/nba/freeagency/create/waiver", controller.CreateWaiverOffer).Methods("POST")
 	myRouter.HandleFunc("/nba/freeagency/cancel/waiver", controller.CancelWaiverOffer).Methods("POST")
+	myRouter.HandleFunc("/nba/extension/create/offer", controller.CreateExtensionOffer).Methods("POST")
+	myRouter.HandleFunc("/nba/extension/cancel/offer", controller.CancelExtensionOffer).Methods("POST")
 	myRouter.HandleFunc("/nba/freeagency/extensions/temp", controller.ExtendPlayers).Methods("GET")
 	myRouter.HandleFunc("/nba/freeagency/sync/round", controller.SyncFreeAgencyOffers).Methods("GET")
 
@@ -164,6 +166,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/nba/players/cut/{playerID}", controller.CutPlayerFromNBATeam).Methods("GET")
 	myRouter.HandleFunc("/nba/players/place/gleague/{playerID}", controller.PlaceNBAPlayerInGLeague).Methods("GET")
 	myRouter.HandleFunc("/nba/players/place/twoway/{playerID}", controller.AssignNBAPlayerAsTwoWay).Methods("GET")
+	myRouter.HandleFunc("/nba/players/activate/option/{contractID}", controller.AssignNBAPlayerAsTwoWay).Methods("GET")
 
 	// Poll Controls
 	myRouter.HandleFunc("/college/poll/create/", controller.CreatePollSubmission).Methods("POST")
@@ -195,6 +198,9 @@ func handleRequests() {
 	myRouter.HandleFunc("/nba/requests/approve/", controller.ApproveNBATeamRequest).Methods("POST")
 	myRouter.HandleFunc("/nba/requests/reject/", controller.RejectNBATeamRequest).Methods("DELETE")
 	myRouter.HandleFunc("/nba/requests/revoke/", controller.RemoveNBAUserFromNBATeam).Methods("POST")
+
+	// Run Controls
+	// myRouter.HandleFunc("/run/promises", controller.RunPromises).Methods("GET")
 
 	// Stats Controls
 	myRouter.HandleFunc("/stats/export/{league}/{seasonID}/{weekID}/{matchType}/{viewType}/{playerView}", controller.ExportStats).Methods("GET")

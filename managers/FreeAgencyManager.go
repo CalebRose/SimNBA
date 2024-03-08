@@ -8,7 +8,6 @@ import (
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
-	"github.com/CalebRose/SimNBA/secrets"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
 	"gorm.io/gorm"
@@ -222,6 +221,43 @@ func CancelWaiverOffer(offer structs.NBAWaiverOfferDTO) {
 	db.Delete(&waiverOffer)
 }
 
+func CreateExtensionOffer(offer structs.NBAContractOfferDTO) structs.NBAExtensionOffer {
+	db := dbprovider.GetInstance().GetDB()
+	ts := GetTimestamp()
+	extensionOffer := GetExtensionOfferByOfferID(strconv.Itoa(int(offer.ID)))
+	player := GetNBAPlayerRecord(strconv.Itoa(int(offer.PlayerID)))
+
+	extensionOffer.CalculateOffer(offer)
+
+	// If the owning team is sending an offer to a player
+	if extensionOffer.ID == 0 {
+		id := GetLatestExtensionOfferInDB(db)
+		extensionOffer.AssignID(id)
+		db.Create(&extensionOffer)
+		fmt.Println("Creating Extension Offer!")
+
+		message := offer.Team + " have offered a " + strconv.Itoa(int(offer.TotalYears)) + " year contract extension for " + player.Position + " " + player.FirstName + " " + player.LastName + "."
+		CreateNewsLog("NFL", message, "Free Agency", int(player.TeamID), ts)
+	} else {
+		fmt.Println("Updating Extension Offer!")
+		db.Save(&extensionOffer)
+	}
+
+	return extensionOffer
+}
+
+func CancelExtensionOffer(offer structs.NBAContractOfferDTO) {
+	db := dbprovider.GetInstance().GetDB()
+
+	OfferID := strconv.Itoa(int(offer.ID))
+
+	freeAgentOffer := GetExtensionOfferByOfferID(OfferID)
+
+	freeAgentOffer.CancelOffer()
+
+	db.Save(&freeAgentOffer)
+}
+
 func GetWaiverOfferByOfferID(OfferID string) structs.NBAWaiverOffer {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -237,6 +273,33 @@ func GetWaiverOfferByOfferID(OfferID string) structs.NBAWaiverOffer {
 
 func GetLatestWaiverOfferInDB(db *gorm.DB) uint {
 	var latestOffer structs.NBAWaiverOffer
+
+	err := db.Last(&latestOffer).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return 1
+		}
+		log.Fatalln("ERROR! Could not find latest record" + err.Error())
+	}
+
+	return latestOffer.ID + 1
+}
+
+func GetExtensionOfferByOfferID(OfferID string) structs.NBAExtensionOffer {
+	db := dbprovider.GetInstance().GetDB()
+
+	offer := structs.NBAExtensionOffer{}
+
+	err := db.Where("id = ?", OfferID).Find(&offer).Error
+	if err != nil {
+		return offer
+	}
+
+	return offer
+}
+
+func GetLatestExtensionOfferInDB(db *gorm.DB) uint {
+	var latestOffer structs.NBAExtensionOffer
 
 	err := db.Last(&latestOffer).Error
 	if err != nil {
@@ -386,98 +449,68 @@ func GetWaiverOffersByTeamID(teamID string) []structs.NBAWaiverOffer {
 	return offers
 }
 
-func TempExtensionAlgorithm() {
+func RunExtensionsAlgorithm() {
 	db := dbprovider.GetInstance().GetDB()
-	// DB
-	path := secrets.GetPath()["extensions"]
-	extensionsCSV := util.ReadCSV(path)
 	ts := GetTimestamp()
-	// Read CSV
-	for idx, row := range extensionsCSV {
-		if idx == 0 {
-			continue
-		}
+	seasonID := strconv.Itoa(int(ts.SeasonID))
+	nbaTeams := GetAllActiveNBATeams()
 
-		id := row[1]
-		teamID := row[0]
-		playerRecord := GetNBAPlayerRecord(id)
-		team := GetNBATeamByTeamID(teamID)
-		contractType := row[3]
-		contractLength := util.ConvertStringToInt(row[4])
-		totalValue := util.ConvertStringToFloat(row[5])
-		year1 := util.ConvertStringToFloat(row[6])
-		year2 := util.ConvertStringToFloat(row[7])
-		year3 := util.ConvertStringToFloat(row[8])
-		year4 := util.ConvertStringToFloat(row[9])
-		year5 := util.ConvertStringToFloat(row[10])
-		year1Opt := util.ConvertStringToBool(row[11])
-		year2Opt := util.ConvertStringToBool(row[12])
-		year3Opt := util.ConvertStringToBool(row[13])
-		year4Opt := util.ConvertStringToBool(row[14])
-		year5Opt := util.ConvertStringToBool(row[15])
-		nbaContract := structs.NBAContract{
-			PlayerID:       playerRecord.ID,
-			TeamID:         team.ID,
-			ContractType:   contractType,
-			YearsRemaining: uint(contractLength),
-			TotalRemaining: totalValue,
-			Year1Total:     year1,
-			Year2Total:     year2,
-			Year3Total:     year3,
-			Year4Total:     year4,
-			Year5Total:     year5,
-			Year1Opt:       year1Opt,
-			Year2Opt:       year2Opt,
-			Year3Opt:       year3Opt,
-			Year4Opt:       year4Opt,
-			Year5Opt:       year5Opt,
-			IsExtended:     true,
-			IsActive:       true,
-		}
-		minimumValue := playerRecord.MinimumValue
-		contractStatus := ""
-		if playerRecord.MaxRequested {
-			contractStatus = "Max"
-		}
-		if playerRecord.IsSuperMaxQualified {
-			contractStatus = "SuperMax"
-		}
-		multiplier := 1.0
-		validation := validateFreeAgencyPref(playerRecord, team, strconv.Itoa(int(ts.SeasonID)), idx)
-		if validation && playerRecord.FreeAgency != "Average" {
-			multiplier = 0.85
-		} else if !validation && playerRecord.FreeAgency != "Average" {
-			multiplier = 1.15
-		}
-		if playerRecord.FreeAgency == "Highest bidder" {
-			multiplier = 1
-		}
-		minimumValue = minimumValue * multiplier
-		validOffer := validateContract(nbaContract, contractStatus, minimumValue)
+	for _, team := range nbaTeams {
+		teamID := strconv.Itoa(int(team.ID))
+		roster := GetNBAPlayersWithContractsAndExtensionsByTeamID(teamID)
 
-		if !validOffer {
-			message := playerRecord.Position + " " + playerRecord.FirstName + " " + playerRecord.LastName + " has rejected an extension offer from " + team.Team + " " + team.Nickname
-			CreateNewsLog("NBA", message, "Contract", int(team.ID), ts)
-			continue
-		}
+		for _, player := range roster {
+			min := player.MinimumValue
+			contract := player.Contract
+			if contract.ID == 0 {
+				// Yeah this is an error
+				continue
+			}
+			if contract.YearsRemaining == 1 && len(player.Extensions) > 0 {
+				for idx, e := range player.Extensions {
+					if e.IsRejected || !e.IsActive {
+						continue
+					}
+					minimumValueMultiplier := 1.0
+					validation := validateFreeAgencyPref(player, roster, team, seasonID, int(e.TotalYears), idx)
+					// If the offer is valid and meets the player's free agency bias, reduce the minimum value required by 15%
+					if validation && player.FreeAgency != "Average" {
+						minimumValueMultiplier = 0.85
+						// If the offer does not meet the player's free agency bias, increase the minimum value required by 15%
+					} else if !validation && player.FreeAgency != "Average" {
+						minimumValueMultiplier = 1.15
+					}
+					percentage := (e.ContractValue / (min * minimumValueMultiplier) * 100)
+					odds := getExtensionPercentageOdds(percentage)
+					// Run Check on the Extension
 
-		message := playerRecord.Position + " " + playerRecord.FirstName + " " + playerRecord.LastName + " has signed an extension with the " + team.Team + " " + team.Nickname + ", worth approximately $" + strconv.Itoa(int(nbaContract.TotalRemaining)) + " Million!"
-		CreateNewsLog("NBA", message, "Contract", 0, ts)
-		playerRecord.SignWithTeam(team.ID, team.Team)
-		db.Save(&playerRecord)
-		db.Create(&nbaContract)
+					roll := util.GenerateIntFromRange(1, 100)
+					message := ""
+					if odds == 0 || float64(roll) > odds {
+						// Rejects offer
+						e.DeclineOffer(ts.NBAWeek)
+						player.DeclineOffer(ts.NBAWeek)
+						if e.IsRejected || player.Rejections > 2 {
+							message = player.Position + " " + player.FirstName + " " + player.LastName + " has rejected an extension offer from " + e.Team + " worth approximately $" + strconv.Itoa(int(e.ContractValue)) + " Million Dollars and will enter Free Agency."
+						} else {
+							message = player.Position + " " + player.FirstName + " " + player.LastName + " has declined an extension offer from " + e.Team + " with an extension worth approximately $" + strconv.Itoa(int(e.ContractValue)) + " Million Dollars, and is still negotiating."
+						}
+						CreateNewsLog("NBA", message, "Free Agency", int(e.TeamID), ts)
+						db.Save(&player)
+					} else {
+						e.AcceptOffer()
+						message = player.Position + " " + player.FirstName + " " + player.LastName + " has accepted an extension offer from " + e.Team + " worth approximately $" + strconv.Itoa(int(e.ContractValue)) + " Million Dollars."
+						CreateNewsLog("NBA", message, "Free Agency", int(e.TeamID), ts)
+						db.Save(&team)
+					}
+					db.Save(&e)
+				}
+			}
+		}
 	}
-	// Iterate through submissions
-	// Player Record by ID
-	// Get Minimum Value required
-	// Check if max/supermax
-	// Check FA Preference
-	// Compare contract with FA Preference with minimum value
-	// If met, player signs
-	// If not, continue algorithm
 }
 
-func validateFreeAgencyPref(playerRecord structs.NBAPlayer, team structs.NBATeam, seasonID string, idx int) bool {
+func validateFreeAgencyPref(playerRecord structs.NBAPlayer, roster []structs.NBAPlayer, team structs.NBATeam, seasonID string, offerLength, idx int) bool {
 	preference := playerRecord.FreeAgency
 
 	if preference == "Average" {
@@ -498,7 +531,7 @@ func validateFreeAgencyPref(playerRecord structs.NBAPlayer, team structs.NBATeam
 	}
 
 	if preference == "I'm the starter" {
-		teamRoster := GetAllNBAPlayersByTeamID(strconv.Itoa(int(team.ID)))
+		teamRoster := roster
 		sort.Slice(teamRoster, func(i, j int) bool {
 			return teamRoster[i].Overall > teamRoster[j].Overall
 		})
@@ -511,7 +544,10 @@ func validateFreeAgencyPref(playerRecord structs.NBAPlayer, team structs.NBATeam
 			}
 		}
 	}
-	if preference == "Market-driven" && checkMarketCity(team.City) {
+	if preference == "Market-driven" && offerLength < 3 {
+		return true
+	}
+	if preference == "Wants Extension" && offerLength > 2 {
 		return true
 	}
 	if preference == "Money motivated" {
@@ -567,6 +603,7 @@ func checkMarketCity(city string) bool {
 
 func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *gorm.DB) {
 	seasonID := strconv.Itoa(int(ts.SeasonID))
+	rosterMap := GetFullRosterNBAMap()
 	for _, FA := range freeAgents {
 
 		// Check if still accepting offers
@@ -605,7 +642,8 @@ func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *
 		for idx, Offer := range Offers {
 			minimumValueMultiplier := 1.0
 			team := GetNBATeamByTeamID(strconv.Itoa(int(Offer.TeamID)))
-			validation := validateFreeAgencyPref(FA, team, seasonID, idx)
+			roster := rosterMap[Offer.TeamID]
+			validation := validateFreeAgencyPref(FA, roster, team, seasonID, int(Offer.TotalYears), idx)
 			// If the offer is valid and meets the player's free agency bias, reduce the minimum value required by 15%
 			if validation && FA.FreeAgency != "Average" && FA.Year > 2 {
 				minimumValueMultiplier = 0.85
@@ -815,4 +853,17 @@ func faSyncISLPlayers(islPlayers []structs.NBAPlayer, ts structs.Timestamp, db *
 			db.Delete(&o)
 		}
 	}
+}
+
+func getExtensionPercentageOdds(percentage float64) float64 {
+	if percentage >= 100 {
+		return 100
+	} else if percentage >= 90 {
+		return 75
+	} else if percentage >= 80 {
+		return 50
+	} else if percentage >= 70 {
+		return 25
+	}
+	return 0
 }
