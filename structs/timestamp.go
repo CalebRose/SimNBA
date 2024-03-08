@@ -58,6 +58,7 @@ func (t *Timestamp) MoveUpASeason() {
 	t.Y3Capspace = t.Y4Capspace
 	t.Y4Capspace = t.Y5Capspace
 	t.Y5Capspace = t.Y5Capspace + 5
+	t.FreeAgencyRound = 1
 }
 
 func (t *Timestamp) MoveUpWeekCollege() {

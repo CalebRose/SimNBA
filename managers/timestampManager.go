@@ -38,7 +38,7 @@ func LockRecruiting() {
 func MoveUpInOffseasonFreeAgency() {
 	db := dbprovider.GetInstance().GetDB()
 	ts := GetTimestamp()
-	if ts.IsNBAOffseason {
+	if ts.IsNBAOffseason || ts.NBASeasonOver {
 		ts.MoveUpFreeAgencyRound()
 	}
 	db.Save(&ts)
@@ -55,7 +55,9 @@ func SyncToNextWeek() {
 	if ts.CollegeWeek < 21 || !ts.IsOffSeason {
 		SyncCollegePollSubmissionForCurrentWeek()
 	}
-	if ts.NBAWeek > 22 && !ts.IsNBAOffseason {
+	if ts.NBAWeek > 21 && !ts.IsNBAOffseason {
+		// Update bools so that teams can't trade in middle of next season's post season
+		db.Model(&structs.NBATeam{}).Where("id < ?", "33").Update("can_trade", false)
 		GenerateNBAPlayoffGames(db, ts)
 		IndicateWhetherTeamCanTradeInPostSeason()
 	}

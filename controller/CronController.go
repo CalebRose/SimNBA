@@ -68,7 +68,7 @@ func SyncRecruitingViaCron() {
 
 func SyncToNextWeekViaCron() {
 	ts := managers.GetTimestamp()
-	if ts.RunCron && (!ts.IsOffSeason || !ts.IsNBAOffseason) {
+	if ts.RunCron && ((!ts.IsOffSeason || !ts.IsNBAOffseason) || (ts.CollegeSeasonOver && ts.NBASeasonOver && ts.FreeAgencyRound > 2)) {
 		managers.SyncToNextWeek()
 	}
 
@@ -92,6 +92,9 @@ func SyncFreeAgencyOffersViaCron() {
 	ts := managers.GetTimestamp()
 	if ts.RunCron && !ts.IsFreeAgencyLocked {
 		managers.SyncFreeAgencyOffers()
+		if ts.NBASeasonOver {
+			managers.RunExtensionsAlgorithm()
+		}
 		managers.MoveUpInOffseasonFreeAgency()
 	}
 }
