@@ -30,6 +30,7 @@ type NBATeam struct {
 	OffenseGrade      string
 	DefenseGrade      string
 	IsActive          bool
+	CanTrade          bool
 	WaiverOrder       uint
 	Gameplan          NBAGameplan           `gorm:"foreignKey:TeamID"`
 	TeamStats         []NBATeamStats        `gorm:"foreignKey:TeamID"`
@@ -83,6 +84,10 @@ func (t *NBATeam) AssignRatings(og string, dg string, ov string) {
 
 func (t *NBATeam) AssignWaiverOrder(order uint) {
 	t.WaiverOrder = order
+}
+
+func (t *NBATeam) ActivateTradeAbility() {
+	t.CanTrade = true
 }
 
 type ISLTeamNeeds struct {

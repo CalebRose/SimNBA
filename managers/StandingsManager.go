@@ -267,18 +267,18 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 					weekID := ts.NBAWeekID
 					week := ts.NBAWeek
 					matchOfWeek := "A"
-					if !ts.GamesBRan {
+					if game.MatchOfWeek == "A" {
 						matchOfWeek = "B"
-					} else if !ts.GamesCRan {
+					} else if game.MatchOfWeek == "B" {
 						matchOfWeek = "C"
-					} else if !ts.GamesDRan {
+					} else if game.MatchOfWeek == "C" {
 						matchOfWeek = "D"
-					} else if ts.GamesARan && ts.GamesBRan && ts.GamesCRan && ts.GamesDRan {
+					} else if game.MatchOfWeek == "D" {
 						// Move game to next week
 						weekID += 1
 						week += 1
 					}
-					matchTitle := ""
+					matchTitle := series.SeriesName + ": " + nextHomeTeam + " vs. " + nextAwayTeam
 					nextGame := structs.NBAMatch{
 						WeekID:          weekID,
 						Week:            uint(week),
@@ -332,6 +332,8 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 						db.Save(&ts)
 					}
 				}
+
+				db.Save(&series)
 			}
 		}
 	}

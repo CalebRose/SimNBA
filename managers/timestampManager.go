@@ -57,6 +57,7 @@ func SyncToNextWeek() {
 	}
 	if ts.NBAWeek > 22 && !ts.IsNBAOffseason {
 		GenerateNBAPlayoffGames(db, ts)
+		IndicateWhetherTeamCanTradeInPostSeason()
 	}
 	err := db.Save(&ts).Error
 	if err != nil {
@@ -148,7 +149,43 @@ func GenerateNBAPlayoffGames(db *gorm.DB, ts structs.Timestamp) {
 			db.Create(&nbaMatch)
 		}
 	}
+}
 
+func IndicateWhetherTeamCanTradeInPostSeason() {
+	db := dbprovider.GetInstance().GetDB()
+	nbaTeamMap := GetProfessionalTeamMap()
+	nbaIsInPlayoffsMap := make(map[uint]bool)
+	activeNBASeries := GetAllActiveNBASeries()
+
+	for i := 1; i < 33; i++ {
+		idx := uint(i)
+		nbaTeam := nbaTeamMap[idx]
+		if nbaTeam.CanTrade {
+			continue
+		}
+		nbaIsInPlayoffsMap[idx] = false
+	}
+
+	for _, s := range activeNBASeries {
+		if s.SeriesComplete {
+			continue
+		}
+		nbaIsInPlayoffsMap[s.HomeTeamID] = true
+		nbaIsInPlayoffsMap[s.AwayTeamID] = true
+	}
+
+	for i := 1; i < 33; i++ {
+		idx := uint(i)
+		nbaTeam := nbaTeamMap[idx]
+		if nbaTeam.CanTrade {
+			continue
+		}
+		playoffsBool := nbaIsInPlayoffsMap[idx]
+		if !playoffsBool {
+			nbaTeam.ActivateTradeAbility()
+			db.Save(&nbaTeam)
+		}
+	}
 }
 
 func ShowGames() {
