@@ -218,7 +218,7 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 				}
 			}
 
-			if game.IsPlayoffGame {
+			if game.IsPlayoffGame && game.SeriesID > 0 {
 				seriesID := strconv.Itoa(int(game.SeriesID))
 				series := GetNBASeriesBySeriesID(seriesID)
 				series.UpdateWinCount(game.HomeTeamWin)
