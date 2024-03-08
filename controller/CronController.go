@@ -11,9 +11,10 @@ func FillAIBoardsViaCron() {
 	}
 
 	if ts.RunCron && ts.IsOffSeason && ts.CollegeSeasonOver {
-		if ts.TransferPortalPhase == 1 {
+		if ts.TransferPortalPhase == 2 {
 			managers.AICoachPromisePhase()
-		} else if ts.TransferPortalPhase == 3 {
+		}
+		if ts.TransferPortalPhase == 3 {
 			managers.AICoachFillBoardsPhase()
 		}
 	}

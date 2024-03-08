@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
@@ -528,11 +529,17 @@ func ImportNBAGames() {
 		country := row[25]
 		homeCoach := homeTeam.NBACoachName
 		if homeCoach == "" {
-			homeCoach = "AI"
+			homeCoach = homeTeam.NBAOwnerName
+			if homeCoach == "" {
+				homeCoach = "AI"
+			}
 		}
 		awayCoach := awayTeam.NBACoachName
 		if awayCoach == "" {
-			awayCoach = "AI"
+			awayCoach = awayTeam.NBAOwnerName
+			if awayCoach == "" {
+				awayCoach = "AI"
+			}
 		}
 
 		match := structs.NBAMatch{
@@ -563,6 +570,149 @@ func ImportNBAGames() {
 		}
 
 		db.Create(&match)
+	}
+}
+
+func ImportNBASeries() {
+	db := dbprovider.GetInstance().GetDB()
+	path := secrets.GetPath()["nbaseries"]
+	professionalMatches := util.ReadCSV(path)
+	professionalTeams := GetAllActiveNBATeams()
+	teamMap := make(map[string]structs.NBATeam)
+
+	for _, t := range professionalTeams {
+		teamMap[t.Team+" "+t.Nickname] = t
+	}
+
+	for idx, row := range professionalMatches {
+		if idx < 1 {
+			continue
+		}
+
+		id := util.ConvertStringToInt(row[0])
+		season := util.ConvertStringToInt(row[1])
+		seasonID := season - 2020
+		homeTeamStr := row[6]
+		awayTeamStr := row[7]
+		homeTeam := teamMap[homeTeamStr]
+		homeTeamRank := util.ConvertStringToInt(row[4])
+		awayTeamRank := util.ConvertStringToInt(row[7])
+		awayTeam := teamMap[awayTeamStr]
+		nextGameID := util.ConvertStringToInt(row[14])
+		hoA := row[15]
+		seriesTitle := row[13]
+		international := util.ConvertStringToBool(row[9])
+		playoff := util.ConvertStringToBool(row[8])
+		finals := util.ConvertStringToBool(row[10])
+		homeCoach := homeTeam.NBACoachName
+		if homeCoach == "" {
+			homeCoach = homeTeam.NBAOwnerName
+			if homeCoach == "" {
+				homeCoach = "AI"
+			}
+		}
+		awayCoach := awayTeam.NBACoachName
+		if awayCoach == "" {
+			awayCoach = awayTeam.NBAOwnerName
+			if awayCoach == "" {
+				awayCoach = "AI"
+			}
+		}
+
+		match := structs.NBASeries{
+			Model:           gorm.Model{ID: uint(id)},
+			SeriesName:      seriesTitle,
+			SeasonID:        uint(seasonID),
+			HomeTeam:        homeTeamStr,
+			HomeTeamID:      homeTeam.ID,
+			AwayTeamID:      awayTeam.ID,
+			HomeTeamCoach:   homeCoach,
+			HomeTeamWins:    0,
+			HomeTeamWin:     false,
+			HomeTeamRank:    uint(homeTeamRank),
+			AwayTeam:        awayTeamStr,
+			AwayTeamCoach:   awayCoach,
+			AwayTeamWins:    0,
+			AwayTeamWin:     false,
+			AwayTeamRank:    uint(awayTeamRank),
+			GameCount:       0,
+			NextSeriesID:    uint(nextGameID),
+			NextSeriesHOA:   hoA,
+			IsPlayoffGame:   playoff,
+			IsTheFinals:     finals,
+			IsInternational: international,
+			SeriesComplete:  false,
+		}
+
+		db.Create(&match)
+	}
+}
+
+func RollbackNBAGames() {
+	db := dbprovider.GetInstance().GetDB()
+	path := secrets.GetPath()["nbamatches"]
+	professionalMatches := util.ReadCSV(path)
+
+	professionalTeams := GetAllActiveNBATeams()
+	teamMap := make(map[string]structs.NBATeam)
+	// teamStatMap := make(map[uint][]structs.NBATeamStats)
+	// teamStats := GetNBATeamStatsBySeasonID("3")
+	existingMatchMap := make(map[uint]structs.NBAMatch)
+
+	nbaMatches := GetNBAMatchesBySeasonID("3")
+	islMatches := GetISLMatchesBySeasonID("3")
+
+	for _, match := range nbaMatches {
+		existingMatchMap[match.ID] = match
+	}
+
+	for _, match := range islMatches {
+		existingMatchMap[match.ID] = match
+	}
+
+	// Collect all team stats
+	// for _, stat := range teamStats {
+	// 	id := stat.MatchID
+	// 	teamStatMap[id] = append(teamStatMap[id], stat)
+	// }
+
+	for _, t := range professionalTeams {
+		teamStr := t.Team + " " + t.Nickname
+		trimmedStr := strings.TrimSpace(teamStr)
+		teamMap[trimmedStr] = t
+	}
+
+	for idx, row := range professionalMatches {
+		if idx < 1313 {
+			continue
+		}
+
+		id := util.ConvertStringToInt(row[0])
+		match := existingMatchMap[uint(id)]
+		// No need for stats updates considering that the scores are the same. Only team information + arena
+		homeTeamStr := strings.TrimSpace(row[6])
+		awayTeamStr := strings.TrimSpace(row[7])
+		homeTeam := teamMap[homeTeamStr]
+		awayTeam := teamMap[awayTeamStr]
+		city := homeTeam.City
+		arena := homeTeam.Arena
+		state := homeTeam.State
+		homeCoach := homeTeam.NBACoachName
+		if homeCoach == "" {
+			homeCoach = homeTeam.NBAOwnerName
+			if homeCoach == "" {
+				homeCoach = "AI"
+			}
+		}
+		awayCoach := awayTeam.NBACoachName
+		if awayCoach == "" {
+			awayCoach = awayTeam.NBAOwnerName
+			if awayCoach == "" {
+				awayCoach = "AI"
+			}
+		}
+		match.RollbackMatch(homeTeamStr, homeCoach, awayTeamStr, awayCoach, city, state, arena, homeTeam.ID, awayTeam.ID)
+		db.Save(&match)
 	}
 }
 

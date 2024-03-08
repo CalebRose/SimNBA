@@ -10,6 +10,7 @@ func GetPath() map[string]string {
 	extensionsPath := "./data/TempExtensions.csv"
 	cbbMatchPath := "./data/2023_SimCBB_PostSeason.csv"
 	nbaMatchPath := "./data/2023_SimNBA_Season.csv"
+	nbaSeriesPath := "./data/2023_SimNBA_Season_Series.csv"
 	draftPickPath := "./data/draft_picks.csv"
 	return map[string]string{
 		"teams":        TeamsListPath,
@@ -21,6 +22,7 @@ func GetPath() map[string]string {
 		"extensions":   extensionsPath,
 		"cbbmatches":   cbbMatchPath,
 		"nbamatches":   nbaMatchPath,
+		"nbaseries":    nbaSeriesPath,
 		"draftpicks":   draftPickPath,
 	}
 }

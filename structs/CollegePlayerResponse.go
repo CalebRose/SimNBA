@@ -166,6 +166,9 @@ func (c *TransferPlayerResponse) Map(r CollegePlayer, ovr string) {
 	c.TeamAbbr = r.TeamAbbr
 	c.PreviousTeam = r.PreviousTeam
 	c.PreviousTeamID = r.PreviousTeamID
+	c.Year = r.Year
+	c.IsRedshirt = r.IsRedshirt
+	c.IsRedshirting = r.IsRedshirting
 
 	var totalPoints float64 = 0
 	var runningThreshold float64 = 0

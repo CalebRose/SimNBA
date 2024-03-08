@@ -126,7 +126,6 @@ func ProgressionMain() {
 		db.Delete(&croot)
 	}
 	ts.ToggleCollegeProgression()
-	ts.NextTransferPortalPhase()
 	db.Save(&ts)
 }
 

@@ -202,7 +202,7 @@ func ProcessTransferIntention() {
 	}
 	transferPortalMessage := "Breaking News! About " + strconv.Itoa(transferCount) + " players intend to transfer from their current schools. Teams have one week to commit promises to retain players."
 	CreateNewsLog("CBB", transferPortalMessage, "Transfer Portal", 0, ts)
-	ts.NextTransferPortalPhase()
+	ts.EnactPromisePhase()
 	db.Save(&ts)
 }
 
@@ -388,20 +388,20 @@ func EnterTheTransferPortal() {
 				// Okay this makes sense.
 
 				p.WillTransfer()
-				if p.Stars > 3 {
-					// Create News Log
-					message := "Breaking News! " + p.TeamAbbr + " " + strconv.Itoa(p.Stars) + " Star " + p.Position + " " + p.FirstName + " " + p.LastName + " has officially entered the transfer portal!"
-					CreateNewsLog("CBB", message, "Transfer Portal", int(p.PreviousTeamID), ts)
-				}
+
+				// Create News Log
+				message := "Breaking News! " + p.TeamAbbr + " " + strconv.Itoa(p.Stars) + " Star " + p.Position + " " + p.FirstName + " " + p.LastName + " has officially entered the transfer portal!"
+				CreateNewsLog("CBB", message, "Transfer Portal", int(p.PreviousTeamID), ts)
+
 				db.Save(&p)
 				db.Delete(promise)
 				continue
 			}
-			if p.Stars > 3 {
-				// Create News Log
-				message := "Breaking News! " + p.TeamAbbr + " " + strconv.Itoa(p.Stars) + " Star " + p.Position + " " + p.FirstName + " " + p.LastName + " has withdrawn their name from the transfer portal!"
-				CreateNewsLog("CBB", message, "Transfer Portal", int(p.PreviousTeamID), ts)
-			}
+
+			// Create News Log
+			message := "Breaking News! " + p.TeamAbbr + " " + strconv.Itoa(p.Stars) + " Star " + p.Position + " " + p.FirstName + " " + p.LastName + " has withdrawn their name from the transfer portal!"
+			CreateNewsLog("CBB", message, "Transfer Portal", int(p.PreviousTeamID), ts)
+
 			promise.MakePromise()
 			db.Save(&promise)
 			p.WillStay()
@@ -409,7 +409,7 @@ func EnterTheTransferPortal() {
 		}
 	}
 
-	ts.NextTransferPortalPhase()
+	ts.EnactPortalPhase()
 	db.Save(&ts)
 }
 

@@ -241,6 +241,16 @@ func GetNBATeamStatsBySeason(teamID, seasonId string) []structs.NBATeamStats {
 	return teamStats
 }
 
+func GetNBATeamStatsBySeasonID(seasonId string) []structs.NBATeamStats {
+	db := dbprovider.GetInstance().GetDB()
+
+	var teamStats []structs.NBATeamStats
+
+	db.Where("season_id = ?", seasonId).Find(&teamStats)
+
+	return teamStats
+}
+
 func GetTeamSeasonStatsByTeamID(teamID string, seasonID string) structs.TeamSeasonStats {
 	db := dbprovider.GetInstance().GetDB()
 

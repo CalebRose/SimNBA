@@ -86,6 +86,18 @@ func (m *NBAMatch) AddTeam(isHome bool, id, rank uint, team, coach, arena, city,
 	}
 }
 
+func (m *NBAMatch) RollbackMatch(ht, htc, at, atc, city, state, arena string, htid, atid uint) {
+	m.HomeTeam = ht
+	m.HomeTeamID = htid
+	m.HomeTeamCoach = htc
+	m.AwayTeam = at
+	m.AwayTeamCoach = atc
+	m.AwayTeamID = atid
+	m.City = city
+	m.State = state
+	m.Arena = arena
+}
+
 type NBASeries struct {
 	gorm.Model
 	SeriesName      string // For Post-Season matchups
