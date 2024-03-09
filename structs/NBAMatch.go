@@ -135,6 +135,20 @@ func (s *NBASeries) AddTeam(isHome bool, id, rank uint, team, coach string) {
 		s.AwayTeamRank = rank
 		s.AwayTeamCoach = coach
 	}
+	if s.HomeTeamID > 0 && s.AwayTeamID > 0 && s.HomeTeamRank < s.AwayTeamRank {
+		tempID := s.AwayTeamID
+		temp := s.AwayTeam
+		tempC := s.AwayTeamCoach
+		tempR := s.AwayTeamRank
+		s.AwayTeamID = s.HomeTeamID
+		s.AwayTeam = s.HomeTeam
+		s.AwayTeamCoach = s.HomeTeamCoach
+		s.AwayTeamRank = s.HomeTeamRank
+		s.HomeTeamID = tempID
+		s.HomeTeam = temp
+		s.HomeTeamCoach = tempC
+		s.HomeTeamRank = tempR
+	}
 }
 
 func (s *NBASeries) UpdateWinCount(homeTeamWin bool) {

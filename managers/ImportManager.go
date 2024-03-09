@@ -581,7 +581,9 @@ func ImportNBASeries() {
 	teamMap := make(map[string]structs.NBATeam)
 
 	for _, t := range professionalTeams {
-		teamMap[t.Team+" "+t.Nickname] = t
+		teamStr := t.Team + " " + t.Nickname
+		trimmedStr := strings.TrimSpace(teamStr)
+		teamMap[trimmedStr] = t
 	}
 
 	for idx, row := range professionalMatches {
@@ -592,8 +594,8 @@ func ImportNBASeries() {
 		id := util.ConvertStringToInt(row[0])
 		season := util.ConvertStringToInt(row[1])
 		seasonID := season - 2020
-		homeTeamStr := row[6]
-		awayTeamStr := row[7]
+		homeTeamStr := strings.TrimSpace(row[6])
+		awayTeamStr := strings.TrimSpace(row[7])
 		homeTeam := teamMap[homeTeamStr]
 		homeTeamRank := util.ConvertStringToInt(row[4])
 		awayTeamRank := util.ConvertStringToInt(row[7])

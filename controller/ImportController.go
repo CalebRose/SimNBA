@@ -39,7 +39,7 @@ func ImportNBAMatches(w http.ResponseWriter, r *http.Request) {
 }
 
 func ImportNBASeries(w http.ResponseWriter, r *http.Request) {
-	managers.ImportNBAGames()
+	managers.ImportNBASeries()
 }
 
 func RollbackNBASeason(w http.ResponseWriter, r *http.Request) {
