@@ -594,8 +594,8 @@ func ImportNBASeries() {
 		id := util.ConvertStringToInt(row[0])
 		season := util.ConvertStringToInt(row[1])
 		seasonID := season - 2020
-		homeTeamStr := strings.TrimSpace(row[6])
-		awayTeamStr := strings.TrimSpace(row[7])
+		homeTeamStr := strings.TrimSpace(row[5])
+		awayTeamStr := strings.TrimSpace(row[6])
 		homeTeam := teamMap[homeTeamStr]
 		homeTeamRank := util.ConvertStringToInt(row[4])
 		awayTeamRank := util.ConvertStringToInt(row[7])
