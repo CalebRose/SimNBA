@@ -117,6 +117,11 @@ func (n *NBAPlayer) QualifiesForMax() {
 	n.MaxRequested = true
 }
 
+func (n *NBAPlayer) DoesNotQualify() {
+	n.MaxRequested = false
+	n.IsSuperMaxQualified = false
+}
+
 func (n *NBAPlayer) ToggleIsNegotiating() {
 	n.IsNegotiating = true
 	n.IsAcceptingOffers = false

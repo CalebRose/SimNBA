@@ -162,6 +162,8 @@ func ProgressNBAPlayers() {
 					player.QualifyForSuperMax()
 				} else if player.Overall > 100 {
 					player.QualifiesForMax()
+				} else {
+					player.DoesNotQualify()
 				}
 				contract.ProgressContract()
 				if contract.YearsRemaining == 0 && !contract.IsActive {
