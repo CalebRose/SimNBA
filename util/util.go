@@ -27,6 +27,13 @@ func ReadCSV(path string) [][]string {
 	return rows
 }
 
+func Min(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
+}
+
 func GenerateIntFromRange(min int, max int) int {
 	return rand.Intn(max-min+1) + min
 }

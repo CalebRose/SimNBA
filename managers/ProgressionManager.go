@@ -192,7 +192,7 @@ func ProgressNBAPlayer(np structs.NBAPlayer, isISLGen bool) structs.NBAPlayer {
 		MinutesPerGame = totalMinutes / len(stats)
 	}
 	age := np.Age + 1
-	ageDifference := np.Age - int(np.PrimeAge)
+	ageDifference := age - int(np.PrimeAge)
 	if ageDifference < 0 {
 		ageDifference = 0
 	}
@@ -208,6 +208,8 @@ func ProgressNBAPlayer(np structs.NBAPlayer, isISLGen bool) structs.NBAPlayer {
 	perimeterDefense := 0
 
 	attributeList := []string{}
+	pointLimit := GetPointLimit(np.Potential)
+	count := 0
 
 	s2DiceRoll := util.GenerateIntFromRange(1, 20)
 	s3DiceRoll := util.GenerateIntFromRange(1, 20)
@@ -220,29 +222,55 @@ func ProgressNBAPlayer(np structs.NBAPlayer, isISLGen bool) structs.NBAPlayer {
 
 	potentialModifier := np.Potential / 20 // Guaranteed to be between 1-5
 
-	if s2DiceRoll+potentialModifier > 15 || np.SpecShooting2 {
+	if np.SpecShooting2 {
 		attributeList = append(attributeList, "Shooting2")
 	}
 
-	if s3DiceRoll+potentialModifier > 15 || np.SpecShooting3 {
+	if np.SpecShooting3 {
 		attributeList = append(attributeList, "Shooting3")
 	}
-	if ftDiceRoll+potentialModifier > 15 || np.SpecFreeThrow {
+	if np.SpecFreeThrow {
 		attributeList = append(attributeList, "FreeThrow")
 	}
-	if fnDiceRoll+potentialModifier > 15 || np.SpecFinishing {
+	if np.SpecFinishing {
 		attributeList = append(attributeList, "Finishing")
 	}
-	if bwDiceRoll+potentialModifier > 15 || np.SpecBallwork {
+	if np.SpecBallwork {
 		attributeList = append(attributeList, "Ballwork")
 	}
-	if rbDiceRoll+potentialModifier > 15 || np.SpecRebounding {
+	if np.SpecRebounding {
 		attributeList = append(attributeList, "Rebounding")
 	}
-	if idDiceRoll+potentialModifier > 15 || np.SpecInteriorDefense {
+	if np.SpecInteriorDefense {
 		attributeList = append(attributeList, "InteriorDefense")
 	}
-	if pdDiceRoll+potentialModifier > 15 || np.SpecPerimeterDefense {
+	if np.SpecPerimeterDefense {
+		attributeList = append(attributeList, "PerimeterDefense")
+	}
+
+	if s2DiceRoll+potentialModifier >= 15 {
+		attributeList = append(attributeList, "Shooting2")
+	}
+
+	if s3DiceRoll+potentialModifier >= 15 {
+		attributeList = append(attributeList, "Shooting3")
+	}
+	if ftDiceRoll+potentialModifier >= 15 {
+		attributeList = append(attributeList, "FreeThrow")
+	}
+	if fnDiceRoll+potentialModifier >= 15 {
+		attributeList = append(attributeList, "Finishing")
+	}
+	if bwDiceRoll+potentialModifier >= 15 {
+		attributeList = append(attributeList, "Ballwork")
+	}
+	if rbDiceRoll+potentialModifier >= 15 {
+		attributeList = append(attributeList, "Rebounding")
+	}
+	if idDiceRoll+potentialModifier >= 15 {
+		attributeList = append(attributeList, "InteriorDefense")
+	}
+	if pdDiceRoll+potentialModifier >= 15 {
 		attributeList = append(attributeList, "PerimeterDefense")
 	}
 
@@ -253,23 +281,61 @@ func ProgressNBAPlayer(np structs.NBAPlayer, isISLGen bool) structs.NBAPlayer {
 	developingPlayer := np.IsGLeague || isISLGen || (np.TeamID > 32 && np.Age <= 18 && MinutesPerGame == 0)
 
 	for _, attr := range attributeList {
-		if attr == "Shooting2" {
-			shooting2 = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecShooting2, developingPlayer)
-		} else if attr == "Shooting3" {
-			shooting3 = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecShooting3, developingPlayer)
-		} else if attr == "FreeThrow" {
-			freeThrow = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecFreeThrow, developingPlayer)
-		} else if attr == "Finishing" {
-			finishing = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecFinishing, developingPlayer)
-		} else if attr == "Ballwork" {
-			ballwork = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecBallwork, developingPlayer)
-		} else if attr == "Rebounding" {
-			rebounding = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecRebounding, developingPlayer)
-		} else if attr == "InteriorDefense" {
-			interiorDefense = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecInteriorDefense, developingPlayer)
-		} else if attr == "PerimeterDefense" {
-			perimeterDefense = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecPerimeterDefense, developingPlayer)
+		if count >= pointLimit {
+			break
 		}
+		allocation := 0
+		if attr == "Shooting2" {
+			allocation = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecShooting2, developingPlayer)
+			if allocation > 0 && count+allocation > pointLimit {
+				allocation = pointLimit - count
+			}
+			shooting2 += allocation
+		} else if attr == "Shooting3" {
+			allocation = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecShooting3, developingPlayer)
+			if allocation > 0 && count+allocation > pointLimit {
+				allocation = pointLimit - count
+			}
+			shooting3 += allocation
+		} else if attr == "FreeThrow" {
+			allocation = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecFreeThrow, developingPlayer)
+			if allocation > 0 && count+allocation > pointLimit {
+				allocation = pointLimit - count
+			}
+			freeThrow += allocation
+		} else if attr == "Finishing" {
+			allocation = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecFinishing, developingPlayer)
+			if allocation > 0 && count+allocation > pointLimit {
+				allocation = pointLimit - count
+			}
+			finishing += allocation
+		} else if attr == "Ballwork" {
+			allocation = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecBallwork, developingPlayer)
+			if allocation > 0 && count+allocation > pointLimit {
+				allocation = pointLimit - count
+			}
+			ballwork += allocation
+		} else if attr == "Rebounding" {
+
+			allocation = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecRebounding, developingPlayer)
+			if allocation > 0 && count+allocation > pointLimit {
+				allocation = pointLimit - count
+			}
+			rebounding += allocation
+		} else if attr == "InteriorDefense" {
+			allocation = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecInteriorDefense, developingPlayer)
+			if allocation > 0 && count+allocation > pointLimit {
+				allocation = pointLimit - count
+			}
+			interiorDefense += allocation
+		} else if attr == "PerimeterDefense" {
+			allocation = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecPerimeterDefense, developingPlayer)
+			if allocation > 0 && count+allocation > pointLimit {
+				allocation = pointLimit - count
+			}
+			perimeterDefense += allocation
+		}
+		count += allocation
 	}
 
 	stamina := ProgressStamina(np.Stamina, ageDifference, true)
@@ -461,43 +527,16 @@ func ProgressCollegePlayer(cp structs.CollegePlayer, mpg int, isGeneration bool)
 }
 
 func PlayerProgression(progression int, ageDifference int, mpg int, mr int, spec bool, isGleague bool) int {
-	min := 0
-	max := 0
-
 	progressionCheck := util.GenerateIntFromRange(1, 100)
-	if progressionCheck < progression {
-		max = 1
-	}
-
-	if spec || progressionCheck < progression-25 {
-		max = 2
-	}
-
-	regressionMax := 0
+	max := calculateMaxProgression(progression, progressionCheck, spec)
 	if ageDifference > 0 {
-		if ageDifference < 4 {
-			regressionMax = ageDifference
-		} else if ageDifference > 3 {
-			regressionMax = 4
-		}
-		max = max - regressionMax
-		min = min - regressionMax
+		max = adjustForAge(ageDifference, max)
+	}
+	if mpg < mr && !isGleague {
+		max = adjustForPlaytime(mpg, mr, max)
 	}
 
-	if mpg < mr && !isGleague {
-		diff := mr - mpg
-		if diff >= 10 {
-			regressionMax += 3
-		} else if diff > 5 {
-			regressionMax += 2
-		} else if diff > 1 {
-			regressionMax += 1
-		}
-		if max > 0 {
-			max = 0
-		}
-		min = min - regressionMax
-	}
+	min := 0
 
 	if spec && max > 0 {
 		min = 1
@@ -640,4 +679,45 @@ func determineStatusLevel(rtp structs.TeamRecruitingProfile, cp structs.CollegeP
 		return "Medium"
 	}
 	return "Low"
+}
+
+func calculateMaxProgression(progression, progressionCheck int, spec bool) int {
+	if spec || progressionCheck < progression-25 {
+		return 2
+	} else if progressionCheck < progression {
+		return 1
+	}
+	return 0
+}
+
+func adjustForAge(ageDifference, max int) int {
+	regressionMax := util.Min(ageDifference, 4)
+	regressionChange := util.GenerateIntFromRange(1, 10)
+	if regressionChange <= ageDifference {
+		return max - regressionMax
+	}
+	return max
+}
+
+func adjustForPlaytime(mpg, mr, max int) int {
+	diff := mr - mpg
+	regressionMax := 0
+	if diff >= 10 {
+		regressionMax = 3
+	} else if diff > 5 {
+		regressionMax = 2
+	} else if diff > 1 {
+		regressionMax = 1
+	}
+
+	if max > 0 {
+		max = 0
+	}
+
+	regressionChance := util.GenerateIntFromRange(1, 5)
+	if regressionChance <= 4 {
+		// 4 could be adjusted or parameterized based on design choice
+		return max - regressionMax
+	}
+	return max
 }
