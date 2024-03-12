@@ -34,6 +34,10 @@ func Min(x, y int) int {
 	return y
 }
 
+func Swap(min, max int) (int, int) {
+	return max, min
+}
+
 func GenerateIntFromRange(min int, max int) int {
 	return rand.Intn(max-min+1) + min
 }

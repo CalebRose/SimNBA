@@ -62,8 +62,34 @@ func ProgressionMain() {
 				draftee := structs.NBADraftee{}
 				draftee.Map(player)
 				draftee.AssignPrimeAge(util.GenerateIntFromRange(25, 30))
+				// Generate Draft Grades
+				s2 := util.GenerateIntFromRange(draftee.Shooting2-3, draftee.Shooting2+3)
+				s2Grade := util.GetDrafteeGrade(s2)
+				s3 := util.GenerateIntFromRange(draftee.Shooting3-3, draftee.Shooting3+3)
+				s3Grade := util.GetDrafteeGrade(s3)
+				ft := util.GenerateIntFromRange(draftee.FreeThrow-3, draftee.FreeThrow+3)
+				ftGrade := util.GetDrafteeGrade(ft)
+				fn := util.GenerateIntFromRange(draftee.Finishing-3, draftee.Finishing+3)
+				fnGrade := util.GetDrafteeGrade(fn)
+				bw := util.GenerateIntFromRange(draftee.Ballwork-3, draftee.Ballwork+3)
+				bwGrade := util.GetDrafteeGrade(bw)
+				rb := util.GenerateIntFromRange(draftee.Rebounding-3, draftee.Rebounding+3)
+				rbGrade := util.GetDrafteeGrade(rb)
+				id := util.GenerateIntFromRange(draftee.InteriorDefense-3, draftee.InteriorDefense+3)
+				idGrade := util.GetDrafteeGrade(id)
+				pd := util.GenerateIntFromRange(draftee.PerimeterDefense-3, draftee.PerimeterDefense+3)
+				pdGrade := util.GetDrafteeGrade(pd)
+				ovrVal := ((s2 + s3 + ft) / 3) + fn + bw + rb + ((id + pd) / 2)
+				ovr := util.GetOverallDraftGrade(ovrVal)
+				draftee.ApplyGrades(s2Grade, s3Grade, ftGrade, fnGrade, bwGrade, rbGrade, idGrade, pdGrade, ovr)
+				if draftee.ProPotentialGrade == 0 {
+					pot := util.GeneratePotential()
+					draftee.AssignProPotentialGrade(pot)
+				}
 
-				err := db.Save(&draftee).Error
+				draftee.GetNBAPotentialGrade()
+
+				err := db.Create(&draftee).Error
 				if err != nil {
 					log.Panicln("Could not save historic player record!")
 				}
@@ -160,7 +186,7 @@ func ProgressNBAPlayers() {
 			} else {
 				if player.IsMVP || player.IsDPOY || player.IsFirstTeamANBA {
 					player.QualifyForSuperMax()
-				} else if player.Overall > 100 {
+				} else if player.Overall > 94 {
 					player.QualifiesForMax()
 				} else {
 					player.DoesNotQualify()
@@ -286,50 +312,50 @@ func ProgressNBAPlayer(np structs.NBAPlayer, isISLGen bool) structs.NBAPlayer {
 		}
 		allocation := 0
 		if attr == "Shooting2" {
-			allocation = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecShooting2, developingPlayer)
+			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecShooting2, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			shooting2 += allocation
 		} else if attr == "Shooting3" {
-			allocation = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecShooting3, developingPlayer)
+			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecShooting3, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			shooting3 += allocation
 		} else if attr == "FreeThrow" {
-			allocation = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecFreeThrow, developingPlayer)
+			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecFreeThrow, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			freeThrow += allocation
 		} else if attr == "Finishing" {
-			allocation = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecFinishing, developingPlayer)
+			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecFinishing, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			finishing += allocation
 		} else if attr == "Ballwork" {
-			allocation = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecBallwork, developingPlayer)
+			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecBallwork, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			ballwork += allocation
 		} else if attr == "Rebounding" {
 
-			allocation = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecRebounding, developingPlayer)
+			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecRebounding, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			rebounding += allocation
 		} else if attr == "InteriorDefense" {
-			allocation = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecInteriorDefense, developingPlayer)
+			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecInteriorDefense, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			interiorDefense += allocation
 		} else if attr == "PerimeterDefense" {
-			allocation = PlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecPerimeterDefense, developingPlayer)
+			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecPerimeterDefense, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
@@ -526,7 +552,7 @@ func ProgressCollegePlayer(cp structs.CollegePlayer, mpg int, isGeneration bool)
 	return cp
 }
 
-func PlayerProgression(progression int, ageDifference int, mpg int, mr int, spec bool, isGleague bool) int {
+func NBAPlayerProgression(progression int, ageDifference int, mpg int, mr int, spec bool, isGleague bool) int {
 	progressionCheck := util.GenerateIntFromRange(1, 100)
 	max := calculateMaxProgression(progression, progressionCheck, spec)
 	if ageDifference > 0 {
@@ -540,6 +566,9 @@ func PlayerProgression(progression int, ageDifference int, mpg int, mr int, spec
 
 	if spec && max > 0 {
 		min = 1
+	}
+	if max < min {
+		min, max = util.Swap(min, max)
 	}
 	return util.GenerateIntFromRange(min, max)
 }
@@ -571,34 +600,20 @@ func ProgressStamina(stamina, ageDifference int, isNBA bool) int {
 }
 
 func CollegePlayerProgression(progression int, mpg int, minutesRequired int, spec bool, isRedshirting bool) int {
-	min := 0
-	max := 0
-
 	progressionCheck := util.GenerateIntFromRange(1, 100)
-	if progressionCheck <= progression {
-		max = 1
-	}
-
-	if spec || progressionCheck <= progression-25 {
-		max = 2
-	}
+	max := calculateMaxProgression(progression, progressionCheck, spec)
 
 	if mpg < minutesRequired && !isRedshirting {
-		diff := minutesRequired - mpg
-		regressionMax := 0
-		if diff >= 10 {
-			regressionMax = 3
-		} else if diff > 5 {
-			regressionMax = 2
-		} else if diff > 1 {
-			regressionMax = 1
-		}
-		min = min - regressionMax
+		max = adjustForPlaytime(mpg, minutesRequired, max)
 	}
+	min := 0
+
 	if spec && max > 0 {
 		min = 1
 	}
-
+	if max < min {
+		min, max = util.Swap(min, max)
+	}
 	return util.GenerateIntFromRange(min, max)
 }
 
@@ -682,9 +697,13 @@ func determineStatusLevel(rtp structs.TeamRecruitingProfile, cp structs.CollegeP
 }
 
 func calculateMaxProgression(progression, progressionCheck int, spec bool) int {
-	if spec || progressionCheck < progression-25 {
-		return 2
-	} else if progressionCheck < progression {
+	maxProgression := 3
+	if spec {
+		maxProgression += 1
+	}
+	if progressionCheck < progression {
+		return util.GenerateIntFromRange(1, util.Min(maxProgression, progression/20))
+	} else if progressionCheck < progression+25 {
 		return 1
 	}
 	return 0
