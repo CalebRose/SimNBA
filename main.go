@@ -261,6 +261,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/portal/promise/create", controller.CreatePromise).Methods("POST")
 	myRouter.HandleFunc("/portal/promise/cancel/{promiseID}", controller.CancelPromise).Methods("GET")
 	myRouter.HandleFunc("/portal/promise/player/{playerID}/{teamID}", controller.GetPromiseByPlayerID).Methods("GET")
+	myRouter.HandleFunc("/portal/player/scout/{id}", controller.GetScoutingDataByTransfer).Methods("GET")
 
 	// Timestamp Controls
 	myRouter.HandleFunc("/simbba/get/timestamp", controller.GetCurrentTimestamp).Methods("GET")

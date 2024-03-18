@@ -147,7 +147,7 @@ func ProgressionMain() {
 
 	croots := GetAllUnsignedRecruits()
 	for _, croot := range croots {
-		up := structs.UnsignedPlayer{}
+		up := structs.CollegePlayer{}
 		up.MapFromRecruit(croot)
 		db.Create(&up)
 		db.Delete(&croot)

@@ -47,7 +47,7 @@ func ProcessTransferIntention() {
 	giantgain := 33.0
 	for _, p := range allCollegePlayers {
 		// Do not include redshirts and all graduating players
-		if p.IsRedshirting || p.WillDeclare || p.TeamID == 353 || p.TeamID > 363 {
+		if p.IsRedshirting || p.WillDeclare || p.TeamID == 0 {
 			continue
 		}
 
@@ -1354,4 +1354,22 @@ func GetPlayerFromTransferPortalList(id int, profiles []structs.TransferPortalPr
 	}
 
 	return profile
+}
+
+func GetTransferScoutingDataByPlayerID(id string) structs.ScoutingDataResponse {
+	ts := GetTimestamp()
+
+	seasonID := ts.SeasonID
+	seasonIDSTR := strconv.Itoa(int(seasonID))
+
+	draftee := GetCollegePlayerByPlayerID(id)
+
+	seasonStats := GetPlayerSeasonStatsByPlayerID(id, seasonIDSTR)
+	teamID := strconv.Itoa(int(draftee.PreviousTeamID))
+	collegeStandings := GetStandingsRecordByTeamID(teamID, seasonIDSTR)
+
+	return structs.ScoutingDataResponse{
+		DrafteeSeasonStats: seasonStats,
+		TeamStandings:      collegeStandings,
+	}
 }

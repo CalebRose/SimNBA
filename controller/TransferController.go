@@ -135,3 +135,16 @@ func SaveTransferBoard(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintf(w, "Transfer Board Saved")
 }
+
+func GetScoutingDataByTransfer(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if len(id) == 0 {
+		panic("User did not provide scout profile id")
+	}
+
+	data := managers.GetTransferScoutingDataByPlayerID(id)
+
+	json.NewEncoder(w).Encode(data)
+}
