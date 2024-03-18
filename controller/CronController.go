@@ -48,9 +48,9 @@ func SyncRecruitingViaCron() {
 		} else if ts.TransferPortalPhase == 2 && !ts.ProgressedCollegePlayers {
 			// Run Second Phase of Transfer Portal (Progressions & Move Players Over)
 			// If CBB Progression wasn't ran
-			managers.ProgressionMain()
-			managers.SyncPromises()
-			managers.EnterTheTransferPortal()
+			// managers.ProgressionMain()
+			// managers.SyncPromises()
+			// managers.EnterTheTransferPortal()
 		} else if ts.TransferPortalPhase == 3 {
 			// Run Transfer Portal (Rounds 1-10)
 			managers.SyncTransferPortal()

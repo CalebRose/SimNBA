@@ -255,6 +255,9 @@ func handleRequests() {
 	// Transfer Intentions
 	myRouter.HandleFunc("/portal/transfer/intention", controller.ProcessTransferIntention).Methods("GET")
 	myRouter.HandleFunc("/portal/page/data/{teamID}", controller.GetTransferPortalPageData).Methods("GET")
+	myRouter.HandleFunc("/portal/profile/create", controller.AddTransferPlayerToBoard).Methods("POST")
+	myRouter.HandleFunc("/portal/profile/remove/{profileID}", controller.RemovePlayerFromTransferPortalBoard).Methods("GET")
+	myRouter.HandleFunc("/portal/saveboard", controller.SaveTransferBoard).Methods("PUT")
 	myRouter.HandleFunc("/portal/promise/create", controller.CreatePromise).Methods("POST")
 	myRouter.HandleFunc("/portal/promise/cancel/{promiseID}", controller.CancelPromise).Methods("GET")
 	myRouter.HandleFunc("/portal/promise/player/{playerID}/{teamID}", controller.GetPromiseByPlayerID).Methods("GET")

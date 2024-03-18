@@ -60,6 +60,7 @@ type TransferPortalProfile struct {
 	RolledOnPromise       bool
 	LockProfile           bool
 	IsSigned              bool
+	Recruiter             string
 	CollegePlayer         CollegePlayer  `gorm:"foreignKey:CollegePlayerID"`
 	Promise               CollegePromise `gorm:"foreignKey:PromiseID"`
 }
