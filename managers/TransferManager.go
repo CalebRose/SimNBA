@@ -456,8 +456,40 @@ func RemovePlayerFromTransferPortalBoard(id string) {
 	db.Save(&profile)
 }
 
-func AllocatePointsToTransferPlayer() {
+func AllocatePointsToTransferPlayer(updateTransferPortalBoardDto structs.UpdateTransferPortalBoard) {
+	db := dbprovider.GetInstance().GetDB()
 
+	var teamId = strconv.Itoa(updateTransferPortalBoardDto.TeamID)
+	var profile = GetOnlyTeamRecruitingProfileByTeamID(teamId)
+	var portalProfiles = GetOnlyTransferPortalProfilesByTeamID(teamId)
+	var updatedPlayers = updateTransferPortalBoardDto.Players
+
+	currentPoints := 0
+
+	for i := 0; i < len(portalProfiles); i++ {
+		updatedRecruit := GetPlayerFromTransferPortalList(int(portalProfiles[i].CollegePlayerID), updatedPlayers)
+
+		if portalProfiles[i].CurrentWeeksPoints != updatedRecruit.CurrentWeeksPoints {
+
+			// Allocate Points to Profile
+			currentPoints += updatedRecruit.CurrentWeeksPoints
+			profile.AllocateSpentPoints(currentPoints)
+			// If total not surpassed, allocate to the recruit and continue
+			if profile.SpentPoints <= profile.WeeklyPoints {
+				portalProfiles[i].AllocatePoints(updatedRecruit.CurrentWeeksPoints)
+				fmt.Println("Saving recruit " + strconv.Itoa(int(portalProfiles[i].CollegePlayerID)))
+			} else {
+				panic("Error: Allocated more points for Profile " + strconv.Itoa(int(profile.TeamID)) + " than what is allowed.")
+			}
+			db.Save(&portalProfiles[i])
+		} else {
+			currentPoints += portalProfiles[i].CurrentWeeksPoints
+			profile.AllocateSpentPoints(currentPoints)
+		}
+	}
+
+	// Save profile
+	db.Save(&profile)
 }
 
 func AICoachFillBoardsPhase() {
@@ -1267,4 +1299,17 @@ func getMultiplier(pr structs.CollegePromise) float64 {
 	}
 	// Very High
 	return 1.75
+}
+
+func GetPlayerFromTransferPortalList(id int, profiles []structs.TransferPortalProfile) structs.TransferPortalProfile {
+	var profile structs.TransferPortalProfile
+
+	for i := 0; i < len(profiles); i++ {
+		if profiles[i].CollegePlayerID == uint(id) {
+			profile = profiles[i]
+			break
+		}
+	}
+
+	return profile
 }

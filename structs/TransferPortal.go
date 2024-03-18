@@ -108,3 +108,10 @@ type TransferPortalResponse struct {
 	Players      []TransferPlayerResponse // List of all Transfer Portal Players
 	TeamList     []Team
 }
+
+// UpdateTransferPortalBoard - Data Transfer Object from UI to API
+type UpdateTransferPortalBoard struct {
+	Profile SimTeamBoardResponse
+	Players []TransferPortalProfile
+	TeamID  int
+}

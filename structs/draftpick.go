@@ -23,6 +23,10 @@ type DraftPick struct {
 	SelectedPlayerPosition string
 }
 
+func (p *DraftPick) AssignDraftNumber(num uint) {
+	p.DraftNumber = num
+}
+
 func (p *DraftPick) TradePick(id uint, team string) {
 	p.PreviousTeamID = p.TeamID
 	p.PreviousTeam = p.Team

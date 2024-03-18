@@ -97,3 +97,41 @@ func GetTransferPortalPageData(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(encodedJson)
 }
+
+func AddTransferPlayerToBoard(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	var transferPortalProfile structs.TransferPortalProfile
+	err := json.NewDecoder(r.Body).Decode(&transferPortalProfile)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	profile := managers.AddTransferPlayerToBoard(transferPortalProfile)
+
+	json.NewEncoder(w).Encode(profile)
+
+	fmt.Fprintf(w, "New Promise Created")
+}
+
+func RemovePlayerFromTransferPortalBoard(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	vars := mux.Vars(r)
+	id := vars["profileID"]
+
+	managers.RemovePlayerFromTransferPortalBoard(id)
+}
+
+func SaveTransferBoard(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	var transferPortalProfile structs.UpdateTransferPortalBoard
+	err := json.NewDecoder(r.Body).Decode(&transferPortalProfile)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	managers.AllocatePointsToTransferPlayer(transferPortalProfile)
+
+	fmt.Fprintf(w, "Transfer Board Saved")
+}

@@ -27,9 +27,9 @@ func ConductDraftLottery() {
 	fmt.Println(time.Now().UnixNano())
 	path := secrets.GetPath()["draftlottery"]
 	lotteryCSV := util.ReadCSV(path)
-	ts := GetTimestamp()
 	lotteryBalls := []structs.DraftLottery{}
 	draftPicks := []structs.DraftPick{}
+	draftMap := GetDraftPickMap()
 
 	for idx, row := range lotteryCSV {
 		if idx == 0 {
@@ -78,18 +78,10 @@ func ConductDraftLottery() {
 	}
 
 	for idx, do := range draftOrder {
+		key := "1 " + do.Team
 		pick := idx + 1
-		draftPick := structs.DraftPick{
-			SeasonID:       ts.SeasonID,
-			Season:         uint(ts.Season),
-			DraftRound:     1,
-			DraftNumber:    uint(pick),
-			TeamID:         do.ID,
-			Team:           do.Team,
-			OriginalTeamID: do.ID,
-			OriginalTeam:   do.Team,
-			DraftValue:     0,
-		}
+		draftPick := draftMap[key]
+		draftPick.AssignDraftNumber(uint(pick))
 		draftPicks = append(draftPicks, draftPick)
 	}
 
@@ -100,29 +92,20 @@ func ConductDraftLottery() {
 			continue
 		}
 		pickNumber := idx
-		teamID := util.ConvertStringToInt(row[0])
 		team := row[1]
-		round := 1
+		roundStr := "1"
 		if pickNumber > 32 {
-			round = 2
+			roundStr = "2"
 		}
-		pick := structs.DraftPick{
-			SeasonID:       ts.SeasonID,
-			Season:         uint(ts.Season),
-			DraftRound:     uint(round),
-			DraftNumber:    uint(pickNumber),
-			TeamID:         uint(teamID),
-			Team:           team,
-			OriginalTeamID: uint(teamID),
-			OriginalTeam:   team,
-			DraftValue:     0,
-		}
-		draftPicks = append(draftPicks, pick)
+		key := roundStr + " " + team
+		draftpick := draftMap[key]
+		draftpick.AssignDraftNumber(uint(pickNumber))
+		draftPicks = append(draftPicks, draftpick)
 	}
 
 	for _, pick := range draftPicks {
 		fmt.Println(pick)
-		// db.Create(&pick)
+		// db.Save(&pick)
 	}
 }
 
@@ -224,6 +207,20 @@ func DraftPredictionRound() {
 
 		db.Save(&d)
 	}
+}
+
+func GetDraftPickMap() map[string]structs.DraftPick {
+	draftPicks := GetAllCurrentSeasonDraftPicks()
+	draftMap := make(map[string]structs.DraftPick)
+
+	for _, pick := range draftPicks {
+		if pick.ID == 0 {
+			continue
+		}
+		keyString := strconv.Itoa(int(pick.DraftRound)) + " " + pick.OriginalTeam
+		draftMap[keyString] = pick
+	}
+	return draftMap
 }
 
 func GetAllCurrentSeasonDraftPicks() []structs.DraftPick {
