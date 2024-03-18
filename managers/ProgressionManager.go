@@ -94,7 +94,8 @@ func ProgressionMain() {
 					log.Panicln("Could not save historic player record!")
 				}
 
-				hcp := (structs.HistoricCollegePlayer)(player)
+				hcp := structs.HistoricCollegePlayer{}
+				hcp.Map(player)
 
 				err = db.Save(&hcp).Error
 				if err != nil {

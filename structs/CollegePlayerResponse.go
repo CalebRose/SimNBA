@@ -178,16 +178,16 @@ func (c *TransferPlayerResponse) Map(r CollegePlayer, ovr string) {
 	sort.Slice(sortedProfiles, func(i, j int) bool {
 		return sortedProfiles[i].TotalPoints > sortedProfiles[j].TotalPoints
 	})
-	for _, recruitProfile := range sortedProfiles {
-		if recruitProfile.RemovedFromBoard {
+	for _, profile := range sortedProfiles {
+		if profile.RemovedFromBoard {
 			continue
 		}
 		if runningThreshold == 0 {
-			runningThreshold = float64(recruitProfile.TotalPoints) * 0.66
+			runningThreshold = float64(profile.TotalPoints) * 0.66
 		}
 
-		if float64(recruitProfile.TotalPoints) >= runningThreshold {
-			totalPoints += float64(recruitProfile.TotalPoints)
+		if float64(profile.TotalPoints) >= runningThreshold {
+			totalPoints += float64(profile.TotalPoints)
 		}
 
 	}

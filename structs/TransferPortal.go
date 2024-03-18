@@ -1,6 +1,10 @@
 package structs
 
-import "gorm.io/gorm"
+import (
+	"database/sql"
+
+	"gorm.io/gorm"
+)
 
 type CollegePromise struct {
 	gorm.Model
@@ -50,7 +54,7 @@ type TransferPortalProfile struct {
 	SeasonID              uint
 	CollegePlayerID       uint
 	ProfileID             uint
-	PromiseID             uint
+	PromiseID             sql.NullInt64
 	TeamAbbreviation      string
 	TotalPoints           float64
 	CurrentWeeksPoints    int
@@ -96,7 +100,7 @@ func (p *TransferPortalProfile) AddPointsToTotal(multiplier float64) {
 }
 
 func (p *TransferPortalProfile) AssignPromise(id uint) {
-	p.PromiseID = id
+	p.PromiseID = sql.NullInt64{Valid: true, Int64: int64(id)}
 }
 func (p *TransferPortalProfile) ToggleRolledOnPromise() {
 	p.RolledOnPromise = true

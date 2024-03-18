@@ -239,30 +239,32 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 					country := ""
 					if (series.GameCount < 3) || series.GameCount == 5 || series.GameCount == 7 {
 						homeTeam := nbaTeamMap[HomeID]
-						homeTeamID = int(game.HomeTeamID)
-						nextHomeTeam = game.HomeTeam
-						nextHomeTeamCoach = game.HomeTeamCoach
+						homeTeamID = int(series.HomeTeamID)
+						nextHomeTeam = series.HomeTeam
+						nextHomeTeamCoach = series.HomeTeamCoach
+						nextHomeRank = int(series.HomeTeamRank)
 						city = homeTeam.City
 						arena = homeTeam.Arena
 						state = homeTeam.State
 						country = homeTeam.Country
-						awayTeamID = int(game.AwayTeamID)
-						nextAwayTeam = game.AwayTeam
-						nextAwayTeamCoach = game.AwayTeamCoach
-						nextAwayRank = int(game.AwayTeamRank)
+						awayTeamID = int(series.AwayTeamID)
+						nextAwayTeam = series.AwayTeam
+						nextAwayTeamCoach = series.AwayTeamCoach
+						nextAwayRank = int(series.AwayTeamRank)
 					} else if (series.GameCount > 2 && series.GameCount < 5) || series.GameCount == 6 {
 						awayTeam := nbaTeamMap[AwayID]
-						homeTeamID = int(game.AwayTeamID)
-						nextHomeTeam = game.AwayTeam
-						nextHomeTeamCoach = game.AwayTeamCoach
+						homeTeamID = int(series.AwayTeamID)
+						nextHomeTeam = series.AwayTeam
+						nextHomeTeamCoach = series.AwayTeamCoach
+						nextHomeRank = int(series.AwayTeamRank)
 						city = awayTeam.City
 						arena = awayTeam.Arena
 						state = awayTeam.State
 						country = awayTeam.Country
-						awayTeamID = int(game.HomeTeamID)
-						nextAwayTeam = game.HomeTeam
-						nextAwayTeamCoach = game.HomeTeamCoach
-						nextAwayRank = int(game.HomeTeamRank)
+						awayTeamID = int(series.HomeTeamID)
+						nextAwayTeam = series.HomeTeam
+						nextAwayTeamCoach = series.HomeTeamCoach
+						nextAwayRank = int(series.HomeTeamRank)
 					}
 					weekID := ts.NBAWeekID
 					week := ts.NBAWeek

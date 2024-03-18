@@ -437,7 +437,6 @@ func AddTransferPlayerToBoard(transferPortalProfileDto structs.TransferPortalPro
 		TotalPoints:        0,
 		CurrentWeeksPoints: 0,
 		SpendingCount:      0,
-		PromiseID:          0,
 		RemovedFromBoard:   false,
 	}
 
@@ -783,7 +782,7 @@ func AICoachAllocateAndPromisePhase() {
 			profile.AllocatePoints(num)
 
 			// Generate Promise based on coach bias
-			if profile.PromiseID == 0 && !profile.RolledOnPromise {
+			if profile.PromiseID.Int64 == 0 && !profile.RolledOnPromise {
 				promiseOdds := getBasePromiseOdds(coach.TeambuildingPreference, coach.PromiseTendency)
 				diceRoll := util.GenerateIntFromRange(1, 100)
 
@@ -895,7 +894,7 @@ func SyncTransferPortal() {
 		eligibleTeams := []structs.TransferPortalProfile{}
 
 		for _, portalProfile := range portalProfiles {
-			promiseID := strconv.Itoa(int(portalProfile.PromiseID))
+			promiseID := strconv.Itoa(int(portalProfile.PromiseID.Int64))
 
 			promise := GetCollegePromiseByID(promiseID)
 
@@ -1051,7 +1050,10 @@ func GetTransferPortalProfilesForPage(teamID string) []structs.TransferPortalPro
 
 	var profiles []structs.TransferPortalProfile
 	var response []structs.TransferPortalProfileResponse
-	db.Preload("CollegePlayer.Profiles").Where("profile_id = ?", teamID).Find(&profiles)
+	err := db.Preload("CollegePlayer.Profiles").Where("profile_id = ?", teamID).Find(&profiles).Error
+	if err != nil {
+		log.Fatalln("Error!: ", err)
+	}
 
 	for _, p := range profiles {
 		cp := p.CollegePlayer
@@ -1064,7 +1066,7 @@ func GetTransferPortalProfilesForPage(teamID string) []structs.TransferPortalPro
 			SeasonID:              p.SeasonID,
 			CollegePlayerID:       p.CollegePlayerID,
 			ProfileID:             p.ProfileID,
-			PromiseID:             p.PromiseID,
+			PromiseID:             uint(p.PromiseID.Int64),
 			TeamAbbreviation:      p.TeamAbbreviation,
 			TotalPoints:           p.TotalPoints,
 			CurrentWeeksPoints:    p.CurrentWeeksPoints,
