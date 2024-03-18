@@ -1046,6 +1046,46 @@ func GetTransferPortalProfilesByPlayerID(playerID string) []structs.TransferPort
 	return profiles
 }
 
+func GetTransferPortalProfilesForPage(teamID string) []structs.TransferPortalProfileResponse {
+	db := dbprovider.GetInstance().GetDB()
+
+	var profiles []structs.TransferPortalProfile
+	var response []structs.TransferPortalProfileResponse
+	db.Preload("CollegePlayer.Profiles").Where("profile_id = ?", teamID).Find(&profiles)
+
+	for _, p := range profiles {
+		cp := p.CollegePlayer
+		cpResponse := structs.TransferPlayerResponse{}
+		ovr := util.GetPlayerOverallGrade(cp.Overall)
+		cpResponse.Map(cp, ovr)
+
+		pResponse := structs.TransferPortalProfileResponse{
+			ID:                    p.ID,
+			SeasonID:              p.SeasonID,
+			CollegePlayerID:       p.CollegePlayerID,
+			ProfileID:             p.ProfileID,
+			PromiseID:             p.PromiseID,
+			TeamAbbreviation:      p.TeamAbbreviation,
+			TotalPoints:           p.TotalPoints,
+			CurrentWeeksPoints:    p.CurrentWeeksPoints,
+			PreviouslySpentPoints: p.PreviouslySpentPoints,
+			SpendingCount:         p.SpendingCount,
+			RemovedFromBoard:      p.RemovedFromBoard,
+			RolledOnPromise:       p.RolledOnPromise,
+			LockProfile:           p.LockProfile,
+			IsSigned:              p.IsSigned,
+			Recruiter:             p.Recruiter,
+			CollegePlayer:         cpResponse,
+			Promise:               p.Promise,
+		}
+
+		response = append(response, pResponse)
+
+	}
+
+	return response
+}
+
 func GetTransferPortalProfilesByTeamID(teamID string) []structs.TransferPortalProfile {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -1081,7 +1121,7 @@ func GetTransferPortalData(teamID string) structs.TransferPortalResponse {
 	waitgroup.Add(5)
 	profileChan := make(chan structs.TeamRecruitingProfile)
 	playersChan := make(chan []structs.TransferPlayerResponse)
-	boardChan := make(chan []structs.TransferPortalProfile)
+	boardChan := make(chan []structs.TransferPortalProfileResponse)
 	promiseChan := make(chan []structs.CollegePromise)
 	teamsChan := make(chan []structs.Team)
 
@@ -1106,7 +1146,7 @@ func GetTransferPortalData(teamID string) structs.TransferPortalResponse {
 	}()
 	go func() {
 		defer waitgroup.Done()
-		tpProfiles := GetTransferPortalProfilesByTeamID(teamID)
+		tpProfiles := GetTransferPortalProfilesForPage(teamID)
 		boardChan <- tpProfiles
 	}()
 	go func() {

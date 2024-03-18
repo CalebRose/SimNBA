@@ -102,9 +102,30 @@ func (p *TransferPortalProfile) ToggleRolledOnPromise() {
 	p.RolledOnPromise = true
 }
 
+// Player Profile For the Transfer Portal?
+type TransferPortalProfileResponse struct {
+	ID                    uint
+	SeasonID              uint
+	CollegePlayerID       uint
+	ProfileID             uint
+	PromiseID             uint
+	TeamAbbreviation      string
+	TotalPoints           float64
+	CurrentWeeksPoints    int
+	PreviouslySpentPoints int
+	SpendingCount         int
+	RemovedFromBoard      bool
+	RolledOnPromise       bool
+	LockProfile           bool
+	IsSigned              bool
+	Recruiter             string
+	CollegePlayer         TransferPlayerResponse `gorm:"foreignKey:CollegePlayerID"`
+	Promise               CollegePromise         `gorm:"foreignKey:PromiseID"`
+}
+
 type TransferPortalResponse struct {
 	Team         TeamRecruitingProfile
-	TeamBoard    []TransferPortalProfile
+	TeamBoard    []TransferPortalProfileResponse
 	TeamPromises []CollegePromise         // List of all promises
 	Players      []TransferPlayerResponse // List of all Transfer Portal Players
 	TeamList     []Team
