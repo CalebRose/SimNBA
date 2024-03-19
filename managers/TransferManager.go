@@ -1050,12 +1050,15 @@ func GetTransferPortalProfilesForPage(teamID string) []structs.TransferPortalPro
 
 	var profiles []structs.TransferPortalProfile
 	var response []structs.TransferPortalProfileResponse
-	err := db.Preload("CollegePlayer.Profiles").Where("profile_id = ?", teamID).Find(&profiles).Error
+	err := db.Preload("CollegePlayer.Profiles").Where("profile_id = ? AND removed_from_board = ?", teamID, false).Find(&profiles).Error
 	if err != nil {
 		log.Fatalln("Error!: ", err)
 	}
 
 	for _, p := range profiles {
+		if p.RemovedFromBoard {
+			continue
+		}
 		cp := p.CollegePlayer
 		cpResponse := structs.TransferPlayerResponse{}
 		ovr := util.GetPlayerOverallGrade(cp.Overall)
