@@ -120,6 +120,7 @@ func RemovePlayerFromTransferPortalBoard(w http.ResponseWriter, r *http.Request)
 	id := vars["profileID"]
 
 	managers.RemovePlayerFromTransferPortalBoard(id)
+	json.NewEncoder(w).Encode(true)
 }
 
 func SaveTransferBoard(w http.ResponseWriter, r *http.Request) {
