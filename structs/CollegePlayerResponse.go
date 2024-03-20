@@ -155,6 +155,7 @@ func (c *TransferPlayerResponse) Map(r CollegePlayer, ovr string) {
 	c.Rebounding = attributeMapper(r.Rebounding)
 	c.InteriorDefense = attributeMapper(r.InteriorDefense)
 	c.PerimeterDefense = attributeMapper(r.PerimeterDefense)
+	c.Stamina = r.Stamina
 	c.OverallGrade = ovr
 	c.PotentialGrade = r.PotentialGrade
 	c.Personality = r.Personality
