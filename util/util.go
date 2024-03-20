@@ -777,32 +777,32 @@ func GetPotentialGrade(rating int) string {
 func GetPlaytimeExpectations(stars int, year int, overall int) int {
 	mod := 0
 	if overall > 60 {
-		mod = 3
+		mod = GenerateIntFromRange(1, 3)
 	}
 	if stars == 5 {
 		if year == 4 {
-			return GenerateIntFromRange(15, 20) + mod
+			return GenerateIntFromRange(15, 23) + mod
 		}
-		return GenerateIntFromRange(10, 20) + mod
+		return GenerateIntFromRange(10, 22) + mod
 	} else if stars == 4 {
 		if year == 4 {
 			return GenerateIntFromRange(8, 15) + mod
 		}
-		return GenerateIntFromRange(5, 15) + mod
+		return GenerateIntFromRange(7, 15) + mod
 	} else if stars == 3 {
 		if year == 4 {
-			return GenerateIntFromRange(7, 10) + mod
+			return GenerateIntFromRange(7, 11) + mod
 		}
-		return GenerateIntFromRange(0, 10) + mod
+		return GenerateIntFromRange(1, 10) + mod
 	} else if stars == 2 {
 		if year == 4 {
 			return GenerateIntFromRange(4, 8) + mod
 		} else if year == 3 {
-			return GenerateIntFromRange(0, 6) + mod
+			return GenerateIntFromRange(1, 6) + mod
 		}
-		return GenerateIntFromRange(0, 5) + mod
+		return GenerateIntFromRange(1, 5) + mod
 	} else {
-		return 0 + mod
+		return 1 + mod
 	}
 }
 

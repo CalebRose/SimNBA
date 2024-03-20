@@ -412,7 +412,7 @@ func EnterTheTransferPortal() {
 				CreateNewsLog("CBB", message, "Transfer Portal", int(p.PreviousTeamID), ts)
 
 				db.Save(&p)
-				db.Delete(promise)
+				db.Delete(&promise)
 				continue
 			}
 
@@ -1360,8 +1360,8 @@ func getMultiplier(pr structs.CollegePromise) float64 {
 	return 1.75
 }
 
-func GetPlayerFromTransferPortalList(id int, profiles []structs.TransferPortalProfile) structs.TransferPortalProfile {
-	var profile structs.TransferPortalProfile
+func GetPlayerFromTransferPortalList(id int, profiles []structs.TransferPortalProfileResponse) structs.TransferPortalProfileResponse {
+	var profile structs.TransferPortalProfileResponse
 
 	for i := 0; i < len(profiles); i++ {
 		if profiles[i].CollegePlayerID == uint(id) {

@@ -257,7 +257,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/portal/page/data/{teamID}", controller.GetTransferPortalPageData).Methods("GET")
 	myRouter.HandleFunc("/portal/profile/create", controller.AddTransferPlayerToBoard).Methods("POST")
 	myRouter.HandleFunc("/portal/profile/remove/{profileID}", controller.RemovePlayerFromTransferPortalBoard).Methods("GET")
-	myRouter.HandleFunc("/portal/saveboard", controller.SaveTransferBoard).Methods("PUT")
+	myRouter.HandleFunc("/portal/saveboard", controller.SaveTransferBoard).Methods("POST")
 	myRouter.HandleFunc("/portal/promise/create", controller.CreatePromise).Methods("POST")
 	myRouter.HandleFunc("/portal/promise/cancel/{promiseID}", controller.CancelPromise).Methods("GET")
 	myRouter.HandleFunc("/portal/promise/player/{playerID}/{teamID}", controller.GetPromiseByPlayerID).Methods("GET")
@@ -290,12 +290,12 @@ func loadEnvs() {
 func handleCron() {
 	go func() {
 		c := cron.New()
-		c.AddFunc("0 16 * * 3", controller.SyncRecruitingViaCron)
-		c.AddFunc("0 6 * * 4,6", controller.SyncAIBoardsViaCron)
-		c.AddFunc("0 20 * * 1,3,5,6", controller.ShowGamesViaCron)
-		c.AddFunc("0 10 * * 4", controller.FillAIBoardsViaCron)
-		c.AddFunc("0 12 * * 0", controller.SyncToNextWeekViaCron)
-		c.AddFunc("0 12 * * 2", controller.SyncFreeAgencyOffersViaCron)
+		// c.AddFunc("0 16 * * 3", controller.SyncRecruitingViaCron)
+		// c.AddFunc("0 6 * * 4,6", controller.SyncAIBoardsViaCron)
+		// c.AddFunc("0 20 * * 1,3,5,6", controller.ShowGamesViaCron)
+		// c.AddFunc("0 10 * * 4", controller.FillAIBoardsViaCron)
+		// c.AddFunc("0 12 * * 0", controller.SyncToNextWeekViaCron)
+		// c.AddFunc("0 12 * * 2", controller.SyncFreeAgencyOffersViaCron)
 		c.Start()
 	}()
 }

@@ -2,15 +2,16 @@ package managers
 
 import (
 	"fmt"
-	"log"
 	"math"
 	"math/rand"
 	"strconv"
 	"time"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
+	"gorm.io/gorm"
 )
 
 func ProgressionMain() {
@@ -24,133 +25,32 @@ func ProgressionMain() {
 		// var graduatingPlayers []structs.NBADraftee
 		teamID := strconv.Itoa(int(team.ID))
 		// roster := GetAllCollegePlayersWithStatsByTeamID(teamID, SeasonID)
-		roster := GetCollegePlayersByTeamIdForProgression(teamID)
+		roster := GetCollegePlayersByTeamIdForProgression(teamID, ts)
 		croots := GetSignedRecruitsByTeamProfileID(teamID)
-		recruitingProfile := GetOnlyTeamRecruitingProfileByTeamID(teamID)
 
 		for _, player := range roster {
-			if player.HasProgressed {
-				// player.FixAge()
-				// err := db.Save(&player).Error
-				// if err != nil {
-				// 	log.Panicln("Could not save player record")
-				// }
-				continue
-			}
-
-			minutesPerGame := getMinutesPlayed(player)
-
-			willTransfer := determineTransferStatus(minutesPerGame, player)
-
-			status := determineStatusLevel(recruitingProfile, player)
-			isSenior := (player.Year == 4 && !player.IsRedshirt) || (player.Year == 5 && player.IsRedshirt)
-			player = ProgressCollegePlayer(player, minutesPerGame, false)
-			if player.IsRedshirting {
-				player.SetRedshirtStatus()
-			}
-
-			player.SetExpectations(util.GetPlaytimeExpectations(player.Stars, player.Year, player.Overall))
-
-			if player.WillDeclare && isSenior {
-				player.GraduatePlayer()
-
-				message := player.Position + " " + player.FirstName + " " + player.LastName + " has graduated from " + player.TeamAbbr + "!"
-
-				CreateNewsLog("CBB", message, "Graduation", int(player.TeamID), ts)
-
-				// Make draftee record
-				draftee := structs.NBADraftee{}
-				draftee.Map(player)
-				draftee.AssignPrimeAge(util.GenerateIntFromRange(25, 30))
-				// Generate Draft Grades
-				s2 := util.GenerateIntFromRange(draftee.Shooting2-3, draftee.Shooting2+3)
-				s2Grade := util.GetDrafteeGrade(s2)
-				s3 := util.GenerateIntFromRange(draftee.Shooting3-3, draftee.Shooting3+3)
-				s3Grade := util.GetDrafteeGrade(s3)
-				ft := util.GenerateIntFromRange(draftee.FreeThrow-3, draftee.FreeThrow+3)
-				ftGrade := util.GetDrafteeGrade(ft)
-				fn := util.GenerateIntFromRange(draftee.Finishing-3, draftee.Finishing+3)
-				fnGrade := util.GetDrafteeGrade(fn)
-				bw := util.GenerateIntFromRange(draftee.Ballwork-3, draftee.Ballwork+3)
-				bwGrade := util.GetDrafteeGrade(bw)
-				rb := util.GenerateIntFromRange(draftee.Rebounding-3, draftee.Rebounding+3)
-				rbGrade := util.GetDrafteeGrade(rb)
-				id := util.GenerateIntFromRange(draftee.InteriorDefense-3, draftee.InteriorDefense+3)
-				idGrade := util.GetDrafteeGrade(id)
-				pd := util.GenerateIntFromRange(draftee.PerimeterDefense-3, draftee.PerimeterDefense+3)
-				pdGrade := util.GetDrafteeGrade(pd)
-				ovrVal := ((s2 + s3 + ft) / 3) + fn + bw + rb + ((id + pd) / 2)
-				ovr := util.GetOverallDraftGrade(ovrVal)
-				draftee.ApplyGrades(s2Grade, s3Grade, ftGrade, fnGrade, bwGrade, rbGrade, idGrade, pdGrade, ovr)
-				if draftee.ProPotentialGrade == 0 {
-					pot := util.GeneratePotential()
-					draftee.AssignProPotentialGrade(pot)
-				}
-
-				draftee.GetNBAPotentialGrade()
-
-				err := db.Create(&draftee).Error
-				if err != nil {
-					log.Panicln("Could not save historic player record!")
-				}
-
-				hcp := structs.HistoricCollegePlayer{}
-				hcp.Map(player)
-
-				err = db.Save(&hcp).Error
-				if err != nil {
-					log.Panicln("Could not save historic player record!")
-				}
-				// graduatingPlayers = append(graduatingPlayers, draftee)
-				// CollegePlayer record will be deleted, but record will be mapped to a GraduatedCollegePlayer struct, and then saved in that table, along side with NFL Draftees table
-				// GraduatedCollegePlayer will be a copy of the collegeplayers table, but only for historical players
-
-				err = db.Delete(&player).Error
-				if err != nil {
-					log.Panicln("Could not delete old college player record.")
-				}
-			} else {
-				message := ""
-				if player.WillDeclare {
-					message = player.Position + " " + player.FirstName + " " + player.LastName + " plans to declare early from " + player.TeamAbbr + " for the upcoming SimNBA Draft!"
-					CreateNewsLog("CBB", message, "Graduation", int(player.TeamID), ts)
-				} else if willTransfer {
-					player.DeclareTransferIntention(status)
-					message = player.Position + " " + player.FirstName + " " + player.LastName + " intends to transfer from " + player.TeamAbbr + "."
-					CreateNewsLog("CBB", message, "Transfer Portal", int(player.TeamID), ts)
-				}
-
-				err := db.Save(&player).Error
-				if err != nil {
-					log.Panicln("Could not save player record")
-				}
-			}
-
+			processCollegePlayer(player, ts, db)
 		}
 
 		for _, croot := range croots {
 			// Convert to College Player Record
-			cp := structs.CollegePlayer{}
-			cp.MapFromRecruit(croot)
-
-			// Save College Player Record
-			err := db.Create(&cp).Error
-			if err != nil {
-				log.Panicln("Could not save new college player record")
-			}
-
-			// Delete Recruit Record
-			db.Delete(&croot)
+			repository.CreateCollegePlayerRecord(croot, db, true)
 		}
+	}
 
+	// Unsigned Players
+	forgottenPlayersID := "0"
+	roster := GetCollegePlayersByTeamIdForProgression(forgottenPlayersID, ts)
+	for _, player := range roster {
+		if player.PreviousTeamID == 368 {
+			continue
+		}
+		processCollegePlayer(player, ts, db)
 	}
 
 	croots := GetAllUnsignedRecruits()
 	for _, croot := range croots {
-		up := structs.CollegePlayer{}
-		up.MapFromRecruit(croot)
-		db.Create(&up)
-		db.Delete(&croot)
+		repository.CreateCollegePlayerRecord(croot, db, true)
 	}
 	ts.ToggleCollegeProgression()
 	db.Save(&ts)
@@ -385,6 +285,49 @@ func ProgressNBAPlayer(np structs.NBAPlayer, isISLGen bool) structs.NBAPlayer {
 	return np
 }
 
+func processCollegePlayer(player structs.CollegePlayer, ts structs.Timestamp, db *gorm.DB) {
+	if player.HasProgressed {
+		return
+	}
+
+	minutesPerGame := getMinutesPlayed(player)
+	isSenior := (player.Year == 4 && !player.IsRedshirt) || (player.Year == 5 && player.IsRedshirt)
+
+	player = ProgressCollegePlayer(player, minutesPerGame, false)
+
+	if player.IsRedshirting {
+		player.SetRedshirtStatus()
+	}
+
+	player.SetExpectations(util.GetPlaytimeExpectations(player.Stars, player.Year, player.Overall))
+
+	if player.WillDeclare || isSenior {
+		// Graduate Player
+		handlePlayerGraduation(player, ts, db)
+	} else {
+		// Save Player
+		if player.TeamID == 0 {
+			player.WillTransfer()
+		}
+		repository.SaveCollegePlayerRecord(player, db)
+	}
+}
+
+func handlePlayerGraduation(player structs.CollegePlayer, ts structs.Timestamp, db *gorm.DB) {
+	// Graduate Player
+	player.GraduatePlayer()
+
+	message := player.Position + " " + player.FirstName + " " + player.LastName + " has graduated from " + player.TeamAbbr + "!"
+
+	// Create News Log
+	CreateNewsLog("CBB", message, "Graduation", int(player.TeamID), ts)
+
+	// Make draftee record
+	repository.CreateDrafteeRecord(player, db)
+	repository.CreateHistoricPlayerRecord(player, db)
+	repository.DeleteCollegePlayerRecord(player, db)
+}
+
 func ProgressCollegePlayer(cp structs.CollegePlayer, mpg int, isGeneration bool) structs.CollegePlayer {
 	var MinutesPerGame int = mpg
 
@@ -443,29 +386,30 @@ func ProgressCollegePlayer(cp structs.CollegePlayer, mpg int, isGeneration bool)
 		attributeList = append(attributeList, "PerimeterDefense")
 	}
 
-	if s2DiceRoll+potentialModifier >= 15 {
+	threshold := 13
+	if s2DiceRoll+potentialModifier >= threshold {
 		attributeList = append(attributeList, "Shooting2")
 	}
 
-	if s3DiceRoll+potentialModifier >= 15 {
+	if s3DiceRoll+potentialModifier >= threshold {
 		attributeList = append(attributeList, "Shooting3")
 	}
-	if ftDiceRoll+potentialModifier >= 15 {
+	if ftDiceRoll+potentialModifier >= threshold {
 		attributeList = append(attributeList, "FreeThrow")
 	}
-	if fnDiceRoll+potentialModifier >= 15 {
+	if fnDiceRoll+potentialModifier >= threshold {
 		attributeList = append(attributeList, "Finishing")
 	}
-	if bwDiceRoll+potentialModifier >= 15 {
+	if bwDiceRoll+potentialModifier >= threshold {
 		attributeList = append(attributeList, "Ballwork")
 	}
-	if rbDiceRoll+potentialModifier >= 15 {
+	if rbDiceRoll+potentialModifier >= threshold {
 		attributeList = append(attributeList, "Rebounding")
 	}
-	if idDiceRoll+potentialModifier >= 15 {
+	if idDiceRoll+potentialModifier >= threshold {
 		attributeList = append(attributeList, "InteriorDefense")
 	}
-	if pdDiceRoll+potentialModifier >= 15 {
+	if pdDiceRoll+potentialModifier >= threshold {
 		attributeList = append(attributeList, "PerimeterDefense")
 	}
 
@@ -664,47 +608,20 @@ func getMinutesPlayed(cp structs.CollegePlayer) int {
 	return MinutesPerGame
 }
 
-func determineTransferStatus(mpg int, cp structs.CollegePlayer) bool {
-	if cp.WillDeclare || cp.IsRedshirting {
-		return false
-	}
-
-	return mpg < cp.PlaytimeExpectations
-}
-
-func determineStatusLevel(rtp structs.TeamRecruitingProfile, cp structs.CollegePlayer) string {
-	if cp.WillDeclare {
-		return "High"
-	}
-
-	ovrRate := cp.Overall / 10
-	mod := 0
-	if rtp.AIQuality == "Blue Blood" {
-		mod += 3
-	} else if rtp.AIQuality == "P6" {
-		mod += 2
-	} else {
-		mod += 1
-	}
-
-	sum := ovrRate + mod
-
-	if sum > 7 {
-		return "High"
-	} else if sum > 3 {
-		return "Medium"
-	}
-	return "Low"
-}
-
 func calculateMaxProgression(progression, progressionCheck int, spec bool) int {
-	maxProgression := 3
+	maxProgression := 4
 	if spec {
 		maxProgression += 1
 	}
-	if progressionCheck < progression {
-		return util.GenerateIntFromRange(1, util.Min(maxProgression, progression/20))
-	} else if progressionCheck < progression+25 {
+	if progressionCheck <= progression {
+		roof := progression / 16
+		min := 1
+		newMax := util.Min(maxProgression, roof)
+		if newMax < min {
+			min, newMax = util.Swap(min, newMax)
+		}
+		return util.GenerateIntFromRange(min, newMax)
+	} else if progressionCheck <= progression+25 {
 		return 1
 	}
 	return 0
@@ -735,7 +652,7 @@ func adjustForPlaytime(mpg, mr, max int) int {
 	}
 
 	regressionChance := util.GenerateIntFromRange(1, 5)
-	if regressionChance <= 4 {
+	if regressionChance <= 2 {
 		// 4 could be adjusted or parameterized based on design choice
 		return max - regressionMax
 	}

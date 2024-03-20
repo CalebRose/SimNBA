@@ -110,11 +110,17 @@ func GetCollegePlayersByTeamId(teamId string) []structs.CollegePlayer {
 	return players
 }
 
-func GetCollegePlayersByTeamIdForProgression(teamId string) []structs.CollegePlayer {
+func GetCollegePlayersByTeamIdForProgression(teamId string, ts structs.Timestamp) []structs.CollegePlayer {
 	db := dbprovider.GetInstance().GetDB()
 
+	seasonID := strconv.Itoa(int(ts.SeasonID))
+
 	var players []structs.CollegePlayer
-	err := db.Preload("Stats").Order("overall desc").Order("team_id asc").Where("team_id = ?", teamId).Find(&players).Error
+	err := db.Preload("Stats", "season_id = ?", seasonID).
+		Order("overall desc").
+		Order("team_id asc").
+		Where("team_id = ?", teamId).
+		Find(&players).Error
 	if err != nil {
 		log.Fatalln("Could not retrieve players from CollegePlayer Table")
 	}

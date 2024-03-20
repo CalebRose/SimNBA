@@ -138,6 +138,6 @@ type TransferPortalResponse struct {
 // UpdateTransferPortalBoard - Data Transfer Object from UI to API
 type UpdateTransferPortalBoard struct {
 	Profile SimTeamBoardResponse
-	Players []TransferPortalProfile
+	Players []TransferPortalProfileResponse
 	TeamID  int
 }
