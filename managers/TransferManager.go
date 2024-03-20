@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
 	"gorm.io/gorm"
@@ -465,6 +466,12 @@ func RemovePlayerFromTransferPortalBoard(id string) {
 	profile := GetOnlyTransferPortalProfileByID(id)
 
 	profile.Deactivate()
+
+	if profile.PromiseID.Int64 > 0 {
+		promiseID := strconv.Itoa(int(profile.PromiseID.Int64))
+		promise := GetCollegePromiseByID(promiseID)
+		repository.DeleteCollegePromise(promise, db)
+	}
 
 	db.Save(&profile)
 }
