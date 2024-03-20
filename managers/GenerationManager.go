@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
 	"github.com/jinzhu/gorm"
@@ -626,28 +627,30 @@ func GenerateDraftWarRooms() {
 func GeneratePlaytimeExpectations() {
 	db := dbprovider.GetInstance().GetDB()
 
-	// collegePlayers := GetAllCollegePlayers()
+	collegePlayers := GetAllCollegePlayers()
 
-	// for _, c := range collegePlayers {
-	// 	newExpectations := util.GetPlaytimeExpectations(c.Stars, c.Year, c.Overall)
+	for _, c := range collegePlayers {
+		if c.PlaytimeExpectations == 0 {
+			newExpectations := util.GetPlaytimeExpectations(c.Stars, c.Year, c.Overall)
 
-	// 	c.SetExpectations(newExpectations)
+			c.SetExpectations(newExpectations)
 
-	// 	db.Save(&c)
-	// }
-
-	nbaPlayers := GetAllNBAPlayers()
-
-	for _, n := range nbaPlayers {
-		newExpectations := util.GetProfessionalPlaytimeExpectations(n.Age, int(n.PrimeAge), n.Overall)
-		if newExpectations > n.Stamina {
-			newExpectations = n.Stamina - 5
+			repository.SaveCollegePlayerRecord(c, db)
 		}
-
-		n.SetExpectations(newExpectations)
-
-		db.Save(&n)
 	}
+
+	// nbaPlayers := GetAllNBAPlayers()
+
+	// for _, n := range nbaPlayers {
+	// 	newExpectations := util.GetProfessionalPlaytimeExpectations(n.Age, int(n.PrimeAge), n.Overall)
+	// 	if newExpectations > n.Stamina {
+	// 		newExpectations = n.Stamina - 5
+	// 	}
+
+	// 	n.SetExpectations(newExpectations)
+
+	// 	db.Save(&n)
+	// }
 }
 
 // Private Methods

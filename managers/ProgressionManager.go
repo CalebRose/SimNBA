@@ -386,7 +386,7 @@ func ProgressCollegePlayer(cp structs.CollegePlayer, mpg int, isGeneration bool)
 		attributeList = append(attributeList, "PerimeterDefense")
 	}
 
-	threshold := 13
+	threshold := 10
 	if s2DiceRoll+potentialModifier >= threshold {
 		attributeList = append(attributeList, "Shooting2")
 	}
@@ -639,16 +639,14 @@ func adjustForAge(ageDifference, max int) int {
 func adjustForPlaytime(mpg, mr, max int) int {
 	diff := mr - mpg
 	regressionMax := 0
-	if diff >= 10 {
+	if diff == 0 {
+		regressionMax = 1
+	} else if diff >= 10 {
 		regressionMax = 3
 	} else if diff > 5 {
 		regressionMax = 2
 	} else if diff > 1 {
 		regressionMax = 1
-	}
-
-	if max > 0 {
-		max = 0
 	}
 
 	regressionChance := util.GenerateIntFromRange(1, 5)
