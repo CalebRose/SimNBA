@@ -328,16 +328,30 @@ func GetCollegePromiseByCollegePlayerID(id, teamID string) structs.CollegePromis
 func CreatePromise(promise structs.CollegePromise) structs.CollegePromise {
 	db := dbprovider.GetInstance().GetDB()
 	id := strconv.Itoa(int(promise.ID))
-	existingPromise := GetCollegePromiseByID(id)
+	collegePlayerID := strconv.Itoa(int(promise.CollegePlayerID))
+	profileID := strconv.Itoa(int(promise.TeamID))
 
+	existingPromise := GetCollegePromiseByID(id)
 	if existingPromise.ID != 0 && existingPromise.ID > 0 {
 		existingPromise.Reactivate(promise.PromiseType, promise.PromiseWeight, promise.Benchmark)
 		db.Save(&existingPromise)
+		assignPromiseToProfile(db, collegePlayerID, profileID, existingPromise.ID)
 		return existingPromise
 	}
 
 	db.Create(&promise)
+
+	assignPromiseToProfile(db, collegePlayerID, profileID, promise.ID)
+
 	return promise
+}
+
+func assignPromiseToProfile(db *gorm.DB, collegePlayerID, profileID string, id uint) {
+	tpProfile := GetOnlyTransferPortalProfileByPlayerID(collegePlayerID, profileID)
+	if tpProfile.ID > 0 {
+		tpProfile.AssignPromise(id)
+		db.Save(&tpProfile)
+	}
 }
 
 func UpdatePromise(promise structs.CollegePromise) {
