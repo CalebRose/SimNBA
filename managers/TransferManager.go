@@ -45,7 +45,7 @@ func ProcessTransferIntention() {
 	smallGain := 10.0
 	mediumGain := 15.0
 	bigGain := 25.0
-	giantgain := 33.0
+	giantgain := 40.0
 	for _, p := range allCollegePlayers {
 		// Do not include redshirts and all graduating players
 		if p.IsRedshirting || p.WillDeclare || p.TeamID == 0 {
@@ -96,9 +96,9 @@ func ProcessTransferIntention() {
 		} else if p.Stars == 3 {
 			starMod = 1
 		} else if p.Stars == 4 {
-			starMod = 1.2
+			starMod = 1.25
 		} else if p.Stars == 5 {
-			starMod = 1.5
+			starMod = 1.50
 		}
 
 		teamRoster := fullRosterMap[uint(p.TeamID)]
@@ -182,7 +182,7 @@ func ProcessTransferIntention() {
 
 		/// Not playing = 25, low depth chart = 16 or 33, scheme = 10, if you're all 3, that's a ~60% chance of transferring pre- modifiers
 		transferWeight = starMod * ageMod * (minutesMod + depthChartCompetitionMod + biasMod)
-		diceRoll := util.GenerateIntFromRange(1, 100)
+		diceRoll := util.GenerateIntFromRange(1, 75)
 		// NOT INTENDING TO TRANSFER
 		transferInt := int(transferWeight)
 		if diceRoll > transferInt {
@@ -527,13 +527,14 @@ func AICoachFillBoardsPhase() {
 	regionMap := util.GetRegionMap()
 	standingsMap := GetCollegeStandingsMap(seasonID)
 	for _, teamProfile := range AITeams {
-		if !teamProfile.IsAI || teamProfile.ID == 353 || teamProfile.ID > 363 {
+		if !teamProfile.IsAI {
 			continue
 		}
 		team := teamMap[teamProfile.ID]
 		teamStandings := standingsMap[teamProfile.TeamID]
 		teamID := strconv.Itoa(int(teamProfile.ID))
 		coach := coachMap[teamProfile.ID]
+		portalProfileMap := getTransferPortalProfileMapByTeamID(teamID)
 
 		roster := GetCollegePlayersByTeamId(teamID)
 		rosterSize := len(roster)
@@ -596,15 +597,15 @@ func AICoachFillBoardsPhase() {
 			teamNeedsMap["C"] = false
 		}
 		for _, tp := range transferPortalPlayers {
-			if !teamNeedsMap[tp.Position] || tp.PreviousTeamID == team.ID {
+			if !teamNeedsMap[tp.Position] || tp.PreviousTeamID == team.ID || portalProfileMap[tp.ID].CollegePlayerID == tp.ID || portalProfileMap[tp.ID].ID > 0 {
 				continue
 			}
 
 			// Put together a player prestige rating to use as a qualifier on which teams will target specific players. Ideally more experienced coaches will be able to target higher rated players
-			playerPrestige := getPlayerPrestigeRating(tp.Stars, tp.Overall)
-			if coach.Prestige < playerPrestige {
-				continue
-			}
+			// playerPrestige := getPlayerPrestigeRating(tp.Stars, tp.Overall)
+			// if coach.Prestige < playerPrestige {
+			// 	continue
+			// }
 			bias := tp.RecruitingBias
 			biasMod := 0
 			postSeasonStatus := teamStandings.PostSeasonStatus
@@ -745,7 +746,7 @@ func AICoachAllocateAndPromisePhase() {
 			// If player has already signed or if the position has been fulfilled
 			if tp.TeamID > 0 || tp.TransferStatus == 0 || tp.ID == 0 || !teamNeedsMap[tp.Position] {
 				profile.Deactivate()
-				db.Save(&profile)
+				repository.SaveTransferPortalProfile(profile, db)
 				continue
 			}
 			playerID := strconv.Itoa(int(profile.CollegePlayerID))
@@ -861,13 +862,13 @@ func AICoachAllocateAndPromisePhase() {
 						IsActive:        true,
 					}
 
-					db.Create(&collegePromise)
+					repository.CreateCollegePromiseRecord(collegePromise, db)
 				}
 
 				profile.ToggleRolledOnPromise()
 			}
 			// Save Profile
-			db.Save(&profile)
+			repository.SaveTransferPortalProfile(profile, db)
 		}
 	}
 }
@@ -1316,7 +1317,10 @@ func getAverageWins(standings []structs.CollegeStandings) int {
 		wins += s.TotalWins
 	}
 
-	wins = wins / len(standings)
+	totalStandings := len(standings)
+	if totalStandings > 0 {
+		wins = wins / len(standings)
+	}
 
 	return wins
 }
@@ -1396,4 +1400,16 @@ func GetTransferScoutingDataByPlayerID(id string) structs.ScoutingDataResponse {
 		DrafteeSeasonStats: seasonStats,
 		TeamStandings:      collegeStandings,
 	}
+}
+
+func getTransferPortalProfileMapByTeamID(id string) map[uint]structs.TransferPortalProfile {
+	profiles := GetOnlyTransferPortalProfilesByTeamID(id)
+
+	profileMap := make(map[uint]structs.TransferPortalProfile)
+
+	for _, profile := range profiles {
+		profileMap[profile.CollegePlayerID] = profile
+	}
+
+	return profileMap
 }

@@ -83,6 +83,7 @@ func handleRequests() {
 	// myRouter.HandleFunc("/nba/draft/player/", controller.SaveRecruitingBoard).Methods("POST")
 
 	// Exports
+	myRouter.HandleFunc("/export/cbb/players/all", controller.ExportCollegePlayers).Methods("GET")
 	myRouter.HandleFunc("/export/cbb/preseason", controller.ExportCBBPreseasonRanks).Methods("GET")
 	myRouter.HandleFunc("/export/cbb/team/{teamID}", controller.ExportCBBRosterToCSV).Methods("GET")
 	myRouter.HandleFunc("/export/nba/team/{teamID}", controller.ExportNBARosterToCSV).Methods("GET")
@@ -108,11 +109,12 @@ func handleRequests() {
 	// myRouter.HandleFunc("/admin/generateCoaches", controller.GenerateCoaches).Methods("GET")
 	// myRouter.HandleFunc("/admin/generateTeam", controller.GeneratePlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/generateTestPlayers", controller.GenerateTestPlayers).Methods("GET")
-	// myRouter.HandleFunc("/admin/generateCroots", controller.GenerateCroots).Methods("GET")
+	myRouter.HandleFunc("/admin/generateCroots", controller.GenerateCroots).Methods("GET")
 	// myRouter.HandleFunc("/admin/generate/international", controller.GenerateInternationalPlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/allocate/international/rosters", controller.GenerateInternationalRoster).Methods("GET")
 	// myRouter.HandleFunc("/admin/fix/nba/records", controller.FixNBASeasonTables).Methods("GET")
-	// myRouter.HandleFunc("/generate/playtime/expectations", controller.GeneratePlaytimeExpectations).Methods("GET")
+	// myRouter.HandleFunc("/generate/playtime/expectations", controller.GenerateNewAttributes).Methods("GET")
+	// myRouter.HandleFunc("/fix/nba/matches", controller.SwapNBATeamsTEMP).Methods("GET")
 
 	// Import
 	// myRouter.HandleFunc("/import/nba", controller.ImportNBAStandings).Methods("GET")
@@ -157,7 +159,6 @@ func handleRequests() {
 	myRouter.HandleFunc("/players/{teamId}", controller.AllPlayersByTeamId).Methods("GET")
 	myRouter.HandleFunc("/players/college", controller.AllCollegePlayers).Methods("GET")
 	myRouter.HandleFunc("/players/college/recruits", controller.AllCollegeRecruits).Methods("GET")
-	myRouter.HandleFunc("/collegeplayers/export/all", controller.ExportCollegePlayers).Methods("GET")
 	myRouter.HandleFunc("/collegeplayers/check/declaration", controller.CheckDeclarationStatus).Methods("GET")
 	myRouter.HandleFunc("/players/nba", controller.AllNBAPlayers).Methods("GET")
 	myRouter.HandleFunc("/players/nba/freeAgents", controller.AllNBAFreeAgents).Methods("GET")
@@ -254,6 +255,8 @@ func handleRequests() {
 
 	// Transfer Intentions
 	myRouter.HandleFunc("/portal/transfer/intention", controller.ProcessTransferIntention).Methods("GET")
+	myRouter.HandleFunc("/portal/ai/generate/profiles", controller.FillUpTransferBoardsAI).Methods("GET")
+	myRouter.HandleFunc("/portal/ai/allocate/profiles", controller.AllocateAndPromisePlayersAI).Methods("GET")
 	myRouter.HandleFunc("/portal/page/data/{teamID}", controller.GetTransferPortalPageData).Methods("GET")
 	myRouter.HandleFunc("/portal/profile/create", controller.AddTransferPlayerToBoard).Methods("POST")
 	myRouter.HandleFunc("/portal/profile/remove/{profileID}", controller.RemovePlayerFromTransferPortalBoard).Methods("GET")

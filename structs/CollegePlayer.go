@@ -130,12 +130,6 @@ func (p *CollegePlayer) SetMinutes(val int) {
 	p.Minutes = val
 }
 
-func (p *CollegePlayer) SetNewAttributes(ft int, id int, pd int) {
-	p.FreeThrow = ft
-	p.InteriorDefense = id
-	p.PerimeterDefense = pd
-}
-
 func (b *CollegePlayer) SetNewPosition(pos string) {
 	b.Position = pos
 }

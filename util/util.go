@@ -976,7 +976,7 @@ func GetLotteryChances(idx int) uint {
 func GetAttributeNew(position, attribute string, spec bool) int {
 	mod := 0
 	if spec {
-		mod = 2
+		mod = 4
 	}
 	if position == "PG" || position == "SG" {
 		if attribute == "Shooting2" || attribute == "Shooting3" ||
@@ -1004,5 +1004,5 @@ func GetAttributeNew(position, attribute string, spec bool) int {
 			mod -= GenerateIntFromRange(0, 1)
 		}
 	}
-	return GenerateIntFromRange(4, 14) + mod
+	return GenerateIntFromRange(3, 14) + mod
 }

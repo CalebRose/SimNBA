@@ -66,6 +66,16 @@ func (r *Recruit) SetID(id uint) {
 	r.ID = uint(id)
 }
 
+func (r *Recruit) AssignRelativeData(rID, rType, teamID uint, team, notes string) {
+	r.RelativeID = rID
+	r.RelativeType = rType
+	r.Notes = notes
+	if teamID > 0 {
+		r.UpdateTeamID(teamID)
+		r.AssignCollege(team)
+	}
+}
+
 func (r *Recruit) UpdateTeamID(id uint) {
 	r.TeamID = id
 	r.IsSigned = true

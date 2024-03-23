@@ -221,10 +221,15 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 			if game.IsPlayoffGame && game.SeriesID > 0 {
 				seriesID := strconv.Itoa(int(game.SeriesID))
 				series := GetNBASeriesBySeriesID(seriesID)
-				series.UpdateWinCount(game.HomeTeamWin)
+				winningID := 0
+				if game.HomeTeamWin {
+					winningID = int(game.HomeTeamID)
+				} else {
+					winningID = int(game.AwayTeamID)
+				}
+				series.UpdateWinCount(winningID)
 
 				if series.GameCount < 7 && (series.HomeTeamWins < 4 && series.AwayTeamWins < 4) {
-
 					homeTeamID := 0
 					nextHomeTeam := ""
 					nextHomeTeamCoach := ""
@@ -237,7 +242,7 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 					arena := ""
 					state := ""
 					country := ""
-					if (series.GameCount < 3) || series.GameCount == 5 || series.GameCount == 7 {
+					if series.GameCount == 1 || series.GameCount == 2 || series.GameCount == 5 || series.GameCount == 7 {
 						homeTeam := nbaTeamMap[HomeID]
 						homeTeamID = int(series.HomeTeamID)
 						nextHomeTeam = series.HomeTeam
@@ -251,7 +256,7 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 						nextAwayTeam = series.AwayTeam
 						nextAwayTeamCoach = series.AwayTeamCoach
 						nextAwayRank = int(series.AwayTeamRank)
-					} else if (series.GameCount > 2 && series.GameCount < 5) || series.GameCount == 6 {
+					} else if series.GameCount == 3 || series.GameCount == 4 || series.GameCount == 6 {
 						awayTeam := nbaTeamMap[AwayID]
 						homeTeamID = int(series.AwayTeamID)
 						nextHomeTeam = series.AwayTeam

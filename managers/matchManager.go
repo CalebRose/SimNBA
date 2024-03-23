@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 )
 
@@ -482,4 +483,23 @@ func GetAllActiveNBASeries() []structs.NBASeries {
 	db.Where("series_complete = ?", false).Find(&nbaSeries)
 
 	return nbaSeries
+}
+
+func SwapNBATeamsTEMP() {
+	db := dbprovider.GetInstance().GetDB()
+
+	ts := GetTimestamp()
+	seasonID := strconv.Itoa(int(ts.SeasonID))
+	nbaMatches := GetISLMatchesBySeasonID(seasonID)
+	nbaTeamMap := GetProfessionalTeamMap()
+
+	for _, m := range nbaMatches {
+		if m.ID > 2116 && m.MatchOfWeek == "C" {
+			m.ResetScore()
+			m.SwapTeams()
+			nbaTeam := nbaTeamMap[m.HomeTeamID]
+			m.AssignArena(nbaTeam.Arena, nbaTeam.City, nbaTeam.State)
+			repository.SaveProfessionalMatchRecord(m, db)
+		}
+	}
 }

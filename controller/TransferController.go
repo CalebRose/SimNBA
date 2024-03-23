@@ -149,3 +149,17 @@ func GetScoutingDataByTransfer(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(data)
 }
+
+func FillUpTransferBoardsAI(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	managers.AICoachFillBoardsPhase()
+
+	json.NewEncoder(w).Encode("AI Boards for Transfer Portal Complete.")
+}
+
+func AllocateAndPromisePlayersAI(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	managers.AICoachAllocateAndPromisePhase()
+
+	json.NewEncoder(w).Encode("Allocated and promised.")
+}

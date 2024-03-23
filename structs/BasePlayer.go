@@ -34,6 +34,13 @@ type BasePlayer struct {
 	PotentialGrade       string
 	ProPotentialGrade    int
 	Stamina              int
+	Discipline           int
+	InjuryRating         int
+	IsInjured            bool
+	InjuryName           string
+	InjuryType           string
+	WeeksOfRecovery      uint
+	InjuryReserve        bool
 	PlaytimeExpectations int
 	Minutes              int
 	InsideProportion     float64
@@ -55,6 +62,9 @@ type BasePlayer struct {
 	AcademicBias         string
 	PreviousTeamID       uint
 	PreviousTeam         string
+	RelativeID           uint
+	RelativeType         uint
+	Notes                string
 }
 
 func (b *BasePlayer) ToggleSpecialties(str string) {
@@ -222,6 +232,11 @@ func (cp *BasePlayer) GetNBAPotentialGrade() {
 	} else {
 		cp.PotentialGrade = "F"
 	}
+}
+
+func (p *BasePlayer) SetDisciplineAndIR(val, val2 int) {
+	p.Discipline = val
+	p.InjuryRating = val2
 }
 
 func (p *BasePlayer) SetExpectations(val int) {

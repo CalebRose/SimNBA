@@ -143,3 +143,9 @@ func ExportMatchResults(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/csv")
 	managers.ExportMatchResults(w, seasonID, weekID, nbaWeekID, matchType)
 }
+
+// Export Stats
+func SwapNBATeamsTEMP(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	managers.SwapNBATeamsTEMP()
+}

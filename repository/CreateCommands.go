@@ -69,3 +69,27 @@ func CreateHistoricPlayerRecord(player structs.CollegePlayer, db *gorm.DB) {
 		log.Panicln("Could not save historic player record!")
 	}
 }
+
+func CreateRecruitRecord(croot structs.Recruit, db *gorm.DB) {
+	// Save College Player Record
+	err := db.Create(&croot).Error
+	if err != nil {
+		log.Panicln("Could not save new college recruit record")
+	}
+}
+
+func CreateGlobalPlayerRecord(player structs.GlobalPlayer, db *gorm.DB) {
+	// Save College Player Record
+	err := db.Create(&player).Error
+	if err != nil {
+		log.Panicln("Could not save new college recruit record")
+	}
+}
+
+func CreateCollegePromiseRecord(promise structs.CollegePromise, db *gorm.DB) {
+	// Save College Player Record
+	err := db.Create(&promise).Error
+	if err != nil {
+		log.Panicln("Could not save new college recruit record")
+	}
+}

@@ -34,6 +34,16 @@ func GetAllCollegeCoaches() []structs.CollegeCoach {
 	return coaches
 }
 
+func GetAllActiveCollegeCoaches() []structs.CollegeCoach {
+	db := dbprovider.GetInstance().GetDB()
+
+	coaches := []structs.CollegeCoach{}
+
+	db.Where("is_retired = ? and team_id > ?", false, "0").Find(&coaches)
+
+	return coaches
+}
+
 func GetActiveCollegeCoachMap() map[uint]structs.CollegeCoach {
 	coachMap := make(map[uint]structs.CollegeCoach)
 

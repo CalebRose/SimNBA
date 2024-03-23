@@ -67,6 +67,32 @@ func (m *NBAMatch) HideScore() {
 	m.AwayTeamWin = false
 }
 
+func (m *NBAMatch) ResetScore() {
+	m.HideScore()
+	m.GameComplete = false
+}
+
+func (m *NBAMatch) SwapTeams() {
+	tempID := m.HomeTeamID
+	tempTeam := m.HomeTeam
+	tempCoach := m.HomeTeamCoach
+	tempRank := m.HomeTeamRank
+	m.HomeTeamID = m.AwayTeamID
+	m.HomeTeam = m.AwayTeam
+	m.HomeTeamCoach = m.AwayTeamCoach
+	m.HomeTeamRank = m.AwayTeamRank
+	m.AwayTeamID = tempID
+	m.AwayTeamCoach = tempCoach
+	m.AwayTeam = tempTeam
+	m.AwayTeamRank = tempRank
+}
+
+func (m *NBAMatch) AssignArena(arena, city, state string) {
+	m.Arena = arena
+	m.City = city
+	m.State = state
+}
+
 func (m *NBAMatch) AddTeam(isHome bool, id, rank uint, team, coach, arena, city, state string) {
 	if isHome {
 		m.HomeTeam = team
@@ -149,10 +175,11 @@ func (s *NBASeries) AddTeam(isHome bool, id, rank uint, team, coach string) {
 		s.HomeTeamCoach = tempC
 		s.HomeTeamRank = tempR
 	}
+	s.GameCount = 1
 }
 
-func (s *NBASeries) UpdateWinCount(homeTeamWin bool) {
-	if homeTeamWin {
+func (s *NBASeries) UpdateWinCount(id int) {
+	if id == int(s.HomeTeamID) {
 		s.HomeTeamWins += 1
 	} else {
 		s.AwayTeamWins += 1

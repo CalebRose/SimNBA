@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"log"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -64,18 +65,26 @@ func ExportCroots(w http.ResponseWriter) {
 }
 
 func ExportCollegePlayers(w http.ResponseWriter) {
-	w.Header().Set("Content-Disposition", "attachment;filename=sagebows_secret_player_list.csv")
+	ts := GetTimestamp()
+	season := strconv.Itoa(ts.Season)
+	filename := "sagebows_" + season + "_secret_player_list.csv"
+	w.Header().Set("Content-Disposition", "attachment;filename="+filename)
 	w.Header().Set("Transfer-Encoding", "chunked")
 
 	writer := csv.NewWriter(w)
 
 	players := GetAllCollegePlayers()
 
+	sort.Slice(players, func(i, j int) bool {
+		return players[i].TeamID < players[j].TeamID
+	})
+
 	HeaderRow := []string{
 		"College", "First Name", "Last Name", "Position", "Year", "Is_Redshirt", "Age",
 		"Stars", "State", "Country", "Height",
 		"Overall", "Shooting 2s", "Shooting 3s", "Free Throwing", "Finishing",
-		"Ballwork", "Rebounding", "InteriorDefense", "PerimeterDefense", "Potential Grade",
+		"Ballwork", "Rebounding", "InteriorDefense", "PerimeterDefense", "Stamina", "Potential Grade",
+		"Personality", "RecruitingBias", "Work Ethic", "Previous Team",
 	}
 
 	err := writer.Write(HeaderRow)
@@ -95,12 +104,14 @@ func ExportCollegePlayers(w http.ResponseWriter) {
 		perimeterDefenseGrade := util.GetAttributeGrade(player.PerimeterDefense)
 		potentialGrade := util.GetPotentialGrade(player.Potential)
 		overallGrade := util.GetPlayerOverallGrade(player.Overall)
+		sta := strconv.Itoa(player.Stamina)
 
 		playerRow := []string{
 			player.TeamAbbr, player.FirstName, player.LastName, player.Position, strconv.Itoa(player.Year), strconv.FormatBool(player.IsRedshirt), strconv.Itoa(player.Age),
 			strconv.Itoa(player.Stars), player.State, player.Country, player.Height,
 			overallGrade, shooting2Grade, shooting3Grade, freeThrowGrade, finishingGrade,
-			ballworkGrade, reboundingGrade, interiorDefenseGrade, perimeterDefenseGrade, potentialGrade,
+			ballworkGrade, reboundingGrade, interiorDefenseGrade, perimeterDefenseGrade, sta, potentialGrade,
+			player.Personality, player.RecruitingBias, player.WorkEthic, player.PreviousTeam,
 		}
 
 		err = writer.Write(playerRow)
@@ -138,39 +149,24 @@ func ExportCBBPreseasonRanks(w http.ResponseWriter) {
 		teamID := strconv.Itoa(int(t.ID))
 		var players []structs.CollegePlayer
 
-		db.Order("minutes desc").Where("team_id = ?", teamID).Find(&players)
+		db.Order("overall desc").Where("team_id = ?", teamID).Find(&players)
 
 		offenseRank := 0.0
 		defenseRank := 0.0
 		overall := 0.0
 		starPower := 0.0
 		count := 0
-		for _, player := range players {
-			if player.Minutes == 0 {
-				continue
+
+		for idx, player := range players {
+			if idx > 9 {
+				break
 			}
-			o := ((float64(player.Shooting2) + float64(player.Shooting3) + float64(player.Finishing) + float64(player.FreeThrow)) / 4) * (float64(player.Minutes) / float64(player.Stamina))
-			d := ((float64(player.Ballwork) + float64(player.Rebounding) + float64(player.InteriorDefense) + float64(player.PerimeterDefense)) / 4) * (float64(player.Minutes) / float64(player.Stamina))
+			o := ((float64(player.Shooting2) + float64(player.Shooting3) + float64(player.Finishing) + float64(player.FreeThrow)) / 4)
+			d := ((float64(player.Ballwork) + float64(player.Rebounding) + float64(player.InteriorDefense) + float64(player.PerimeterDefense)) / 4)
 			offenseRank += o
 			defenseRank += d
 			starPower += float64(player.Stars)
 			count++
-		}
-
-		if count == 0 {
-			db.Order("overall desc").Where("team_id = ?", teamID).Find(&players)
-
-			for idx, player := range players {
-				if idx > 8 {
-					break
-				}
-				o := ((float64(player.Shooting2) + float64(player.Shooting3) + float64(player.Finishing) + float64(player.FreeThrow)) / 4) * 0.87
-				d := ((float64(player.Ballwork) + float64(player.Rebounding) + float64(player.InteriorDefense) + float64(player.PerimeterDefense)) / 4) * 0.87
-				offenseRank += o
-				defenseRank += d
-				starPower += float64(player.Stars)
-				count++
-			}
 		}
 
 		offenseRank = offenseRank / float64(count)

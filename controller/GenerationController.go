@@ -57,8 +57,8 @@ func GenerateDraftWarRooms(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("GENERATION COMPLETE")
 }
 
-func GeneratePlaytimeExpectations(w http.ResponseWriter, r *http.Request) {
-	managers.GeneratePlaytimeExpectations()
+func GenerateNewAttributes(w http.ResponseWriter, r *http.Request) {
+	managers.GenerateNewAttributes()
 	json.NewEncoder(w).Encode("GENERATION COMPLETE")
 }
 

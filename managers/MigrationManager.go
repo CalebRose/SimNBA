@@ -1,9 +1,7 @@
 package managers
 
 import (
-	"encoding/csv"
 	"log"
-	"os"
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
@@ -214,24 +212,6 @@ func ProgressContractsByOneYear() {
 		}
 		db.Save(&contract)
 	}
-}
-
-func getPlayerData() [][]string {
-	path := "C:\\Users\\ctros\\go\\src\\github.com\\CalebRose\\SimNBA\\data\\SimNBA_Players_2022.csv"
-	f, err := os.Open(path)
-	if err != nil {
-		log.Fatal("Unable to read input file "+path, err)
-	}
-
-	defer f.Close()
-
-	csvReader := csv.NewReader(f)
-	records, err := csvReader.ReadAll()
-	if err != nil {
-		log.Fatal("Unable to parse file as CSV for "+path, err)
-	}
-
-	return records
 }
 
 func MigrateNewAIRecruitingValues() {
