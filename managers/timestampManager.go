@@ -52,7 +52,7 @@ func SyncToNextWeek() {
 		ResetCollegeStandingsRanks()
 	}
 	ts.SyncToNextWeek()
-	if ts.CollegeWeek < 21 || !ts.IsOffSeason {
+	if ts.CollegeWeek < 21 || !ts.CollegeSeasonOver {
 		SyncCollegePollSubmissionForCurrentWeek()
 	}
 	if ts.NBAWeek > 21 && !ts.IsNBAOffseason {
