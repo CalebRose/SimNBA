@@ -889,6 +889,10 @@ func SyncTransferPortal() {
 	}
 
 	for _, portalPlayer := range transferPortalPlayers {
+		if portalPlayer.ID == 28 {
+			continue
+		}
+
 		// Skip over players that have already transferred
 		if portalPlayer.TransferStatus != 2 || portalPlayer.TeamID > 0 {
 			continue
@@ -915,36 +919,36 @@ func SyncTransferPortal() {
 		teamCount := 0
 		eligibleTeams := []structs.TransferPortalProfile{}
 
-		for _, portalProfile := range portalProfiles {
-			promiseID := strconv.Itoa(int(portalProfile.PromiseID.Int64))
+		for i := range portalProfiles {
+			promiseID := strconv.Itoa(int(portalProfiles[i].PromiseID.Int64))
 
 			promise := GetCollegePromiseByID(promiseID)
 
 			multiplier := getMultiplier(promise)
-			portalProfile.AddPointsToTotal(multiplier)
+			portalProfiles[i].AddPointsToTotal(multiplier)
 		}
 
 		sort.Slice(portalProfiles, func(i, j int) bool {
 			return portalProfiles[i].TotalPoints > portalProfiles[j].TotalPoints
 		})
 
-		for _, portalProfile := range portalProfiles {
-			roster := rosterMap[portalProfile.ProfileID]
+		for i := range portalProfiles {
+			roster := rosterMap[portalProfiles[i].ProfileID]
 			if len(roster) >= 13 {
 				continue
 			}
 			if eligiblePointThreshold == 0.0 {
-				eligiblePointThreshold = portalProfile.TotalPoints * signingMinimum
+				eligiblePointThreshold = portalProfiles[i].TotalPoints * signingMinimum
 			}
-			if portalProfile.TotalPoints >= eligiblePointThreshold {
-				if portalProfile.SpendingCount < minSpendingCount {
-					minSpendingCount = portalProfile.SpendingCount
+			if portalProfiles[i].TotalPoints >= eligiblePointThreshold {
+				if portalProfiles[i].SpendingCount < minSpendingCount {
+					minSpendingCount = portalProfiles[i].SpendingCount
 				}
-				if portalProfile.SpendingCount > maxSpendingCount {
-					maxSpendingCount = portalProfile.SpendingCount
+				if portalProfiles[i].SpendingCount > maxSpendingCount {
+					maxSpendingCount = portalProfiles[i].SpendingCount
 				}
-				eligibleTeams = append(eligibleTeams, portalProfile)
-				totalPointsOnPlayer += portalProfile.TotalPoints
+				eligibleTeams = append(eligibleTeams, portalProfiles[i])
+				totalPointsOnPlayer += portalProfiles[i].TotalPoints
 				teamCount += 1
 			}
 
@@ -988,11 +992,11 @@ func SyncTransferPortal() {
 						fmt.Println("Created new log!")
 						// Add player to existing roster map
 						rosterMap[teamProfile.ID] = append(rosterMap[teamProfile.ID], portalPlayer)
-						for _, profile := range portalProfiles {
-							if profile.ID == winningTeamID {
-								profile.SignPlayer()
+						for i := range portalProfiles {
+							if portalProfiles[i].ID == winningTeamID {
+								portalProfiles[i].SignPlayer()
 							}
-							profile.Lock()
+							portalProfiles[i].Lock()
 						}
 
 					} else {
@@ -1013,23 +1017,18 @@ func SyncTransferPortal() {
 
 		}
 		for _, p := range portalProfiles {
-			err := db.Save(&p).Error
-			if err != nil {
-				fmt.Println(err.Error())
-				log.Fatalf("Could not sync transfer portal profile profile.")
+			if p.CollegePlayerID == 28 {
+				continue
 			}
+			repository.SaveTransferPortalProfile(p, db)
 			fmt.Println("Save transfer portal profile from " + portalPlayer.TeamAbbr + " towards " + portalPlayer.FirstName + " " + portalPlayer.LastName)
 		}
 		// Save Recruit
-		err := db.Save(&portalPlayer).Error
-		if err != nil {
-			fmt.Println(err.Error())
-			log.Fatalf("Could not sync recruit")
-		}
+		repository.SaveCollegePlayerRecord(portalPlayer, db)
 	}
 
 	ts.IncrementTransferPortalRound()
-	db.Save(&ts)
+	repository.SaveTimeStamp(ts, db)
 }
 
 // At end of season, sync through promises to confirm if promises were made
@@ -1357,6 +1356,9 @@ func getPromiseLevel(pt string) int {
 }
 
 func getMultiplier(pr structs.CollegePromise) float64 {
+	if pr.ID == 0 {
+		return 1
+	}
 	weight := pr.PromiseWeight
 	if weight == "Very Low" {
 		return 1.05

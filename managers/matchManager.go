@@ -490,11 +490,14 @@ func SwapNBATeamsTEMP() {
 
 	ts := GetTimestamp()
 	seasonID := strconv.Itoa(int(ts.SeasonID))
-	nbaMatches := GetISLMatchesBySeasonID(seasonID)
+	nbaMatches := GetNBAMatchesBySeasonID(seasonID)
+	// islMatches := GetISLMatchesBySeasonID(seasonID)
 	nbaTeamMap := GetProfessionalTeamMap()
 
+	skippingID := 2147
+	matchDay := "A"
 	for _, m := range nbaMatches {
-		if m.ID > 2116 && m.MatchOfWeek == "C" {
+		if m.ID > uint(skippingID) && m.MatchOfWeek == matchDay {
 			m.ResetScore()
 			m.SwapTeams()
 			nbaTeam := nbaTeamMap[m.HomeTeamID]
@@ -502,4 +505,14 @@ func SwapNBATeamsTEMP() {
 			repository.SaveProfessionalMatchRecord(m, db)
 		}
 	}
+
+	// for _, m := range islMatches {
+	// 	if m.ID > uint(skippingID) && m.MatchOfWeek == matchDay {
+	// 		m.ResetScore()
+	// 		m.SwapTeams()
+	// 		nbaTeam := nbaTeamMap[m.HomeTeamID]
+	// 		m.AssignArena(nbaTeam.Arena, nbaTeam.City, nbaTeam.State)
+	// 		repository.SaveProfessionalMatchRecord(m, db)
+	// 	}
+	// }
 }

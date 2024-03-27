@@ -63,6 +63,12 @@ func SyncRecruiting(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("Recruiting Synced for Week.")
 }
 
+func SyncTransferPortal(w http.ResponseWriter, r *http.Request) {
+	managers.SyncTransferPortal()
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode("Recruiting Synced for Week.")
+}
+
 func ImportMatchResults(w http.ResponseWriter, r *http.Request) {
 	var dto structs.ImportMatchResultsDTO
 	err := json.NewDecoder(r.Body).Decode(&dto)

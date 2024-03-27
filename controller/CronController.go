@@ -57,7 +57,7 @@ func SyncRecruitingViaCron() {
 		}
 	}
 
-	if ts.RunCron && ts.IsOffSeason && !ts.CrootsGenerated {
+	if ts.RunCron && ts.IsOffSeason && !ts.CollegeSeasonOver && !ts.CrootsGenerated {
 		managers.GenerateCroots()
 		// Reset Team Profiles, allocate bonus points where necessary
 		// Generate Standings Records too
