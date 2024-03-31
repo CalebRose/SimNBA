@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 	"gorm.io/gorm"
 )
@@ -61,10 +62,7 @@ func SyncToNextWeek() {
 		GenerateNBAPlayoffGames(db, ts)
 		IndicateWhetherTeamCanTradeInPostSeason()
 	}
-	err := db.Save(&ts).Error
-	if err != nil {
-		log.Fatalln("Could not save timestamp and sync week")
-	}
+	repository.SaveTimeStamp(ts, db)
 }
 
 func GenerateNBAPlayoffGames(db *gorm.DB, ts structs.Timestamp) {

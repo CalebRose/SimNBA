@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
 	"gorm.io/gorm"
@@ -316,7 +317,7 @@ func FillAIRecruitingBoards() {
 			crootProfiles := recruitProfileMap[croot.ID]
 
 			leadingVal := util.IsAITeamContendingForCroot(crootProfiles)
-			if leadingVal > 13 {
+			if leadingVal > 14 {
 				willPursue = false
 			}
 
@@ -383,20 +384,21 @@ func FillAIRecruitingBoards() {
 
 			chance := util.GenerateIntFromRange(1, 100)
 
-			var teamsWithBoards []structs.PlayerRecruitProfile
+			teamCount := 0
 
 			for _, team := range crootProfiles {
-				if !team.RemovedFromBoard {
-					teamsWithBoards = append(teamsWithBoards, team)
+				if team.RemovedFromBoard {
+					continue
 				}
+				teamCount++
 			}
 
 			teamLimit := 25
 			if ts.CollegeWeek > 12 {
-				teamLimit = 5
+				teamLimit = 6
 			}
 
-			if chance <= odds && len(teamsWithBoards) < teamLimit {
+			if chance <= odds && teamCount < teamLimit {
 				if ts.CollegeWeek > 12 {
 					lateSeasonCount += 1
 				}
@@ -416,12 +418,7 @@ func FillAIRecruitingBoards() {
 				}
 				crootProfiles = append(crootProfiles, playerProfile)
 				recruitProfileMap[croot.ID] = crootProfiles
-
-				err := db.Save(&playerProfile).Error
-				if err != nil {
-					log.Fatalln("Could not add " + croot.FirstName + " " + croot.LastName + " to " + team.TeamAbbr + " Recruiting Board.")
-				}
-
+				repository.CreatePlayerRecruitProfileRecord(playerProfile, db)
 				count++
 			}
 		}

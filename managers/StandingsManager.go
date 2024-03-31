@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 )
 
@@ -229,7 +230,7 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 				}
 				series.UpdateWinCount(winningID)
 
-				if series.GameCount < 7 && (series.HomeTeamWins < 4 && series.AwayTeamWins < 4) {
+				if series.GameCount <= 7 && (series.HomeTeamWins < 4 && series.AwayTeamWins < 4) {
 					homeTeamID := 0
 					nextHomeTeam := ""
 					nextHomeTeamCoach := ""
@@ -336,11 +337,12 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 					} else {
 						// Officially End the season
 						ts.EndTheProfessionalSeason()
-						db.Save(&ts)
+						repository.SaveTimeStamp(ts, db)
 					}
 				}
 
 				db.Save(&series)
+
 			}
 		}
 	}

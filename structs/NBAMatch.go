@@ -161,7 +161,7 @@ func (s *NBASeries) AddTeam(isHome bool, id, rank uint, team, coach string) {
 		s.AwayTeamRank = rank
 		s.AwayTeamCoach = coach
 	}
-	if s.HomeTeamID > 0 && s.AwayTeamID > 0 && s.HomeTeamRank < s.AwayTeamRank {
+	if s.HomeTeamID > 0 && s.AwayTeamID > 0 && s.HomeTeamRank > s.AwayTeamRank {
 		tempID := s.AwayTeamID
 		temp := s.AwayTeam
 		tempC := s.AwayTeamCoach
@@ -184,7 +184,9 @@ func (s *NBASeries) UpdateWinCount(id int) {
 	} else {
 		s.AwayTeamWins += 1
 	}
-	s.GameCount += 1
+	if s.GameCount < 7 {
+		s.GameCount += 1
+	}
 	if s.HomeTeamWins > 3 && !s.IsInternational {
 		s.HomeTeamWin = true
 		s.SeriesComplete = true

@@ -78,6 +78,14 @@ func CreateRecruitRecord(croot structs.Recruit, db *gorm.DB) {
 	}
 }
 
+func CreatePlayerRecruitProfileRecord(cp structs.PlayerRecruitProfile, db *gorm.DB) {
+	// Save College Player Record
+	err := db.Create(&cp).Error
+	if err != nil {
+		log.Panicln("Could not save new college recruit record")
+	}
+}
+
 func CreateGlobalPlayerRecord(player structs.GlobalPlayer, db *gorm.DB) {
 	// Save College Player Record
 	err := db.Create(&player).Error
