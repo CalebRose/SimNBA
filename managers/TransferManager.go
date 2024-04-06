@@ -985,7 +985,7 @@ func SyncTransferPortal() {
 
 					teamProfile := teamProfileMap[winningTeamIDSTR]
 					currentRoster := rosterMap[teamProfile.ID]
-					if len(currentRoster) <= 12 {
+					if len(currentRoster) <= 13 {
 						portalPlayer.SignWithNewTeam(teamProfile.ID, teamProfile.TeamAbbr)
 						message := portalPlayer.FirstName + " " + portalPlayer.LastName + ", " + strconv.Itoa(portalPlayer.Stars) + " star " + portalPlayer.Position + " from " + portalPlayer.PreviousTeam + " has signed with " + portalPlayer.TeamAbbr + " with " + strconv.Itoa(int(odds)) + " percent odds."
 						CreateNewsLog("CBB", message, "Transfer Portal", int(winningTeamID), ts)

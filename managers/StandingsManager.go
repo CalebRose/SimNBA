@@ -244,7 +244,7 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 					state := ""
 					country := ""
 					if series.GameCount == 1 || series.GameCount == 2 || series.GameCount == 5 || series.GameCount == 7 {
-						homeTeam := nbaTeamMap[HomeID]
+						homeTeam := nbaTeamMap[series.HomeTeamID]
 						homeTeamID = int(series.HomeTeamID)
 						nextHomeTeam = series.HomeTeam
 						nextHomeTeamCoach = series.HomeTeamCoach
@@ -258,7 +258,7 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 						nextAwayTeamCoach = series.AwayTeamCoach
 						nextAwayRank = int(series.AwayTeamRank)
 					} else if series.GameCount == 3 || series.GameCount == 4 || series.GameCount == 6 {
-						awayTeam := nbaTeamMap[AwayID]
+						awayTeam := nbaTeamMap[series.AwayTeamID]
 						homeTeamID = int(series.AwayTeamID)
 						nextHomeTeam = series.AwayTeam
 						nextHomeTeamCoach = series.AwayTeamCoach
