@@ -395,6 +395,49 @@ func GetCollegeStandingsMap(seasonID string) map[uint]structs.CollegeStandings {
 	return standingsMap
 }
 
+func ProgressStandings() {
+	db := dbprovider.GetInstance().GetDB()
+	ts := GetTimestamp()
+	seasonID := strconv.Itoa(int(ts.SeasonID))
+	teams := GetAllActiveCollegeTeams()
+
+	teamProfileMap := GetTeamProfileMap()
+	standingsMap := GetCollegeStandingsMap(seasonID)
+	// Update team profiles for bonus points
+	for _, t := range teams {
+		id := strconv.Itoa(int(t.ID))
+		teamProfile := teamProfileMap[id]
+		standings := standingsMap[t.ID]
+		bonus := 0
+
+		if standings.InvitationalChampion || standings.PostSeasonStatus == "Sweet 16" || standings.IsConferenceChampion {
+			bonus = 1
+		} else if standings.PostSeasonStatus == "Elite 8" {
+			bonus = 2
+		} else if standings.PostSeasonStatus == "Final Four" {
+			bonus = 3
+		} else if standings.PostSeasonStatus == "National Champion Runner-Up" {
+			bonus = 4
+		} else if standings.PostSeasonStatus == "National Champion" {
+			bonus = 5
+		}
+
+		if bonus == 0 && standings.ConferenceLosses < 10 {
+			conferenceID := strconv.Itoa(int(t.ConferenceID))
+			confStandings := GetConferenceStandingsByConferenceID(conferenceID, seasonID)
+			if confStandings[0].TeamID == t.ID {
+				bonus = 1
+			}
+		}
+
+		teamProfile.ResetSpentPoints()
+		teamProfile.ResetScholarshipCount()
+		teamProfile.AssignBonusPoints(bonus)
+
+		repository.SaveCBBTeamRecruitingProfile(teamProfile, db)
+	}
+}
+
 func GenerateCollegeStandings() {
 	db := dbprovider.GetInstance().GetDB()
 	ts := GetTimestamp()

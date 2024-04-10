@@ -135,3 +135,7 @@ func (r *TeamRecruitingProfile) AssignRecruiter(name string) {
 func (r *TeamRecruitingProfile) IncreaseClassSize() {
 	r.RecruitClassSize += 1
 }
+
+func (r *TeamRecruitingProfile) AssignBonusPoints(bonus int) {
+	r.BonusPoints = 0
+}

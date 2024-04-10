@@ -1,6 +1,10 @@
 package structs
 
-import "github.com/jinzhu/gorm"
+import (
+	"strings"
+
+	"github.com/jinzhu/gorm"
+)
 
 type CollegeStandings struct {
 	gorm.Model
@@ -37,11 +41,12 @@ func (cs *CollegeStandings) UpdateCollegeStandings(game Match) {
 			cs.ConferenceWins += 1
 		}
 		cs.Streak += 1
-		if game.IsInvitational && game.MatchName == "Championship" {
+		if game.IsInvitational && strings.Contains(game.MatchName, "Finals") {
 			cs.InvitationalChampion = true
 		}
-		if game.IsConferenceTournament && game.MatchName == "Championship" {
+		if game.IsConferenceTournament && strings.Contains(game.MatchName, "Finals") {
 			cs.PostSeasonStatus = "Conference Champion"
+			cs.IsConferenceChampion = true
 		}
 		if game.IsPlayoffGame {
 			cs.PostSeasonStatus = game.MatchName

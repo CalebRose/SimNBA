@@ -54,3 +54,10 @@ func SaveProfessionalMatchRecord(match structs.NBAMatch, db *gorm.DB) {
 		log.Panicln("Could not save player record")
 	}
 }
+
+func SaveCBBTeamRecruitingProfile(profile *structs.TeamRecruitingProfile, db *gorm.DB) {
+	err := db.Save(&profile).Error
+	if err != nil {
+		log.Panicln("Could not save team profile record")
+	}
+}
