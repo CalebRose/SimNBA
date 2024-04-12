@@ -67,7 +67,7 @@ func SyncRecruiting() {
 		var eligiblePointThreshold float64 = 0
 		var signThreshold float64
 
-		allocatePointsToRecruit(recruit, &recruitProfiles, pointLimit, &pointsPlaced, timestamp, &recruitProfilePointsMap, db)
+		allocatePointsToRecruit(recruit, &recruitProfiles, teamMap, pointLimit, &pointsPlaced, timestamp, &recruitProfilePointsMap, db)
 
 		if !pointsPlaced {
 			continue
@@ -689,7 +689,7 @@ func getOddsIncrementByTalent(attr, stars int, attrspec, attrMatch bool, isMidMa
 	return 0
 }
 
-func allocatePointsToRecruit(recruit structs.Recruit, recruitProfiles *[]structs.PlayerRecruitProfile, pointLimit float64, pointsPlaced *bool, timestamp structs.Timestamp, recruitProfilePointsMap *map[string]float64, db *gorm.DB) {
+func allocatePointsToRecruit(recruit structs.Recruit, recruitProfiles *[]structs.PlayerRecruitProfile, teamMap map[string]*structs.TeamRecruitingProfile, pointLimit float64, pointsPlaced *bool, timestamp structs.Timestamp, recruitProfilePointsMap *map[string]float64, db *gorm.DB) {
 	// numWorkers := 3
 	var mapMutex sync.Mutex
 	numWorkers := runtime.NumCPU()
@@ -707,7 +707,11 @@ func allocatePointsToRecruit(recruit structs.Recruit, recruitProfiles *[]structs
 					results <- nil
 					continue
 				}
-				err := processRecruitProfile(i, recruit, recruitProfiles, pointLimit, pointsPlaced, timestamp, recruitProfilePointsMap, &mapMutex, db)
+				abbr := (*recruitProfiles)[i].TeamAbbreviation
+				mapMutex.Lock()
+				bonus := teamMap[abbr].BonusPoints
+				mapMutex.Unlock()
+				err := processRecruitProfile(i, recruit, recruitProfiles, float64(bonus), pointLimit, pointsPlaced, timestamp, recruitProfilePointsMap, &mapMutex, db)
 				results <- err
 			}
 		}(jobs, results, w)
@@ -730,7 +734,7 @@ func allocatePointsToRecruit(recruit structs.Recruit, recruitProfiles *[]structs
 	}
 }
 
-func processRecruitProfile(i int, recruit structs.Recruit, recruitProfiles *[]structs.PlayerRecruitProfile, pointLimit float64, pointsPlaced *bool, timestamp structs.Timestamp, recruitProfilePointsMap *map[string]float64, m *sync.Mutex, db *gorm.DB) error {
+func processRecruitProfile(i int, recruit structs.Recruit, recruitProfiles *[]structs.PlayerRecruitProfile, bonus, pointLimit float64, pointsPlaced *bool, timestamp structs.Timestamp, recruitProfilePointsMap *map[string]float64, m *sync.Mutex, db *gorm.DB) error {
 	regionBonus := 1.05
 	stateBonus := 1.1
 	*pointsPlaced = true
@@ -751,6 +755,9 @@ func processRecruitProfile(i int, recruit structs.Recruit, recruitProfiles *[]st
 		curr = curr * stateBonus
 	}
 	// Bonus Points value when saving
+	if curr > 0 {
+		curr += bonus
+	}
 
 	if (*recruitProfiles)[i].CurrentWeeksPoints < 0 || (*recruitProfiles)[i].CurrentWeeksPoints > 20 {
 		curr = 0

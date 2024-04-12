@@ -410,7 +410,7 @@ func ProgressStandings() {
 		standings := standingsMap[t.ID]
 		bonus := 0
 
-		if standings.InvitationalChampion || standings.PostSeasonStatus == "Sweet 16" || standings.IsConferenceChampion {
+		if standings.PostSeasonStatus == "Sweet 16" || standings.IsConferenceChampion {
 			bonus = 1
 		} else if standings.PostSeasonStatus == "Elite 8" {
 			bonus = 2
@@ -428,6 +428,10 @@ func ProgressStandings() {
 			if confStandings[0].TeamID == t.ID {
 				bonus = 1
 			}
+		}
+
+		if standings.InvitationalChampion {
+			bonus += 1
 		}
 
 		teamProfile.ResetSpentPoints()
