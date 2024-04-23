@@ -905,6 +905,8 @@ func GetAllNBAPlayersByTeamID(teamID string) []structs.NBAPlayer {
 
 	db.Preload("Contract", func(db *gorm.DB) *gorm.DB {
 		return db.Where("is_active = true")
+	}).Preload("Extensions", func(db *gorm.DB) *gorm.DB {
+		return db.Where("is_active = true")
 	}).Where("team_id = ?", teamID).Find(&players)
 	return players
 }

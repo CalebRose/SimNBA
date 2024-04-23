@@ -44,7 +44,7 @@ func GetNBARosterByTeamID(w http.ResponseWriter, r *http.Request) {
 		panic("User did not provide TeamID")
 	}
 
-	var players = managers.GetAllNBAPlayersByTeamID(teamId)
+	players := managers.GetAllNBAPlayersByTeamID(teamId)
 
 	json.NewEncoder(w).Encode(players)
 }
