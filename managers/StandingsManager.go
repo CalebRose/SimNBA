@@ -334,15 +334,9 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 						}
 						nextSeries.AddTeam(nextSeriesHoa == "H", teamID, uint(teamRank), teamLabel, teamCoach)
 						db.Save(&nextSeries)
-					} else {
-						// Officially End the season
-						ts.EndTheProfessionalSeason()
-						repository.SaveTimeStamp(ts, db)
 					}
 				}
-
 				db.Save(&series)
-
 			}
 		}
 	}

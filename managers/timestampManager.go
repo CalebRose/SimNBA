@@ -62,6 +62,9 @@ func SyncToNextWeek() {
 		GenerateNBAPlayoffGames(db, ts)
 		IndicateWhetherTeamCanTradeInPostSeason()
 	}
+	if ts.NBASeasonOver && ts.CollegeSeasonOver && ts.FreeAgencyRound > 2 {
+		ts.MoveUpASeason()
+	}
 	repository.SaveTimeStamp(ts, db)
 }
 
@@ -71,6 +74,7 @@ func GenerateNBAPlayoffGames(db *gorm.DB, ts structs.Timestamp) {
 	seasonID := strconv.Itoa(int(ts.SeasonID))
 	nbaGames := GetNBAMatchesByWeekIdAndMatchType(nbaWeekID, seasonID, "A")
 	teamMap := GetProfessionalTeamMap()
+	finalsTally := 0
 	if len(nbaGames) == 0 {
 		// Get active NBA Series
 		activeNBASeries := GetAllActiveNBASeries()
@@ -78,6 +82,16 @@ func GenerateNBAPlayoffGames(db *gorm.DB, ts structs.Timestamp) {
 			// Skip series that are not ready
 			if s.HomeTeamID == 0 || s.AwayTeamID == 0 {
 				continue
+			}
+			if s.IsTheFinals && s.SeriesComplete {
+				finalsTally += 1
+				// Officially End the season
+				if finalsTally == 2 {
+					ts.EndTheProfessionalSeason()
+					repository.SaveTimeStamp(ts, db)
+					break
+				}
+
 			}
 			gameCount := strconv.Itoa(int(s.GameCount) + 1)
 			homeTeam := ""

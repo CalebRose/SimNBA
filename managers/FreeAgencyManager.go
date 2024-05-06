@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
 	"gorm.io/gorm"
@@ -508,6 +509,9 @@ func RunExtensionsAlgorithm() {
 			}
 		}
 	}
+
+	ts.MoveUpFreeAgencyRound()
+	repository.SaveTimeStamp(ts, db)
 }
 
 func validateFreeAgencyPref(playerRecord structs.NBAPlayer, roster []structs.NBAPlayer, team structs.NBATeam, seasonID string, offerLength, idx int) bool {

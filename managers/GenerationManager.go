@@ -2,10 +2,12 @@ package managers
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -643,7 +645,7 @@ func GenerateInternationalPlayers() {
 
 	newID := lastPlayerRecord.ID + 1
 
-	firstNameMap, lastNameMap := getNameMaps()
+	nameMap := getInternationalNameMap()
 	var positionList []string = []string{"PG", "SG", "PF", "SF", "C"}
 
 	// Get all ISL teams
@@ -657,7 +659,7 @@ func GenerateInternationalPlayers() {
 		count := 0
 		teamID := strconv.Itoa(int(team.ID))
 		currentPlayers := GetAllNBAPlayersByTeamID(teamID)
-		requiredPlayers := 13 - len(currentPlayers)
+		requiredPlayers := 9 - len(currentPlayers)
 
 		teamNeedsMap := make(map[string]bool)
 		positionCount := make(map[string]int)
@@ -722,12 +724,13 @@ func GenerateInternationalPlayers() {
 			positionNeedList = append(positionNeedList, pos)
 		}
 
-		// Generate two international players from the team's host country
-		for count < requiredPlayers {
+		// Generate nine international players from the team's host country
+		for requiredPlayers > 0 && count < requiredPlayers {
 			pickedPosition := util.PickFromStringList(positionNeedList)
 			pickedEthnicity := pickISLEthnicity(team.Country)
 			year := 1
-			player := createInternationalPlayer(team.ID, team.Team, team.Country, pickedEthnicity, pickedPosition, year, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], newID)
+			countryNames := nameMap[pickedEthnicity]
+			player := createInternationalPlayer(team.ID, team.Team, team.Country, pickedEthnicity, pickedPosition, year, countryNames["first_names"], countryNames["last_names"], newID)
 
 			year1Salary := 0.0
 			year2Salary := 0.0
@@ -1113,11 +1116,10 @@ func createRecruit(fName, lName, state, country, ethnicity, position string, yea
 	return croot
 }
 
-func createInternationalPlayer(teamID uint, team, country, ethnicity, position string, year int, firstNameList [][]string, lastNameList [][]string, id uint) structs.NBAPlayer {
-	fName := getName(firstNameList)
-	lName := getName(lastNameList)
+func createInternationalPlayer(teamID uint, team, country, ethnicity, position string, year int, firstNameList []string, lastNameList []string, id uint) structs.NBAPlayer {
+	fName := util.PickFromStringList(firstNameList)
+	lName := util.PickFromStringList(lastNameList)
 	caser := cases.Title(language.English)
-
 	firstName := caser.String(strings.ToLower(fName))
 	lastName := caser.String(strings.ToLower(lName))
 	age := util.GenerateISLAge()
@@ -1189,8 +1191,8 @@ func createInternationalPlayer(teamID uint, team, country, ethnicity, position s
 	player.SetID(id)
 	player.SetAttributes(shooting2, shooting3, finishing, freeThrow, ballwork, rebounding, interiorDefense, perimeterDefense, overall, stars, expectations)
 
-	if age > 18 && age < 23 {
-		diff := 22 - age
+	if age > 18 && age < 25 {
+		diff := 24 - age
 
 		for i := 0; i < diff; i++ {
 			player = ProgressNBAPlayer(player, true)
@@ -1415,6 +1417,19 @@ func getNameMaps() (map[string][][]string, map[string][][]string) {
 	return (firstNameMap), (lastNameMap)
 }
 
+func getInternationalNameMap() map[string]map[string][]string {
+	path := filepath.Join(os.Getenv("ROOT"), "data", "unique_male_names_by_country.json")
+	content := util.ReadJson(path)
+	var payload map[string]map[string][]string
+
+	err := json.Unmarshal(content, &payload)
+	if err != nil {
+		log.Fatalln("Error during unmarshal: ", err)
+	}
+
+	return payload
+}
+
 func pickEthnicity() string {
 	min := 0
 	max := 10000
@@ -1450,6 +1465,80 @@ func pickISLEthnicity(country string) string {
 		return "Asian"
 	}
 	return "NativeAmerican"
+}
+
+func pickLocale(country string) string {
+	countryMap := map[string][]string{
+		"England":        {"en_GB", "en_US"},
+		"Australia":      {"en_AU"},
+		"Scotland":       {"en_GB", "en_IE"},
+		"Spain":          {"es_ES"},
+		"Italy":          {"it_IT"},
+		"Bulgaria":       {"bg_BG"},
+		"Bosnia":         {"bs_BA"},
+		"Czech Republic": {"cs_CZ", "bg_BG"},
+		"Latvia":         {"lv_LV"},
+		"Poland":         {"pl_PL"},
+		"Estonia":        {"et_EE"},
+		"Ukraine":        {"uk_UA"},
+		"France":         {"fr_FR"},
+		"Andorra":        {"fr_FR", "es_ES"},
+		"Germany":        {"de_AT", "de_CH", "de_DE"},
+		"Belgium":        {"nl_BE", "nl_NL", "fr_FR"},
+		"Netherlands":    {"nl_BE", "nl_NL", "de_DE"},
+		"Turkey":         {"tr_TR"},
+		"Greece":         {"el_GR"},
+		"Israel":         {"ar_JO"},
+		"Jordan":         {"ar_JO"},
+		"Lithuania":      {"lt_LT"},
+		"Serbia":         {"bs_BA", "sl_SI", "ro_RO"},
+		"Morocco":        {""},
+		"Egypt":          {""},
+		"Mexico":         {"es_MX"},
+		"Argentina":      {"es_MX"},
+		"Brazil":         {"es_MX", "pt_BR"},
+		"China":          {"zh_CN"},
+		"HK":             {"zh_CN"},
+		"Japan":          {"jp_JP"},
+		"South Korea":    {"ko_KR"},
+		"Taiwan":         {"zh_TW"},
+		"Phillipines":    {"en_PH", "es_ES"},
+		"New Zealand":    {"en_NZ", "en_AU"},
+		"India":          {"en_IN"},
+		"Finland":        {""},
+		"Denmark":        {""},
+		"Sweden":         {""},
+		"Iceland":        {""},
+		"Norway":         {""},
+		"Russia":         {""},
+		"Croatia":        {""},
+		"Kazakhstan":     {""},
+		"Qatar":          {""},
+		"Lebanon":        {""},
+		"Kuwait":         {""},
+		"Chile":          {""},
+		"Colombia":       {""},
+		"Nicaragua":      {""},
+		"Panama":         {""},
+		"Puerto Rico":    {""},
+		"Uruguay":        {""},
+		"UAE":            {""},
+		"Hungary":        {""},
+		"Kosovo":         {""},
+		"Montenegro":     {""},
+		"Romania":        {""},
+		"Slovenia":       {""},
+		"Cyprus":         {""},
+		"Azerbaijan":     {""},
+		"Bahrain":        {""},
+		"Indonesia":      {""},
+		"Malaysia":       {""},
+		"Singapore":      {""},
+		"Thailand":       {""},
+		"Vietnam":        {""},
+	}
+	code := util.PickFromStringList(countryMap[country])
+	return code
 }
 
 func pickCountry(ethnicity string) string {

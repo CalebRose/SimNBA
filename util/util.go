@@ -78,16 +78,16 @@ func GeneratePrimeAge() int {
 }
 
 func GenerateISLAge() int {
-	mean := 19.0
-	standardDeviation := 1.2 // Adjust this value to change the spread
+	mean := 20.0
+	standardDeviation := 2.0 // Adjust this value to change the spread
 
 	value := rand.NormFloat64()*standardDeviation + mean
 
 	// Clamp the value to the range [16, 22]
 	if value < 16 {
 		value = 16
-	} else if value > 22 {
-		value = 22
+	} else if value > 25 {
+		value = 25
 	}
 
 	return int(value)
@@ -813,15 +813,14 @@ func GetProfessionalPlaytimeExpectations(age, primeage, overall int) int {
 	} else if age >= primeage {
 		mod -= (age - primeage)
 	}
-	if age < 23 {
+	if overall < 80 {
 		return GenerateIntFromRange(0, 12) + mod
-	} else if age <= primeage {
-		return GenerateIntFromRange(7, 20) + mod
-	} else if age > primeage {
-		return GenerateIntFromRange(3, 15) + mod
+	} else if overall < 90 {
+		return GenerateIntFromRange(8, 18) + mod
 	}
 
-	return 0
+	// Superstar Players
+	return GenerateIntFromRange(10, 25) + mod
 }
 
 // calculateOverallModifier - Returns a modifier between 0 and 100 based on the overall of the player
