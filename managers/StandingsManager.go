@@ -312,7 +312,7 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 
 					db.Create(&nextGame)
 				} else {
-					if !series.IsTheFinals {
+					if !series.IsTheFinals && series.NextSeriesID > 0 {
 						// Promote Team to Next Series
 						nextSeriesID := strconv.Itoa(int(series.NextSeriesID))
 						nextSeriesHoa := series.NextSeriesHOA

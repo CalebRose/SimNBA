@@ -622,11 +622,6 @@ func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *
 			continue
 		}
 
-		// Check if still negotiation
-		if ts.IsNBAOffseason && FA.IsNegotiating && ts.FreeAgencyRound < FA.SigningRound {
-			continue
-		}
-
 		// Is Ready to Sign, Get All Offers on the Free Agent
 		Offers := GetFreeAgentOffersByPlayerID(strconv.Itoa(int(FA.ID)))
 

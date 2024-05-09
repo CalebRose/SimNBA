@@ -1017,9 +1017,6 @@ func SyncTransferPortal() {
 
 		}
 		for _, p := range portalProfiles {
-			if p.CollegePlayerID == 28 {
-				continue
-			}
 			repository.SaveTransferPortalProfile(p, db)
 			fmt.Println("Save transfer portal profile from " + portalPlayer.TeamAbbr + " towards " + portalPlayer.FirstName + " " + portalPlayer.LastName)
 		}
