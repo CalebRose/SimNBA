@@ -88,7 +88,7 @@ func AllProfessionalTeams(w http.ResponseWriter, r *http.Request) {
 	db := dbprovider.GetInstance().GetDB()
 
 	var teams []structs.NBATeam
-	db.Order("team asc").Find(&teams)
+	db.Preload("Capsheet").Order("team asc").Find(&teams)
 	json.NewEncoder(w).Encode(teams)
 }
 
