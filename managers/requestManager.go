@@ -164,22 +164,22 @@ func RemoveUserFromNBATeam(request structs.NBARequest) {
 
 	message := ""
 
-	if request.IsOwner {
+	if request.Username == team.NBAOwnerName {
 		user.RemoveOwnership()
 		message = request.Username + " has decided to step down as Owner of the " + team.Team + " " + team.Nickname + "!"
 	}
 
-	if request.IsManager {
+	if request.Username == team.NBAGMName {
 		user.RemoveManagerPosition()
 		message = request.Username + " has decided to step down as Manager of the " + team.Team + " " + team.Nickname + "!"
 	}
 
-	if request.IsCoach {
+	if request.Username == team.NBACoachName {
 		user.RemoveCoachPosition()
 		message = request.Username + " has decided to step down as Head Coach of the " + team.Team + " " + team.Nickname + "!"
 	}
 
-	if request.IsAssistant {
+	if request.Username == team.NBAAssistantName {
 		user.RemoveAssistantPosition()
 		message = request.Username + " has decided to step down as an Assistant of the " + team.Team + " " + team.Nickname + "!"
 	}
