@@ -974,7 +974,7 @@ func AssignPlayerAsTwoWay(playerID string) {
 func ActivateNextYearOption(contractID string) {
 	db := dbprovider.GetInstance().GetDB()
 
-	contract := GetNBAContractsByPlayerID(contractID)
+	contract := GetNBAContractByID(contractID)
 	if contract.Year2Opt {
 		contract.ActivateOption()
 		db.Save(&contract)
