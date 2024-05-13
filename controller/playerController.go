@@ -194,7 +194,7 @@ func ActivateOption(w http.ResponseWriter, r *http.Request) {
 		panic("User did not provide contractID")
 	}
 
-	managers.AssignPlayerAsTwoWay(playerID)
+	managers.ActivateNextYearOption(playerID)
 
 	json.NewEncoder(w).Encode("Player " + playerID + " placed on trade block.")
 }

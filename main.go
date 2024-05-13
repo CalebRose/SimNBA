@@ -166,9 +166,9 @@ func handleRequests() {
 	myRouter.HandleFunc("/nba/players/{teamId}", controller.GetNBARosterByTeamID).Methods("GET")
 	myRouter.HandleFunc("/cbb/players/cut/{playerID}", controller.CutPlayerFromCBBTeam).Methods("GET")
 	myRouter.HandleFunc("/nba/players/cut/{playerID}", controller.CutPlayerFromNBATeam).Methods("GET")
+	myRouter.HandleFunc("/nba/players/activate/option/{contractID}", controller.ActivateOption).Methods("GET")
 	myRouter.HandleFunc("/nba/players/place/gleague/{playerID}", controller.PlaceNBAPlayerInGLeague).Methods("GET")
 	myRouter.HandleFunc("/nba/players/place/twoway/{playerID}", controller.AssignNBAPlayerAsTwoWay).Methods("GET")
-	myRouter.HandleFunc("/nba/players/activate/option/{contractID}", controller.AssignNBAPlayerAsTwoWay).Methods("GET")
 
 	// Poll Controls
 	myRouter.HandleFunc("/college/poll/create/", controller.CreatePollSubmission).Methods("POST")
