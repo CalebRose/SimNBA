@@ -76,7 +76,7 @@ func SyncToNextWeekViaCron() {
 	if ts.RunCron && ts.IsNBAOffseason && ts.IsFreeAgencyLocked {
 		// If NBA Progression Wasn't Ran, Run Progression
 		if !ts.ProgressedProfessionalPlayers {
-			managers.ProgressNBAPlayers()
+			// managers.ProgressNBAPlayers()
 		}
 	}
 }

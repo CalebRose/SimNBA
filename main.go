@@ -118,7 +118,7 @@ func handleRequests() {
 	// myRouter.HandleFunc("/fix/nba/matches", controller.SwapNBATeamsTEMP).Methods("GET")
 
 	// Import
-	// myRouter.HandleFunc("/import/nba", controller.ImportNBAStandings).Methods("GET")
+	// myRouter.HandleFunc("/import/nba", controller.ImportNBATeamsAndArenas).Methods("GET")
 	// myRouter.HandleFunc("/import/cbb/games", controller.ImportCBBMatches).Methods("GET")
 	// myRouter.HandleFunc("/import/nba/games", controller.ImportNBAMatches).Methods("GET")
 	// myRouter.HandleFunc("/import/nba/series", controller.ImportNBASeries).Methods("GET")

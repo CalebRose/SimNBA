@@ -1,6 +1,6 @@
 package structs
 
-import "github.com/jinzhu/gorm"
+import "gorm.io/gorm"
 
 // NBAMatch - The Data Structure for a Game
 type NBAMatch struct {

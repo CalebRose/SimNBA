@@ -3,7 +3,7 @@ package secrets
 func GetPath() map[string]string {
 	TeamsListPath := "./data/teamslist_v5.csv"
 	NBAStandingsPath := "./NBAStandings.csv"
-	NBATeamsPath := "./NBATeams.csv"
+	NBATeamsPath := "./data/InternationalSuperleague.csv"
 	ArenaPath := "./data/Arenas.csv"
 	DraftLotteryPath := "./data/DraftStandings.csv"
 	aiBehaviorPath := "./data/NewAIBehaviors.csv"

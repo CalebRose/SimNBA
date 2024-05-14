@@ -1,6 +1,6 @@
 package structs
 
-import "github.com/jinzhu/gorm"
+import "gorm.io/gorm"
 
 // DraftPick - a draftpick for a draft
 type DraftPick struct {

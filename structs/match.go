@@ -1,6 +1,6 @@
 package structs
 
-import "github.com/jinzhu/gorm"
+import "gorm.io/gorm"
 
 // MatchPageResponse - The Data Structure for the Schedule Page
 type MatchPageResponse struct {
