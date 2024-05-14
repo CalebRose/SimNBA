@@ -239,7 +239,7 @@ func CreateExtensionOffer(offer structs.NBAContractOfferDTO) structs.NBAExtensio
 
 		message := offer.Team + " have offered a " + strconv.Itoa(int(offer.TotalYears)) + " year contract extension for " + player.Position + " " + player.FirstName + " " + player.LastName + "."
 		CreateNewsLog("NFL", message, "Free Agency", int(player.TeamID), ts)
-	} else {
+	} else if extensionOffer.IsActive {
 		fmt.Println("Updating Extension Offer!")
 		db.Save(&extensionOffer)
 	}
