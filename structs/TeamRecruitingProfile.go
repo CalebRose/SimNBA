@@ -65,6 +65,9 @@ func (r *TeamRecruitingProfile) AllocateSpentPoints(points int) {
 
 func (r *TeamRecruitingProfile) AIAllocateSpentPoints(points int) {
 	r.SpentPoints += points
+	if r.SpentPoints < 0 {
+		r.SpentPoints = 0
+	}
 }
 
 func (r *TeamRecruitingProfile) ResetWeeklyPoints(points int) {

@@ -42,6 +42,23 @@ func GenerateIntFromRange(min int, max int) int {
 	return rand.Intn(max-min+1) + min
 }
 
+func GenerateNormalizedIntFromRange(min int, max int) int {
+	mean := float64(min+max) / 2.0
+	stdDev := float64(max-min) / 6.0 // This approximates the 3-sigma rule
+
+	for {
+		// Generate a number using normal distribution around the mean
+		num := rand.NormFloat64()*stdDev + mean
+		// Round to nearest integer and convert to int type
+		intNum := int(num + 0.5) // Adding 0.5 before truncating simulates rounding
+		// Check if the generated number is within bounds
+		if intNum >= min && intNum <= max {
+			return intNum
+		}
+		// If not within bounds, loop again
+	}
+}
+
 func PickFromStringList(list []string) string {
 	return list[rand.Intn(len(list))]
 }

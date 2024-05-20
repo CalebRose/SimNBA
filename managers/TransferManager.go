@@ -127,6 +127,7 @@ func ProcessTransferIntention() {
 		}
 
 		// Bias Mod
+		team := collegeTeamMap[p.TeamID]
 		if p.RecruitingBias == upcomingTeam {
 			standings := standingsMap[p.TeamID]
 			if standings.PostSeasonStatus == "National Champion" || standings.PostSeasonStatus == "Conference Champion" ||
@@ -148,28 +149,24 @@ func ProcessTransferIntention() {
 		} else if p.RecruitingBias == immediateStart && minutesMod <= 0 {
 			biasMod = mediumGain
 		} else if p.RecruitingBias == closeToHome && p.Country == "USA" {
-			team := collegeTeamMap[p.TeamID]
 			if team.State != p.State {
 				biasMod = mediumGain
 			} else {
 				biasMod = mediumDrop
 			}
 		} else if p.RecruitingBias == differentState && p.Country == "USA" {
-			team := collegeTeamMap[p.TeamID]
 			if team.State != p.State {
 				biasMod = mediumDrop
 			} else {
 				biasMod = mediumGain
 			}
 		} else if p.RecruitingBias == specificCoach {
-			team := collegeTeamMap[p.TeamID]
 			if team.Coach == p.RecruitingBiasValue {
 				biasMod = mediumGain
 			} else {
 				biasMod = mediumDrop
 			}
 		} else if p.RecruitingBias == legacy {
-			team := collegeTeamMap[p.TeamID]
 			legacyID := util.ConvertStringToInt(p.RecruitingBiasValue)
 			if uint(legacyID) > 0 && team.ID == uint(legacyID) {
 				biasMod = smallGain
@@ -185,6 +182,10 @@ func ProcessTransferIntention() {
 		diceRoll := util.GenerateIntFromRange(1, 75)
 		// NOT INTENDING TO TRANSFER
 		transferInt := int(transferWeight)
+		// Make it more likely for players on AI teams to transfer
+		if !team.IsUserCoached {
+			transferInt += util.GenerateIntFromRange(1, 20)
+		}
 		if diceRoll > transferInt {
 			continue
 		}
@@ -539,7 +540,7 @@ func AICoachFillBoardsPhase() {
 		roster := GetCollegePlayersByTeamId(teamID)
 		rosterSize := len(roster)
 		// Roster sizes of 12 or higher should be ignored
-		if rosterSize > 11 {
+		if rosterSize > 12 {
 			continue
 		}
 		teamNeedsMap := make(map[string]bool)
@@ -644,6 +645,9 @@ func AICoachFillBoardsPhase() {
 			}
 
 			diceRoll := util.GenerateIntFromRange(1, 50)
+			if teamProfile.ID == 368 || teamProfile.ID == 367 || teamProfile.ID == 369 || teamProfile.ID == 366 {
+				diceRoll -= 20
+			}
 			if diceRoll < biasMod {
 				// Add Player to Board
 
@@ -676,10 +680,26 @@ func AICoachAllocateAndPromisePhase() {
 		if teamProfile.SpentPoints >= teamProfile.WeeklyPoints {
 			continue
 		}
+		teamID := strconv.Itoa(int(teamProfile.ID))
+		portalProfiles := GetTransferPortalProfilesByTeamID(teamID)
+		for _, p := range portalProfiles {
+			if p.LockProfile && p.CurrentWeeksPoints > 0 {
+				points := p.CurrentWeeksPoints
+				teamProfile.AIAllocateSpentPoints(points * -1)
+				p.Deactivate()
+				repository.SaveTransferPortalProfile(p, db)
+			}
+		}
+	}
+
+	for _, teamProfile := range AITeams {
+		if teamProfile.SpentPoints >= teamProfile.WeeklyPoints {
+			continue
+		}
 
 		teamID := strconv.Itoa(int(teamProfile.ID))
 		roster := GetCollegePlayersByTeamId(teamID)
-		if len(roster) >= 12 {
+		if len(roster) >= 13 {
 			continue
 		}
 
@@ -745,6 +765,8 @@ func AICoachAllocateAndPromisePhase() {
 			tp := transferPortalPlayerMap[profile.CollegePlayerID]
 			// If player has already signed or if the position has been fulfilled
 			if tp.TeamID > 0 || tp.TransferStatus == 0 || tp.ID == 0 || !teamNeedsMap[tp.Position] {
+				points := profile.CurrentWeeksPoints
+				teamProfile.AIAllocateSpentPoints(points * -1)
 				profile.Deactivate()
 				repository.SaveTransferPortalProfile(profile, db)
 				continue
@@ -797,6 +819,8 @@ func AICoachAllocateAndPromisePhase() {
 			}
 
 			if removePlayerFromBoard {
+				points := profile.CurrentWeeksPoints
+				teamProfile.AIAllocateSpentPoints(points * -1)
 				profile.Deactivate()
 				db.Save(&profile)
 				continue
@@ -889,9 +913,6 @@ func SyncTransferPortal() {
 	}
 
 	for _, portalPlayer := range transferPortalPlayers {
-		if portalPlayer.ID == 28 {
-			continue
-		}
 
 		// Skip over players that have already transferred
 		if portalPlayer.TransferStatus != 2 || portalPlayer.TeamID > 0 {
@@ -934,7 +955,7 @@ func SyncTransferPortal() {
 
 		for i := range portalProfiles {
 			roster := rosterMap[portalProfiles[i].ProfileID]
-			if len(roster) >= 13 {
+			if len(roster) > 13 {
 				continue
 			}
 			if eligiblePointThreshold == 0.0 {
@@ -951,7 +972,6 @@ func SyncTransferPortal() {
 				totalPointsOnPlayer += portalProfiles[i].TotalPoints
 				teamCount += 1
 			}
-
 		}
 
 		if (teamCount == 1 && minSpendingCount == 2) || (teamCount > 1 && minSpendingCount > 3 || ts.TransferPortalRound == 10) {
@@ -993,8 +1013,13 @@ func SyncTransferPortal() {
 						// Add player to existing roster map
 						rosterMap[teamProfile.ID] = append(rosterMap[teamProfile.ID], portalPlayer)
 						for i := range portalProfiles {
-							if portalProfiles[i].ID == winningTeamID {
+							if portalProfiles[i].ProfileID == winningTeamID {
 								portalProfiles[i].SignPlayer()
+							} else {
+								promise := GetCollegePromiseByCollegePlayerID(strconv.Itoa(int(portalPlayer.ID)), strconv.Itoa(int(portalProfiles[i].ProfileID)))
+								if promise.ID > 0 {
+									repository.DeleteCollegePromise(promise, db)
+								}
 							}
 							portalProfiles[i].Lock()
 						}

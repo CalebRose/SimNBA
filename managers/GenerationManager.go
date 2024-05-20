@@ -932,8 +932,8 @@ func GenerateNewAttributes() {
 		if c.ID == 0 {
 			continue
 		}
-		discipline := util.GenerateIntFromRange(1, 20)
-		injuryRating := util.GenerateIntFromRange(1, 20)
+		discipline := util.GenerateNormalizedIntFromRange(1, 20)
+		injuryRating := util.GenerateNormalizedIntFromRange(1, 20)
 		c.SetDisciplineAndIR(discipline, injuryRating)
 		repository.SaveCollegePlayerRecord(c, db)
 	}
@@ -941,10 +941,9 @@ func GenerateNewAttributes() {
 	nbaPlayers := GetAllNBAPlayers()
 
 	for _, n := range nbaPlayers {
-		discipline := util.GenerateIntFromRange(1, 20)
-		injuryRating := util.GenerateIntFromRange(1, 20)
+		discipline := util.GenerateNormalizedIntFromRange(1, 20)
+		injuryRating := util.GenerateNormalizedIntFromRange(1, 20)
 		n.SetDisciplineAndIR(discipline, injuryRating)
-
 		repository.SaveProfessionalPlayerRecord(n, db)
 	}
 }
@@ -974,7 +973,8 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 	rebounding := getAttribute(position, "Rebounding", true)
 	interiorDefense := getAttribute(position, "Interior Defense", true)
 	perimeterDefense := getAttribute(position, "Perimeter Defense", true)
-
+	discipline := util.GenerateNormalizedIntFromRange(1, 20)
+	injuryRating := util.GenerateNormalizedIntFromRange(1, 20)
 	overall := (int((shooting2 + shooting3 + freeThrow) / 3)) + finishing + ballwork + rebounding + int((interiorDefense+perimeterDefense)/2)
 	stars := getStarRating(overall)
 
@@ -1015,6 +1015,8 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 		WorkEthic:            workEthic,
 		AcademicBias:         academicBias,
 		PotentialGrade:       potentialGrade,
+		Discipline:           discipline,
+		InjuryRating:         injuryRating,
 	}
 
 	var collegePlayer = structs.CollegePlayer{
@@ -1048,8 +1050,8 @@ func createRecruit(fName, lName, state, country, ethnicity, position string, yea
 	potentialGrade := util.GetWeightedPotentialGrade(potential)
 	proPotential := util.GeneratePotential()
 	stamina := util.GenerateIntFromRange(25, 38)
-	discipline := util.GenerateIntFromRange(1, 20)
-	injuryRating := util.GenerateIntFromRange(1, 20)
+	discipline := util.GenerateNormalizedIntFromRange(1, 20)
+	injuryRating := util.GenerateNormalizedIntFromRange(1, 20)
 	personality := util.GetPersonality()
 	academicBias := util.GetAcademicBias()
 	workEthic := util.GetWorkEthic()
@@ -1183,6 +1185,8 @@ func createInternationalPlayer(teamID uint, team, country, ethnicity, position s
 	rebounding := util.GetAttributeNew(position, "Rebounding", player.SpecRebounding)
 	interiorDefense := util.GetAttributeNew(position, "Interior Defense", player.SpecInteriorDefense)
 	perimeterDefense := util.GetAttributeNew(position, "Perimeter Defense", player.SpecPerimeterDefense)
+	discipline := util.GenerateNormalizedIntFromRange(1, 20)
+	injuryRating := util.GenerateNormalizedIntFromRange(1, 20)
 
 	overall := (int((shooting2 + shooting3 + freeThrow) / 3)) + finishing + ballwork + rebounding + int((interiorDefense+perimeterDefense)/2)
 	stars := getStarRating(overall)
@@ -1190,7 +1194,7 @@ func createInternationalPlayer(teamID uint, team, country, ethnicity, position s
 
 	player.SetID(id)
 	player.SetAttributes(shooting2, shooting3, finishing, freeThrow, ballwork, rebounding, interiorDefense, perimeterDefense, overall, stars, expectations)
-
+	player.SetDisciplineAndIR(discipline, injuryRating)
 	if age > 18 && age < 25 {
 		diff := 24 - age
 

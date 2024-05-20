@@ -114,7 +114,7 @@ func handleRequests() {
 	// myRouter.HandleFunc("/admin/generate/international", controller.GenerateInternationalPlayers).Methods("GET")
 	// myRouter.HandleFunc("/admin/allocate/international/rosters", controller.GenerateInternationalRoster).Methods("GET")
 	// myRouter.HandleFunc("/admin/fix/nba/records", controller.FixNBASeasonTables).Methods("GET")
-	// myRouter.HandleFunc("/generate/playtime/expectations", controller.GenerateNewAttributes).Methods("GET")
+	// myRouter.HandleFunc("/generate/new/attributes", controller.GenerateNewAttributes).Methods("GET")
 	// myRouter.HandleFunc("/fix/nba/matches", controller.SwapNBATeamsTEMP).Methods("GET")
 
 	// Import
