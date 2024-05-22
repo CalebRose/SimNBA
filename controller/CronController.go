@@ -53,7 +53,7 @@ func SyncRecruitingViaCron() {
 			// managers.EnterTheTransferPortal()
 		} else if ts.TransferPortalPhase == 3 {
 			// Run Transfer Portal (Rounds 1-10)
-			managers.SyncTransferPortal()
+			// managers.SyncTransferPortal()
 		}
 	}
 
