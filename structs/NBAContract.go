@@ -84,6 +84,29 @@ func (n *NBAContract) MapFromOffer(o NBAContractOffer) {
 	n.IsActive = true
 }
 
+func (n *NBAContract) MapFromExtension(e NBAExtensionOffer) {
+	n.PlayerID = e.NBAPlayerID
+	n.TeamID = e.TeamID
+	n.Team = e.Team
+	n.OriginalTeam = e.Team
+	n.OriginalTeamID = e.TeamID
+	n.YearsRemaining = e.TotalYears
+	n.ContractType = e.ContractType
+	n.TotalRemaining = e.TotalCost
+	n.Year1Opt = e.Year1Opt
+	n.Year1Total = e.Year1Total
+	n.Year2Opt = e.Year2Opt
+	n.Year2Total = e.Year2Total
+	n.Year3Opt = e.Year3Opt
+	n.Year3Total = e.Year3Total
+	n.Year4Opt = e.Year4Opt
+	n.Year4Total = e.Year4Total
+	n.Year5Opt = e.Year5Opt
+	n.Year5Total = e.Year5Total
+	n.IsActive = true
+	n.CalculateContract()
+}
+
 func (c *NBAContract) CalculateContract() {
 	// Calculate Value
 	y1BonusVal := c.Year1Total * 1

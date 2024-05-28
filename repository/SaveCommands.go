@@ -38,6 +38,13 @@ func SaveProfessionalPlayerRecord(player structs.NBAPlayer, db *gorm.DB) {
 	}
 }
 
+func SaveProfessionalContractRecord(contract structs.NBAContract, db *gorm.DB) {
+	err := db.Save(&contract).Error
+	if err != nil {
+		log.Panicln("Could not save player record")
+	}
+}
+
 func SaveTransferPortalProfile(profile structs.TransferPortalProfile, db *gorm.DB) {
 	profile.CollegePlayer = structs.CollegePlayer{}
 	profile.Promise = structs.CollegePromise{}

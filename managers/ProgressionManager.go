@@ -59,6 +59,9 @@ func ProgressionMain() {
 func ProgressNBAPlayers() {
 	db := dbprovider.GetInstance().GetDB()
 	ts := GetTimestamp()
+	if ts.ProgressedProfessionalPlayers {
+		return
+	}
 	fmt.Println(time.Now().UnixNano())
 
 	nbaTeams := GetAllActiveNBATeams()
@@ -71,21 +74,37 @@ func ProgressNBAPlayers() {
 		roster := GetAllNBAPlayersByTeamID(teamID)
 
 		for _, player := range roster {
+			if player.HasProgressed {
+				continue
+			}
 			playerID := strconv.Itoa(int(player.ID))
 			player = ProgressNBAPlayer(player, false)
-
 			contract := GetNBAContractsByPlayerID(playerID)
 			// Retiring Logic
 			willPlayerRetire := util.WillPlayerRetire(player.Age, player.Overall)
-			if willPlayerRetire {
+			isInternationalProspect := player.IsIntGenerated
+			willDeclare := InternationalDeclaration(player, isInternationalProspect)
+			if willDeclare {
+				message := player.TeamAbbr + " " + player.Position + " " + player.FirstName + " " + player.LastName + " from " + player.Country + " has declared for the SimNBA Draft!"
+				CreateNewsLog("NBA", message, "Draft", 0, ts)
+				// Create NBA Draftee Record
+				player.BecomeInternationalDraftee()
+				// Void contract
+				contract.DeactivateContract()
+				repository.SaveProfessionalPlayerRecord(player, db)
+				repository.SaveProfessionalContractRecord(contract, db)
+				repository.CreateInternationalDrafteeRecord(player, db)
+			} else if willPlayerRetire {
 				player.SetRetiringStatus()
+				message := player.TeamAbbr + " " + player.Position + " " + player.FirstName + " " + player.LastName + " has announced his retirement. He retires at " + strconv.Itoa(player.Age) + " years old and played professionally for " + strconv.Itoa(player.Year) + " years."
+				CreateNewsLog("NBA", message, "Retirement", 0, ts)
 				retiringPlayer := (structs.RetiredPlayer)(player)
 				contract.RetireContract()
-				db.Save(&contract)
-				db.Create(&retiringPlayer)
-				db.Delete(&player)
+				repository.SaveProfessionalContractRecord(contract, db)
+				repository.CreateRetireeRecord(retiringPlayer, db)
+				repository.DeleteProfessionalPlayerRecord(player, db)
 			} else {
-				if player.IsMVP || player.IsDPOY || player.IsFirstTeamANBA {
+				if (player.IsMVP || player.IsDPOY || player.IsFirstTeamANBA) && player.Overall > 90 {
 					player.QualifyForSuperMax()
 				} else if player.Overall > 94 {
 					player.QualifiesForMax()
@@ -93,17 +112,36 @@ func ProgressNBAPlayers() {
 					player.DoesNotQualify()
 				}
 				contract.ProgressContract()
-				if contract.YearsRemaining == 0 && !contract.IsActive {
-					player.BecomeFreeAgent()
+				if contract.YearsRemaining == 0 && !contract.IsActive && contract.IsComplete {
+					extensions := GetExtensionOffersByPlayerID(playerID)
+					acceptedExtension := structs.NBAExtensionOffer{}
+					for _, e := range extensions {
+						if !e.IsAccepted {
+							repository.DeleteExtension(e, db)
+							continue
+						}
+						acceptedExtension = e
+						break
+					}
+					if acceptedExtension.ID > 0 {
+						contract.MapFromExtension(acceptedExtension)
+						player.AssignMinimumContractValue(contract.ContractValue)
+						message := "Breaking News: " + player.Position + " " + player.FirstName + " " + player.LastName + " has official signed his extended offer with " + player.TeamAbbr + " for $" + strconv.Itoa(int(contract.ContractValue)) + " Million Dollars!"
+						CreateNewsLog("NBA", message, "Free Agency", int(player.TeamID), ts)
+						repository.DeleteExtension(acceptedExtension, db)
+					} else {
+						player.BecomeFreeAgent()
+					}
 				}
-
-				db.Save(&contract)
-				db.Save(&player)
+				if contract.ID > 0 {
+					repository.SaveProfessionalContractRecord(contract, db)
+				}
+				repository.SaveProfessionalPlayerRecord(player, db)
 			}
 		}
 	}
 	ts.ToggleProfessionalProgression()
-	db.Save(&ts)
+	repository.SaveTimeStamp(ts, db)
 }
 
 func ProgressNBAPlayer(np structs.NBAPlayer, isISLGen bool) structs.NBAPlayer {
@@ -628,7 +666,7 @@ func calculateMaxProgression(progression, progressionCheck int, spec bool) int {
 }
 
 func adjustForAge(ageDifference, max int) int {
-	regressionMax := util.Min(ageDifference, 4)
+	regressionMax := util.Min(ageDifference, 5)
 	regressionChange := util.GenerateIntFromRange(1, 10)
 	if regressionChange <= ageDifference {
 		return max - regressionMax

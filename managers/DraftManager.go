@@ -435,6 +435,38 @@ func DetermineIfDeclaring(player structs.CollegePlayer) bool {
 	return false
 }
 
+func InternationalDeclaration(player structs.NBAPlayer, isEligible bool) bool {
+	// Redshirt senior or just a senior
+	if !isEligible {
+		return false
+	}
+	ovr := player.Overall
+	if ovr < 60 {
+		return false
+	}
+	odds := util.GenerateIntFromRange(1, 100)
+	if ovr > 60 && odds <= 20 {
+		return true
+	} else if ovr > 64 && odds <= 35 {
+		return true
+	} else if ovr > 67 && odds <= 40 {
+		return true
+	} else if ovr > 69 && odds <= 50 {
+		return true
+	} else if ovr > 72 && odds <= 75 {
+		return true
+	} else if ovr > 74 && odds <= 80 {
+		return true
+	} else if ovr > 76 && odds <= 85 {
+		return true
+	} else if ovr > 79 && odds <= 95 {
+		return true
+	} else if ovr > 84 {
+		return true
+	}
+	return false
+}
+
 func ExportDraftedPlayers(picks []structs.DraftPick) bool {
 	db := dbprovider.GetInstance().GetDB()
 

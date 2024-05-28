@@ -374,6 +374,21 @@ func GetTransferPortalPlayers() []structs.CollegePlayer {
 	return players
 }
 
+func GetAllYouthDevelopmentPlayers() []structs.NBAPlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var players []structs.NBAPlayer
+
+	db.Where("is_international = ? AND age < ? and country != ? AND team_id = ?", true, "23", "USA", "0").Find(&players)
+
+	return players
+}
+
+func GetYouthDevelopmentPlayerCount() int {
+	players := GetAllYouthDevelopmentPlayers()
+	return len(players)
+}
+
 func GetTransferPortalPlayersForPage() []structs.TransferPlayerResponse {
 	db := dbprovider.GetInstance().GetDB()
 

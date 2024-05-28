@@ -28,6 +28,7 @@ type NBAPlayer struct {
 	IsDPOY              bool
 	IsMVP               bool
 	IsInternational     bool
+	IsIntGenerated      bool
 	IsRetiring          bool
 	IsAcceptingOffers   bool
 	IsNegotiating       bool
@@ -75,6 +76,17 @@ func (n *NBAPlayer) BecomeFreeAgent() {
 	n.ResetMinutes()
 }
 
+func (n *NBAPlayer) BecomeInternationalDraftee() {
+	n.TeamAbbr = "DRAFT"
+	n.TeamID = 0
+	n.IsFreeAgent = false
+	n.IsOnTradeBlock = false
+	n.IsGLeague = false
+	n.IsTwoWay = false
+	n.IsAcceptingOffers = false
+	n.ResetMinutes()
+}
+
 func (n *NBAPlayer) SignWithTeam(teamID uint, team string) {
 	n.TeamAbbr = team
 	n.TeamID = teamID
@@ -93,6 +105,7 @@ func (n *NBAPlayer) SignWithTeam(teamID uint, team string) {
 }
 
 func (n *NBAPlayer) Progress(p NBAPlayerProgressions) {
+	n.HasProgressed = true
 	n.Shooting2 += p.Shooting2
 	n.Shooting3 += p.Shooting3
 	n.FreeThrow += p.FreeThrow
@@ -108,6 +121,7 @@ func (n *NBAPlayer) Progress(p NBAPlayerProgressions) {
 		n.Stamina = 1
 	}
 	n.Year++
+	n.ResetMinutes()
 }
 func (n *NBAPlayer) QualifyForSuperMax() {
 	n.IsSuperMaxQualified = true

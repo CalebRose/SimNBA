@@ -311,7 +311,7 @@ func main() {
 	fmt.Println("Database initialized.")
 
 	fmt.Println("Loading cron...")
-	// handleCron()
+	handleCron()
 
 	fmt.Println("Loading Requests...")
 	handleRequests()
