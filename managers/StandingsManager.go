@@ -392,7 +392,7 @@ func GetCollegeStandingsMap(seasonID string) map[uint]structs.CollegeStandings {
 func ProgressStandings() {
 	db := dbprovider.GetInstance().GetDB()
 	ts := GetTimestamp()
-	seasonID := strconv.Itoa(int(ts.SeasonID))
+	seasonID := strconv.Itoa(int(ts.SeasonID - 1))
 	teams := GetAllActiveCollegeTeams()
 
 	teamProfileMap := GetTeamProfileMap()

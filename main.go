@@ -256,6 +256,7 @@ func handleRequests() {
 
 	// Transfer Intentions
 	myRouter.HandleFunc("/portal/transfer/intention", controller.ProcessTransferIntention).Methods("GET")
+	myRouter.HandleFunc("/portal/transfer/sync", controller.SyncTransferPortal).Methods("GET")
 	myRouter.HandleFunc("/portal/ai/generate/profiles", controller.FillUpTransferBoardsAI).Methods("GET")
 	myRouter.HandleFunc("/portal/ai/allocate/profiles", controller.AllocateAndPromisePlayersAI).Methods("GET")
 	myRouter.HandleFunc("/portal/page/data/{teamID}", controller.GetTransferPortalPageData).Methods("GET")
@@ -310,7 +311,7 @@ func main() {
 	fmt.Println("Database initialized.")
 
 	fmt.Println("Loading cron...")
-	handleCron()
+	// handleCron()
 
 	fmt.Println("Loading Requests...")
 	handleRequests()

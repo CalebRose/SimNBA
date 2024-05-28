@@ -53,12 +53,12 @@ func SyncRecruitingViaCron() {
 			// managers.EnterTheTransferPortal()
 		} else if ts.TransferPortalPhase == 3 {
 			// Run Transfer Portal (Rounds 1-10)
-			// managers.SyncTransferPortal()
+			managers.SyncTransferPortal()
 		}
 	}
 
 	if ts.RunCron && ts.IsOffSeason && !ts.CollegeSeasonOver && !ts.CrootsGenerated {
-		managers.GenerateCroots()
+		// managers.GenerateCroots()
 		// Reset Team Profiles, allocate bonus points where necessary
 		managers.ProgressStandings()
 		managers.GenerateCollegeStandings()

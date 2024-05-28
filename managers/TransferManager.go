@@ -645,7 +645,7 @@ func AICoachFillBoardsPhase() {
 			}
 
 			diceRoll := util.GenerateIntFromRange(1, 50)
-			if teamProfile.ID == 368 || teamProfile.ID == 367 || teamProfile.ID == 369 || teamProfile.ID == 366 {
+			if teamProfile.ID == 353 || teamProfile.ID == 367 {
 				diceRoll -= 20
 			}
 			if diceRoll < biasMod {
@@ -974,7 +974,7 @@ func SyncTransferPortal() {
 			}
 		}
 
-		if (teamCount == 1 && minSpendingCount == 2) || (teamCount > 1 && minSpendingCount > 3 || ts.TransferPortalRound == 10) {
+		if (teamCount == 1 && minSpendingCount >= 2) || (teamCount > 1 && minSpendingCount > 3 || ts.TransferPortalRound == 10) {
 			// threshold met
 			readyToSign = true
 		}
@@ -1005,7 +1005,7 @@ func SyncTransferPortal() {
 
 					teamProfile := teamProfileMap[winningTeamIDSTR]
 					currentRoster := rosterMap[teamProfile.ID]
-					if len(currentRoster) <= 13 {
+					if len(currentRoster) < 13 {
 						portalPlayer.SignWithNewTeam(teamProfile.ID, teamProfile.TeamAbbr)
 						message := portalPlayer.FirstName + " " + portalPlayer.LastName + ", " + strconv.Itoa(portalPlayer.Stars) + " star " + portalPlayer.Position + " from " + portalPlayer.PreviousTeam + " has signed with " + portalPlayer.TeamAbbr + " with " + strconv.Itoa(int(odds)) + " percent odds."
 						CreateNewsLog("CBB", message, "Transfer Portal", int(winningTeamID), ts)
