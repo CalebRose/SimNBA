@@ -286,6 +286,19 @@ func GetLatestWaiverOfferInDB(db *gorm.DB) uint {
 	return latestOffer.ID + 1
 }
 
+func GetExtensionOffersByPlayerID(PlayerID string) []structs.NBAExtensionOffer {
+	db := dbprovider.GetInstance().GetDB()
+
+	offer := []structs.NBAExtensionOffer{}
+
+	err := db.Where("nba_player_id = ?", PlayerID).Find(&offer).Error
+	if err != nil {
+		return offer
+	}
+
+	return offer
+}
+
 func GetExtensionOfferByOfferID(OfferID string) structs.NBAExtensionOffer {
 	db := dbprovider.GetInstance().GetDB()
 

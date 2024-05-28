@@ -646,163 +646,61 @@ func GenerateInternationalPlayers() {
 	newID := lastPlayerRecord.ID + 1
 
 	nameMap := getInternationalNameMap()
+	requiredLimit := 1000
+	poolCount := GetYouthDevelopmentPlayerCount()
 	var positionList []string = []string{"PG", "SG", "PF", "SF", "C"}
+	countryList := []string{}
 
-	// Get all ISL teams
-	allProfessionalTeams := GetAllActiveNBATeams()
+	for poolCount < requiredLimit {
+		pickedPosition := util.PickFromStringList(positionList)
+		country := util.PickFromStringList(countryList)
+		pickedEthnicity := pickISLEthnicity(country)
+		year := 1
+		countryNames := nameMap[pickedEthnicity]
+		player := createInternationalPlayer(0, "", country, pickedEthnicity, pickedPosition, year, countryNames["first_names"], countryNames["last_names"], newID)
 
-	for _, team := range allProfessionalTeams {
-		// If an NBA team, skip
-		if team.LeagueID == 1 {
-			continue
-		}
-		count := 0
-		teamID := strconv.Itoa(int(team.ID))
-		currentPlayers := GetAllNBAPlayersByTeamID(teamID)
-		requiredPlayers := 9 - len(currentPlayers)
-
-		teamNeedsMap := make(map[string]bool)
-		positionCount := make(map[string]int)
-
-		if _, ok := teamNeedsMap["PG"]; !ok {
-			teamNeedsMap["PG"] = true
-		}
-		if _, ok := teamNeedsMap["SG"]; !ok {
-			teamNeedsMap["SG"] = true
-		}
-		if _, ok := teamNeedsMap["SF"]; !ok {
-			teamNeedsMap["SF"] = true
-		}
-		if _, ok := teamNeedsMap["PF"]; !ok {
-			teamNeedsMap["PF"] = true
-		}
-		if _, ok := teamNeedsMap["C"]; !ok {
-			teamNeedsMap["C"] = true
-		}
-
-		if _, ok := positionCount["PG"]; !ok {
-			positionCount["PG"] = 0
-		}
-		if _, ok := positionCount["SG"]; !ok {
-			positionCount["SG"] = 0
-		}
-		if _, ok := positionCount["SF"]; !ok {
-			positionCount["SF"] = 0
-		}
-		if _, ok := positionCount["PF"]; !ok {
-			positionCount["PF"] = 0
-		}
-		if _, ok := positionCount["C"]; !ok {
-			positionCount["C"] = 0
+		// yearsRemaining := 2
+		// if player.Age < 22 {
+		// 	yearsRemaining = 22 - player.Age
+		// 	if yearsRemaining > 5 {
+		// 		yearsRemaining = 5
+		// 	}
+		// }
+		// for i := 1; i <= yearsRemaining; i++ {
+		// 	if i == 1 {
+		// 		year1Salary = 0.5
+		// 	}
+		// 	if i == 2 {
+		// 		year2Salary = 0.5
+		// 	}
+		// 	if i == 3 {
+		// 		year3Salary = 0.5
+		// 	}
+		// 	if i == 4 {
+		// 		year4Salary = 0.5
+		// 	}
+		// 	if i == 5 {
+		// 		year5Salary = 0.5
+		// 	}
+		// }
+		err := db.Create(&player).Error
+		if err != nil {
+			log.Panicln("Could not save player record")
 		}
 
-		for _, r := range currentPlayers {
-			positionCount[r.Position] += 1
+		globalPlayer := structs.GlobalPlayer{
+			CollegePlayerID: newID,
+			RecruitID:       newID,
+			NBAPlayerID:     newID,
 		}
 
-		if positionCount["PG"] >= 3 {
-			teamNeedsMap["PG"] = false
-		} else if positionCount["SG"] >= 4 {
-			teamNeedsMap["SG"] = false
-		} else if positionCount["SF"] >= 4 {
-			teamNeedsMap["SF"] = false
-		} else if positionCount["PF"] >= 4 {
-			teamNeedsMap["PF"] = false
-		} else if positionCount["C"] >= 3 {
-			teamNeedsMap["C"] = false
-		}
+		globalPlayer.SetID(newID)
 
-		positionNeedList := []string{}
+		db.Create(&globalPlayer)
 
-		for _, pos := range positionList {
-			if (pos == "PG" || pos == "C") && positionCount[pos] >= 3 {
-				continue
-			}
-			if (pos == "SG" || pos == "SF" || pos == "PF") && positionCount[pos] >= 4 {
-				continue
-			}
-			positionNeedList = append(positionNeedList, pos)
-		}
-
-		// Generate nine international players from the team's host country
-		for requiredPlayers > 0 && count < requiredPlayers {
-			pickedPosition := util.PickFromStringList(positionNeedList)
-			pickedEthnicity := pickISLEthnicity(team.Country)
-			year := 1
-			countryNames := nameMap[pickedEthnicity]
-			player := createInternationalPlayer(team.ID, team.Team, team.Country, pickedEthnicity, pickedPosition, year, countryNames["first_names"], countryNames["last_names"], newID)
-
-			year1Salary := 0.0
-			year2Salary := 0.0
-			year3Salary := 0.0
-			year4Salary := 0.0
-			year5Salary := 0.0
-			yearsRemaining := 2
-			if player.Age < 22 {
-				yearsRemaining = 22 - player.Age
-				if yearsRemaining > 5 {
-					yearsRemaining = 5
-				}
-			}
-			for i := 1; i <= yearsRemaining; i++ {
-				if i == 1 {
-					year1Salary = 0.5
-				}
-				if i == 2 {
-					year2Salary = 0.5
-				}
-				if i == 3 {
-					year3Salary = 0.5
-				}
-				if i == 4 {
-					year4Salary = 0.5
-				}
-				if i == 5 {
-					year5Salary = 0.5
-				}
-			}
-			contract := structs.NBAContract{
-				PlayerID:       player.PlayerID,
-				TeamID:         player.TeamID,
-				Team:           player.TeamAbbr,
-				OriginalTeamID: player.TeamID,
-				OriginalTeam:   player.TeamAbbr,
-				YearsRemaining: uint(yearsRemaining),
-				ContractType:   "International",
-				TotalRemaining: year1Salary + year2Salary + year3Salary + year4Salary + year5Salary,
-				Year1Total:     year1Salary,
-				Year2Total:     year2Salary,
-				Year3Total:     year3Salary,
-				Year4Total:     year4Salary,
-				Year5Total:     year5Salary,
-				IsActive:       true,
-			}
-
-			err := db.Create(&player).Error
-			if err != nil {
-				log.Panicln("Could not save player record")
-			}
-
-			err = db.Create(&contract).Error
-			if err != nil {
-				log.Panicln("Could not save player record")
-			}
-
-			globalPlayer := structs.GlobalPlayer{
-				CollegePlayerID: newID,
-				RecruitID:       newID,
-				NBAPlayerID:     newID,
-			}
-
-			globalPlayer.SetID(newID)
-
-			db.Create(&globalPlayer)
-
-			count++
-			newID++
-		}
+		poolCount++
+		newID++
 	}
-	// return playerList
 }
 
 func CleanUpRecruits() {
@@ -1473,76 +1371,208 @@ func pickISLEthnicity(country string) string {
 
 func pickLocale(country string) string {
 	countryMap := map[string][]string{
-		"England":        {"en_GB", "en_US"},
-		"Australia":      {"en_AU"},
-		"Scotland":       {"en_GB", "en_IE"},
-		"Spain":          {"es_ES"},
-		"Italy":          {"it_IT"},
-		"Bulgaria":       {"bg_BG"},
-		"Bosnia":         {"bs_BA"},
-		"Czech Republic": {"cs_CZ", "bg_BG"},
-		"Latvia":         {"lv_LV"},
-		"Poland":         {"pl_PL"},
-		"Estonia":        {"et_EE"},
-		"Ukraine":        {"uk_UA"},
-		"France":         {"fr_FR"},
-		"Andorra":        {"fr_FR", "es_ES"},
-		"Germany":        {"de_AT", "de_CH", "de_DE"},
-		"Belgium":        {"nl_BE", "nl_NL", "fr_FR"},
-		"Netherlands":    {"nl_BE", "nl_NL", "de_DE"},
-		"Turkey":         {"tr_TR"},
-		"Greece":         {"el_GR"},
-		"Israel":         {"ar_JO"},
-		"Jordan":         {"ar_JO"},
-		"Lithuania":      {"lt_LT"},
-		"Serbia":         {"bs_BA", "sl_SI", "ro_RO"},
-		"Morocco":        {""},
-		"Egypt":          {""},
-		"Mexico":         {"es_MX"},
-		"Argentina":      {"es_MX"},
-		"Brazil":         {"es_MX", "pt_BR"},
-		"China":          {"zh_CN"},
-		"HK":             {"zh_CN"},
-		"Japan":          {"jp_JP"},
-		"South Korea":    {"ko_KR"},
-		"Taiwan":         {"zh_TW"},
-		"Phillipines":    {"en_PH", "es_ES"},
-		"New Zealand":    {"en_NZ", "en_AU"},
-		"India":          {"en_IN"},
-		"Finland":        {""},
-		"Denmark":        {""},
-		"Sweden":         {""},
-		"Iceland":        {""},
-		"Norway":         {""},
-		"Russia":         {""},
-		"Croatia":        {""},
-		"Kazakhstan":     {""},
-		"Qatar":          {""},
-		"Lebanon":        {""},
-		"Kuwait":         {""},
-		"Chile":          {""},
-		"Colombia":       {""},
-		"Nicaragua":      {""},
-		"Panama":         {""},
-		"Puerto Rico":    {""},
-		"Uruguay":        {""},
-		"UAE":            {""},
-		"Hungary":        {""},
-		"Kosovo":         {""},
-		"Montenegro":     {""},
-		"Romania":        {""},
-		"Slovenia":       {""},
-		"Cyprus":         {""},
-		"Azerbaijan":     {""},
-		"Bahrain":        {""},
-		"Indonesia":      {""},
-		"Malaysia":       {""},
-		"Singapore":      {""},
-		"Thailand":       {""},
-		"Vietnam":        {""},
+		"England":            {"en_GB", "en_US"},
+		"Scotland":           {"en_GB", "en_IE"},
+		"Austria":            {"de_AT"},
+		"Canada":             {"fr_CA", "en_CA"},
+		"Ireland":            {"en_IE"},
+		"Wales":              {"en_GB", "en_IE"},
+		"Spain":              {"es_ES"},
+		"Malta":              {"es_ES"},
+		"Italy":              {"it_IT"},
+		"Portugal":           {"pt_PT"},
+		"France":             {"fr_FR", "fr_CA"},
+		"Switzerland":        {"fr_FR", "de_DE"},
+		"Andorra":            {"fr_FR", "es_ES"},
+		"Germany":            {"de_AT", "de_CH", "de_DE"},
+		"Belgium":            {"nl_BE", "nl_NL", "fr_FR"},
+		"Netherlands":        {"nl_BE", "nl_NL", "de_DE"},
+		"Lithuania":          {"lt_LT"},
+		"Latvia":             {"lv_LV", "lt_LT"},
+		"Poland":             {"pl_PL"},
+		"Finland":            {"sv_SE", "fi_FI"},
+		"Denmark":            {"dk_DK", "no_NO"},
+		"Sweden":             {"sv_SE", "no_NO"},
+		"Iceland":            {"sv_SE", "no_NO"},
+		"Norway":             {"no_NO"},
+		"Bulgaria":           {"bg_BG", "ro_RO"},
+		"Serbia":             {"bs_BA", "sl_SI", "ro_RO", "bg_BG"},
+		"Croatia":            {"hu_HU", "sl_SI", "hr_HR"},
+		"Hungary":            {"sl_SI", "hu_HU"},
+		"Bosnia":             {"bs_BA", "ro_RO", "sl_SI"},
+		"Czech Republic":     {"cs_CZ", "bg_BG"},
+		"Estonia":            {"et_EE", "lt_LT"},
+		"Kosovo":             {"sl_SI", "ro_RO"},
+		"Montenegro":         {"sl_SI", "ro_RO"},
+		"Romania":            {"sl_SI", "ru_RU", "ro_RO", "bg_BG"},
+		"Moldova":            {"uk_UA", "ru_RU", "ro_RO"},
+		"Slovenia":           {"sl_SI", "ro_RO", "bg_BG"},
+		"Cyprus":             {"el_GR", "tr_TR"},
+		"Turkey":             {"tr_TR"},
+		"Greece":             {"el_GR", "tr_TR"},
+		"Albania":            {"el_GR"},
+		"North Macedonia":    {"el_GR"},
+		"Mexico":             {"es_MX"},
+		"Argentina":          {"es_MX"},
+		"Brazil":             {"es_MX", "pt_BR"},
+		"China":              {"zh_CN"},
+		"HK":                 {"zh_CN"},
+		"Japan":              {"jp_JP"},
+		"South Korea":        {"ko_KR"},
+		"Taiwan":             {"zh_TW"},
+		"Phillipines":        {"en_PH", "es_ES"},
+		"Indonesia":          {"my_MY", "zh_CN"},
+		"Malaysia":           {"ms_MY", "vi_VN", "th_TH", "zh_CN"},
+		"Singapore":          {"zh_CN", "th_TH"},
+		"Laos":               {"zh_CN", "vi_VN"},
+		"Myanmar":            {"zh_CN", "th_TH"},
+		"Cambodia":           {"zh_CN", "vi_VN"},
+		"Thailand":           {"en_TH"},
+		"Vietnam":            {"vi_VN"},
+		"Papua New Guinea":   {"en_PH", "en_NZ"},
+		"Solomon Islands":    {"en_PH", "en_NZ"},
+		"New Caledonia":      {"en_PH", "en_NZ"},
+		"Fiji":               {"en_PH", "en_NZ"},
+		"French Polynesia":   {"en_PH", "en_NZ"},
+		"Vanuatu":            {"en_PH", "en_NZ"},
+		"Australia":          {"en_AU"},
+		"New Zealand":        {"en_NZ"},
+		"Chile":              {"es_MX"},
+		"Colombia":           {"es_MX"},
+		"Guatemala":          {"es_MX"},
+		"Dominican Republic": {"es_MX"},
+		"The Bahamas":        {"es_MX"},
+		"El Salvador":        {"es_MX"},
+		"Belize":             {"es_MX"},
+		"Honduras":           {"es_MX"},
+		"Trinidad":           {"es_MX"},
+		"French Guiana":      {"es_MX", "fr_FR"},
+		"Jamaica":            {"es_MX", "zu_ZA"},
+		"Haiti":              {"es_MX", "zu_ZA"},
+		"Costa Rica":         {"es_MX"},
+		"Nicaragua":          {"es_MX"},
+		"Panama":             {"es_MX"},
+		"Cuba":               {"es_MX"},
+		"Puerto Rico":        {"es_MX"},
+		"Venezuela":          {"es_MX"},
+		"Guyana":             {"es_MX"},
+		"Peru":               {"es_MX"},
+		"Paraguay":           {"es_MX"},
+		"Sierra Leone":       {"es_MX"},
+		"Uruguay":            {"pt_PT", "es_MX", "pt_BR"},
+		"Azerbaijan":         {"uk_UA", "hy_AM", "az_AZ"},
+		"Georgia":            {"uk_UA", "hy_AM", "az_AZ"},
+		"Armenia":            {"hy_AM", "az_AZ"},
+		"Ukraine":            {"uk_UA"},
+		"Russia":             {"ru_RU"},
+		"Tajikistan":         {"ar_SA", "ru_RU"},
+		"Kyrgyzstan":         {"zh_CN", "ru_RU"},
+		"Kazakhstan":         {"tr_TR", "ru_RU"},
+		"Uzbekistan":         {"tr_TR", "ru_RU"},
+		"Turkmenistan":       {"ar_SA", "ru_RU"},
+		"Mongolia":           {"ru_RU", "zh_CN"},
+		"Nepal":              {"zh_CN"},
+		"Bangladesh":         {"en_IN"},
+		"India":              {"en_IN"},
+		"Pakistan":           {"id_ID", "en_IN"},
+		"Ethiopia":           {"sa_SA", "zu_ZA"},
+		"Chad":               {"sa_SA"},
+		"Senegal":            {"sa_SA"},
+		"Algeria":            {"sa_SA", "ar_EG"},
+		"Togo":               {"sa_SA"},
+		"Cameroon":           {"sa_SA"},
+		"Eritrea":            {"sa_SA"},
+		"Liberia":            {"sa_SA"},
+		"Libya":              {"sa_SA", "ar_EG"},
+		"Tanzania":           {"sa_SA"},
+		"Guinea":             {"sa_SA"},
+		"The Gambia":         {"sa_SA"},
+		"Mali":               {"sa_SA"},
+		"Niger":              {"sa_SA"},
+		"Benin":              {"sa_SA"},
+		"Gabon":              {"sa_SA"},
+		"Angola":             {"sa_SA"},
+		"Malawi":             {"sa_SA"},
+		"Namibia":            {"sa_SA"},
+		"Botswana":           {"sa_SA"},
+		"South Africa":       {"sa_SA"},
+		"Zimbabwe":           {"sa_SA"},
+		"Mozambique":         {"sa_SA"},
+		"Madagascar":         {"sa_SA"},
+		"Kenya":              {"sa_SA"},
+		"Somalia":            {"sa_SA"},
+		"Djibouti":           {"sa_SA"},
+		"Sudan":              {"sa_SA"},
+		"Rwanda":             {"sa_SA"},
+		"Uganda":             {"sa_SA"},
+		"DRC":                {"sa_SA"},
+		"South Sudan":        {"sa_SA"},
+		"Burundi":            {"sa_SA"},
+		"Ivory Coast":        {"sa_SA"},
+		"Tunisia":            {"sa_SA", "ar_EG"},
+		"Zambia":             {"sa_SA"},
+		"Morocco":            {"ar_EG", "sa_SA"},
+		"Egypt":              {"ar_EG"},
+		"Palistine":          {"ar_EG", "ar_SA"},
+		"Israel":             {"ar_JO"},
+		"Jordan":             {"ar_JO"},
+		"Lebanon":            {"ar_EG", "ar_SA", "ar_JO"},
+		"Iraq":               {"ar_EG", "ar_SA"},
+		"Iran":               {"ar_EG", "ar_SA"},
+		"Saudi Arabia":       {"ar_EG", "ar_SA"},
+		"Kuwait":             {"ar_EG", "ar_SA"},
+		"Syria":              {"ar_EG", "ar_SA"},
+		"Bahrain":            {"ar_EG", "ar_SA"},
+		"Qatar":              {"ar_EG", "ar_SA"},
+		"UAE":                {"ar_EG", "ar_SA"},
+		"Yemen":              {"ar_EG", "ar_SA"},
 	}
 	code := util.PickFromStringList(countryMap[country])
 	return code
+}
+
+func pickISLCountry() string {
+	randomNum := util.GenerateIntFromRange(1, 100)
+
+	if randomNum < 96 {
+		countries := []structs.ISLCountry{
+			{Name: "Spain", Weight: 4}, {Name: "France", Weight: 4}, {Name: "Germany", Weight: 3}, {Name: "Turkey", Weight: 2}, {Name: "England", Weight: 2}, {Name: "Czech Republic", Weight: 2}, {Name: "Scotland", Weight: 1},
+			{Name: "Andorra", Weight: 1}, {Name: "Belgium", Weight: 1}, {Name: "Netherlands", Weight: 1}, {Name: "Portugal", Weight: 1}, {Name: "China", Weight: 8}, {Name: "Japan", Weight: 5}, {Name: "South Korea", Weight: 4},
+			{Name: "Russia", Weight: 4}, {Name: "HK", Weight: 1}, {Name: "Kazakhstan", Weight: 1}, {Name: "Mali", Weight: 2}, {Name: "Mozambique", Weight: 2}, {Name: "Nigeria", Weight: 2}, {Name: "Algeria", Weight: 1},
+			{Name: "Angola", Weight: 1}, {Name: "Cameroon", Weight: 1}, {Name: "DRC", Weight: 1}, {Name: "Guinea", Weight: 1}, {Name: "Ivory Coast", Weight: 1}, {Name: "Madagascar", Weight: 1}, {Name: "Morocco", Weight: 1},
+			{Name: "Rwanda", Weight: 1}, {Name: "Senegal", Weight: 1}, {Name: "South Africa", Weight: 1}, {Name: "South Sudan", Weight: 1}, {Name: "Tunisia", Weight: 1}, {Name: "Uganda", Weight: 1}, {Name: "Argentina", Weight: 5},
+			{Name: "Brazil", Weight: 5}, {Name: "Mexico", Weight: 3}, {Name: "Chile", Weight: 2}, {Name: "Colombia", Weight: 1}, {Name: "Nicaragua", Weight: 1}, {Name: "Panama", Weight: 1}, {Name: "Puerto Rico", Weight: 1},
+			{Name: "Uruguay", Weight: 1}, {Name: "Italy", Weight: 3}, {Name: "Serbia", Weight: 2}, {Name: "Israel", Weight: 2}, {Name: "Greece", Weight: 2}, {Name: "Cyprus", Weight: 2}, {Name: "Bulgaria", Weight: 1}, {Name: "Croatia", Weight: 1},
+			{Name: "Hungary", Weight: 1}, {Name: "Kosovo", Weight: 1}, {Name: "Montenegro", Weight: 1}, {Name: "Romania", Weight: 1}, {Name: "Slovenia", Weight: 1}, {Name: "Ukraine", Weight: 3}, {Name: "Lithuania", Weight: 2},
+			{Name: "Denmark", Weight: 2}, {Name: "Finland", Weight: 2}, {Name: "Iceland", Weight: 2}, {Name: "Norway", Weight: 2}, {Name: "Sweden", Weight: 2}, {Name: "Latvia", Weight: 1}, {Name: "Poland", Weight: 1}, {Name: "Australia", Weight: 5},
+			{Name: "New Zealand", Weight: 3}, {Name: "Vietnam", Weight: 3}, {Name: "Philippines", Weight: 2}, {Name: "Taiwan", Weight: 2}, {Name: "Indonesia", Weight: 2}, {Name: "Malaysia", Weight: 1}, {Name: "Singapore", Weight: 1},
+			{Name: "Thailand", Weight: 1}, {Name: "Egypt", Weight: 3}, {Name: "Bahrain", Weight: 2}, {Name: "Iran", Weight: 2}, {Name: "Kuwait", Weight: 2}, {Name: "Lebanon", Weight: 2}, {Name: "Saudi Arabia", Weight: 2},
+			{Name: "Syria", Weight: 2}, {Name: "Azerbaijan", Weight: 1}, {Name: "Palestine", Weight: 1}, {Name: "Iraq", Weight: 1}, {Name: "Qatar", Weight: 1}, {Name: "UAE", Weight: 1},
+		}
+		// Calculate the total weight
+		totalWeight := 0
+		for _, country := range countries {
+			totalWeight += country.Weight
+		}
+
+		// Generate a random number between 0 and totalWeight-1
+		randomWeight := util.GenerateIntFromRange(0, totalWeight)
+		for _, country := range countries {
+			if randomWeight < country.Weight {
+				return country.Name
+			}
+			randomWeight -= country.Weight
+		}
+	}
+	return util.PickFromStringList([]string{"Dominican Republic", "Canada", "The Bahamas", "Guatemala",
+		"Ireland", "Wales", "Jamaica", "Costa Rica", "Belgium", "Colombia", "Belize", "Haiti", "El Salvador", "Ethiopia",
+		"Cuba", "Laos", "Papua New Guinea", "Chad", "Honduras", "Nicaragua", "Panama", "Finland", "Senegal", "Algeria", "Togo",
+		"Austria", "Hungary", "Venezuela", "Cameroon", "French Guiana", "Trinidad", "Croatia", "Eritrea", "Guyana",
+		"Liberia", "Libya", "Tanzania", "Peru", "Paraguay", "Sierra Leone", "Guinea", "The Gambia", "Mali",
+		"Niger", "Benin", "Gabon", "Angola", "Malawi", "Namibia", "Botswana", "Nepal", "India", "Bangladesh", "Myanmar", "Laos",
+		"Cambodia", "Tajikistan", "Kyrgyzstan", "Pakistan", "Yemen", "Uzbekistan", "Turkmenistan", "Mongolia", "Solomon Islands",
+		"New Caledonia", "Fiji", "French Polynesia", "Vanuatu", "Switzerland", "Malta", "Albania", "North Macedonia", "Moldova",
+		"Georgia", "Armenia"})
 }
 
 func pickCountry(ethnicity string) string {
