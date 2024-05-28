@@ -359,11 +359,11 @@ func ExportNBARosterToCSV(TeamID string, w http.ResponseWriter) {
 			strconv.Itoa(csvModel.Ballwork), strconv.Itoa(csvModel.Rebounding), strconv.Itoa(csvModel.InteriorDefense), strconv.Itoa(csvModel.PerimeterDefense),
 			strconv.Itoa(csvModel.PlaytimeExpectations), strconv.Itoa(csvModel.Stamina), csvModel.PotentialGrade, csvModel.Personality,
 			csvModel.FreeAgency, csvModel.WorkEthic, nbaStatus,
-			strconv.Itoa(int(csvModel.Contract.Year1Total)), strconv.FormatBool(csvModel.Contract.Year1Opt),
-			strconv.Itoa(int(csvModel.Contract.Year2Total)), strconv.FormatBool(csvModel.Contract.Year2Opt),
-			strconv.Itoa(int(csvModel.Contract.Year3Total)), strconv.FormatBool(csvModel.Contract.Year3Opt),
-			strconv.Itoa(int(csvModel.Contract.Year4Total)), strconv.FormatBool(csvModel.Contract.Year4Opt),
-			strconv.Itoa(int(csvModel.Contract.Year5Total)), strconv.FormatBool(csvModel.Contract.Year5Opt),
+			strconv.FormatFloat(csvModel.Contract.Year1Total, 'E', -1, 64), strconv.FormatBool(csvModel.Contract.Year1Opt),
+			strconv.FormatFloat(csvModel.Contract.Year2Total, 'E', -1, 64), strconv.FormatBool(csvModel.Contract.Year2Opt),
+			strconv.FormatFloat(csvModel.Contract.Year3Total, 'E', -1, 64), strconv.FormatBool(csvModel.Contract.Year3Opt),
+			strconv.FormatFloat(csvModel.Contract.Year4Total, 'E', -1, 64), strconv.FormatBool(csvModel.Contract.Year4Opt),
+			strconv.FormatFloat(csvModel.Contract.Year5Total, 'E', -1, 64), strconv.FormatBool(csvModel.Contract.Year5Opt),
 			strconv.Itoa(int(csvModel.Contract.YearsRemaining)), csvModel.Contract.ContractType,
 		}
 
