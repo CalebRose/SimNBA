@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sync"
 
 	"github.com/CalebRose/SimNBA/managers"
 	"github.com/CalebRose/SimNBA/structs"
@@ -41,16 +42,53 @@ func GetDraftPageData(w http.ResponseWriter, r *http.Request) {
 	// Get Scouting Profiles?
 	// Get full list of draftable players
 
-	warRoom := managers.GetNBAWarRoomByTeamID(teamID)
-	draftees := managers.GetNBADrafteesForDraftPage()
-	allNBATeams := managers.GetOnlyNBATeams()
-	draftPicks := managers.GetAllCurrentSeasonDraftPicks()
+	var wg sync.WaitGroup
+	wg.Add(5)
+	var (
+		warRoom         structs.NBAWarRoom
+		draftees        []structs.NBADraftee
+		allNBATeams     []structs.NBATeam
+		draftPicks      [2][]structs.DraftPick
+		allCollegeTeams []structs.Team
+	)
+
+	go func() {
+		defer wg.Done()
+		warRoom = managers.GetNBAWarRoomByTeamID(teamID)
+	}()
+
+	go func() {
+		defer wg.Done()
+		draftees = managers.GetNBADrafteesForDraftPage()
+	}()
+
+	// GetAllNFLTeams
+	go func() {
+		defer wg.Done()
+		allNBATeams = managers.GetOnlyNBATeams()
+	}()
+
+	// GetAllCurrentSeasonDraftPicksForDraftRoom
+	go func() {
+		defer wg.Done()
+		draftPicks = managers.GetAllCurrentSeasonDraftPicks()
+	}()
+
+	// GetAllCollegeTeams
+	go func() {
+		defer wg.Done()
+		allCollegeTeams = managers.GetAllActiveCollegeTeams()
+	}()
+
+	// Wait for all goroutines to complete
+	wg.Wait()
 
 	res := structs.NBADraftPageResponse{
 		WarRoom:          warRoom,
 		DraftablePlayers: draftees,
 		NBATeams:         allNBATeams,
 		AllDraftPicks:    draftPicks,
+		CollegeTeams:     allCollegeTeams,
 	}
 
 	json.NewEncoder(w).Encode(res)

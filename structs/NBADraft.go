@@ -6,7 +6,8 @@ type NBADraftPageResponse struct {
 	WarRoom          NBAWarRoom
 	DraftablePlayers []NBADraftee
 	NBATeams         []NBATeam
-	AllDraftPicks    []DraftPick
+	AllDraftPicks    [2][]DraftPick
+	CollegeTeams     []Team
 }
 
 type NBAWarRoom struct {

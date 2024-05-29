@@ -402,15 +402,12 @@ func GenerateNewTeams() {
 	var positionList []string = []string{"PG", "SG", "PF", "SF", "C"}
 
 	for _, team := range teams {
-		if team.ID != 367 {
+		if team.ID != 364 && team.ID != 369 {
 			continue
 		}
 		// Test Generation
 		yearList := []int{}
 		players := GetCollegePlayersByTeamId(strconv.Itoa(int(team.ID)))
-		if len(players) > 0 {
-			continue
-		}
 		seniors := 3
 		juniors := 3
 		sophomores := 3
@@ -496,6 +493,10 @@ func GenerateNewTeams() {
 
 		rand.Shuffle(len(positionQueue), func(i, j int) {
 			positionQueue[i], positionQueue[j] = positionQueue[j], positionQueue[i]
+		})
+
+		rand.Shuffle(len(yearList), func(i, j int) {
+			yearList[i], yearList[j] = yearList[j], yearList[i]
 		})
 
 		for count < requiredPlayers {

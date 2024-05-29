@@ -2,6 +2,7 @@ package managers
 
 import (
 	"fmt"
+	"log"
 	"sort"
 	"strconv"
 	"time"
@@ -210,7 +211,7 @@ func DraftPredictionRound() {
 }
 
 func GetDraftPickMap() map[string]structs.DraftPick {
-	draftPicks := GetAllCurrentSeasonDraftPicks()
+	draftPicks := GetCurrentSeasonDraftPickList()
 	draftMap := make(map[string]structs.DraftPick)
 
 	for _, pick := range draftPicks {
@@ -223,7 +224,7 @@ func GetDraftPickMap() map[string]structs.DraftPick {
 	return draftMap
 }
 
-func GetAllCurrentSeasonDraftPicks() []structs.DraftPick {
+func GetCurrentSeasonDraftPickList() []structs.DraftPick {
 	db := dbprovider.GetInstance().GetDB()
 
 	ts := GetTimestamp()
@@ -233,6 +234,23 @@ func GetAllCurrentSeasonDraftPicks() []structs.DraftPick {
 	db.Order("draft_number asc").Where("season_id = ?", strconv.Itoa(int(ts.SeasonID))).Find(&draftPicks)
 
 	return draftPicks
+}
+
+func GetAllCurrentSeasonDraftPicks() [2][]structs.DraftPick {
+	draftPicks := GetCurrentSeasonDraftPickList()
+
+	draftList := [2][]structs.DraftPick{}
+	for _, pick := range draftPicks {
+		roundIdx := int(pick.DraftRound) - 1
+		if roundIdx >= 0 && roundIdx < len(draftList) {
+			draftList[roundIdx] = append(draftList[roundIdx], pick)
+		} else {
+			log.Panicln("Invalid round to insert pick!")
+		}
+
+	}
+
+	return draftList
 }
 
 func GetOnlyNBAWarRoomByTeamID(TeamID string) structs.NBAWarRoom {
