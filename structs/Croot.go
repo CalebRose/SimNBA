@@ -39,6 +39,8 @@ type Croot struct {
 	SigningStatus    string
 	IsCustomCroot    bool
 	CreatedFor       string
+	RelativeID       uint
+	Notes            string
 	LeadingTeams     []LeadingTeams
 }
 
@@ -90,6 +92,8 @@ func (c *Croot) Map(r Recruit) {
 	c.Rank247 = r.Rank247
 	c.IsCustomCroot = r.IsCustomCroot
 	c.CreatedFor = r.CreatedFor
+	c.RelativeID = r.RelativeID
+	c.Notes = r.Notes
 
 	mod := r.TopRankModifier
 	if mod == 0 {
@@ -146,7 +150,7 @@ type ByCrootRank []Croot
 func (c ByCrootRank) Len() int      { return len(c) }
 func (c ByCrootRank) Swap(i, j int) { c[i], c[j] = c[j], c[i] }
 func (c ByCrootRank) Less(i, j int) bool {
-	return c[i].TotalRank > c[j].TotalRank || c[i].Stars > c[j].Stars
+	return c[i].Stars > c[j].Stars && c[i].TotalRank > c[j].TotalRank
 }
 
 func attributeMapper(val int) string {

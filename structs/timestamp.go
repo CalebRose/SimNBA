@@ -198,6 +198,10 @@ func (t *Timestamp) IncrementTransferPortalRound() {
 	if t.TransferPortalRound < 10 {
 		t.TransferPortalRound += 1
 	}
+	if t.TransferPortalRound == 10 {
+		t.TransferPortalRound = 0
+		t.TransferPortalPhase = 0
+	}
 }
 
 func (t *Timestamp) EndTheProfessionalSeason() {

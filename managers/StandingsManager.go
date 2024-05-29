@@ -3,6 +3,7 @@ package managers
 import (
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/repository"
@@ -477,10 +478,12 @@ func GenerateNBAStandings() {
 		if coachName == "AI" || len(coachName) == 0 {
 			coachName = t.NBAOwnerName
 		}
+		label := t.Team + " " + t.Nickname
+		strippedLabel := strings.TrimSpace(label)
 		standings := structs.NBAStandings{
 			TeamID:           t.ID,
 			TeamName:         t.Team,
-			TeamAbbr:         t.Abbr,
+			TeamAbbr:         strippedLabel,
 			SeasonID:         ts.SeasonID,
 			Season:           ts.Season,
 			ConferenceID:     t.ConferenceID,

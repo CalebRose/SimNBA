@@ -225,6 +225,10 @@ func AICoachPromisePhase() {
 		}
 		teamID := strconv.Itoa(int(team.ID))
 		roster := GetCollegePlayersByTeamId(teamID)
+		// Coaches should not be putting out promises if they are over the max
+		if len(roster) > 12 {
+			continue
+		}
 		for _, p := range roster {
 			if p.TransferStatus > 1 || p.TransferStatus == 0 {
 				continue
@@ -531,6 +535,9 @@ func AICoachFillBoardsPhase() {
 		if !teamProfile.IsAI {
 			continue
 		}
+		if teamProfile.ID == 2 || teamProfile.ID == 8 || teamProfile.ID == 98 || teamProfile.ID == 106 {
+			fmt.Println(teamProfile.TeamAbbr)
+		}
 		team := teamMap[teamProfile.ID]
 		teamStandings := standingsMap[teamProfile.TeamID]
 		teamID := strconv.Itoa(int(teamProfile.ID))
@@ -645,7 +652,7 @@ func AICoachFillBoardsPhase() {
 			}
 
 			diceRoll := util.GenerateIntFromRange(1, 50)
-			if teamProfile.ID == 353 || teamProfile.ID == 367 {
+			if teamProfile.ID == 98 || teamProfile.ID == 106 {
 				diceRoll -= 20
 			}
 			if diceRoll < biasMod {
@@ -699,7 +706,7 @@ func AICoachAllocateAndPromisePhase() {
 
 		teamID := strconv.Itoa(int(teamProfile.ID))
 		roster := GetCollegePlayersByTeamId(teamID)
-		if len(roster) >= 13 {
+		if len(roster) > 12 {
 			continue
 		}
 
@@ -925,7 +932,12 @@ func SyncTransferPortal() {
 		}
 
 		// If no one has a profile on them during round 10
-		if len(portalProfiles) == 0 && ts.TransferPortalRound == 10 && len(portalPlayer.TransferLikeliness) > 0 {
+		if len(portalProfiles) == 0 && ts.TransferPortalRound == 10 {
+			roster := rosterMap[portalPlayer.PreviousTeamID]
+			if len(roster) > 12 {
+				continue
+			}
+			rosterMap[portalPlayer.PreviousTeamID] = append(rosterMap[portalPlayer.PreviousTeamID], portalPlayer)
 			portalPlayer.WillReturn()
 			db.Save(&portalPlayer)
 			continue
@@ -974,7 +986,7 @@ func SyncTransferPortal() {
 			}
 		}
 
-		if (teamCount == 1 && minSpendingCount >= 2) || (teamCount > 1 && minSpendingCount > 3 || ts.TransferPortalRound == 10) {
+		if (teamCount >= 1 && minSpendingCount >= 2) || (teamCount >= 1 && ts.TransferPortalRound == 10) {
 			// threshold met
 			readyToSign = true
 		}
@@ -999,9 +1011,10 @@ func SyncTransferPortal() {
 				if winningTeamID > 0 {
 					winningTeamIDSTR := strconv.Itoa(int(winningTeamID))
 					promise := GetCollegePromiseByCollegePlayerID(strconv.Itoa(int(portalPlayer.ID)), winningTeamIDSTR)
-
-					promise.MakePromise()
-					db.Save(&promise)
+					if promise.ID > 0 {
+						promise.MakePromise()
+						db.Save(&promise)
+					}
 
 					teamProfile := teamProfileMap[winningTeamIDSTR]
 					currentRoster := rosterMap[teamProfile.ID]
@@ -1083,7 +1096,7 @@ func GetTransferPortalProfilesByPlayerID(playerID string) []structs.TransferPort
 
 	var profiles []structs.TransferPortalProfile
 
-	db.Where("college_player_id = ?", playerID).Find(&profiles)
+	db.Where("college_player_id = ? AND removed_from_board = ?", playerID, false).Find(&profiles)
 
 	return profiles
 }

@@ -70,6 +70,10 @@ func (r *TeamRecruitingProfile) AIAllocateSpentPoints(points int) {
 	}
 }
 
+func (r *TeamRecruitingProfile) AIResetPoints() {
+	r.SpentPoints = 0
+}
+
 func (r *TeamRecruitingProfile) ResetWeeklyPoints(points int) {
 	r.WeeklyPoints = points
 }
@@ -141,4 +145,8 @@ func (r *TeamRecruitingProfile) IncreaseClassSize() {
 
 func (r *TeamRecruitingProfile) AssignBonusPoints(bonus int) {
 	r.BonusPoints = 0
+	r.RivalsScore = 0
+	r.ESPNScore = 0
+	r.Rank247Score = 0
+	r.CompositeScore = 0
 }

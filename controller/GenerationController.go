@@ -23,7 +23,12 @@ func GeneratePlayers(w http.ResponseWriter, r *http.Request) {
 }
 
 func GenerateCroots(w http.ResponseWriter, r *http.Request) {
-	managers.GenerateCroots()
+	// managers.ProgressStandings()
+	// managers.RunDeclarationsAlgorithm()
+	// managers.DetermineRecruitingClassSize()
+	// managers.GenerateCollegeStandings()
+	// managers.GenerateNBAStandings()
+	// managers.GenerateCroots()
 	json.NewEncoder(w).Encode("GENERATION COMPLETE")
 }
 

@@ -24,7 +24,7 @@ func FilterOutPortalProfile(profiles []structs.TransferPortalProfile, ID uint) [
 	var rp []structs.TransferPortalProfile
 
 	for _, profile := range profiles {
-		if profile.ID != ID {
+		if profile.ProfileID != ID {
 			rp = append(rp, profile)
 		}
 	}
