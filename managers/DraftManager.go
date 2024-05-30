@@ -502,8 +502,10 @@ func ExportDraftedPlayers(picks []structs.DraftPick) bool {
 			CollegeID:       draftee.CollegeID,
 			College:         draftee.College,
 			DraftPickID:     draftee.DraftPickID,
-			DraftedTeamID:   draftee.DraftedTeamID,
-			DraftedTeamAbbr: draftee.DraftedTeamAbbr,
+			DraftedTeamID:   pick.TeamID,
+			DraftedTeamAbbr: pick.Team,
+			DraftedRound:    pick.DraftRound,
+			DraftPick:       pick.DraftNumber,
 			PrimeAge:        uint(draftee.PrimeAge),
 			IsNBA:           true,
 		}
