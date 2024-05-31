@@ -649,13 +649,11 @@ func GenerateInternationalPlayers() {
 	nameMap := getInternationalNameMap()
 	requiredLimit := 1000
 	poolCount := GetYouthDevelopmentPlayerCount()
-	var positionList []string = []string{"PG", "SG", "PF", "SF", "C"}
-	countryList := []string{}
 
 	for poolCount < requiredLimit {
-		pickedPosition := util.PickFromStringList(positionList)
-		country := util.PickFromStringList(countryList)
-		pickedEthnicity := pickISLEthnicity(country)
+		pickedPosition := util.PickPositionFromList()
+		country := pickISLCountry()
+		pickedEthnicity := pickLocale(country)
 		year := 1
 		countryNames := nameMap[pickedEthnicity]
 		player := createInternationalPlayer(0, "", country, pickedEthnicity, pickedPosition, year, countryNames["first_names"], countryNames["last_names"], newID)
@@ -684,10 +682,7 @@ func GenerateInternationalPlayers() {
 		// 		year5Salary = 0.5
 		// 	}
 		// }
-		err := db.Create(&player).Error
-		if err != nil {
-			log.Panicln("Could not save player record")
-		}
+		repository.CreateProfessionalPlayerRecord(player, db)
 
 		globalPlayer := structs.GlobalPlayer{
 			CollegePlayerID: newID,
@@ -697,7 +692,7 @@ func GenerateInternationalPlayers() {
 
 		globalPlayer.SetID(newID)
 
-		db.Create(&globalPlayer)
+		repository.CreateGlobalPlayerRecord(globalPlayer, db)
 
 		poolCount++
 		newID++
@@ -1018,6 +1013,9 @@ func createRecruit(fName, lName, state, country, ethnicity, position string, yea
 }
 
 func createInternationalPlayer(teamID uint, team, country, ethnicity, position string, year int, firstNameList []string, lastNameList []string, id uint) structs.NBAPlayer {
+	if len(firstNameList) == 0 {
+		fmt.Println(country)
+	}
 	fName := util.PickFromStringList(firstNameList)
 	lName := util.PickFromStringList(lastNameList)
 	caser := cases.Title(language.English)
@@ -1058,7 +1056,7 @@ func createInternationalPlayer(teamID uint, team, country, ethnicity, position s
 		AcademicBias:      academicBias,
 	}
 
-	isNBAEligible := age > 21
+	isNBAEligible := age > 22
 
 	var player = structs.NBAPlayer{
 		BasePlayer:      basePlayer,
@@ -1067,6 +1065,7 @@ func createInternationalPlayer(teamID uint, team, country, ethnicity, position s
 		TeamAbbr:        team,
 		IsNBA:           isNBAEligible,
 		IsInternational: true,
+		IsIntGenerated:  true,
 		PrimeAge:        uint(primeAge),
 	}
 
@@ -1094,13 +1093,17 @@ func createInternationalPlayer(teamID uint, team, country, ethnicity, position s
 	player.SetID(id)
 	player.SetAttributes(shooting2, shooting3, finishing, freeThrow, ballwork, rebounding, interiorDefense, perimeterDefense, overall, stars, expectations)
 	player.SetDisciplineAndIR(discipline, injuryRating)
-	if age > 18 && age < 25 {
-		diff := 24 - age
+	if age > 18 && age < 23 {
+		diff := age - 18
+		if diff > 3 {
+			diff = 3
+		}
 
 		for i := 0; i < diff; i++ {
 			player = ProgressNBAPlayer(player, true)
 		}
 	}
+	player.SetAge(age)
 
 	return player
 }
@@ -1418,11 +1421,11 @@ func pickLocale(country string) string {
 		"Brazil":             {"es_MX", "pt_BR"},
 		"China":              {"zh_CN"},
 		"HK":                 {"zh_CN"},
-		"Japan":              {"jp_JP"},
+		"Japan":              {"ja_JP"},
 		"South Korea":        {"ko_KR"},
 		"Taiwan":             {"zh_TW"},
-		"Phillipines":        {"en_PH", "es_ES"},
-		"Indonesia":          {"my_MY", "zh_CN"},
+		"Philippines":        {"en_PH", "es_ES"},
+		"Indonesia":          {"ms_MY", "zh_CN"},
 		"Malaysia":           {"ms_MY", "vi_VN", "th_TH", "zh_CN"},
 		"Singapore":          {"zh_CN", "th_TH"},
 		"Laos":               {"zh_CN", "vi_VN"},
@@ -1490,6 +1493,7 @@ func pickLocale(country string) string {
 		"The Gambia":         {"sa_SA"},
 		"Mali":               {"sa_SA"},
 		"Niger":              {"sa_SA"},
+		"Nigeria":            {"sa_SA"},
 		"Benin":              {"sa_SA"},
 		"Gabon":              {"sa_SA"},
 		"Angola":             {"sa_SA"},
@@ -1514,7 +1518,7 @@ func pickLocale(country string) string {
 		"Zambia":             {"sa_SA"},
 		"Morocco":            {"ar_EG", "sa_SA"},
 		"Egypt":              {"ar_EG"},
-		"Palistine":          {"ar_EG", "ar_SA"},
+		"Palestine":          {"ar_EG", "ar_SA"},
 		"Israel":             {"ar_JO"},
 		"Jordan":             {"ar_JO"},
 		"Lebanon":            {"ar_EG", "ar_SA", "ar_JO"},
@@ -1527,6 +1531,10 @@ func pickLocale(country string) string {
 		"Qatar":              {"ar_EG", "ar_SA"},
 		"UAE":                {"ar_EG", "ar_SA"},
 		"Yemen":              {"ar_EG", "ar_SA"},
+	}
+	selectedCountryCodes := countryMap[country]
+	if len(selectedCountryCodes) == 0 {
+		fmt.Println(country)
 	}
 	code := util.PickFromStringList(countryMap[country])
 	return code

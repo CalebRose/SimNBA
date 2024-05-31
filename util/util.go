@@ -59,6 +59,14 @@ func GenerateNormalizedIntFromRange(min int, max int) int {
 	}
 }
 
+func PickPositionFromList() string {
+	roll := GenerateIntFromRange(1, 10)
+	if roll > 9 {
+		return "C"
+	}
+	return PickFromStringList([]string{"PG", "SG", "PF", "SF"})
+}
+
 func PickFromStringList(list []string) string {
 	return list[rand.Intn(len(list))]
 }
@@ -95,16 +103,16 @@ func GeneratePrimeAge() int {
 }
 
 func GenerateISLAge() int {
-	mean := 20.0
-	standardDeviation := 2.0 // Adjust this value to change the spread
+	mean := 18.0
+	standardDeviation := 1.5 // Adjust this value to change the spread
 
 	value := rand.NormFloat64()*standardDeviation + mean
 
 	// Clamp the value to the range [16, 22]
-	if value < 16 {
+	if value <= 16 {
 		value = 16
-	} else if value > 25 {
-		value = 25
+	} else if value > 22 {
+		value = 22
 	}
 
 	return int(value)

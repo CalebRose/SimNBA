@@ -48,7 +48,7 @@ func CreateDrafteeRecord(player structs.CollegePlayer, db *gorm.DB) {
 func CreateInternationalDrafteeRecord(player structs.NBAPlayer, db *gorm.DB) {
 	draftee := structs.NBADraftee{}
 	draftee.MapInternational(player)
-	draftee.AssignPrimeAge(util.GenerateIntFromRange(24, 30))
+	draftee.AssignPrimeAge(int(player.PrimeAge))
 	// Generate Draft Grades
 	s2 := util.GenerateIntFromRange(draftee.Shooting2-3, draftee.Shooting2+3)
 	s2Grade := util.GetDrafteeGrade(s2)
@@ -132,6 +132,14 @@ func CreateRetireeRecord(retiree structs.RetiredPlayer, db *gorm.DB) {
 func CreatePlayerRecruitProfileRecord(cp structs.PlayerRecruitProfile, db *gorm.DB) {
 	// Save College Player Record
 	err := db.Create(&cp).Error
+	if err != nil {
+		log.Panicln("Could not save new college recruit record")
+	}
+}
+
+func CreateProfessionalPlayerRecord(player structs.NBAPlayer, db *gorm.DB) {
+	// Save NBA Player Record
+	err := db.Create(&player).Error
 	if err != nil {
 		log.Panicln("Could not save new college recruit record")
 	}

@@ -379,7 +379,7 @@ func GetAllYouthDevelopmentPlayers() []structs.NBAPlayer {
 
 	var players []structs.NBAPlayer
 
-	db.Where("is_international = ? AND age < ? and country != ? AND team_id = ?", true, "23", "USA", "0").Find(&players)
+	db.Where("is_int_generated = ? AND age < ? and country != ? AND team_id = ? AND team_abbr != ?", true, "23", "USA", "0", "DRAFT").Find(&players)
 
 	return players
 }

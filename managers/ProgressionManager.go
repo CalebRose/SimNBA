@@ -323,6 +323,22 @@ func ProgressNBAPlayer(np structs.NBAPlayer, isISLGen bool) structs.NBAPlayer {
 	return np
 }
 
+// In the event newly generated players are too talented, move them to the next draft
+func MoveISLPlayerToDraft() {
+	db := dbprovider.GetInstance().GetDB()
+	players := GetAllYouthDevelopmentPlayers()
+
+	for _, p := range players {
+		if p.ID != 9204 && p.ID != 9272 && p.ID != 8637 {
+			continue
+		}
+		p.BecomeInternationalDraftee()
+		repository.SaveProfessionalPlayerRecord(p, db)
+		repository.CreateInternationalDrafteeRecord(p, db)
+	}
+
+}
+
 func processCollegePlayer(player structs.CollegePlayer, ts structs.Timestamp, db *gorm.DB) {
 	if player.HasProgressed {
 		return
