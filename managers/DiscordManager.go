@@ -10,6 +10,72 @@ import (
 )
 
 // Player Controls
+func GetCollegePlayerByID(id string) structs.CollegePlayerResponse {
+	db := dbprovider.GetInstance().GetDB()
+
+	var player structs.CollegePlayer
+
+	err := db.Where("id = ?", id).Find(&player).Error
+	if err != nil {
+		log.Fatal(err)
+	}
+	shooting2Grade := util.GetAttributeGrade(player.Shooting2)
+	shooting3Grade := util.GetAttributeGrade(player.Shooting3)
+	freeThrowGrade := util.GetAttributeGrade(player.FreeThrow)
+	finishingGrade := util.GetAttributeGrade(player.Finishing)
+	reboundingGrade := util.GetAttributeGrade(player.Rebounding)
+	ballworkGrade := util.GetAttributeGrade(player.Ballwork)
+	interiorDefenseGrade := util.GetAttributeGrade(player.InteriorDefense)
+	perimeterDefenseGrade := util.GetAttributeGrade(player.PerimeterDefense)
+	potentialGrade := util.GetPotentialGrade(player.Potential)
+	overallGrade := util.GetPlayerOverallGrade(player.Overall)
+
+	return structs.CollegePlayerResponse{
+		FirstName:             player.FirstName,
+		LastName:              player.LastName,
+		Position:              player.Position,
+		Archetype:             player.Archetype,
+		Age:                   player.Age,
+		Year:                  player.Year,
+		State:                 player.State,
+		Country:               player.Country,
+		Stars:                 player.Stars,
+		Height:                player.Height,
+		PotentialGrade:        potentialGrade,
+		Shooting2Grade:        shooting2Grade,
+		Shooting3Grade:        shooting3Grade,
+		FreeThrowGrade:        freeThrowGrade,
+		FinishingGrade:        finishingGrade,
+		BallworkGrade:         ballworkGrade,
+		ReboundingGrade:       reboundingGrade,
+		InteriorDefenseGrade:  interiorDefenseGrade,
+		PerimeterDefenseGrade: perimeterDefenseGrade,
+		OverallGrade:          overallGrade,
+		Stamina:               player.Stamina,
+		PlaytimeExpectations:  player.PlaytimeExpectations,
+		Minutes:               player.Minutes,
+		Potential:             player.Potential,
+		Personality:           player.Personality,
+		RecruitingBias:        player.RecruitingBias,
+		WorkEthic:             player.WorkEthic,
+		AcademicBias:          player.AcademicBias,
+		PlayerID:              player.PlayerID,
+		TeamID:                player.TeamID,
+		TeamAbbr:              player.TeamAbbr,
+		IsRedshirting:         player.IsRedshirting,
+		IsRedshirt:            player.IsRedshirt,
+		PositionOne:           player.PositionOne,
+		PositionTwo:           player.PositionTwo,
+		PositionThree:         player.PositionThree,
+		P1Minutes:             player.P1Minutes,
+		P2Minutes:             player.P2Minutes,
+		P3Minutes:             player.P3Minutes,
+		InsideProportion:      player.InsideProportion,
+		MidRangeProportion:    player.MidRangeProportion,
+		ThreePointProportion:  player.ThreePointProportion,
+	}
+}
+
 func GetCollegePlayerByNameAndAbbr(firstName, lastName, abbr string) structs.CollegePlayerResponse {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -98,6 +164,19 @@ func GetCollegeRecruitByNameAndLocation(firstName, lastName string) []structs.Cr
 	}
 
 	return croots
+}
+
+func GetNBAPlayerByID(id string) structs.NBAPlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var player structs.NBAPlayer
+
+	err := db.Where("id = ?", id).Find(&player).Error
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return player
 }
 
 func GetNBAPlayerByNameAndAbbr(firstName, lastName, abbr string) structs.NBAPlayer {

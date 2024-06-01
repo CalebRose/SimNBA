@@ -24,7 +24,7 @@ func ToggleDraftTime() {
 }
 
 func ConductDraftLottery() {
-	// db := dbprovider.GetInstance().GetDB()
+	db := dbprovider.GetInstance().GetDB()
 	fmt.Println(time.Now().UnixNano())
 	path := secrets.GetPath()["draftlottery"]
 	lotteryCSV := util.ReadCSV(path)
@@ -105,8 +105,8 @@ func ConductDraftLottery() {
 	}
 
 	for _, pick := range draftPicks {
-		fmt.Println(pick)
-		// db.Save(&pick)
+		fmt.Println("Pick " + strconv.Itoa(int(pick.DraftNumber)) + ": " + pick.OriginalTeam)
+		db.Save(&pick)
 	}
 }
 

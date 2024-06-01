@@ -8,6 +8,20 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// CBBPlayerByID - Get a college player record and share in the discord
+func CBBPlayerByID(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	vars := mux.Vars(r)
+
+	id := vars["id"]
+	if len(id) == 0 {
+		panic("User did not provide enough information for call")
+	}
+
+	player := managers.GetCollegePlayerByID(id)
+	json.NewEncoder(w).Encode(player)
+}
+
 // CBBPlayerByNameAndAbbr - Get a college player record and share in the discord
 func CBBPlayerByNameAndAbbr(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
@@ -21,6 +35,20 @@ func CBBPlayerByNameAndAbbr(w http.ResponseWriter, r *http.Request) {
 	}
 
 	player := managers.GetCollegePlayerByNameAndAbbr(firstName, lastName, abbr)
+	json.NewEncoder(w).Encode(player)
+}
+
+// NBAPlayerByID - Get an NBA player record and share in the discord
+func NBAPlayerByID(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	vars := mux.Vars(r)
+
+	id := vars["id"]
+	if len(id) == 0 {
+		panic("User did not provide enough information for call")
+	}
+
+	player := managers.GetNBAPlayerByID(id)
 	json.NewEncoder(w).Encode(player)
 }
 

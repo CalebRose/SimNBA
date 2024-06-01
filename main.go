@@ -274,8 +274,10 @@ func handleRequests() {
 	myRouter.HandleFunc("/cbb/easter/egg/collude/", controller.CollusionButton).Methods("POST")
 
 	// Discord Controls
-	myRouter.HandleFunc("/dis/cbb/player/{firstName}/{lastName}/{abbr}", controller.CBBPlayerByNameAndAbbr).Methods("GET")
-	myRouter.HandleFunc("/dis/nba/player/{firstName}/{lastName}/{abbr}", controller.NBAPlayerByNameAndAbbr).Methods("GET")
+	myRouter.HandleFunc("/dis/cbb/player/id/{id}", controller.CBBPlayerByID).Methods("GET")
+	myRouter.HandleFunc("/dis/nba/player/id/{id}", controller.NBAPlayerByID).Methods("GET")
+	myRouter.HandleFunc("/dis/cbb/player/name/{firstName}/{lastName}/{abbr}", controller.CBBPlayerByNameAndAbbr).Methods("GET")
+	myRouter.HandleFunc("/dis/nba/player/name/{firstName}/{lastName}/{abbr}", controller.NBAPlayerByNameAndAbbr).Methods("GET")
 	myRouter.HandleFunc("/dis/cbb/croot/{firstName}/{lastName}", controller.GetCrootsByName).Methods("GET")
 	myRouter.HandleFunc("/dis/cbb/team/{teamId}", controller.GetCollegeTeamData).Methods("GET")
 	myRouter.HandleFunc("/dis/nba/team/{teamId}", controller.GetNBATeamDataByID).Methods("GET")

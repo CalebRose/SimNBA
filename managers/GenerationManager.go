@@ -197,7 +197,7 @@ func (pg *CrootGenerator) generatePlayer() (structs.Recruit, structs.GlobalPlaye
 			state = pickState()
 		}
 	}
-	pickedPosition := util.PickFromStringList(pg.positionList)
+	pickedPosition := util.PickPositionFromList()
 	year := 1
 	player := createRecruit(firstName, lastName, state, country, pg.pickedEthnicity, pickedPosition, year, pg.newID)
 	player.AssignRelativeData(uint(relativeID), uint(relativeType), uint(coachTeamID), coachTeamAbbr, notes)
@@ -1348,26 +1348,6 @@ func pickEthnicity() string {
 	} else if num < 8900 {
 		return "Hispanic"
 	} else if num < 9975 {
-		return "Asian"
-	}
-	return "NativeAmerican"
-}
-
-func pickISLEthnicity(country string) string {
-
-	if country == "England" || country == "Scotland" || country == "Spain" ||
-		country == "Italy" || country == "Latvia" || country == "Poland" ||
-		country == "Estonia" || country == "Ukraine" || country == "France" ||
-		country == "Germany" || country == "Belgium" || country == "Netherlands" ||
-		country == "Turkey" || country == "Greece" || country == "Australia" ||
-		country == "Israel" || country == "Lithuania" || country == "Serbia" {
-		return "Caucasian"
-	} else if country == "Morocco" || country == "Egypt" {
-		return "African"
-	} else if country == "Mexico" || country == "Argentina" || country == "Brazil" {
-		return "Hispanic"
-	} else if country == "China" || country == "Japan" || country == "South Korea" ||
-		country == "Taiwan" || country == "Phillipines" || country == "New Zealand" {
 		return "Asian"
 	}
 	return "NativeAmerican"
