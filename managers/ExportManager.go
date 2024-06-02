@@ -175,10 +175,10 @@ func ExportCBBPreseasonRanks(w http.ResponseWriter) {
 		starPower = starPower / float64(count)
 		overall = offenseRank + defenseRank
 
-		teamRow := []string{t.Abbr, t.Conference, strconv.FormatFloat(offenseRank, 'E', -1, 64),
-			strconv.FormatFloat(defenseRank, 'E', -1, 64),
-			strconv.FormatFloat(overall, 'E', -1, 64),
-			strconv.FormatFloat(starPower, 'E', -1, 64)}
+		teamRow := []string{t.Abbr, t.Conference, util.ConvertFloatToString(offenseRank),
+			util.ConvertFloatToString(defenseRank),
+			util.ConvertFloatToString(overall),
+			util.ConvertFloatToString(starPower)}
 
 		err = writer.Write(teamRow)
 		if err != nil {
@@ -289,10 +289,11 @@ func ExportCBBRosterToCSV(TeamID string, w http.ResponseWriter) {
 		} else if csvModel.IsRedshirting {
 			redshirtStatus = "Currently Redshirting"
 		}
+		height := util.FormatHeight(csvModel.Height)
 		playerRow := []string{
 			team.Team, csvModel.FirstName, csvModel.LastName, csvModel.Position,
 			csvModel.Archetype, strconv.Itoa(csvModel.Year), strconv.Itoa(csvModel.Age), strconv.Itoa(csvModel.Stars),
-			csvModel.State, csvModel.Country, csvModel.Height, csvModel.OverallGrade, csvModel.FinishingGrade,
+			csvModel.State, csvModel.Country, height, csvModel.OverallGrade, csvModel.FinishingGrade,
 			csvModel.Shooting2Grade, csvModel.Shooting3Grade, csvModel.FreeThrowGrade,
 			csvModel.BallworkGrade, csvModel.ReboundingGrade, csvModel.InteriorDefenseGrade, csvModel.PerimeterDefenseGrade,
 			strconv.Itoa(csvModel.PlaytimeExpectations), strconv.Itoa(csvModel.Stamina), csvModel.PotentialGrade, csvModel.Personality,
@@ -351,19 +352,20 @@ func ExportNBARosterToCSV(TeamID string, w http.ResponseWriter) {
 		} else if csvModel.IsInternational {
 			nbaStatus = "International"
 		}
+		height := util.FormatHeight(csvModel.Height)
 		playerRow := []string{
 			team.Team, csvModel.FirstName, csvModel.LastName, csvModel.Position,
 			csvModel.Archetype, strconv.Itoa(csvModel.Year), strconv.Itoa(csvModel.Age), strconv.Itoa(csvModel.Stars),
-			csvModel.State, csvModel.Country, csvModel.Height, strconv.Itoa(csvModel.Overall), strconv.Itoa(csvModel.Finishing),
+			csvModel.State, csvModel.Country, height, strconv.Itoa(csvModel.Overall), strconv.Itoa(csvModel.Finishing),
 			strconv.Itoa(csvModel.Shooting2), strconv.Itoa(csvModel.Shooting3), strconv.Itoa(csvModel.FreeThrow),
 			strconv.Itoa(csvModel.Ballwork), strconv.Itoa(csvModel.Rebounding), strconv.Itoa(csvModel.InteriorDefense), strconv.Itoa(csvModel.PerimeterDefense),
 			strconv.Itoa(csvModel.PlaytimeExpectations), strconv.Itoa(csvModel.Stamina), csvModel.PotentialGrade, csvModel.Personality,
 			csvModel.FreeAgency, csvModel.WorkEthic, nbaStatus,
-			strconv.FormatFloat(csvModel.Contract.Year1Total, 'E', -1, 64), strconv.FormatBool(csvModel.Contract.Year1Opt),
-			strconv.FormatFloat(csvModel.Contract.Year2Total, 'E', -1, 64), strconv.FormatBool(csvModel.Contract.Year2Opt),
-			strconv.FormatFloat(csvModel.Contract.Year3Total, 'E', -1, 64), strconv.FormatBool(csvModel.Contract.Year3Opt),
-			strconv.FormatFloat(csvModel.Contract.Year4Total, 'E', -1, 64), strconv.FormatBool(csvModel.Contract.Year4Opt),
-			strconv.FormatFloat(csvModel.Contract.Year5Total, 'E', -1, 64), strconv.FormatBool(csvModel.Contract.Year5Opt),
+			util.ConvertFloatToString(csvModel.Contract.Year1Total), strconv.FormatBool(csvModel.Contract.Year1Opt),
+			util.ConvertFloatToString(csvModel.Contract.Year2Total), strconv.FormatBool(csvModel.Contract.Year2Opt),
+			util.ConvertFloatToString(csvModel.Contract.Year3Total), strconv.FormatBool(csvModel.Contract.Year3Opt),
+			util.ConvertFloatToString(csvModel.Contract.Year4Total), strconv.FormatBool(csvModel.Contract.Year4Opt),
+			util.ConvertFloatToString(csvModel.Contract.Year5Total), strconv.FormatBool(csvModel.Contract.Year5Opt),
 			strconv.Itoa(int(csvModel.Contract.YearsRemaining)), csvModel.Contract.ContractType,
 		}
 

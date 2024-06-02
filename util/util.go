@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/CalebRose/SimNBA/structs"
 )
@@ -100,6 +101,25 @@ func GeneratePrimeAge() int {
 		return 33
 	}
 	return 34
+}
+
+func FormatHeight(height string) string {
+	// Split the input string by the dash
+	parts := strings.Split(height, "-")
+
+	// Check if the input string is in the correct format
+	if len(parts) != 2 {
+		return "Invalid format"
+	}
+
+	// Construct the formatted height string
+	formattedHeight := fmt.Sprintf("%s'%s\"", parts[0], parts[1])
+
+	return formattedHeight
+}
+
+func ConvertFloatToString(f float64) string {
+	return strconv.FormatFloat(f, 'f', 3, 64)
 }
 
 func GenerateISLAge() int {
