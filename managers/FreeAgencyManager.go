@@ -413,6 +413,12 @@ func SyncFreeAgencyOffers() {
 	db := dbprovider.GetInstance().GetDB()
 
 	ts := GetTimestamp()
+
+	// NO FA BEFORE AND DURING DRAFT
+	if ts.IsDraftTime {
+		return
+	}
+
 	ts.ToggleFALock()
 	db.Save(&ts)
 
