@@ -145,6 +145,14 @@ func CreateProfessionalPlayerRecord(player structs.NBAPlayer, db *gorm.DB) {
 	}
 }
 
+func CreateProfessionalContractRecord(contract structs.NBAContract, db *gorm.DB) {
+	// Save NBA Contract Record
+	err := db.Create(&contract).Error
+	if err != nil {
+		log.Panicln("Could not create contract record")
+	}
+}
+
 func CreateGlobalPlayerRecord(player structs.GlobalPlayer, db *gorm.DB) {
 	// Save College Player Record
 	err := db.Create(&player).Error
@@ -158,5 +166,13 @@ func CreateCollegePromiseRecord(promise structs.CollegePromise, db *gorm.DB) {
 	err := db.Create(&promise).Error
 	if err != nil {
 		log.Panicln("Could not save new college recruit record")
+	}
+}
+
+func CreateISLScoutingReportRecord(report structs.ISLScoutingReport, db *gorm.DB) {
+	// Save ISL Scout Report Record
+	err := db.Create(&report).Error
+	if err != nil {
+		log.Panicln("Could not create new scout report record")
 	}
 }

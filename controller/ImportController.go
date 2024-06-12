@@ -50,6 +50,10 @@ func ImportDraftPicks(w http.ResponseWriter, r *http.Request) {
 	managers.ImportDraftPicks()
 }
 
+func ImportISLScouting(w http.ResponseWriter, r *http.Request) {
+	managers.ImportISLScoutingDepts()
+}
+
 // Run Controls
 func RunPromises(w http.ResponseWriter, r *http.Request) {
 	managers.AICoachPromisePhase()

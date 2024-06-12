@@ -3,6 +3,7 @@ package managers
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"strconv"
 	"strings"
 	"time"
@@ -898,6 +899,106 @@ func ImportDraftPicks() {
 		}
 
 		db.Create(&draftPick)
+	}
+}
+
+func ImportISLScoutingDepts() {
+	db := dbprovider.GetInstance().GetDB()
+
+	islTeams := GetAllActiveNBATeams()
+
+	for _, t := range islTeams {
+		// Iterate over all NBA Teams
+		if t.LeagueID == 1 {
+			continue
+		}
+
+		id := strconv.Itoa(int(t.ID))
+
+		existingDept := GetScoutingDeptByTeamID(id)
+
+		if existingDept.ID > 0 {
+			continue
+		}
+		teamName := t.Team + " " + t.Nickname
+		formattedName := strings.TrimSpace(teamName)
+		prestige := util.GenerateNormalizedIntFromRange(1, 5)
+		identityBias := prestige > 3
+		behaviorBias := util.GenerateNormalizedIntFromRange(1, 3)
+		bonusPoints := 5 + (2 * prestige)
+		fn := 0
+		sh2 := 0
+		sh3 := 0
+		ft := 0
+		bw := 0
+		rb := 0
+		ind := 0
+		prd := 0
+		pot := 0
+		idn := 0
+
+		selectionList := []string{"fn", "sh2", "sh3", "ft", "bw", "rb", "ind", "prd", "pot", "idn"}
+		rand.Shuffle(len(selectionList), func(i, j int) {
+			selectionList[i], selectionList[j] = selectionList[j], selectionList[i]
+		})
+
+		for bonusPoints > 0 {
+			for _, attr := range selectionList {
+				num := util.GenerateIntFromRange(1, 5)
+				if bonusPoints-num < 0 {
+					num += (bonusPoints - num)
+				}
+				if attr == "fn" {
+					fn += num
+				} else if attr == "sh2" {
+					sh2 += num
+				} else if attr == "sh3" {
+					sh3 += num
+				} else if attr == "ft" {
+					ft += num
+				} else if attr == "bw" {
+					bw += num
+				} else if attr == "rb" {
+					rb += num
+				} else if attr == "ind" {
+					ind += num
+				} else if attr == "prd" {
+					prd += num
+				} else if attr == "pot" {
+					pot += num
+				} else if attr == "idn" {
+					idn += num
+				}
+
+				bonusPoints -= num
+			}
+		}
+
+		newDept := structs.ISLScoutingDept{
+			TeamID:         t.ID,
+			TeamLabel:      formattedName,
+			Prestige:       uint8(prestige),
+			Resources:      100,
+			IdentityPool:   0,
+			ScoutingPool:   0,
+			InvestingPool:  0,
+			ScoutingCount:  0,
+			IdentityBias:   identityBias,
+			BehaviorBias:   uint8(behaviorBias),
+			Finishing:      uint8(fn),
+			Shooting2:      uint8(sh2),
+			Shooting3:      uint8(sh3),
+			FreeThrow:      uint8(ft),
+			Ballwork:       uint8(bw),
+			Rebounding:     uint8(rb),
+			IntDefense:     uint8(ind),
+			PerDefense:     uint8(prd),
+			Potential:      uint8(pot),
+			IdentityMod:    uint8(idn),
+			ModifierPoints: 0,
+		}
+
+		db.Create(&newDept)
 	}
 }
 

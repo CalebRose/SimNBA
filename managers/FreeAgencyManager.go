@@ -15,10 +15,17 @@ import (
 )
 
 func GetAllAvailableNBAPlayers(TeamID string) structs.FreeAgencyResponse {
-	FAs := GetAllFreeAgentsWithOffers()
-	waiverPlayers := GetAllWaiverWirePlayers()
-	gLeagePlayer := GetAllGLeaguePlayersForFA()
-	islPlayers := GetAllISLPlayersForFA()
+	ts := GetTimestamp()
+	seasonID := ts.SeasonID
+
+	if ts.IsNBAOffseason {
+		seasonID = ts.SeasonID - 1
+	}
+	seasonIDStr := strconv.Itoa(int(seasonID))
+	FAs := GetAllFreeAgentsWithOffers(seasonIDStr)
+	waiverPlayers := GetAllWaiverWirePlayers(seasonIDStr)
+	gLeagePlayer := GetAllGLeaguePlayersForFA(seasonIDStr)
+	islPlayers := GetAllISLPlayersForFA(seasonIDStr)
 	Offers := GetFreeAgentOffersByTeamID(TeamID)
 	roster := GetAllNBAPlayersByTeamID(TeamID)
 	count := 0
@@ -50,44 +57,44 @@ func GetAllFreeAgents() []structs.NBAPlayer {
 }
 
 // GetAllFreeAgentsWithOffers -- For Free Agency UI Page.
-func GetAllFreeAgentsWithOffers() []structs.NBAPlayer {
+func GetAllFreeAgentsWithOffers(seasonID string) []structs.NBAPlayer {
 	db := dbprovider.GetInstance().GetDB()
 
 	fas := []structs.NBAPlayer{}
 
 	db.Preload("Offers", func(db *gorm.DB) *gorm.DB {
 		return db.Order("contract_value DESC").Where("is_active = true")
-	}).Order("overall desc").Where("is_free_agent = ?", true).Find(&fas)
+	}).Preload("SeasonStats", "season_id = ?", seasonID).Order("overall desc").Where("is_free_agent = ?", true).Find(&fas)
 
 	return fas
 }
 
-func GetAllWaiverWirePlayers() []structs.NBAPlayer {
+func GetAllWaiverWirePlayers(seasonID string) []structs.NBAPlayer {
 	db := dbprovider.GetInstance().GetDB()
 
 	WaivedPlayers := []structs.NBAPlayer{}
 
-	db.Preload("WaiverOffers").Preload("Contract").Where("is_waived = ?", true).Find(&WaivedPlayers)
+	db.Preload("WaiverOffers").Preload("Contract").Preload("SeasonStats", "season_id = ?", seasonID).Where("is_waived = ?", true).Find(&WaivedPlayers)
 
 	return WaivedPlayers
 }
 
-func GetAllGLeaguePlayersForFA() []structs.NBAPlayer {
+func GetAllGLeaguePlayersForFA(seasonID string) []structs.NBAPlayer {
 	db := dbprovider.GetInstance().GetDB()
 
 	gLeaguePlayers := []structs.NBAPlayer{}
 
-	db.Preload("WaiverOffers").Preload("Contract").Where("is_g_league = ?", true).Find(&gLeaguePlayers)
+	db.Preload("WaiverOffers").Preload("Contract").Preload("SeasonStats", "season_id = ?", seasonID).Where("is_g_league = ?", true).Find(&gLeaguePlayers)
 
 	return gLeaguePlayers
 }
 
-func GetAllISLPlayersForFA() []structs.NBAPlayer {
+func GetAllISLPlayersForFA(seasonID string) []structs.NBAPlayer {
 	db := dbprovider.GetInstance().GetDB()
 
 	islPlayers := []structs.NBAPlayer{}
 
-	db.Preload("WaiverOffers").Preload("Contract").Where("team_id > 32").Find(&islPlayers)
+	db.Preload("WaiverOffers").Preload("Contract").Preload("SeasonStats", "season_id = ?", seasonID).Where("team_id > 32").Find(&islPlayers)
 
 	return islPlayers
 }
@@ -402,7 +409,7 @@ func SignFreeAgent(offer structs.NBAContractOffer, FreeAgent structs.NBAPlayer, 
 	}
 
 	db.Create(&Contract)
-	db.Save(&FreeAgent)
+	repository.SaveProfessionalPlayerRecord(FreeAgent, db)
 
 	// News Log
 	message := "FA " + FreeAgent.Position + " " + FreeAgent.FirstName + " " + FreeAgent.LastName + " has signed with the " + NBATeam.Team + " " + NBATeam.Nickname + " with a contract worth approximately $" + strconv.Itoa(int(Contract.TotalRemaining)) + " Million Dollars."
@@ -420,22 +427,26 @@ func SyncFreeAgencyOffers() {
 	}
 
 	ts.ToggleFALock()
+	seasonID := ts.SeasonID
+	if ts.IsNBAOffseason {
+		seasonID = seasonID - 1
+	}
 	db.Save(&ts)
-
+	seasonIDStr := strconv.Itoa(int(seasonID))
 	// Sync Free Agents and their contract offers
 	FreeAgents := GetAllFreeAgents()
 	faSyncFreeAgents(FreeAgents, ts, db)
 
 	// Iterate through WaiverWire players
-	waiverWirePlayers := GetAllWaiverWirePlayers()
+	waiverWirePlayers := GetAllWaiverWirePlayers(seasonIDStr)
 	faSyncWaiverWirePlayers(waiverWirePlayers, ts, db)
 
 	// Iterate through GLeague Players
-	gLeaguePlayers := GetAllGLeaguePlayersForFA()
+	gLeaguePlayers := GetAllGLeaguePlayersForFA(seasonIDStr)
 	faSyncGLeaguePlayers(gLeaguePlayers, ts, db)
 
 	// Iterate through International Players
-	islPlayers := GetAllISLPlayersForFA()
+	islPlayers := GetAllISLPlayersForFA(seasonIDStr)
 	faSyncISLPlayers(islPlayers, ts, db)
 
 	ts.ToggleFALock()
@@ -702,7 +713,7 @@ func faSyncWaiverWirePlayers(waiverWirePlayers []structs.NBAPlayer, ts structs.T
 			w.ConvertWaivedPlayerToFA()
 			contract := GetContractByPlayerID(waiverWireID)
 			contract.DeactivateContract()
-			db.Save(&contract)
+			repository.SaveProfessionalContractRecord(contract, db)
 		} else {
 			winningOffer := waiverOffers[0]
 			winningOfferTeamID := strconv.Itoa(int(winningOffer.TeamID))
@@ -712,7 +723,7 @@ func faSyncWaiverWirePlayers(waiverWirePlayers []structs.NBAPlayer, ts structs.T
 			contract.TradePlayer(winningOffer.TeamID, winningOffer.Team)
 			contract.MakeContractActive()
 
-			db.Save(&contract)
+			repository.SaveProfessionalContractRecord(contract, db)
 
 			message := w.Position + " " + w.FirstName + " " + w.LastName + " was picked up on the Waiver Wire by " + winningOffer.Team
 			CreateNewsLog("NBA", message, "Free Agency", int(winningOffer.TeamID), ts)
@@ -734,7 +745,7 @@ func faSyncWaiverWirePlayers(waiverWirePlayers []structs.NBAPlayer, ts structs.T
 				db.Delete(&o)
 			}
 		}
-		db.Save(&w)
+		repository.SaveProfessionalPlayerRecord(w, db)
 	}
 }
 
@@ -759,11 +770,11 @@ func faSyncGLeaguePlayers(gLeaguePlayers []structs.NBAPlayer, ts structs.Timesta
 			g.SignWithTeam(ownerOffer.TeamID, ownerOffer.Team)
 			contract := GetNBAContractsByPlayerID(gLeaguePlayerID)
 			contract.TradePlayer(ownerOffer.TeamID, ownerOffer.Team)
-			db.Save(&contract)
+			repository.SaveProfessionalContractRecord(contract, db)
 			message := g.Position + " " + g.FirstName + " " + g.LastName + " was picked up from the GLeague by " + ownerOffer.Team
 			CreateNewsLog("NBA", message, "Free Agency", int(ownerOffer.TeamID), ts)
 
-			db.Save(&g)
+			repository.SaveProfessionalPlayerRecord(g, db)
 		} else {
 			sort.Slice(Offers, func(i, j int) bool {
 				return Offers[i].WaiverOrder < Offers[j].WaiverOrder
@@ -785,13 +796,13 @@ func faSyncGLeaguePlayers(gLeaguePlayers []structs.NBAPlayer, ts structs.Timesta
 					g.SignWithTeam(WinningOffer.TeamID, WinningOffer.Team)
 					contract := GetNBAContractsByPlayerID(gLeaguePlayerID)
 					contract.TradePlayer(WinningOffer.TeamID, WinningOffer.Team)
-					db.Save(&contract)
+					repository.SaveProfessionalContractRecord(contract, db)
 					message := g.Position + " " + g.FirstName + " " + g.LastName + " was picked up from the GLeague by " + WinningOffer.Team
 					CreateNewsLog("NBA", message, "Free Agency", int(WinningOffer.TeamID), ts)
-					db.Save(&g)
+					repository.SaveProfessionalPlayerRecord(g, db)
 				} else if ts.IsNBAOffseason {
 					g.WaitUntilStartOfSeason()
-					db.Save(&g)
+					repository.SaveProfessionalPlayerRecord(g, db)
 				}
 			}
 		}
@@ -822,17 +833,17 @@ func faSyncISLPlayers(islPlayers []structs.NBAPlayer, ts structs.Timestamp, db *
 
 		contract := GetNBAContractsByPlayerID(islPlayerID)
 		contract.TradePlayer(ownerOffer.TeamID, ownerOffer.Team)
-		db.Save(&contract)
+		repository.SaveProfessionalContractRecord(contract, db)
 		i.SignWithTeam(ownerOffer.TeamID, ownerOffer.Team)
 		message := i.Position + " " + i.FirstName + " " + i.LastName + " was picked up from the GLeague by " + ownerOffer.Team
 		CreateNewsLog("NBA", message, "Free Agency", int(ownerOffer.TeamID), ts)
 
-		db.Save(&i)
+		repository.SaveProfessionalPlayerRecord(i, db)
 
 		if ownerOffer.ID > 0 {
 			contract := GetNBAContractsByPlayerID(islPlayerID)
 			contract.TradePlayer(ownerOffer.TeamID, ownerOffer.Team)
-			db.Save(&contract)
+			repository.SaveProfessionalContractRecord(contract, db)
 			i.SignWithTeam(ownerOffer.TeamID, ownerOffer.Team)
 			message := i.Position + " " + i.FirstName + " " + i.LastName + " was picked up from the ISL by " + ownerOffer.Team
 			CreateNewsLog("NBA", message, "Free Agency", int(ownerOffer.TeamID), ts)
@@ -856,13 +867,13 @@ func faSyncISLPlayers(islPlayers []structs.NBAPlayer, ts structs.Timestamp, db *
 				if WinningOffer.ID > 0 {
 					contract := GetNBAContractsByPlayerID(islPlayerID)
 					contract.TradePlayer(WinningOffer.TeamID, WinningOffer.Team)
-					db.Save(&contract)
+					repository.SaveProfessionalContractRecord(contract, db)
 					i.SignWithTeam(WinningOffer.TeamID, WinningOffer.Team)
 					message := i.Position + " " + i.FirstName + " " + i.LastName + " was picked up from the GLeague by " + WinningOffer.Team
 					CreateNewsLog("NBA", message, "Free Agency", int(WinningOffer.TeamID), ts)
 				} else if ts.IsNBAOffseason {
 					i.WaitUntilStartOfSeason()
-					db.Save(&i)
+					repository.SaveProfessionalPlayerRecord(i, db)
 				}
 			}
 		}

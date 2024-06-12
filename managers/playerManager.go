@@ -374,21 +374,6 @@ func GetTransferPortalPlayers() []structs.CollegePlayer {
 	return players
 }
 
-func GetAllYouthDevelopmentPlayers() []structs.NBAPlayer {
-	db := dbprovider.GetInstance().GetDB()
-
-	var players []structs.NBAPlayer
-
-	db.Where("is_int_generated = ? AND age < ? and country != ? AND team_id = ? AND team_abbr != ?", true, "23", "USA", "0", "DRAFT").Find(&players)
-
-	return players
-}
-
-func GetYouthDevelopmentPlayerCount() int {
-	players := GetAllYouthDevelopmentPlayers()
-	return len(players)
-}
-
 func GetTransferPortalPlayersForPage() []structs.TransferPlayerResponse {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -919,6 +904,19 @@ func GetAllNBAPlayersByTeamID(teamID string) []structs.NBAPlayer {
 	var players []structs.NBAPlayer
 
 	db.Preload("Contract", func(db *gorm.DB) *gorm.DB {
+		return db.Where("is_active = true")
+	}).Preload("Extensions").Where("team_id = ?", teamID).Find(&players)
+	return players
+}
+
+func GetAllNBAPlayersByTeamIDForProgression(teamID string, seasonID string) []structs.NBAPlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var players []structs.NBAPlayer
+
+	db.Preload("SeasonStats", func(db *gorm.DB) *gorm.DB {
+		return db.Where("season_id = ?", seasonID)
+	}).Preload("Contract", func(db *gorm.DB) *gorm.DB {
 		return db.Where("is_active = true")
 	}).Preload("Extensions").Where("team_id = ?", teamID).Find(&players)
 	return players

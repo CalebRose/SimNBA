@@ -68,3 +68,20 @@ func SaveCBBTeamRecruitingProfile(profile *structs.TeamRecruitingProfile, db *go
 		log.Panicln("Could not save team profile record")
 	}
 }
+
+func SaveISLScoutingDeptRecord(dept structs.ISLScoutingDept, db *gorm.DB) {
+	if dept.ID == 0 {
+		log.Panicln("ID is not set for the scouting dept record")
+	}
+	err := db.Save(&dept).Error
+	if err != nil {
+		log.Panicln("Could not save scouting dept record")
+	}
+}
+
+func SaveISLScoutingReportRecord(report structs.ISLScoutingReport, db *gorm.DB) {
+	err := db.Save(&report).Error
+	if err != nil {
+		log.Panicln("Could not save scouting report record")
+	}
+}

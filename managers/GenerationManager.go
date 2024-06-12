@@ -657,31 +657,6 @@ func GenerateInternationalPlayers() {
 		year := 1
 		countryNames := nameMap[pickedEthnicity]
 		player := createInternationalPlayer(0, "", country, pickedEthnicity, pickedPosition, year, countryNames["first_names"], countryNames["last_names"], newID)
-
-		// yearsRemaining := 2
-		// if player.Age < 22 {
-		// 	yearsRemaining = 22 - player.Age
-		// 	if yearsRemaining > 5 {
-		// 		yearsRemaining = 5
-		// 	}
-		// }
-		// for i := 1; i <= yearsRemaining; i++ {
-		// 	if i == 1 {
-		// 		year1Salary = 0.5
-		// 	}
-		// 	if i == 2 {
-		// 		year2Salary = 0.5
-		// 	}
-		// 	if i == 3 {
-		// 		year3Salary = 0.5
-		// 	}
-		// 	if i == 4 {
-		// 		year4Salary = 0.5
-		// 	}
-		// 	if i == 5 {
-		// 		year5Salary = 0.5
-		// 	}
-		// }
 		repository.CreateProfessionalPlayerRecord(player, db)
 
 		globalPlayer := structs.GlobalPlayer{

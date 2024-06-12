@@ -71,7 +71,7 @@ func ProgressNBAPlayers() {
 	for _, team := range nbaTeams {
 		teamID := strconv.Itoa(int(team.ID))
 
-		roster := GetAllNBAPlayersByTeamID(teamID)
+		roster := GetAllNBAPlayersByTeamIDForProgression(teamID, strconv.Itoa(int(ts.SeasonID-1)))
 
 		for _, player := range roster {
 			if player.HasProgressed {
@@ -136,8 +136,9 @@ func ProgressNBAPlayers() {
 				if contract.ID > 0 {
 					repository.SaveProfessionalContractRecord(contract, db)
 				}
-				repository.SaveProfessionalPlayerRecord(player, db)
+
 			}
+			repository.SaveProfessionalPlayerRecord(player, db)
 		}
 	}
 	ts.ToggleProfessionalProgression()
@@ -145,17 +146,7 @@ func ProgressNBAPlayers() {
 }
 
 func ProgressNBAPlayer(np structs.NBAPlayer, isISLGen bool) structs.NBAPlayer {
-	stats := np.Stats
-	totalMinutes := 0
-
-	for _, stat := range stats {
-		totalMinutes += stat.Minutes
-	}
-
-	var MinutesPerGame int = 0
-	if len(stats) > 0 {
-		MinutesPerGame = totalMinutes / len(stats)
-	}
+	var MinutesPerGame int = int(np.SeasonStats.MinutesPerGame)
 	age := np.Age + 1
 	ageDifference := age - int(np.PrimeAge)
 	if ageDifference < 0 {
@@ -213,29 +204,29 @@ func ProgressNBAPlayer(np structs.NBAPlayer, isISLGen bool) structs.NBAPlayer {
 		attributeList = append(attributeList, "PerimeterDefense")
 	}
 
-	if s2DiceRoll+potentialModifier >= 15 {
+	if s2DiceRoll+potentialModifier >= 14 {
 		attributeList = append(attributeList, "Shooting2")
 	}
 
-	if s3DiceRoll+potentialModifier >= 15 {
+	if s3DiceRoll+potentialModifier >= 14 {
 		attributeList = append(attributeList, "Shooting3")
 	}
-	if ftDiceRoll+potentialModifier >= 15 {
+	if ftDiceRoll+potentialModifier >= 14 {
 		attributeList = append(attributeList, "FreeThrow")
 	}
-	if fnDiceRoll+potentialModifier >= 15 {
+	if fnDiceRoll+potentialModifier >= 14 {
 		attributeList = append(attributeList, "Finishing")
 	}
-	if bwDiceRoll+potentialModifier >= 15 {
+	if bwDiceRoll+potentialModifier >= 14 {
 		attributeList = append(attributeList, "Ballwork")
 	}
-	if rbDiceRoll+potentialModifier >= 15 {
+	if rbDiceRoll+potentialModifier >= 14 {
 		attributeList = append(attributeList, "Rebounding")
 	}
-	if idDiceRoll+potentialModifier >= 15 {
+	if idDiceRoll+potentialModifier >= 14 {
 		attributeList = append(attributeList, "InteriorDefense")
 	}
-	if pdDiceRoll+potentialModifier >= 15 {
+	if pdDiceRoll+potentialModifier >= 14 {
 		attributeList = append(attributeList, "PerimeterDefense")
 	}
 
@@ -583,10 +574,10 @@ func ProgressStamina(stamina, ageDifference int, isNBA bool) int {
 	if ageDifference > 0 && ageDifference < 3 {
 		min = -2
 		max = 1
-	} else if ageDifference > 2 && ageDifference < 7 {
+	} else if ageDifference > 0 && ageDifference < 5 {
 		min = -3
 		max = 0
-	} else if ageDifference > 6 {
+	} else if ageDifference > 0 && ageDifference < 12 {
 		min = -5
 		max = 0
 	}
@@ -690,10 +681,13 @@ func adjustForAge(ageDifference, max int) int {
 	return max
 }
 
-func adjustForPlaytime(mpg, mr, max int) int {
-	diff := mr - mpg
+func adjustForPlaytime(minPerGame, minutesRequired, max int) int {
+	if minPerGame >= minutesRequired {
+		return 0
+	}
+	diff := minutesRequired - minPerGame
 	regressionMax := 0
-	if diff == 0 {
+	if diff <= 0 {
 		regressionMax = 1
 	} else if diff >= 10 {
 		regressionMax = 3

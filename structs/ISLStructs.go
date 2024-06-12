@@ -3,7 +3,7 @@ package structs
 import "gorm.io/gorm"
 
 type ISLScoutingDept struct {
-	ID             uint
+	ID             uint `gorm:"primaryKey"`
 	TeamID         uint
 	TeamLabel      string
 	Prestige       uint8 // 1-5
@@ -27,6 +27,24 @@ type ISLScoutingDept struct {
 	ModifierPoints uint8 // Total points available to spend on modifiers
 }
 
+func (d *ISLScoutingDept) ResetPoints() {
+	d.Resources = 100
+	d.InvestingPool = 0
+	d.IdentityPool = 0
+	d.ScoutingPool = 0
+}
+
+func (d *ISLScoutingDept) IncrementPool(pool, points uint8) {
+	if pool == 1 {
+		d.IdentityPool += points
+	} else if pool == 2 {
+		d.ScoutingPool += points
+	} else {
+		d.InvestingPool += points
+	}
+	d.Resources -= points
+}
+
 /*
 	Resources for Identifying: 1 point == one player viewed.
 	Resources for Scouting: 4 points == for attribute, 10 for potential
@@ -36,6 +54,7 @@ type ISLScoutingDept struct {
 type ISLScoutingReport struct {
 	gorm.Model
 	PlayerID         uint
+	TeamID           uint
 	Finishing        bool
 	Shooting2        bool
 	Shooting3        bool
@@ -46,10 +65,64 @@ type ISLScoutingReport struct {
 	PerDefense       bool
 	Potential        bool
 	Overall          bool
+	TotalPoints      uint8
+	CurrentPoints    uint8
 	PointRequirement uint // Requirement of points needed to sign on
 	IsLocked         bool
 	RemovedFromBoard bool
 	IsSigned         bool
+	Count            uint8
+}
+
+func (r *ISLScoutingReport) SetPointRequirement(points uint) {
+	r.PointRequirement = points
+}
+
+func (r *ISLScoutingReport) AllocatePoints(points uint8) {
+	r.CurrentPoints += uint8(points)
+}
+
+func (r *ISLScoutingReport) IncrementTotalPoints() {
+	r.TotalPoints += r.CurrentPoints
+	r.CurrentPoints = 0
+}
+
+func (r *ISLScoutingReport) RemovePlayerFromBoard() {
+	r.RemovedFromBoard = true
+	r.PointRequirement = 0
+}
+
+func (r *ISLScoutingReport) LockBoard(isSigned bool) {
+	if isSigned {
+		r.IsSigned = true
+	}
+	r.IsLocked = true
+}
+
+func (r *ISLScoutingReport) RevealAttribute(attr string) {
+	if attr == "fn" {
+		r.Finishing = true
+	} else if attr == "sh2" {
+		r.Shooting2 = true
+	} else if attr == "sh3" {
+		r.Shooting3 = true
+	} else if attr == "ft" {
+		r.FreeThrow = true
+	} else if attr == "bw" {
+		r.Ballwork = true
+	} else if attr == "rb" {
+		r.Rebounding = true
+	} else if attr == "ind" {
+		r.IntDefense = true
+	} else if attr == "prd" {
+		r.PerDefense = true
+	} else if attr == "pot" {
+		r.Potential = true
+	}
+	r.Count += 1
+	if r.Count > 3 {
+		r.Overall = true
+	}
 }
 
 type ISLCountry struct {

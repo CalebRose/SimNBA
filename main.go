@@ -133,6 +133,13 @@ func handleRequests() {
 	// myRouter.HandleFunc("/import/nba/picks", controller.ImportDraftPicks).Methods("GET")
 	// myRouter.HandleFunc("/migrate/remaining/croots", controller.MigrateRecruits).Methods("GET")
 
+	// International Super League
+	// myRouter.HandleFunc("/import/isl/scoutingdept", controller.ImportISLScouting).Methods("GET")
+	myRouter.HandleFunc("/isl/identify/players", controller.ISLIdentifyYouthPlayers).Methods("GET")
+	myRouter.HandleFunc("/isl/scout/players", controller.ISLScoutYouthPlayers).Methods("GET")
+	myRouter.HandleFunc("/isl/invest/players", controller.ISLInvestYouthPlayers).Methods("GET")
+	myRouter.HandleFunc("/isl/sync/players", controller.ISLSyncYouthPlayers).Methods("GET")
+
 	// Match Controls
 	myRouter.HandleFunc("/match/{matchId}", controller.GetMatchByMatchId).Methods("GET")
 	myRouter.HandleFunc("/match/export/results/{seasonID}/{weekID}/{nbaWeekID}/{matchType}", controller.ExportMatchResults).Methods("GET")
