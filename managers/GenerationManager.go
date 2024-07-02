@@ -647,7 +647,7 @@ func GenerateInternationalPlayers() {
 	newID := lastPlayerRecord.ID + 1
 
 	nameMap := getInternationalNameMap()
-	requiredLimit := 1000
+	requiredLimit := 1300
 	poolCount := GetYouthDevelopmentPlayerCount()
 
 	for poolCount < requiredLimit {

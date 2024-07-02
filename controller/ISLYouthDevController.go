@@ -18,19 +18,19 @@ func ISLScoutYouthPlayers(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	managers.ISLScoutingPhase()
 
-	json.NewEncoder(w).Encode("Identified players.")
+	json.NewEncoder(w).Encode("Scouted players.")
 }
 
 func ISLInvestYouthPlayers(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	managers.ISLInvestingPhase()
 
-	json.NewEncoder(w).Encode("Identified players.")
+	json.NewEncoder(w).Encode("Invested in players.")
 }
 
 func ISLSyncYouthPlayers(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	managers.SyncISLYouthDevelopment()
 
-	json.NewEncoder(w).Encode("Identified players.")
+	json.NewEncoder(w).Encode("Synced players.")
 }

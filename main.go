@@ -135,10 +135,10 @@ func handleRequests() {
 
 	// International Super League
 	// myRouter.HandleFunc("/import/isl/scoutingdept", controller.ImportISLScouting).Methods("GET")
-	myRouter.HandleFunc("/isl/identify/players", controller.ISLIdentifyYouthPlayers).Methods("GET")
-	myRouter.HandleFunc("/isl/scout/players", controller.ISLScoutYouthPlayers).Methods("GET")
-	myRouter.HandleFunc("/isl/invest/players", controller.ISLInvestYouthPlayers).Methods("GET")
-	myRouter.HandleFunc("/isl/sync/players", controller.ISLSyncYouthPlayers).Methods("GET")
+	// myRouter.HandleFunc("/isl/identify/players", controller.ISLIdentifyYouthPlayers).Methods("GET")
+	// myRouter.HandleFunc("/isl/scout/players", controller.ISLScoutYouthPlayers).Methods("GET")
+	// myRouter.HandleFunc("/isl/invest/players", controller.ISLInvestYouthPlayers).Methods("GET")
+	// myRouter.HandleFunc("/isl/sync/players", controller.ISLSyncYouthPlayers).Methods("GET")
 
 	// Match Controls
 	myRouter.HandleFunc("/match/{matchId}", controller.GetMatchByMatchId).Methods("GET")
@@ -310,7 +310,7 @@ func handleCron() {
 		c.AddFunc("0 20 * * 1,3,5,6", controller.ShowGamesViaCron)
 		c.AddFunc("0 10 * * 4", controller.FillAIBoardsViaCron)
 		c.AddFunc("0 12 * * 0", controller.SyncToNextWeekViaCron)
-		c.AddFunc("0 12 * * 2", controller.SyncFreeAgencyOffersViaCron)
+		c.AddFunc("0 16 * * 2", controller.SyncFreeAgencyOffersViaCron)
 		c.Start()
 	}()
 }
@@ -321,7 +321,7 @@ func main() {
 	fmt.Println("Database initialized.")
 
 	fmt.Println("Loading cron...")
-	handleCron()
+	// handleCron()
 
 	fmt.Println("Loading Requests...")
 	handleRequests()

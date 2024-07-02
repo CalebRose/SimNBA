@@ -46,6 +46,8 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 	// Get Professional Matches
 	nbaMatches := GetNBATeamMatchesByMatchType(nbaWeekID, seasonID, matchType)
 
+	arenaMap := GetArenaMap()
+
 	collegeMatchesWg.Add(len(collegeMatches))
 	nbaMatchesWg.Add(len(nbaMatches))
 
@@ -67,6 +69,17 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 			}
 			ht := GetTeamByTeamID(strconv.Itoa(int(c.HomeTeamID)))
 			at := GetTeamByTeamID(strconv.Itoa(int(c.AwayTeamID)))
+
+			capacity := 0
+
+			mutex.Lock()
+			arena := arenaMap[ht.Arena]
+			if arena.ID == 0 {
+				capacity = 6000
+			} else {
+				capacity = int(arena.Capacity)
+			}
+			mutex.Unlock()
 
 			livestreamChannel := 0
 			if (c.HomeTeamCoach != "AI" && c.HomeTeamCoach != "") || (c.AwayTeamCoach != "AI" && c.AwayTeamCoach != "") {
@@ -99,6 +112,7 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 				AwayTeam:               c.AwayTeam,
 				MatchOfWeek:            c.MatchOfWeek,
 				Arena:                  c.Arena,
+				Capacity:               capacity,
 				City:                   c.City,
 				State:                  c.State,
 				IsNeutralSite:          c.IsNeutralSite,

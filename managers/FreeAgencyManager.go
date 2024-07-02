@@ -381,7 +381,8 @@ func SignFreeAgent(offer structs.NBAContractOffer, FreeAgent structs.NBAPlayer, 
 	db := dbprovider.GetInstance().GetDB()
 
 	NBATeam := GetNBATeamByTeamID(strconv.Itoa(int(offer.TeamID)))
-	FreeAgent.SignWithTeam(NBATeam.ID, NBATeam.Abbr)
+	newMinimumValue := offer.ContractValue * (float64(FreeAgent.Age) / 30)
+	FreeAgent.SignWithTeam(NBATeam.ID, NBATeam.Abbr, true, newMinimumValue)
 
 	Contract := structs.NBAContract{
 		PlayerID:       FreeAgent.PlayerID,
@@ -717,7 +718,7 @@ func faSyncWaiverWirePlayers(waiverWirePlayers []structs.NBAPlayer, ts structs.T
 		} else {
 			winningOffer := waiverOffers[0]
 			winningOfferTeamID := strconv.Itoa(int(winningOffer.TeamID))
-			w.SignWithTeam(winningOffer.TeamID, winningOffer.Team)
+			w.SignWithTeam(winningOffer.TeamID, winningOffer.Team, false, 0)
 
 			contract := GetNBAContractsByPlayerID(waiverWireID)
 			contract.TradePlayer(winningOffer.TeamID, winningOffer.Team)
@@ -767,7 +768,7 @@ func faSyncGLeaguePlayers(gLeaguePlayers []structs.NBAPlayer, ts structs.Timesta
 			}
 		}
 		if ownerOffer.ID > 0 {
-			g.SignWithTeam(ownerOffer.TeamID, ownerOffer.Team)
+			g.SignWithTeam(ownerOffer.TeamID, ownerOffer.Team, false, 0)
 			contract := GetNBAContractsByPlayerID(gLeaguePlayerID)
 			contract.TradePlayer(ownerOffer.TeamID, ownerOffer.Team)
 			repository.SaveProfessionalContractRecord(contract, db)
@@ -793,7 +794,7 @@ func faSyncGLeaguePlayers(gLeaguePlayers []structs.NBAPlayer, ts structs.Timesta
 				db.Save(&Offer)
 
 				if WinningOffer.ID > 0 {
-					g.SignWithTeam(WinningOffer.TeamID, WinningOffer.Team)
+					g.SignWithTeam(WinningOffer.TeamID, WinningOffer.Team, false, 0)
 					contract := GetNBAContractsByPlayerID(gLeaguePlayerID)
 					contract.TradePlayer(WinningOffer.TeamID, WinningOffer.Team)
 					repository.SaveProfessionalContractRecord(contract, db)
@@ -834,7 +835,7 @@ func faSyncISLPlayers(islPlayers []structs.NBAPlayer, ts structs.Timestamp, db *
 		contract := GetNBAContractsByPlayerID(islPlayerID)
 		contract.TradePlayer(ownerOffer.TeamID, ownerOffer.Team)
 		repository.SaveProfessionalContractRecord(contract, db)
-		i.SignWithTeam(ownerOffer.TeamID, ownerOffer.Team)
+		i.SignWithTeam(ownerOffer.TeamID, ownerOffer.Team, false, 0)
 		message := i.Position + " " + i.FirstName + " " + i.LastName + " was picked up from the GLeague by " + ownerOffer.Team
 		CreateNewsLog("NBA", message, "Free Agency", int(ownerOffer.TeamID), ts)
 
@@ -844,7 +845,7 @@ func faSyncISLPlayers(islPlayers []structs.NBAPlayer, ts structs.Timestamp, db *
 			contract := GetNBAContractsByPlayerID(islPlayerID)
 			contract.TradePlayer(ownerOffer.TeamID, ownerOffer.Team)
 			repository.SaveProfessionalContractRecord(contract, db)
-			i.SignWithTeam(ownerOffer.TeamID, ownerOffer.Team)
+			i.SignWithTeam(ownerOffer.TeamID, ownerOffer.Team, false, 0)
 			message := i.Position + " " + i.FirstName + " " + i.LastName + " was picked up from the ISL by " + ownerOffer.Team
 			CreateNewsLog("NBA", message, "Free Agency", int(ownerOffer.TeamID), ts)
 		} else {
@@ -868,7 +869,7 @@ func faSyncISLPlayers(islPlayers []structs.NBAPlayer, ts structs.Timestamp, db *
 					contract := GetNBAContractsByPlayerID(islPlayerID)
 					contract.TradePlayer(WinningOffer.TeamID, WinningOffer.Team)
 					repository.SaveProfessionalContractRecord(contract, db)
-					i.SignWithTeam(WinningOffer.TeamID, WinningOffer.Team)
+					i.SignWithTeam(WinningOffer.TeamID, WinningOffer.Team, false, 0)
 					message := i.Position + " " + i.FirstName + " " + i.LastName + " was picked up from the GLeague by " + WinningOffer.Team
 					CreateNewsLog("NBA", message, "Free Agency", int(WinningOffer.TeamID), ts)
 				} else if ts.IsNBAOffseason {

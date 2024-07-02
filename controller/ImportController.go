@@ -58,3 +58,7 @@ func ImportISLScouting(w http.ResponseWriter, r *http.Request) {
 func RunPromises(w http.ResponseWriter, r *http.Request) {
 	managers.AICoachPromisePhase()
 }
+
+func ImportFAPreferences(w http.ResponseWriter, r *http.Request) {
+	managers.ImportFAPreferences()
+}

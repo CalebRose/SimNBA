@@ -65,6 +65,21 @@ func (n *NBAPlayer) SetRetiringStatus() {
 	n.IsRetiring = true
 }
 
+func (n *NBAPlayer) BecomeUDFA() {
+	n.TeamAbbr = "FA"
+	n.TeamID = 0
+	n.IsFreeAgent = true
+	n.IsOnTradeBlock = false
+	n.IsGLeague = false
+	n.IsTwoWay = false
+	n.IsAcceptingOffers = true
+	n.IsNBA = true
+	n.IsNegotiating = false
+	n.IsAcceptingOffers = true
+	n.MinimumValue = 0.7
+	n.ResetMinutes()
+}
+
 func (n *NBAPlayer) BecomeFreeAgent() {
 	n.TeamAbbr = "FA"
 	n.TeamID = 0
@@ -77,6 +92,8 @@ func (n *NBAPlayer) BecomeFreeAgent() {
 }
 
 func (n *NBAPlayer) BecomeInternationalDraftee() {
+	n.CollegeID = n.TeamID
+	n.College = n.TeamAbbr
 	n.TeamAbbr = "DRAFT"
 	n.TeamID = 0
 	n.IsFreeAgent = false
@@ -87,7 +104,25 @@ func (n *NBAPlayer) BecomeInternationalDraftee() {
 	n.ResetMinutes()
 }
 
-func (n *NBAPlayer) SignWithTeam(teamID uint, team string) {
+func (n *NBAPlayer) DraftInternationalPlayer(pickID, round, number, teamID uint, team string) {
+	n.DraftPickID = pickID
+	n.DraftedRound = round
+	n.DraftPick = number
+	n.DraftedTeamAbbr = team
+	n.DraftedTeamID = teamID
+	n.IsNBA = true
+	n.TeamAbbr = team
+	n.TeamID = teamID
+	n.IsFreeAgent = false
+	n.IsWaived = false
+	n.IsGLeague = false
+	n.IsTwoWay = false
+	n.IsAcceptingOffers = false
+	n.IsNegotiating = false
+	n.ResetMinutes()
+}
+
+func (n *NBAPlayer) SignWithTeam(teamID uint, team string, isFAorExt bool, minValue float64) {
 	n.TeamAbbr = team
 	n.TeamID = teamID
 	n.IsFreeAgent = false
@@ -100,6 +135,9 @@ func (n *NBAPlayer) SignWithTeam(teamID uint, team string) {
 		n.IsInternational = false
 	} else {
 		n.IsInternational = true
+	}
+	if isFAorExt {
+		n.MinimumValue = minValue
 	}
 	n.ResetMinutes()
 }

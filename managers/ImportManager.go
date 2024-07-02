@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/secrets"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
@@ -347,14 +348,11 @@ func ImportFAPreferences() {
 			NegotiationRound = util.GenerateIntFromRange(3, 6)
 		}
 
-		SigningRound := NegotiationRound + util.GenerateIntFromRange(2, 5)
-		if SigningRound > 10 {
-			SigningRound = 10
-		}
+		SigningRound := NegotiationRound + 1
 
 		p.AssignFAPreferences(uint(NegotiationRound), uint(SigningRound))
 
-		db.Save(&p)
+		repository.SaveProfessionalPlayerRecord(p, db)
 	}
 }
 

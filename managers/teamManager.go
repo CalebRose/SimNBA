@@ -478,6 +478,21 @@ func GetCBBTeamByAbbreviation(abbr string) structs.Team {
 	return team
 }
 
+func GetArenaMap() map[string]structs.Arena {
+	var arenas []structs.Arena
+	arenaMap := make(map[string]structs.Arena)
+	db := dbprovider.GetInstance().GetDB()
+	err := db.Find(&arenas).Error
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, a := range arenas {
+		arenaMap[a.ArenaName] = a
+	}
+	return arenaMap
+}
+
 func GetOnlyNBATeams() []structs.NBATeam {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -642,7 +657,7 @@ func FormISLRosters() {
 
 				// Sign Player
 				playerSignedMap[fa.ID] = true
-				fa.SignWithTeam(t.ID, teamName)
+				fa.SignWithTeam(t.ID, teamName, false, 0)
 
 				yearsOnContract := 1
 				y1 := 0.7

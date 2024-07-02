@@ -52,7 +52,7 @@ func CleanNBAPlayerTables() {
 			continue
 		}
 		if (n.IsFreeAgent || n.TeamID == 0 || n.TeamAbbr == "FA") && hasActiveContract {
-			n.SignWithTeam(ac.TeamID, ac.Team)
+			n.SignWithTeam(ac.TeamID, ac.Team, false, 0)
 			db.Save(&n)
 			continue
 		}

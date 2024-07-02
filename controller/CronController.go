@@ -96,7 +96,7 @@ func ShowGamesViaCron() {
 
 func SyncFreeAgencyOffersViaCron() {
 	ts := managers.GetTimestamp()
-	if ts.RunCron && !ts.IsFreeAgencyLocked {
+	if ts.RunCron && !ts.IsFreeAgencyLocked && !ts.IsDraftTime {
 		managers.SyncFreeAgencyOffers()
 		managers.MoveUpInOffseasonFreeAgency()
 	}

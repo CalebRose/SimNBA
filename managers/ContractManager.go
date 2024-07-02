@@ -102,7 +102,8 @@ func SyncFreeAgentOffers(playerID string, seasonID string) {
 			}
 			// If below the cap, accept offer
 			offer.AcceptOffer()
-			player.SignWithTeam(offer.TeamID, offer.Team)
+			newMinimumValue := offer.ContractValue * (float64(player.Age) / 30)
+			player.SignWithTeam(offer.TeamID, offer.Team, true, newMinimumValue)
 			contract := GetNBAContractsByPlayerID(playerID)
 			if contract.ID == 0 {
 				contract.MapFromOffer(offer)

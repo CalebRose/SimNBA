@@ -1,6 +1,7 @@
 package managers
 
 import (
+	"fmt"
 	"math/rand"
 	"sort"
 	"strconv"
@@ -80,12 +81,24 @@ func GetScoutingReportsByPlayerID(pid string) []structs.ISLScoutingReport {
 
 	report := []structs.ISLScoutingReport{}
 
-	err := db.Where("player_id = ?", pid).Find(&report).Error
+	err := db.Where("player_id = ? AND removed_from_board = ?", pid, false).Find(&report).Error
 	if err != nil {
 		return report
 	}
 
 	return report
+}
+
+func GetScoutingReportByPlayerIDMAP(youthPlayers []structs.NBAPlayer) map[uint][]structs.ISLScoutingReport {
+	newMap := make(map[uint][]structs.ISLScoutingReport)
+
+	for _, p := range youthPlayers {
+		pid := strconv.Itoa(int(p.ID))
+		reports := GetScoutingReportsByPlayerID(pid)
+		newMap[p.ID] = reports
+	}
+
+	return newMap
 }
 
 func GetScoutingReportsByTeamID(tid string) []structs.ISLScoutingReport {
@@ -105,21 +118,38 @@ func ISLIdentityPhase() {
 	db := dbprovider.GetInstance().GetDB()
 
 	depts := GetAllScoutingDepts()
+	fmt.Println("Loading available players...")
 	youthPlayers := GetAllYouthDevelopmentPlayers()
+	fmt.Println("Loading existing reports...")
+	reportMap := GetScoutingReportByPlayerIDMAP(youthPlayers)
 
 	// To help teams build up, set player list by OVR.
+	fmt.Println("Ordering players...")
 	sort.Slice(youthPlayers, func(i, j int) bool {
 		return youthPlayers[i].Overall > youthPlayers[j].Overall
+	})
+
+	fmt.Println("Shuffling list of departments...")
+	// Shuffle the departments so that teams don't pick based on order of creation
+	rand.Shuffle(len(depts), func(i, j int) {
+		depts[i], depts[j] = depts[j], depts[i]
 	})
 
 	teamMap := GetProfessionalTeamMap()
 	adjCountryMap := util.GetAdjacentCountryMap()
 	for _, d := range depts {
 		teamId := strconv.Itoa(int(d.TeamID))
+		currentRoster := GetAllNBAPlayersByTeamID(teamId)
+		if len(currentRoster) > 12 {
+			continue
+		}
 		team := teamMap[d.TeamID]
-		pointCost := 10 - d.IdentityMod
+		pointCost := 8 - d.IdentityMod
+		if pointCost > 100 {
+			pointCost = 1
+		}
 		for _, p := range youthPlayers {
-			if d.IdentityPool >= d.Resources || d.Resources-pointCost <= 0 {
+			if d.Resources <= 20 || d.Resources-pointCost <= 0 {
 				break
 			}
 			playerID := strconv.Itoa(int(p.ID))
@@ -127,23 +157,26 @@ func ISLIdentityPhase() {
 			if existingReport.ID > 0 {
 				continue
 			}
-			base := 20
+			base := 80
 			// Determine if player is in team's country
 			adjCountries := adjCountryMap[p.Country]
 			if p.Country == team.Country {
-				base += 65
+				base += 95
 			} else if util.CheckIfStringInList(team.Country, adjCountries) {
-				base += 30
+				base += 45
 			}
 			roll := util.GenerateIntFromRange(1, 100)
 			proposedPoints := int(d.Resources - pointCost)
-			if roll <= base && proposedPoints >= 0 {
+			reports := reportMap[p.ID]
+			if roll <= base && proposedPoints >= 0 && len(reports) < 2 {
 				d.IncrementPool(1, pointCost)
 				// Add player to board
 				report := structs.ISLScoutingReport{
 					TeamID:   d.TeamID,
 					PlayerID: p.ID,
 				}
+
+				reportMap[p.ID] = append(reportMap[p.ID], report)
 
 				repository.CreateISLScoutingReportRecord(report, db)
 			}
@@ -168,7 +201,7 @@ func ISLScoutingPhase() {
 		if pointsRemaining < 0 {
 			pointsRemaining = 0
 		}
-		pointsToSpend := 30
+		pointsToSpend := 200
 		if d.BehaviorBias == 1 {
 			pointsToSpend += 10
 		} else if d.BehaviorBias == 3 {
@@ -254,6 +287,9 @@ func ISLScoutingPhase() {
 			}
 			baseCost := 10
 			for _, attr := range selectionList {
+				if s.Overall {
+					break
+				}
 				if attr == "fn" && !s.Finishing {
 					pointCost := baseCost - int(d.Finishing)
 					if pointCost < 0 {
@@ -364,7 +400,7 @@ func ISLScoutingPhase() {
 			}
 			// if Overall was just revealed
 			if s.Overall {
-				pointRequirement := 50
+				pointRequirement := 30
 				coinFlip := util.GenerateIntFromRange(1, 2)
 				if d.Prestige > 3 && player.Overall <= 40 && coinFlip == 2 {
 					s.RemovePlayerFromBoard()
@@ -408,11 +444,11 @@ func ISLInvestingPhase() {
 				continue
 			}
 
-			demand := 10
+			demand := 30
 			if player.Overall > 58 && d.Prestige > 2 {
 				demand *= int(d.Prestige)
 			} else if player.Overall > 58 && d.Prestige <= 2 {
-				demand = util.GenerateIntFromRange(10, 25)
+				demand = util.GenerateIntFromRange(30, 45)
 			}
 
 			if demand > pointsRemaining {
@@ -478,7 +514,7 @@ func SyncISLYouthDevelopment() {
 			if winningTeamID > 0 {
 				team := teamMap[uint(winningTeamID)]
 				label := strings.TrimSpace(team.Team + " " + team.Nickname)
-				p.SignWithTeam(team.ID, label)
+				p.SignWithTeam(team.ID, label, false, 0)
 				playerLabel := strconv.Itoa(p.Age) + " year old " + p.Position + " " + p.FirstName + " " + p.LastName
 				message := "Breaking News! " + playerLabel + " has signed with ISL Team " + label + " in " + team.Country + "!"
 				CreateNewsLog("NBA", message, "FreeAgency", 0, ts)

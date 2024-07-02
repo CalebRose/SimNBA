@@ -18,6 +18,7 @@ type MatchResponse struct {
 	AwayTeam               string
 	MatchOfWeek            string
 	Arena                  string
+	Capacity               int
 	City                   string
 	State                  string
 	IsNeutralSite          bool
