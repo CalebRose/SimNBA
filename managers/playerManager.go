@@ -922,6 +922,16 @@ func GetAllNBAPlayersByTeamIDForProgression(teamID string, seasonID string) []st
 	return players
 }
 
+func GetNBAContractsByTeamID(TeamID string) []structs.NBAContract {
+	db := dbprovider.GetInstance().GetDB()
+
+	var players []structs.NBAContract
+
+	db.Where("team_id = ? AND (is_active = ? OR is_dead_cap = ?)", TeamID, true, true).Order("total_remaining desc").Find(&players)
+
+	return players
+}
+
 func GetNBAPlayersWithContractsByTeamID(TeamID string) []structs.NBAPlayer {
 	db := dbprovider.GetInstance().GetDB()
 

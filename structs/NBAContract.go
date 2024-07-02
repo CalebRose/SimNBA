@@ -55,11 +55,13 @@ func (n *NBAContract) ProgressContract() {
 
 func (n *NBAContract) DeactivateContract() {
 	n.IsActive = false
+	n.IsDeadCap = true
 }
 
 func (n *NBAContract) RetireContract() {
 	n.IsActive = false
 	n.IsComplete = true
+	n.IsDeadCap = false
 }
 
 func (n *NBAContract) MapFromOffer(o NBAContractOffer) {

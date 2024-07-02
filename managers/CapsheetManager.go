@@ -3,7 +3,6 @@ package managers
 import (
 	"fmt"
 	"log"
-	"sort"
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
@@ -32,7 +31,7 @@ func AllocateCapsheets() {
 	for _, team := range teams {
 		TeamID := strconv.Itoa(int(team.ID))
 
-		players := GetNBAPlayersWithContractsByTeamID(TeamID)
+		players := GetNBAContractsByTeamID(TeamID)
 
 		Capsheet := GetCapsheetByTeamID(TeamID)
 
@@ -42,19 +41,16 @@ func AllocateCapsheets() {
 
 		Capsheet.ResetCapsheet()
 
-		sort.Sort(structs.ByTotalContract(players))
-
 		y1 := 0.0
 		y2 := 0.0
 		y3 := 0.0
 		y4 := 0.0
 		y5 := 0.0
 
-		for _, player := range players {
-			if player.IsGLeague {
+		for _, contract := range players {
+			if contract.IsComplete {
 				continue
 			}
-			contract := player.Contract
 			y1 += contract.Year1Total
 			y2 += contract.Year2Total
 			y3 += contract.Year3Total
