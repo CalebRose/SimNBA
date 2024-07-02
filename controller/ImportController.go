@@ -62,3 +62,7 @@ func RunPromises(w http.ResponseWriter, r *http.Request) {
 func ImportFAPreferences(w http.ResponseWriter, r *http.Request) {
 	managers.ImportFAPreferences()
 }
+
+func ImportPlaytimeExpectations(w http.ResponseWriter, r *http.Request) {
+	managers.ImportMinutesExpectations()
+}

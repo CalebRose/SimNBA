@@ -356,6 +356,23 @@ func ImportFAPreferences() {
 	}
 }
 
+func ImportMinutesExpectations() {
+	db := dbprovider.GetInstance().GetDB()
+	nbaPlayers := GetAllNBAPlayers()
+
+	for _, p := range nbaPlayers {
+		if p.PlaytimeExpectations > 0 {
+			continue
+		}
+		minutes := util.GetProfessionalPlaytimeExpectations(p.Age, int(p.PrimeAge), p.Overall)
+		if minutes < 0 {
+			minutes = util.GenerateNormalizedIntFromRange(0, 12)
+		}
+		p.SetMinutesExpectations(minutes)
+		repository.SaveProfessionalPlayerRecord(p, db)
+	}
+}
+
 func ImportPersonalities() {
 	fmt.Println(time.Now().UnixNano())
 	db := dbprovider.GetInstance().GetDB()

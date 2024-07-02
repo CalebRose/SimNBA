@@ -858,14 +858,16 @@ func GetProfessionalPlaytimeExpectations(age, primeage, overall int) int {
 	} else if age >= primeage {
 		mod -= (age - primeage)
 	}
-	if overall < 80 {
+	if overall < 70 {
 		return GenerateIntFromRange(0, 12) + mod
+	} else if overall < 80 {
+		return GenerateIntFromRange(4, 16) + mod
 	} else if overall < 90 {
-		return GenerateIntFromRange(8, 18) + mod
+		return GenerateIntFromRange(8, 20) + mod
 	}
 
 	// Superstar Players
-	return GenerateIntFromRange(10, 25) + mod
+	return GenerateIntFromRange(12, 28) + mod
 }
 
 // calculateOverallModifier - Returns a modifier between 0 and 100 based on the overall of the player

@@ -127,6 +127,7 @@ func handleRequests() {
 
 	// myRouter.HandleFunc("/import/archetypes", controller.ImportArchetypes).Methods("GET")
 	// myRouter.HandleFunc("/import/fa/preferences", controller.ImportFAPreferences).Methods("GET")
+	// myRouter.HandleFunc("/import/minutes/expectations", controller.ImportPlaytimeExpectations).Methods("GET")
 	// myRouter.HandleFunc("/import/positions", controller.ImportNewPositions).Methods("GET")
 	// myRouter.HandleFunc("/import/ai/values", controller.MigrateNewAIRecruitingValues).Methods("GET")
 	// myRouter.HandleFunc("/import/new/personalities", controller.ImportPersonalities).Methods("GET")
@@ -321,7 +322,7 @@ func main() {
 	fmt.Println("Database initialized.")
 
 	fmt.Println("Loading cron...")
-	// handleCron()
+	handleCron()
 
 	fmt.Println("Loading Requests...")
 	handleRequests()

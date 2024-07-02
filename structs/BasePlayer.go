@@ -298,6 +298,10 @@ func (c *BasePlayer) SetAge(age int) {
 	c.Age = age
 }
 
+func (c *BasePlayer) SetMinutesExpectations(min int) {
+	c.PlaytimeExpectations = min
+}
+
 func (np *BasePlayer) SetAttributes(s2, s3, fn, ft, bl, rb, id, pd, ovr, stars, exp int) {
 	np.Shooting2 = s2
 	np.Shooting3 = s3
