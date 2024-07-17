@@ -131,6 +131,7 @@ func ProgressNBAPlayers() {
 						repository.DeleteExtension(acceptedExtension, db)
 					} else {
 						player.BecomeFreeAgent()
+
 					}
 				}
 				if contract.ID > 0 {

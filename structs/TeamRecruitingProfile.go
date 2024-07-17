@@ -27,6 +27,9 @@ type TeamRecruitingProfile struct {
 	RivalsScore             float64
 	Rank247Score            float64
 	CompositeScore          float64
+	FiveStars               uint8
+	FourStars               uint8
+	ThreeStars              uint8
 	AIMinThreshold          int
 	AIMaxThreshold          int
 	AIStarMin               int
@@ -57,6 +60,9 @@ func (r *TeamRecruitingProfile) ReallocateScholarship() {
 
 func (r *TeamRecruitingProfile) ResetScholarshipCount() {
 	r.ScholarshipsAvailable = 15
+	r.FiveStars = 0
+	r.FourStars = 0
+	r.ThreeStars = 0
 }
 
 func (r *TeamRecruitingProfile) AllocateSpentPoints(points int) {
@@ -96,6 +102,16 @@ func (r *TeamRecruitingProfile) AssignESPNRank(score float64) {
 
 func (r *TeamRecruitingProfile) AssignCompositeRank(score float64) {
 	r.CompositeScore = score
+}
+
+func (r *TeamRecruitingProfile) AddStarPlayer(stars int) {
+	if stars == 5 {
+		r.FiveStars += 1
+	} else if stars == 4 {
+		r.FourStars += 1
+	} else if stars == 3 {
+		r.ThreeStars += 1
+	}
 }
 
 func (r *TeamRecruitingProfile) UpdateTotalSignedRecruits(num int) {

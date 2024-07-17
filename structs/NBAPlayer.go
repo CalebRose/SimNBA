@@ -89,6 +89,7 @@ func (n *NBAPlayer) BecomeFreeAgent() {
 	n.IsTwoWay = false
 	n.IsAcceptingOffers = true
 	n.ResetMinutes()
+	n.AssignMinimumContractValue(0)
 }
 
 func (n *NBAPlayer) BecomeInternationalDraftee() {
@@ -234,7 +235,26 @@ func (np *NBAPlayer) TradePlayer(id uint, team string) {
 }
 
 func (np *NBAPlayer) AssignMinimumContractValue(val float64) {
-	np.MinimumValue = val
+	if val > 0 {
+		np.MinimumValue = val
+	} else {
+		if np.Overall > 100 {
+			np.MaxRequested = true
+		} else {
+			np.MaxRequested = false
+		}
+		if np.Overall >= 95 && np.Overall <= 99 {
+			np.MinimumValue = 25
+		} else if np.Overall >= 90 && np.Overall <= 94 {
+			np.MinimumValue = 20
+		} else if np.Overall >= 85 && np.Overall <= 89 {
+			np.MinimumValue = 5
+		} else if np.Overall >= 80 && np.Overall <= 84 {
+			np.MinimumValue = 3
+		} else {
+			np.MinimumValue = 1
+		}
+	}
 }
 
 func (np *NBAPlayer) ToggleSuperMax() {

@@ -134,6 +134,7 @@ func SyncRecruiting() {
 					recruitTeamProfile := teamMap[(strconv.Itoa(int(winningTeamID)))]
 					if recruitTeamProfile.TotalCommitments < recruitTeamProfile.RecruitClassSize {
 						recruitTeamProfile.IncreaseCommitCount()
+						recruitTeamProfile.AddStarPlayer(recruit.Stars)
 						teamAbbreviation := recruitTeamProfile.TeamAbbr
 						recruit.AssignCollege(teamAbbreviation)
 						message := recruit.FirstName + " " + recruit.LastName + ", " + strconv.Itoa(recruit.Stars) + " star " + recruit.Position + " from " + recruit.State + ", " + recruit.Country + " has signed with " + recruit.TeamAbbr + " with " + strconv.Itoa(int(odds)) + " percent odds."
