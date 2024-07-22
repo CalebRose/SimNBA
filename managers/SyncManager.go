@@ -220,7 +220,7 @@ func FillAIRecruitingBoards() {
 	ts := GetTimestamp()
 
 	AITeams := GetOnlyAITeamRecruitingProfiles()
-
+	coachMap := GetActiveCollegeCoachMap()
 	// Shuffles the list of AI teams so that it's not always iterating from A-Z. Gives the teams at the lower end of the list a chance to recruit other croots
 	rand.Shuffle(len(AITeams), func(i, j int) {
 		AITeams[i], AITeams[j] = AITeams[j], AITeams[i]
@@ -231,7 +231,7 @@ func FillAIRecruitingBoards() {
 
 	regionMap := util.GetRegionMap()
 
-	boardCount := 30
+	boardCount := 20
 
 	for _, team := range AITeams {
 		count := 0
@@ -243,11 +243,14 @@ func FillAIRecruitingBoards() {
 		existingBoard := GetAllRecruitsByProfileID(id)
 
 		count = len(existingBoard)
-
+		boardCount = team.RecruitClassSize * 5
 		if count >= boardCount {
 			continue
 		}
-
+		coach := coachMap[team.ID]
+		if coach.ID == 0 {
+			continue
+		}
 		currentRoster := GetCollegePlayersByTeamId(id)
 		teamNeedsMap := make(map[string]bool)
 		positionCount := make(map[string]int)
@@ -310,7 +313,7 @@ func FillAIRecruitingBoards() {
 			recruitingNeed := teamNeedsMap[croot.Position]
 			willPursue := true
 			if croot.IsCustomCroot || (!recruitingNeed && ts.CollegeWeek < 12) ||
-				(croot.Stars == 5 && team.AIQuality != "Blue Blood") {
+				(croot.Stars > coach.StarMax || croot.Stars < coach.StarMin) {
 				willPursue = false
 			}
 
@@ -348,24 +351,24 @@ func FillAIRecruitingBoards() {
 					odds += 33
 				}
 				if regionMap[croot.State] != team.Region && croot.State != team.State && team.AIQuality == "Mid-Major" {
-					odds -= 10
+					odds -= 15
 				}
 			}
 			/* Initial Base */
-			if team.AIQuality == "Blue Blood" && croot.Stars == 5 {
-				odds += 10
-			} else if team.AIQuality == "Cinderella" && croot.Stars == 4 {
-				odds += 10
-			} else if team.AIQuality == "P6" && croot.Stars == 4 {
-				odds += 20
-			} else if team.AIQuality == "P6" && croot.Stars == 3 {
-				odds += 25
-			} else if team.AIQuality == "Mid-Major" && croot.Stars < 3 {
-				odds += 10
+			if croot.Stars == 5 {
+				odds += coach.Odds5
+			} else if croot.Stars == 4 {
+				odds += coach.Odds4
+			} else if croot.Stars == 3 {
+				odds += coach.Odds3
+			} else if croot.Stars == 2 {
+				odds += coach.Odds2
+			} else {
+				odds += coach.Odds1
 			}
 
 			if team.AIQuality == "Cinderella" && util.IsPlayerHighPotential(croot) {
-				odds += 15
+				odds += 5
 			}
 
 			if team.AIValue == "Star" {
@@ -394,7 +397,7 @@ func FillAIRecruitingBoards() {
 				teamCount++
 			}
 
-			teamLimit := 25
+			teamLimit := 10
 			if ts.CollegeWeek > 12 {
 				teamLimit = 6
 			}
@@ -433,6 +436,7 @@ func AllocatePointsToAIBoards() {
 	ts := GetTimestamp()
 
 	AITeams := GetOnlyAITeamRecruitingProfiles()
+	coachMap := GetActiveCollegeCoachMap()
 
 	// Shuffles the list of AI teams so that it's not always iterating from A-Z. Gives the teams at the lower end of the list a chance to recruit other croots
 	rand.Shuffle(len(AITeams), func(i, j int) {
@@ -444,7 +448,10 @@ func AllocatePointsToAIBoards() {
 			continue
 		}
 		id := strconv.Itoa(int(team.ID))
-
+		coach := coachMap[team.ID]
+		if coach.ID == 0 {
+			continue
+		}
 		currentRoster := GetCollegePlayersByTeamId(id)
 		signedCroots := GetSignedRecruitsByTeamProfileID(id)
 		teamNeedsMap := make(map[string]bool)
@@ -560,17 +567,17 @@ func AllocatePointsToAIBoards() {
 						continue
 					}
 
-					min := 2
-					max := 12
+					min := coach.PointMin
+					max := coach.PointMax
 
 					if team.AIBehavior == "Conservative" {
-						max = 10
+						max -= 2
 					} else if team.AIBehavior == "Aggressive" {
-						min = 10
-						max = 15
-					} else {
-						min = 6
-						max = 12
+						min += 2
+						max += 2
+					}
+					if max > 20 {
+						max = 20
 					}
 
 					num = util.GenerateIntFromRange(min, max)
