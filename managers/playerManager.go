@@ -734,7 +734,7 @@ func GetAllCollegeRecruits() []structs.Croot {
 	db := dbprovider.GetInstance().GetDB()
 
 	var recruits []structs.Recruit
-	db.Preload("RecruitProfiles", "total_points > ?", 0, func(db *gorm.DB) *gorm.DB {
+	db.Preload("RecruitProfiles", func(db *gorm.DB) *gorm.DB {
 		return db.Order("total_points DESC")
 	}).Find(&recruits)
 
