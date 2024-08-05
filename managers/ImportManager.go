@@ -1161,6 +1161,11 @@ func mapToCBBPlayerStatsObject(player structs.PlayerDTO, id, matchID int, season
 		Blocks:             player.Stats.Blocks,
 		Turnovers:          player.Stats.Turnovers,
 		Fouls:              player.Stats.Fouls,
+		FouledOut:          player.Stats.FouledOut,
+		IsInjured:          player.Stats.IsInjured,
+		InjuryName:         player.Stats.InjuryName,
+		InjuryType:         player.Stats.InjuryType,
+		WeeksOfRecovery:    player.Stats.WeeksOfRecovery,
 	}
 }
 
@@ -1193,5 +1198,10 @@ func mapToNBAPlayerStatsObject(player structs.PlayerDTO, id, matchID int, season
 		Blocks:             player.Stats.Blocks,
 		Turnovers:          player.Stats.Turnovers,
 		Fouls:              player.Stats.Fouls,
+		FouledOut:          player.Stats.FouledOut,
+		IsInjured:          player.Stats.IsInjured,
+		InjuryName:         player.Stats.InjuryName,
+		InjuryType:         player.Stats.InjuryType,
+		WeeksOfRecovery:    player.Stats.WeeksOfRecovery,
 	}
 }

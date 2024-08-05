@@ -108,4 +108,9 @@ type PlayerStatsDTO struct {
 	Blocks             int
 	Turnovers          int
 	Fouls              int
+	FouledOut          bool
+	IsInjured          bool
+	InjuryName         string
+	InjuryType         string
+	WeeksOfRecovery    uint8
 }
