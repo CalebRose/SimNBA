@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 )
 
@@ -317,8 +318,15 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 			if stat.Minutes <= 0 {
 				continue
 			}
-			playerSeasonStats := GetPlayerSeasonStatsByPlayerID(strconv.Itoa(int(stat.CollegePlayerID)), seasonId)
+			id := strconv.Itoa(int(stat.CollegePlayerID))
+			playerSeasonStats := GetPlayerSeasonStatsByPlayerID(id, seasonId)
 			playerSeasonStats.AddStatsToSeasonRecord(stat)
+
+			if stat.IsInjured {
+				player := GetCollegePlayerByPlayerID(id)
+				player.SetInjury(stat.InjuryName, stat.InjuryType, int(stat.WeeksOfRecovery))
+				repository.SaveCollegePlayerRecord(player, db)
+			}
 
 			err = db.Save(&playerSeasonStats).Error
 			if err != nil {
@@ -361,8 +369,15 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 			if stat.Minutes <= 0 {
 				continue
 			}
-			playerSeasonStats := GetNBAPlayerSeasonStatsByPlayerID(strconv.Itoa(int(stat.NBAPlayerID)), seasonId)
+			id := strconv.Itoa(int(stat.NBAPlayerID))
+			playerSeasonStats := GetNBAPlayerSeasonStatsByPlayerID(id, seasonId)
 			playerSeasonStats.AddStatsToSeasonRecord(stat)
+
+			if stat.IsInjured {
+				player := GetNBAPlayerByID(id)
+				player.SetInjury(stat.InjuryName, stat.InjuryType, int(stat.WeeksOfRecovery))
+				repository.SaveProfessionalPlayerRecord(player, db)
+			}
 
 			err = db.Save(&playerSeasonStats).Error
 			if err != nil {

@@ -67,12 +67,16 @@ func (t *NBATeam) AssignNBAUserToTeam(r NBARequest, u NBAUser) {
 func (t *NBATeam) RemoveUser(username string) {
 	if t.NBAOwnerName == username {
 		t.NBAOwnerName = ""
+		t.NBAOwnerID = 0
 	} else if t.NBAGMName == username {
 		t.NBAGMName = ""
+		t.NBAGMID = 0
 	} else if t.NBACoachName == username {
 		t.NBACoachName = ""
+		t.NBACoachID = 0
 	} else {
 		t.NBAAssistantName = ""
+		t.NBAAssistantID = 0
 	}
 }
 

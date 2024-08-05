@@ -314,6 +314,10 @@ func (np *BasePlayer) SetAttributes(s2, s3, fn, ft, bl, rb, id, pd, ovr, stars, 
 	np.Overall = ovr
 	np.Stars = stars
 	np.PlaytimeExpectations = exp
+	np.IsInjured = false
+	np.WeeksOfRecovery = 0
+	np.InjuryName = ""
+	np.InjuryType = ""
 }
 
 func (np *BasePlayer) ResetMinutes() {
@@ -324,4 +328,20 @@ func (np *BasePlayer) ResetMinutes() {
 	np.MidRangeProportion = 0
 	np.ThreePointProportion = 0
 	np.Minutes = 0
+}
+
+func (bp *BasePlayer) SetInjury(ijName, ijType string, wor int) {
+	bp.IsInjured = true
+	bp.InjuryName = ijName
+	bp.InjuryType = ijType
+	bp.WeeksOfRecovery = uint(wor)
+}
+func (bp *BasePlayer) RunRecovery() {
+	bp.WeeksOfRecovery -= 1
+	if bp.WeeksOfRecovery == 0 || bp.WeeksOfRecovery > 100 {
+		bp.IsInjured = false
+		bp.InjuryName = ""
+		bp.InjuryType = ""
+		bp.WeeksOfRecovery = 0
+	}
 }

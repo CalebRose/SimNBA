@@ -385,6 +385,7 @@ type NBAPlayerSeasonStats struct {
 	Turnovers                 int
 	TurnoversPerGame          float64
 	Fouls                     int
+	FoulOuts                  uint
 	FoulsPerGame              float64
 }
 
@@ -417,6 +418,11 @@ type NBAPlayerStats struct {
 	Blocks             int
 	Turnovers          int
 	Fouls              int
+	FouledOut          bool
+	IsInjured          bool
+	InjuryName         string
+	InjuryType         string
+	WeeksOfRecovery    uint8
 }
 
 func (s *NBAPlayerSeasonStats) AddStatsToSeasonRecord(stat NBAPlayerStats) {
@@ -454,7 +460,9 @@ func (s *NBAPlayerSeasonStats) AddStatsToSeasonRecord(stat NBAPlayerStats) {
 	s.Blocks += stat.Blocks
 	s.Turnovers += stat.Turnovers
 	s.Fouls += stat.Fouls
-
+	if stat.FouledOut {
+		s.FoulOuts += 1
+	}
 	s.PPG = float64(s.Points) / float64(s.GamesPlayed)
 	s.PossessionsPerGame = float64(s.Possessions) / float64(s.GamesPlayed)
 	s.MinutesPerGame = float64(s.Minutes) / float64(s.GamesPlayed)

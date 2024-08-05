@@ -309,6 +309,7 @@ func handleCron() {
 		c.AddFunc("0 16 * * 3", controller.SyncRecruitingViaCron)
 		c.AddFunc("0 6 * * 4,6", controller.SyncAIBoardsViaCron)
 		c.AddFunc("0 20 * * 1,3,5,6", controller.ShowGamesViaCron)
+		c.AddFunc("0 22 * * 1,3,5,6", controller.RunAIGameplansViaCron)
 		c.AddFunc("0 10 * * 4", controller.FillAIBoardsViaCron)
 		c.AddFunc("0 12 * * 0", controller.SyncToNextWeekViaCron)
 		c.AddFunc("0 16 * * 2", controller.SyncFreeAgencyOffersViaCron)
@@ -322,7 +323,7 @@ func main() {
 	fmt.Println("Database initialized.")
 
 	fmt.Println("Loading cron...")
-	handleCron()
+	// handleCron()
 
 	fmt.Println("Loading Requests...")
 	handleRequests()

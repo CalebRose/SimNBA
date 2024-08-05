@@ -428,28 +428,29 @@ func ImportCBBGames() {
 		timeSlot := row[3]
 		matchType := row[4]
 		isConf := false
-		if matchType == "Conf" {
+		if matchType == "CONF" {
 			isConf = true
 		}
-		htRank := util.ConvertStringToInt(row[5])
-		atRank := util.ConvertStringToInt(row[8])
 		homeTeamAbbr := row[6]
 		awayTeamAbbr := row[7]
+		htRank := util.ConvertStringToInt(row[5])
+		atRank := util.ConvertStringToInt(row[8])
+
 		homeTeam := collegeMap[homeTeamAbbr]
 		awayTeam := collegeMap[awayTeamAbbr]
-		gameTitle := row[26]
-		nextGameID := util.ConvertStringToInt(row[28])
-		hoA := row[29]
-		neutralSite := util.ConvertStringToBool(row[14])
-		invitational := util.ConvertStringToBool(row[15])
-		conferenceTournament := util.ConvertStringToBool(row[16])
-		cbi := util.ConvertStringToBool(row[17])
-		nit := util.ConvertStringToBool(row[18])
-		tournament := util.ConvertStringToBool(row[19])
-		nationalChamp := util.ConvertStringToBool(row[20])
-		arena := row[23]
-		city := row[24]
-		state := row[25]
+		gameTitle := row[20]
+		nextGameID := util.ConvertStringToInt(row[24])
+		hoA := row[25]
+		neutralSite := util.ConvertStringToBool(row[10])
+		invitational := util.ConvertStringToBool(row[11])
+		conferenceTournament := util.ConvertStringToBool(row[12])
+		cbi := util.ConvertStringToBool(row[13])
+		nit := util.ConvertStringToBool(row[14])
+		tournament := util.ConvertStringToBool(row[15])
+		nationalChamp := util.ConvertStringToBool(row[16])
+		arena := row[19]
+		city := row[20]
+		state := row[21]
 		homeCoach := homeTeam.Coach
 		if homeCoach == "" {
 			homeCoach = "AI"

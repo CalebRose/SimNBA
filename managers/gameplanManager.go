@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
 )
@@ -166,16 +167,17 @@ func SetAIGameplans() bool {
 	}
 
 	// Update all players on AI team to reset minutes
-	db.Model(&structs.CollegePlayer{}).Where("team_id in (?)", teamIDs).Updates(structs.CollegePlayer{
-		BasePlayer: structs.BasePlayer{
-			Minutes:       0,
-			P1Minutes:     0,
-			P2Minutes:     0,
-			P3Minutes:     0,
-			PositionOne:   "",
-			PositionTwo:   "",
-			PositionThree: "",
-		},
+	db.Model(&structs.CollegePlayer{}).Where("team_id in (?)", teamIDs).Updates(map[string]interface{}{
+		"minutes":                0,
+		"p1_minutes":             0,
+		"p2_minutes":             0,
+		"p3_minutes":             0,
+		"position_one":           "",
+		"position_two":           "",
+		"position_three":         "",
+		"inside_proportion":      0,
+		"mid_range_proportion":   0,
+		"three_point_proportion": 0,
 	})
 
 	// Update Minutes here
@@ -187,6 +189,10 @@ func SetAIGameplans() bool {
 
 		if team.IsUserCoached {
 			continue
+		}
+
+		if team.ID == 45 {
+			fmt.Println(team.Abbr)
 		}
 
 		pgCount := 0
@@ -220,7 +226,7 @@ func SetAIGameplans() bool {
 		}
 
 		for _, c := range roster {
-			if c.IsRedshirting {
+			if c.IsRedshirting || c.IsInjured {
 				continue
 			}
 
@@ -273,7 +279,7 @@ func SetAIGameplans() bool {
 		} else if ost == "Microball" {
 			pgMinutes = 80
 			sgMinutes = 80
-			pfMinutes = 0
+			pfMinutes = 00
 			sfMinutes = 40
 			cMinutes = 0
 		} else if ost == "Jumbo" {
@@ -339,7 +345,7 @@ func SetAIGameplans() bool {
 
 		teamTotalSkill := 0
 		for i := 0; i < len(roster); i++ {
-			if roster[i].Minutes == 0 || roster[i].IsRedshirting {
+			if roster[i].Minutes == 0 || roster[i].IsRedshirting || roster[i].IsInjured {
 				continue
 			}
 			teamTotalSkill += roster[i].Shooting2 + roster[i].Shooting3 + roster[i].Finishing
@@ -393,7 +399,7 @@ func SetAIGameplans() bool {
 		}
 
 		for i := 0; i < len(roster); i++ {
-			if roster[i].Minutes == 0 || roster[i].IsRedshirting {
+			if roster[i].Minutes == 0 || roster[i].IsRedshirting || roster[i].IsInjured {
 				continue
 			}
 			normalizedInsideProportion := (roster[i].InsideProportion * float64(teamInsideLimit)) / teamInsideProportion
@@ -425,7 +431,7 @@ func SetAIGameplans() bool {
 		}
 
 		for _, r := range roster {
-			db.Save(&r)
+			repository.SaveCollegePlayerRecord(r, db)
 		}
 
 		gameplan.UpdateGameplan(pace, off, def, ost, "")
@@ -433,7 +439,7 @@ func SetAIGameplans() bool {
 		db.Save(&gameplan)
 	}
 
-	islTeams := GetInternationalTeams()
+	islTeams := GetAllActiveNBATeams()
 	islIDs := []string{}
 	for _, team := range islTeams {
 		if len(team.NBAOwnerName) > 0 && team.NBAOwnerName != "AI" {
@@ -443,16 +449,17 @@ func SetAIGameplans() bool {
 		islIDs = append(islIDs, teamID)
 	}
 
-	db.Model(&structs.NBAPlayer{}).Where("team_id in (?)", islIDs).Updates(structs.NBAPlayer{
-		BasePlayer: structs.BasePlayer{
-			Minutes:       0,
-			P1Minutes:     0,
-			P2Minutes:     0,
-			P3Minutes:     0,
-			PositionOne:   "",
-			PositionTwo:   "",
-			PositionThree: "",
-		},
+	db.Model(&structs.NBAPlayer{}).Where("team_id in (?)", islIDs).Updates(map[string]interface{}{
+		"minutes":                0,
+		"p1_minutes":             0,
+		"p2_minutes":             0,
+		"p3_minutes":             0,
+		"position_one":           "",
+		"position_two":           "",
+		"position_three":         "",
+		"inside_proportion":      0,
+		"mid_range_proportion":   0,
+		"three_point_proportion": 0,
 	})
 
 	for _, team := range islTeams {
@@ -713,39 +720,43 @@ func SetAIGameplans() bool {
 
 func setPositionMinutes(list []structs.CollegePlayer, rMap map[string]*structs.CollegePlayer, limit int, pos, ost string) int {
 	curr := 0
-	for _, c := range list {
-		if curr >= limit {
-			break
-		}
-		id := strconv.Itoa(int(c.ID))
-		p := rMap[id]
-		if p.Minutes == p.Stamina {
-			continue
-		}
+	for curr < limit {
+		for _, c := range list {
+			if curr >= limit {
+				break
+			}
+			id := strconv.Itoa(int(c.ID))
+			p := rMap[id]
+			if p.Minutes == p.Stamina {
+				continue
+			}
 
-		min := p.Minutes
-		diff := p.Stamina - min
+			min := p.Minutes
+			diff := p.Stamina - min
 
-		if diff > 30 {
-			diff = util.GenerateIntFromRange(25, 30)
-			// If we have a negative number, reset to 0
-		} else if diff < 0 {
-			diff = 0
-		}
+			if diff > 30 {
+				diff = util.GenerateIntFromRange(25, 30)
+				// If we have a negative number, reset to 0
+			} else if diff < 0 {
+				diff = 0
+			}
 
-		if diff > limit-curr {
-			diff = limit - curr
-		}
+			// If the difference is greater than the allowed limit - the current allocation, set difference to the number remaining
+			if diff > limit-curr {
+				diff = limit - curr
+			}
 
-		if p.P1Minutes == 0 {
-			p.SetP1Minutes(diff, pos)
-		} else if p.P2Minutes == 0 && p.PositionOne != pos {
-			p.SetP2Minutes(diff, pos)
-		} else if p.P3Minutes == 0 && p.PositionOne != pos && p.PositionTwo != pos {
-			p.SetP3Minutes(diff, pos)
+			if p.P1Minutes == 0 {
+				p.SetP1Minutes(diff, pos)
+			} else if p.P2Minutes == 0 && p.PositionOne != pos {
+				p.SetP2Minutes(diff, pos)
+			} else if p.P3Minutes == 0 && p.PositionOne != pos && p.PositionTwo != pos {
+				p.SetP3Minutes(diff, pos)
+			}
+			curr = addCurrentMinutes(curr, diff, limit)
 		}
-		curr = addCurrentMinutes(curr, diff, limit)
 	}
+
 	return curr
 }
 
@@ -793,8 +804,8 @@ func addCurrentMinutes(curr, diff, limit int) int {
 	num := curr
 	num += diff
 	if num > limit {
-		diff = num - limit
-		num -= diff
+		newDiff := num - limit
+		num -= newDiff
 	}
 	return num
 }

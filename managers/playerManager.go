@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
 	"gorm.io/gorm"
@@ -1105,4 +1106,29 @@ func ProcessEarlyDeclareeAnnouncements() {
 		message := "Breaking News! " + playerLabel + " has announced their early declaration for the upcoming SimNBA Draft!"
 		CreateNewsLog("CBB", message, "Graduation", int(c.TeamID), ts)
 	}
+}
+
+func ProcessRecovery() {
+	db := dbprovider.GetInstance().GetDB()
+	collegePlayers := GetAllCollegePlayers()
+
+	for _, c := range collegePlayers {
+		if !c.IsInjured {
+			continue
+		}
+		c.RunRecovery()
+		repository.SaveCollegePlayerRecord(c, db)
+
+	}
+
+	professionalPlayers := GetAllNBAPlayers()
+	for _, n := range professionalPlayers {
+		if !n.IsInjured {
+			continue
+		}
+		n.RunRecovery()
+		repository.SaveProfessionalPlayerRecord(n, db)
+
+	}
+
 }

@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"fmt"
+
 	"github.com/CalebRose/SimNBA/managers"
 )
 
@@ -76,6 +78,7 @@ func SyncToNextWeekViaCron() {
 	}
 
 	if ts.RunCron && ((!ts.IsOffSeason || !ts.IsNBAOffseason) || (ts.CollegeSeasonOver && ts.NBASeasonOver && ts.FreeAgencyRound > 2)) {
+		managers.ProcessRecovery()
 		managers.SyncToNextWeek()
 	}
 
@@ -91,6 +94,17 @@ func ShowGamesViaCron() {
 	ts := managers.GetTimestamp()
 	if ts.RunCron && (!ts.IsOffSeason || !ts.IsNBAOffseason) {
 		managers.ShowGames()
+	}
+}
+
+func RunAIGameplansViaCron() {
+	ts := managers.GetTimestamp()
+	if ts.RunCron && (!ts.IsOffSeason || !ts.IsNBAOffseason) {
+		managers.ProcessRecovery()
+		val := managers.SetAIGameplans()
+		if val {
+			fmt.Println("AI Gameplans SET!")
+		}
 	}
 }
 

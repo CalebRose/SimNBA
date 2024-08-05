@@ -44,6 +44,7 @@ type CollegePlayerSeasonStats struct {
 	Turnovers                 int
 	TurnoversPerGame          float64
 	Fouls                     int
+	FoulOuts                  uint
 	FoulsPerGame              float64
 }
 
@@ -82,7 +83,9 @@ func (s *CollegePlayerSeasonStats) AddStatsToSeasonRecord(stat CollegePlayerStat
 	s.Blocks += stat.Blocks
 	s.Turnovers += stat.Turnovers
 	s.Fouls += stat.Fouls
-
+	if stat.FouledOut {
+		s.FoulOuts += 1
+	}
 	s.PPG = float64(s.Points) / float64(s.GamesPlayed)
 	s.PossessionsPerGame = float64(s.Possessions) / float64(s.GamesPlayed)
 	s.MinutesPerGame = float64(s.Minutes) / float64(s.GamesPlayed)

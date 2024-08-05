@@ -38,6 +38,7 @@ type Timestamp struct {
 	Y5Capspace                    float64
 	FreeAgencyRound               uint
 	RunCron                       bool
+	RunGames                      bool
 	TransferPortalPhase           uint
 	TransferPortalRound           uint
 }
@@ -59,6 +60,7 @@ func (t *Timestamp) MoveUpASeason() {
 	t.Y4Capspace = t.Y5Capspace
 	t.Y5Capspace = t.Y5Capspace + 5
 	t.FreeAgencyRound = 1
+	t.RunGames = false
 }
 
 func (t *Timestamp) MoveUpWeekCollege() {

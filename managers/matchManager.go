@@ -12,7 +12,7 @@ import (
 
 func GetMatchesForTimeslot() structs.MatchStateResponse {
 	ts := GetTimestamp()
-	if !ts.RunCron {
+	if !ts.RunGames {
 		return structs.MatchStateResponse{
 			Matches:   []structs.MatchResponse{},
 			MatchType: "",
