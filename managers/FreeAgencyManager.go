@@ -432,7 +432,7 @@ func SyncFreeAgencyOffers() {
 	if ts.IsNBAOffseason {
 		seasonID = seasonID - 1
 	}
-	db.Save(&ts)
+	repository.SaveTimeStamp(ts, db)
 	seasonIDStr := strconv.Itoa(int(seasonID))
 	// Sync Free Agents and their contract offers
 	FreeAgents := GetAllFreeAgents()
@@ -640,7 +640,6 @@ func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *
 	seasonID := strconv.Itoa(int(ts.SeasonID))
 	rosterMap := GetFullRosterNBAMap()
 	for _, FA := range freeAgents {
-
 		// Check if still accepting offers
 		if ts.IsNBAOffseason && FA.IsAcceptingOffers && ts.FreeAgencyRound < FA.NegotiationRound {
 			continue

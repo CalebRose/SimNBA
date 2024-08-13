@@ -521,18 +521,16 @@ func ImportNBAGames() {
 		awayTeamStr := row[7]
 		homeTeam := teamMap[homeTeamStr]
 		awayTeam := teamMap[awayTeamStr]
-		gameTitle := row[26]
-		nextGameID := util.ConvertStringToInt(row[18])
-		hoA := row[19]
+		gameTitle := ""
+		nextGameID := 0
+		hoA := ""
 		conference := util.ConvertStringToBool(row[12])
 		divisional := util.ConvertStringToBool(row[13])
 		international := util.ConvertStringToBool(row[14])
-		playoff := util.ConvertStringToBool(row[16])
-		finals := util.ConvertStringToBool(row[17])
-		arena := row[22]
-		city := row[23]
-		state := row[24]
-		country := row[25]
+		arena := row[19]
+		city := row[20]
+		state := row[20]
+		country := row[22]
 		homeCoach := homeTeam.NBACoachName
 		if homeCoach == "" {
 			homeCoach = homeTeam.NBAOwnerName
@@ -566,8 +564,8 @@ func ImportNBAGames() {
 			NextGameID:      uint(nextGameID),
 			NextGameHOA:     hoA,
 			IsNeutralSite:   conference,
-			IsPlayoffGame:   playoff,
-			IsTheFinals:     finals,
+			IsPlayoffGame:   false,
+			IsTheFinals:     false,
 			IsInternational: international,
 			Arena:           arena,
 			City:            city,
