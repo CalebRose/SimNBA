@@ -30,8 +30,13 @@ func AllPlayersByTeamId(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var players = managers.GetTeamRosterForRosterPage(teamId)
+	promises := managers.GetPromisesByTeamID(teamId)
+	res := structs.CBBRosterResponse{
+		Players:  players,
+		Promises: promises,
+	}
 
-	json.NewEncoder(w).Encode(players)
+	json.NewEncoder(w).Encode(res)
 }
 
 func GetNBARosterByTeamID(w http.ResponseWriter, r *http.Request) {

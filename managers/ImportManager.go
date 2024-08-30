@@ -438,7 +438,7 @@ func ImportCBBGames() {
 
 		homeTeam := collegeMap[homeTeamAbbr]
 		awayTeam := collegeMap[awayTeamAbbr]
-		gameTitle := row[20]
+		gameTitle := row[22]
 		nextGameID := util.ConvertStringToInt(row[24])
 		hoA := row[25]
 		neutralSite := util.ConvertStringToBool(row[10])

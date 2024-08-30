@@ -554,9 +554,13 @@ func NBAPlayerProgression(progression int, ageDifference int, mpg int, mr int, s
 	}
 
 	min := 0
+	// Add in age difference check for minimum
 
 	if spec && max > 0 {
 		min = 1
+	}
+	if ageDifference > 2 {
+		min = -1
 	}
 	if max < min {
 		min, max = util.Swap(min, max)

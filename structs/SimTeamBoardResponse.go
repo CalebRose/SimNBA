@@ -38,3 +38,8 @@ func (stbr *SimTeamBoardResponse) Map(rtp TeamRecruitingProfile, c []CrootProfil
 	stbr.Recruits = c
 	stbr.RecruitClassSize = rtp.RecruitClassSize
 }
+
+type CBBRosterResponse struct {
+	Players  []CollegePlayerResponse
+	Promises []CollegePromise
+}
