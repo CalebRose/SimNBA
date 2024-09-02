@@ -149,3 +149,11 @@ func SwapNBATeamsTEMP(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	managers.SwapNBATeamsTEMP()
 }
+
+func FixISLMatchData(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+
+	managers.FixISLMatchData()
+
+	json.NewEncoder(w).Encode("Done.")
+}

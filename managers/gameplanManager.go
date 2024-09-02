@@ -463,7 +463,7 @@ func SetAIGameplans() bool {
 			continue
 		}
 
-		if len(team.NBAOwnerName) > 0 && team.NBAOwnerName != "AI" {
+		if len(team.NBAOwnerName) > 0 {
 			continue
 		}
 

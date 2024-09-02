@@ -4,6 +4,7 @@ import (
 	"log"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
@@ -535,6 +536,21 @@ func GetProfessionalTeamMap() map[uint]structs.NBATeam {
 
 	for _, t := range teams {
 		teamMap[t.ID] = t
+	}
+
+	return teamMap
+}
+
+func GetProfessionalTeamMapBByLabel() map[string]structs.NBATeam {
+	teams := GetAllActiveNBATeams()
+	teamMap := make(map[string]structs.NBATeam)
+
+	for _, t := range teams {
+		team := strings.TrimSpace(t.Team)
+		nickname := strings.TrimSpace(t.Nickname)
+		label := team + " " + nickname
+		fixedLabel := strings.TrimSpace(label)
+		teamMap[fixedLabel] = t
 	}
 
 	return teamMap

@@ -82,7 +82,7 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 			mutex.Unlock()
 
 			livestreamChannel := 0
-			if (c.HomeTeamCoach != "AI" && c.HomeTeamCoach != "") || (c.AwayTeamCoach != "AI" && c.AwayTeamCoach != "") {
+			if (ht.IsUserCoached) || (at.IsUserCoached) {
 				livestreamChannel = 1
 			} else if ht.ConferenceID < 6 || ht.ConferenceID == 11 || at.ConferenceID < 6 || at.ConferenceID == 11 {
 				livestreamChannel = 2
@@ -529,4 +529,26 @@ func SwapNBATeamsTEMP() {
 	// 		repository.SaveProfessionalMatchRecord(m, db)
 	// 	}
 	// }
+}
+
+func FixISLMatchData() {
+	db := dbprovider.GetInstance().GetDB()
+	ts := GetTimestamp()
+	seasonID := strconv.Itoa(int(ts.SeasonID))
+	nbaMap := GetProfessionalTeamMapBByLabel()
+
+	matches := GetISLMatchesBySeasonID(seasonID)
+
+	for _, m := range matches {
+		if !m.IsInternational {
+			continue
+		}
+
+		homeTeam := nbaMap[m.HomeTeam]
+		awayTeam := nbaMap[m.AwayTeam]
+		m.AddTeam(true, homeTeam.ID, 0, m.HomeTeam, homeTeam.NBAOwnerName, homeTeam.Arena, homeTeam.City, homeTeam.State)
+		m.AddTeam(false, awayTeam.ID, 0, m.AwayTeam, awayTeam.NBAOwnerName, "", "", "")
+
+		db.Save(&m)
+	}
 }
