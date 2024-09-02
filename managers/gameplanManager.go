@@ -191,10 +191,6 @@ func SetAIGameplans() bool {
 			continue
 		}
 
-		if team.ID == 45 {
-			fmt.Println(team.Abbr)
-		}
-
 		pgCount := 0
 		sgCount := 0
 		sfCount := 0
@@ -442,7 +438,7 @@ func SetAIGameplans() bool {
 	islTeams := GetAllActiveNBATeams()
 	islIDs := []string{}
 	for _, team := range islTeams {
-		if len(team.NBAOwnerName) > 0 && team.NBAOwnerName != "AI" {
+		if len(team.NBAOwnerName) > 0 {
 			continue
 		}
 		teamID := strconv.Itoa(int(team.ID))
@@ -488,7 +484,7 @@ func SetAIGameplans() bool {
 		pfList := []structs.NBAPlayer{}
 		cList := []structs.NBAPlayer{}
 
-		gameplan := GetGameplansByTeam(strconv.Itoa(int(team.ID)))
+		gameplan := GetNBAGameplanByTeam(strconv.Itoa(int(team.ID)))
 		off := "Balanced"
 		def := "Man-to-Man"
 		ost := ""
