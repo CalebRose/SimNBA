@@ -96,6 +96,7 @@ func GetTeamRosterForRosterPage(teamId string) []structs.CollegePlayerResponse {
 			IsInjured:             p.IsInjured,
 			InjuryName:            p.InjuryName,
 			InjuryType:            p.InjuryType,
+			WeeksOfRecovery:       p.WeeksOfRecovery,
 			InjuryReserve:         p.InjuryReserve,
 			DisciplineGrade:       discGrade,
 			InjuryGrade:           injGrade,
