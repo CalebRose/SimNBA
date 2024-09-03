@@ -53,8 +53,8 @@ type CollegePlayerResponse struct {
 	TransferStatus        int    // 1 == Intends, 2 == Is Transferring
 	TransferLikeliness    string // Low, Medium, High
 	LegacyID              uint   // Either a legacy school or a legacy coach
-	Discipline            int
-	InjuryRating          int
+	DisciplineGrade       string
+	InjuryGrade           string
 	IsInjured             bool
 	InjuryName            string
 	InjuryType            string

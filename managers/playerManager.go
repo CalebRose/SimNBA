@@ -46,6 +46,8 @@ func GetTeamRosterForRosterPage(teamId string) []structs.CollegePlayerResponse {
 		perimeterDefenseGrade := util.GetAttributeGrade(p.PerimeterDefense)
 		potentialGrade := util.GetPotentialGrade(p.Potential)
 		overallGrade := util.GetPlayerOverallGrade(p.Overall)
+		discGrade := util.GetAttributeGrade(p.Discipline)
+		injGrade := util.GetAttributeGrade(p.InjuryRating)
 
 		res := structs.CollegePlayerResponse{
 			FirstName:             p.FirstName,
@@ -91,6 +93,12 @@ func GetTeamRosterForRosterPage(teamId string) []structs.CollegePlayerResponse {
 			ThreePointProportion:  p.ThreePointProportion,
 			TransferStatus:        p.TransferStatus,
 			TransferLikeliness:    p.TransferLikeliness,
+			IsInjured:             p.IsInjured,
+			InjuryName:            p.InjuryName,
+			InjuryType:            p.InjuryType,
+			InjuryReserve:         p.InjuryReserve,
+			DisciplineGrade:       discGrade,
+			InjuryGrade:           injGrade,
 		}
 
 		responseList = append(responseList, res)
