@@ -715,9 +715,9 @@ func allocatePointsToRecruit(recruit structs.Recruit, recruitProfiles *[]structs
 					results <- nil
 					continue
 				}
-				abbr := (*recruitProfiles)[i].TeamAbbreviation
+				abbr := (*recruitProfiles)[i].ProfileID
 				mapMutex.Lock()
-				bonus := teamMap[abbr].BonusPoints
+				bonus := teamMap[strconv.Itoa(int(abbr))].BonusPoints
 				mapMutex.Unlock()
 				err := processRecruitProfile(i, recruit, recruitProfiles, float64(bonus), pointLimit, pointsPlaced, timestamp, recruitProfilePointsMap, &mapMutex, db)
 				results <- err
