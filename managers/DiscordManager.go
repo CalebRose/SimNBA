@@ -253,16 +253,42 @@ func GetNBATeamDataByID(id string) structs.NBATeamResponseData {
 	team := GetNBATeamByTeamID(id)
 	standings := GetNBAStandingsRecordByTeamID(id, seasonId)
 	matches := GetProfessionalMatchesByTeamIdAndSeasonId(id, seasonId)
+	wins := 0
+	losses := 0
+	confWins := 0
+	confLosses := 0
 	matchList := []structs.NBAMatch{}
 	for _, m := range matches {
-		if m.Week < uint(ts.NBAWeek) {
-			continue
-		}
 		if m.Week > uint(ts.NBAWeek) {
 			break
 		}
+		gameNotRan := (m.MatchOfWeek == "A" && !ts.GamesARan) ||
+			(m.MatchOfWeek == "B" && !ts.GamesBRan) ||
+			(m.MatchOfWeek == "C" && !ts.GamesCRan) ||
+			(m.MatchOfWeek == "D" && !ts.GamesDRan)
+
+		earlierWeek := m.Week < uint(ts.CollegeWeek)
+
+		if ((strconv.Itoa(int(m.HomeTeamID)) == id && m.HomeTeamWin) ||
+			(strconv.Itoa(int(m.AwayTeamID)) == id && m.AwayTeamWin)) && (earlierWeek || !gameNotRan) {
+			wins += 1
+			if m.IsConference {
+				confWins += 1
+			}
+		} else if ((strconv.Itoa(int(m.HomeTeamID)) == id && m.AwayTeamWin) ||
+			(strconv.Itoa(int(m.AwayTeamID)) == id && m.HomeTeamWin)) && (earlierWeek || !gameNotRan) {
+			losses += 1
+			if m.IsConference {
+				confLosses += 1
+			}
+		}
+		if gameNotRan {
+			m.HideScore()
+		}
 		matchList = append(matchList, m)
 	}
+
+	standings.MaskGames(wins, losses, confWins, confLosses)
 
 	return structs.NBATeamResponseData{
 		TeamData:        team,
