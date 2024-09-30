@@ -539,7 +539,7 @@ func GetCollegePlayerSeasonStatMap(seasonID string) map[uint]structs.CollegePlay
 func GetNBAPlayerSeasonStatMap(seasonID string) map[uint]structs.NBAPlayerSeasonStats {
 	seasonStatMap := make(map[uint]structs.NBAPlayerSeasonStats)
 
-	seasonStats := GetNBAPlayerSeasonStatMap(seasonID)
+	seasonStats := GetNBAPlayerSeasonStatsBySeason(seasonID)
 	for _, stat := range seasonStats {
 		seasonStatMap[stat.NBAPlayerID] = stat
 	}
