@@ -51,7 +51,8 @@ func GetPollSubmission(w http.ResponseWriter, r *http.Request) {
 
 func SyncCollegePoll(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
-	managers.SyncCollegePollSubmissionForCurrentWeek()
+	ts := managers.GetTimestamp()
+	managers.SyncCollegePollSubmissionForCurrentWeek(uint(ts.CollegeWeek), ts.CollegeWeekID, ts.SeasonID)
 }
 
 func GetOfficialPollsBySeasonID(w http.ResponseWriter, r *http.Request) {

@@ -52,9 +52,12 @@ func SyncToNextWeek() {
 	if ts.CollegeWeek < 21 || !ts.IsOffSeason {
 		ResetCollegeStandingsRanks()
 	}
+
 	ts.SyncToNextWeek()
+
 	if ts.CollegeWeek < 21 || !ts.CollegeSeasonOver {
-		SyncCollegePollSubmissionForCurrentWeek()
+		SyncCollegePollSubmissionForCurrentWeek(uint(ts.CollegeWeek), ts.CollegeWeekID, ts.SeasonID)
+		ts.TogglePollRan()
 	}
 	if ts.NBAWeek > 21 && !ts.IsNBAOffseason {
 		// Update bools so that teams can't trade in middle of next season's post season
@@ -222,10 +225,7 @@ func ShowGames() {
 	UpdateStandings(ts, matchType)
 	UpdateSeasonStats(ts, matchType)
 	ts.ToggleGames(matchType)
-	err := db.Save(&ts).Error
-	if err != nil {
-		log.Fatalln("Could not save timestamp and sync week")
-	}
+	repository.SaveTimeStamp(ts, db)
 }
 
 func RegressGames(match string) {
@@ -235,8 +235,5 @@ func RegressGames(match string) {
 	RegressStandings(ts, match)
 	RegressSeasonStats(ts, match)
 	ts.ToggleGamesARan()
-	err := db.Save(&ts).Error
-	if err != nil {
-		log.Fatalln("Could not save timestamp and sync week")
-	}
+	repository.SaveTimeStamp(ts, db)
 }
