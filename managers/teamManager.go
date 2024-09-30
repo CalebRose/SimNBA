@@ -48,7 +48,7 @@ func GetAllActiveCollegeTeamsWithSeasonStats(seasonID, weekID, matchType, viewTy
 			log.Fatal(err)
 		}
 	} else {
-		err := db.Preload("TeamStats", "season_id = ? AND week_id = ? AND match_type = ?", seasonID, weekID, matchType).
+		err := db.Preload("TeamStats", "season_id = ? AND week_id = ? AND match_type = ? AND reveal_results = ?", seasonID, weekID, matchType, true).
 			Where("is_active = ?", true).
 			Find(&teams).Error
 		if err != nil {
@@ -196,7 +196,7 @@ func GetAllActiveNBATeamsWithSeasonStats(seasonID, weekID, matchType, viewType s
 			log.Fatal(err)
 		}
 	} else {
-		err := db.Preload("TeamStats", "season_id = ? AND week_id = ? AND match_type = ?", seasonID, weekID, matchType).
+		err := db.Preload("TeamStats", "season_id = ? AND week_id = ? AND match_type = ? AND reveal_results = ?", seasonID, weekID, matchType, true).
 			Where("is_active = ?", true).
 			Find(&teams).Error
 		if err != nil {

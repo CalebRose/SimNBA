@@ -85,3 +85,17 @@ func SaveISLScoutingReportRecord(report structs.ISLScoutingReport, db *gorm.DB) 
 		log.Panicln("Could not save scouting report record")
 	}
 }
+
+func SaveCollegePlayerSeasonStatRecord(stats structs.CollegePlayerSeasonStats, db *gorm.DB) {
+	err := db.Save(&stats).Error
+	if err != nil {
+		log.Panicln("Could not save cbb player season stats record")
+	}
+}
+
+func SaveNBAPlayerSeasonStatRecord(stats structs.NBAPlayerSeasonStats, db *gorm.DB) {
+	err := db.Save(&stats).Error
+	if err != nil {
+		log.Panicln("Could not save nba player season stats record")
+	}
+}

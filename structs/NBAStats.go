@@ -125,6 +125,7 @@ type NBATeamStats struct {
 	StealsAllowed             int
 	BlocksAllowed             int
 	TurnoversAllowed          int
+	RevealResults             bool
 }
 
 func (s *NBATeamSeasonStats) AddStatsToSeasonRecord(stat NBATeamStats) {
@@ -423,6 +424,7 @@ type NBAPlayerStats struct {
 	InjuryName         string
 	InjuryType         string
 	WeeksOfRecovery    uint8
+	RevealResults      bool
 }
 
 func (s *NBAPlayerSeasonStats) AddStatsToSeasonRecord(stat NBAPlayerStats) {

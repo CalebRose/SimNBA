@@ -36,6 +36,7 @@ type CollegePlayerStats struct {
 	InjuryName         string
 	InjuryType         string
 	WeeksOfRecovery    uint8
+	RevealResults      bool
 }
 
 func (s *CollegePlayerStats) MapNewProperties(weekID uint, matchType string) {

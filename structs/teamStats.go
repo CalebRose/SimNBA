@@ -51,4 +51,5 @@ type TeamStats struct {
 	StealsAllowed             int
 	BlocksAllowed             int
 	TurnoversAllowed          int
+	RevealResults             bool
 }

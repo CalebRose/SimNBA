@@ -433,7 +433,7 @@ func GetAllCollegePlayersWithSeasonStats(seasonID, weekID, matchType, viewType s
 		db.Preload("SeasonStats", "season_id = ?", seasonID).
 			Where("id in ?", distinctCollegePlayerIDs).Find(&players)
 	} else {
-		db.Preload("Stats", "season_id = ? AND week_id = ? AND match_type = ?", seasonID, weekID, matchType).
+		db.Preload("Stats", "season_id = ? AND week_id = ? AND match_type = ? AND reveal_results = ?", seasonID, weekID, matchType, true).
 			Where("id in ?", distinctCollegePlayerIDs).Find(&players)
 	}
 
@@ -587,7 +587,7 @@ func GetAllNBAPlayersWithSeasonStats(seasonID, weekID, matchType, viewType strin
 		db.Preload("SeasonStats", "season_id = ?", seasonID).
 			Where("id in ?", distinctNBAPlayerIDs).Find(&players)
 	} else {
-		db.Preload("Stats", "season_id = ? AND week_id = ? AND match_type = ? AND minutes > 0", seasonID, weekID, matchType).
+		db.Preload("Stats", "season_id = ? AND week_id = ? AND match_type = ? AND minutes > 0 AND reveal_results = ?", seasonID, weekID, matchType, true).
 			Where("id in ?", distinctNBAPlayerIDs).Find(&players)
 	}
 

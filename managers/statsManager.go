@@ -283,13 +283,19 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 
 	weekId := strconv.Itoa(int(ts.CollegeWeekID))
 	seasonId := strconv.Itoa(int(ts.SeasonID))
-
+	cbbMatchIDs := []string{}
+	nbaMatchIDs := []string{}
 	matches := GetMatchesByWeekIdAndMatchType(weekId, seasonId, MatchType)
+	cbbSeasonStatMap := GetCollegePlayerSeasonStatMap(seasonId)
+	nbaPlayerSeasonStatMap := GetNBAPlayerSeasonStatMap(seasonId)
 
 	for _, match := range matches {
 		if !match.GameComplete {
 			continue
 		}
+		matchId := strconv.Itoa(int(match.ID))
+		cbbMatchIDs = append(cbbMatchIDs, matchId)
+
 		homeTeamStats := GetCBBTeamStatsByMatch(strconv.Itoa(int(match.HomeTeamID)), strconv.Itoa(int(match.ID)))
 
 		homeSeasonStats := GetTeamSeasonStatsByTeamID(strconv.Itoa(int(match.HomeTeamID)), seasonId)
@@ -319,7 +325,7 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 				continue
 			}
 			id := strconv.Itoa(int(stat.CollegePlayerID))
-			playerSeasonStats := GetPlayerSeasonStatsByPlayerID(id, seasonId)
+			playerSeasonStats := cbbSeasonStatMap[stat.CollegePlayerID]
 			playerSeasonStats.AddStatsToSeasonRecord(stat)
 
 			if stat.IsInjured {
@@ -328,12 +334,13 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 				repository.SaveCollegePlayerRecord(player, db)
 			}
 
-			err = db.Save(&playerSeasonStats).Error
-			if err != nil {
-				log.Fatalln("Could not save season stats for " + strconv.Itoa(int(playerSeasonStats.CollegePlayerID)))
-			}
+			repository.SaveCollegePlayerSeasonStatRecord(playerSeasonStats, db)
 		}
 	}
+
+	// Reveal CBB Stats
+	db.Model(&structs.CollegePlayerStats{}).Where("match_id in (?)", cbbMatchIDs).Update("reveal_results", true)
+	db.Model(&structs.TeamStats{}).Where("match_id in (?)", cbbMatchIDs).Update("reveal_results", true)
 
 	nbaGames := GetNBATeamMatchesByMatchType(strconv.Itoa(int(ts.NBAWeekID)), strconv.Itoa(int(ts.SeasonID)), MatchType)
 
@@ -341,6 +348,9 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 		if !match.GameComplete {
 			continue
 		}
+		matchId := strconv.Itoa(int(match.ID))
+		nbaMatchIDs = append(nbaMatchIDs, matchId)
+
 		homeTeamStats := GetNBATeamStatsByMatch(strconv.Itoa(int(match.HomeTeamID)), strconv.Itoa(int(match.ID)))
 
 		homeSeasonStats := GetNBATeamSeasonStatsByTeamID(strconv.Itoa(int(match.HomeTeamID)), seasonId)
@@ -370,7 +380,7 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 				continue
 			}
 			id := strconv.Itoa(int(stat.NBAPlayerID))
-			playerSeasonStats := GetNBAPlayerSeasonStatsByPlayerID(id, seasonId)
+			playerSeasonStats := nbaPlayerSeasonStatMap[stat.NBAPlayerID]
 			playerSeasonStats.AddStatsToSeasonRecord(stat)
 
 			if stat.IsInjured {
@@ -379,12 +389,13 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 				repository.SaveProfessionalPlayerRecord(player, db)
 			}
 
-			err = db.Save(&playerSeasonStats).Error
-			if err != nil {
-				log.Fatalln("Could not save season stats for " + strconv.Itoa(int(playerSeasonStats.NBAPlayerID)))
-			}
+			repository.SaveNBAPlayerSeasonStatRecord(playerSeasonStats, db)
 		}
 	}
+
+	// Reveal NBA Stats
+	db.Model(&structs.NBAPlayerStats{}).Where("match_id in (?)", nbaMatchIDs).Update("reveal_results", true)
+	db.Model(&structs.NBATeamStats{}).Where("match_id in (?)", nbaMatchIDs).Update("reveal_results", true)
 }
 
 func RegressSeasonStats(ts structs.Timestamp, MatchType string) {
@@ -504,12 +515,33 @@ func GetCollegePlayerSeasonStatsBySeason(SeasonID string) []structs.CollegePlaye
 	return playerStats
 }
 
+func GetNBAPlayerSeasonStatsBySeason(SeasonID string) []structs.NBAPlayerSeasonStats {
+	db := dbprovider.GetInstance().GetDB()
+
+	var playerStats []structs.NBAPlayerSeasonStats
+
+	db.Where("season_id = ?", SeasonID).Find(&playerStats)
+
+	return playerStats
+}
+
 func GetCollegePlayerSeasonStatMap(seasonID string) map[uint]structs.CollegePlayerSeasonStats {
 	seasonStatMap := make(map[uint]structs.CollegePlayerSeasonStats)
 
 	seasonStats := GetCollegePlayerSeasonStatsBySeason(seasonID)
 	for _, stat := range seasonStats {
 		seasonStatMap[stat.CollegePlayerID] = stat
+	}
+
+	return seasonStatMap
+}
+
+func GetNBAPlayerSeasonStatMap(seasonID string) map[uint]structs.NBAPlayerSeasonStats {
+	seasonStatMap := make(map[uint]structs.NBAPlayerSeasonStats)
+
+	seasonStats := GetNBAPlayerSeasonStatMap(seasonID)
+	for _, stat := range seasonStats {
+		seasonStatMap[stat.NBAPlayerID] = stat
 	}
 
 	return seasonStatMap
