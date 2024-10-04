@@ -113,6 +113,7 @@ func (p *Provider) InitDatabase() bool {
 	// db.AutoMigrate(&structs.NewsLog{})
 	// db.AutoMigrate(&structs.Request{})
 	// db.AutoMigrate(&structs.Season{})
+	// db.AutoMigrate(&structs.Notification{})
 	// db.AutoMigrate(&structs.Timestamp{})
 	return true
 }
