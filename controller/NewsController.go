@@ -21,3 +21,26 @@ func GetNewsFeed(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(newsLogs)
 	}
 }
+
+func GetBBAInbox(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	cfbID := vars["cbbID"]
+	nflID := vars["nbaID"]
+
+	inbox := managers.GetBBAInbox(cfbID, nflID)
+	json.NewEncoder(w).Encode(inbox)
+}
+
+func ToggleNotificationAsRead(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	notiID := vars["notiID"]
+	managers.ToggleNotification(notiID)
+	json.NewEncoder(w).Encode("Toggled Notification")
+}
+
+func DeleteNotification(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	notiID := vars["notiID"]
+	managers.DeleteNotification(notiID)
+	json.NewEncoder(w).Encode("Toggled Notification")
+}

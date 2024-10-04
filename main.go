@@ -160,6 +160,11 @@ func handleRequests() {
 	myRouter.HandleFunc("/nba/news/all/", controller.GetAllNBANewsInASeason).Methods("GET")
 	myRouter.HandleFunc("/news/feed/{league}/{teamID}/", controller.GetNewsFeed).Methods("GET")
 
+	// Notification Controls
+	myRouter.HandleFunc("/bba/inbox/get/{cbbID}/{nbaID}/", controller.GetBBAInbox).Methods("GET")
+	myRouter.HandleFunc("/notification/toggle/{notiID}", controller.ToggleNotificationAsRead).Methods("GET")
+	myRouter.HandleFunc("/notification/delete/{notiID}", controller.DeleteNotification).Methods("GET")
+
 	// Player Controls
 	myRouter.HandleFunc("/player/AllPlayers", controller.AllCollegePlayers).Methods("GET")
 	// myRouter.HandleFunc("/player/add/{firstname}/{lastname}", controller.NewPlayer).Methods("POST")
@@ -232,6 +237,7 @@ func handleRequests() {
 	myRouter.HandleFunc("/standings/nba/conf/{conferenceId}/{seasonId}", controller.GetNBAConferenceStandingsByConferenceID).Methods("GET")
 	myRouter.HandleFunc("/standings/college/season/{seasonId}", controller.GetAllConferenceStandings).Methods("GET")
 	myRouter.HandleFunc("/standings/nba/season/{seasonId}", controller.GetAllNBAConferenceStandings).Methods("GET")
+	myRouter.HandleFunc("/standings/reset/all", controller.ResetSeasonStandings).Methods("GET")
 
 	// Team Controls
 	myRouter.HandleFunc("/team/{teamId}", controller.GetTeamByTeamID).Methods("GET")

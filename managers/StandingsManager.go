@@ -371,6 +371,47 @@ func RegressStandings(ts structs.Timestamp, MatchType string) {
 	}
 }
 
+func ResetStandings() {
+	db := dbprovider.GetInstance().GetDB()
+	ts := GetTimestamp()
+	seasonID := strconv.Itoa(int(ts.SeasonID))
+	standings := GetAllConferenceStandingsBySeasonID(seasonID)
+
+	// College Standings
+	for _, s := range standings {
+		s.ResetStandings()
+		teamID := strconv.Itoa(int(s.TeamID))
+		matches := GetMatchesByTeamIdAndSeasonId(teamID, seasonID)
+
+		for _, m := range matches {
+			if !m.GameComplete {
+				break
+			}
+
+			s.UpdateCollegeStandings(m)
+		}
+
+		repository.SaveCollegeStandingsRecord(s, db)
+	}
+
+	nbaStandings := GetAllNBAConferenceStandingsBySeasonID(seasonID)
+	for _, s := range nbaStandings {
+		s.ResetStandings()
+		teamID := strconv.Itoa(int(s.TeamID))
+
+		matches := GetNBATeamMatchesBySeasonId(seasonID, teamID)
+
+		for _, m := range matches {
+			if !m.GameComplete {
+				break
+			}
+			s.UpdateNBAStandings(m)
+		}
+
+		repository.SaveNBAStandingsRecord(s, db)
+	}
+}
+
 func ResetCollegeStandingsRanks() {
 	db := dbprovider.GetInstance().GetDB()
 	ts := GetTimestamp()

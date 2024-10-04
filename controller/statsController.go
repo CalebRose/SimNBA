@@ -75,7 +75,7 @@ func GetPlayerStatsBySeason(w http.ResponseWriter, r *http.Request) {
 		panic("User did not provide both a playerId and a Season Id")
 	}
 
-	playerStats := managers.GetPlayerStatsBySeason(playerId, seasonId)
+	playerStats := managers.GetPlayerStatsByPlayerAndSeason(playerId, seasonId)
 
 	json.NewEncoder(w).Encode(playerStats)
 }
@@ -191,5 +191,5 @@ func ExportStats(w http.ResponseWriter, r *http.Request) {
 
 func FixNBASeasonTables(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
-	managers.FixNBASeasonTables()
+	managers.SeasonStatReset()
 }

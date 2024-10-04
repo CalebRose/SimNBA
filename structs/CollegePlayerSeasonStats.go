@@ -156,3 +156,44 @@ func (s *CollegePlayerSeasonStats) RemoveStatsToSeasonRecord(stat CollegePlayerS
 	s.TurnoversPerGame = float64(s.Turnovers) / float64(s.GamesPlayed)
 	s.FoulsPerGame = float64(s.Fouls) / float64(s.GamesPlayed)
 }
+
+func (s *CollegePlayerSeasonStats) ResetSeasonStats() {
+	s.GamesPlayed = 0
+	s.Minutes = 0
+	s.Possessions = 0
+	s.FGM = 0
+	s.FGA = 0
+	s.FGPercent = 0
+	s.ThreePointsMade = 0
+	s.ThreePointAttempts = 0
+	s.ThreePointPercent = 0
+	s.FTM = 0
+	s.FTA = 0
+	s.FTPercent = 0
+	s.Points = 0
+	s.TotalRebounds = 0
+	s.OffRebounds = 0
+	s.DefRebounds = 0
+	s.Assists = 0
+	s.Steals = 0
+	s.Blocks = 0
+	s.Turnovers = 0
+	s.Fouls = 0
+	s.PPG = 0
+	s.PossessionsPerGame = 0
+	s.MinutesPerGame = 0
+	s.FGMPG = 0
+	s.FGAPG = 0
+	s.ThreePointsMadePerGame = 0
+	s.ThreePointAttemptsPerGame = 0
+	s.FTMPG = 0
+	s.FTAPG = 0
+	s.ReboundsPerGame = 0
+	s.OffReboundsPerGame = 0
+	s.DefReboundsPerGame = 0
+	s.AssistsPerGame = 0
+	s.StealsPerGame = 0
+	s.BlocksPerGame = 0
+	s.TurnoversPerGame = 0
+	s.FoulsPerGame = 0
+}

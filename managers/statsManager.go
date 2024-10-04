@@ -92,7 +92,7 @@ func GetPlayerStatsByPlayerId(playerId string) []structs.PlayerStats {
 	return playerStats
 }
 
-func GetPlayerStatsBySeason(playerId string, seasonId string) structs.CollegePlayerSeasonStats {
+func GetPlayerStatsByPlayerAndSeason(playerId string, seasonId string) structs.CollegePlayerSeasonStats {
 	db := dbprovider.GetInstance().GetDB()
 
 	var playerStats structs.CollegePlayerSeasonStats
@@ -102,12 +102,32 @@ func GetPlayerStatsBySeason(playerId string, seasonId string) structs.CollegePla
 	return playerStats
 }
 
-func GetNBAPlayerStatsBySeason(playerId string, seasonId string) []structs.NBAPlayerStats {
+func GetNBAPlayerStatsByPlayerIDAndSeasonID(playerId string, seasonId string) []structs.NBAPlayerStats {
 	db := dbprovider.GetInstance().GetDB()
 
 	var playerStats []structs.NBAPlayerStats
 
 	db.Where("nba_player_id = ? AND season_id = ?", playerId, seasonId).Find(&playerStats)
+
+	return playerStats
+}
+
+func GetCBBPlayerStatsBySeasonID(seasonId string) []structs.CollegePlayerStats {
+	db := dbprovider.GetInstance().GetDB()
+
+	var playerStats []structs.CollegePlayerStats
+
+	db.Where("season_id = ?", seasonId).Find(&playerStats)
+
+	return playerStats
+}
+
+func GetNBAPlayerStatsBySeasonID(seasonId string) []structs.NBAPlayerStats {
+	db := dbprovider.GetInstance().GetDB()
+
+	var playerStats []structs.NBAPlayerStats
+
+	db.Where("season_id = ?", seasonId).Find(&playerStats)
 
 	return playerStats
 }
@@ -138,6 +158,16 @@ func GetNBAPlayerStatsByMatch(matchId string) []structs.NBAPlayerStats {
 	var playerStats []structs.NBAPlayerStats
 
 	db.Where("match_id = ?", matchId).Find(&playerStats)
+
+	return playerStats
+}
+
+func GetCBBTeamStatsBySeason(teamId string, seasonId string) []structs.TeamStats {
+	db := dbprovider.GetInstance().GetDB()
+
+	var playerStats []structs.TeamStats
+
+	db.Where("team_id = ? AND season_id = ?", teamId, seasonId).Find(&playerStats)
 
 	return playerStats
 }
@@ -331,6 +361,8 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 			if stat.IsInjured {
 				player := GetCollegePlayerByPlayerID(id)
 				player.SetInjury(stat.InjuryName, stat.InjuryType, int(stat.WeeksOfRecovery))
+				message := player.Position + " " + player.FirstName + " " + player.LastName + " has been injured for " + strconv.Itoa(int(stat.WeeksOfRecovery)) + "."
+				CreateNotification("CBB", message, "Injury", player.TeamID)
 				repository.SaveCollegePlayerRecord(player, db)
 			}
 
@@ -386,6 +418,8 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 			if stat.IsInjured {
 				player := GetNBAPlayerByID(id)
 				player.SetInjury(stat.InjuryName, stat.InjuryType, int(stat.WeeksOfRecovery))
+				message := player.Position + " " + player.FirstName + " " + player.LastName + " has been injured for " + strconv.Itoa(int(stat.WeeksOfRecovery)) + "."
+				CreateNotification("NBA", message, "Injury", player.TeamID)
 				repository.SaveProfessionalPlayerRecord(player, db)
 			}
 
@@ -449,59 +483,100 @@ func RegressSeasonStats(ts structs.Timestamp, MatchType string) {
 	}
 }
 
-func FixNBASeasonTables() {
+func GetCBBPlayerStatsMapBySeason(seasonId string) map[uint][]structs.CollegePlayerStats {
+	cbbStats := GetCBBPlayerStatsBySeasonID(seasonId)
+	statMap := make(map[uint][]structs.CollegePlayerStats)
+
+	for _, s := range cbbStats {
+		statMap[s.CollegePlayerID] = append(statMap[s.CollegePlayerID], s)
+	}
+
+	return statMap
+}
+
+func GetNBAPlayerStatsMapBySeason(seasonId string) map[uint][]structs.NBAPlayerStats {
+	nbaStats := GetNBAPlayerStatsBySeasonID(seasonId)
+	statMap := make(map[uint][]structs.NBAPlayerStats)
+
+	for _, s := range nbaStats {
+		statMap[s.NBAPlayerID] = append(statMap[s.NBAPlayerID], s)
+	}
+
+	return statMap
+}
+
+func SeasonStatReset() {
 	db := dbprovider.GetInstance().GetDB()
 
 	ts := GetTimestamp()
 	seasonID := strconv.Itoa(int(ts.SeasonID))
-	// nbaPlayers := GetAllNBAPlayers()
-	// teams := GetAllActiveNBATeams()
+	collegePlayers := GetAllCollegePlayers()
+	collegeTeams := GetAllActiveCollegeTeams()
+	collegeSeasonStatMap := GetCollegePlayerSeasonStatMap(seasonID)
+	nbaPlayers := GetAllNBAPlayers()
+	nbaTeams := GetAllActiveNBATeams()
+	nbaSeasonStatMap := GetNBAPlayerSeasonStatMap(seasonID)
+	cbbStatsMap := GetCBBPlayerStatsMapBySeason(seasonID)
+	nbaStatsMap := GetNBAPlayerStatsMapBySeason(seasonID)
 
-	// for _, p := range nbaPlayers {
-	// 	id := strconv.Itoa(int(p.ID))
-	// 	stats := GetNBAPlayerStatsBySeason(id, seasonID)
-	// 	if len(stats) == 0 {
-	// 		continue
-	// 	}
-	// 	seasonStats := GetNBAPlayerSeasonStatsByPlayerID(id, seasonID)
-	// 	seasonStats.ResetSeasonsRecord()
-	// 	for _, s := range stats {
-	// 		seasonStats.AddStatsToSeasonRecord(s)
-	// 	}
-	// 	db.Save(&seasonStats)
-	// }
-
-	// for _, team := range teams {
-	// 	id := strconv.Itoa(int(team.ID))
-	// 	teamStats := GetNBATeamStatsBySeason(id, seasonID)
-	// 	if len(teamStats) == 0 {
-	// 		continue
-	// 	}
-	// 	seasonStats := GetNBATeamSeasonStatsByTeamID(id, seasonID)
-	// 	seasonStats.ResetSeasonsRecord()
-	// 	for _, s := range teamStats {
-	// 		seasonStats.AddStatsToSeasonRecord(s)
-	// 	}
-
-	// 	db.Save(&seasonStats)
-	// }
-
-	standings := GetAllNBAConferenceStandingsBySeasonID(seasonID)
-
-	for _, s := range standings {
-		id := strconv.Itoa(int(s.TeamID))
-		nbaMatches := GetNBATeamMatchesBySeasonId(seasonID, id)
-		if len(nbaMatches) == 0 {
+	for _, p := range collegePlayers {
+		stats := cbbStatsMap[p.ID]
+		if len(stats) == 0 {
 			continue
 		}
-		s.ResetStandings()
-		for _, m := range nbaMatches {
-			if !m.GameComplete {
-				continue
-			}
-			s.UpdateNBAStandings(m)
+		seasonStats := collegeSeasonStatMap[p.ID]
+		if seasonStats.ID == 0 {
+			continue
 		}
-		db.Save(&s)
+		seasonStats.ResetSeasonStats()
+		for _, s := range stats {
+			seasonStats.AddStatsToSeasonRecord(s)
+		}
+		repository.SaveCollegePlayerSeasonStatRecord(seasonStats, db)
+	}
+
+	for _, p := range nbaPlayers {
+		stats := nbaStatsMap[p.ID]
+		if len(stats) == 0 {
+			continue
+		}
+		seasonStats := nbaSeasonStatMap[p.ID]
+		if seasonStats.ID == 0 {
+			continue
+		}
+		seasonStats.ResetSeasonsRecord()
+		for _, s := range stats {
+			seasonStats.AddStatsToSeasonRecord(s)
+		}
+		repository.SaveNBAPlayerSeasonStatRecord(seasonStats, db)
+	}
+
+	for _, team := range collegeTeams {
+		id := strconv.Itoa(int(team.ID))
+		teamStats := GetCBBTeamStatsBySeason(id, seasonID)
+		if len(teamStats) == 0 {
+			continue
+		}
+		seasonStats := GetTeamSeasonStatsByTeamID(id, seasonID)
+		seasonStats.ResetSeasonsRecord()
+		for _, s := range teamStats {
+			seasonStats.AddStatsToSeasonRecord(s)
+		}
+		repository.SaveCollegeTeamSeasonStatRecord(seasonStats, db)
+	}
+
+	for _, team := range nbaTeams {
+		id := strconv.Itoa(int(team.ID))
+		teamStats := GetNBATeamStatsBySeason(id, seasonID)
+		if len(teamStats) == 0 {
+			continue
+		}
+		seasonStats := GetNBATeamSeasonStatsByTeamID(id, seasonID)
+		seasonStats.ResetSeasonsRecord()
+		for _, s := range teamStats {
+			seasonStats.AddStatsToSeasonRecord(s)
+		}
+		repository.SaveNBATeamSeasonStatRecord(seasonStats, db)
 	}
 }
 

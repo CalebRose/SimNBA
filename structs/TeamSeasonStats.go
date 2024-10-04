@@ -250,3 +250,43 @@ func (s *TeamSeasonStats) RemoveStatsToSeasonRecord(stat TeamStats) {
 	}
 	s.FoulsPerGame = float64(s.Fouls) / float64(s.GamesPlayed)
 }
+
+func (s *TeamSeasonStats) ResetSeasonsRecord() {
+	s.GamesPlayed = 0
+	s.Possessions = 0
+	s.FGM = 0
+	s.FGA = 0
+	s.FGPercent = 0
+	s.FGMAgainst = 0
+	s.FGAAgainst = 0
+	s.FGPercentAgainst = 0
+	s.ThreePointsMade = 0
+	s.ThreePointAttempts = 0
+	s.ThreePointPercent = 0
+	s.ThreePointsMadeAgainst = 0
+	s.ThreePointAttemptsAgainst = 0
+	s.ThreePointPercentAgainst = 0
+	s.FTM = 0
+	s.FTA = 0
+	s.FTPercent = 0
+	s.FTMAgainst = 0
+	s.FTAAgainst = 0
+	s.FTPercentAgainst = 0
+	s.Points = 0
+	s.PointsAgainst = 0
+	s.Rebounds = 0
+	s.OffRebounds = 0
+	s.DefRebounds = 0
+	s.ReboundsAllowed = 0
+	s.OffReboundsAllowed = 0
+	s.DefReboundsAllowed = 0
+	s.Assists = 0
+	s.AssistsAllowed = 0
+	s.Steals = 0
+	s.StealsAllowed = 0
+	s.Blocks = 0
+	s.BlocksAllowed = 0
+	s.TotalTurnovers = 0
+	s.TurnoversAllowed = 0
+	s.Fouls = 0
+}

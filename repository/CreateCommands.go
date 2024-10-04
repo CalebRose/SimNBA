@@ -176,3 +176,10 @@ func CreateISLScoutingReportRecord(report structs.ISLScoutingReport, db *gorm.DB
 		log.Panicln("Could not create new scout report record")
 	}
 }
+
+func CreateNotification(noti structs.Notification, db *gorm.DB) {
+	err := db.Create(&noti).Error
+	if err != nil {
+		log.Panicln("Could not create notification record!")
+	}
+}

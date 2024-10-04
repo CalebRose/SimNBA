@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 )
 
@@ -126,4 +127,78 @@ func GetCBBRelatedNews(TeamID string) []structs.NewsLog {
 	}
 
 	return newsFeed
+}
+
+func CreateNotification(league, message, messageType string, teamID uint) {
+	db := dbprovider.GetInstance().GetDB()
+
+	notification := structs.Notification{
+		League:           league,
+		Message:          message,
+		NotificationType: messageType,
+		TeamID:           teamID,
+	}
+
+	repository.CreateNotification(notification, db)
+}
+
+func GetBBAInbox(cfbID, nflID string) structs.InboxResponse {
+	cbbNoti := []structs.Notification{}
+	nbaNoti := []structs.Notification{}
+
+	if cfbID != "0" {
+		cbbNoti = GetNotificationByTeamIDAndLeague("CFB", cfbID)
+	}
+	if nflID != "0" {
+		nbaNoti = GetNotificationByTeamIDAndLeague("NFL", nflID)
+	}
+
+	return structs.InboxResponse{
+		CBBNotifications: cbbNoti,
+		NBANotifications: nbaNoti,
+	}
+}
+
+func GetNotificationByTeamIDAndLeague(league, teamID string) []structs.Notification {
+	db := dbprovider.GetInstance().GetDB()
+
+	noti := []structs.Notification{}
+
+	db.Where("league = ? and team_id = ?", league, teamID).Find(&noti)
+
+	return noti
+}
+
+func GetNotificationById(id string) structs.Notification {
+	db := dbprovider.GetInstance().GetDB()
+
+	noti := structs.Notification{}
+	db.Where("id = ?", id).Find(&noti)
+
+	return noti
+}
+
+func ToggleNotification(id string) {
+	db := dbprovider.GetInstance().GetDB()
+
+	noti := GetNotificationById(id)
+
+	if noti.ID == 0 {
+		return
+	}
+
+	noti.ToggleIsRead()
+	repository.SaveNotification(noti, db)
+}
+
+func DeleteNotification(id string) {
+	db := dbprovider.GetInstance().GetDB()
+
+	noti := GetNotificationById(id)
+
+	if noti.ID == 0 {
+		return
+	}
+
+	repository.DeleteNotificationRecord(noti, db)
 }
