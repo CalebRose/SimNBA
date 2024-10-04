@@ -142,15 +142,15 @@ func CreateNotification(league, message, messageType string, teamID uint) {
 	repository.CreateNotification(notification, db)
 }
 
-func GetBBAInbox(cfbID, nflID string) structs.InboxResponse {
+func GetBBAInbox(cbbID, nbaID string) structs.InboxResponse {
 	cbbNoti := []structs.Notification{}
 	nbaNoti := []structs.Notification{}
 
-	if cfbID != "0" {
-		cbbNoti = GetNotificationByTeamIDAndLeague("CFB", cfbID)
+	if cbbID != "0" {
+		cbbNoti = GetNotificationByTeamIDAndLeague("CBB", cbbID)
 	}
-	if nflID != "0" {
-		nbaNoti = GetNotificationByTeamIDAndLeague("NFL", nflID)
+	if nbaID != "0" {
+		nbaNoti = GetNotificationByTeamIDAndLeague("NBA", nbaID)
 	}
 
 	return structs.InboxResponse{
