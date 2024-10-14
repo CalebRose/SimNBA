@@ -387,6 +387,7 @@ func ExportMatchResults(w http.ResponseWriter, seasonID, weekID, nbaWeekID, matc
 	w.Header().Set("Content-Disposition", "attachment;"+fileName)
 	w.Header().Set("Transfer-Encoding", "chunked")
 	writer := csv.NewWriter(w)
+	ts := GetTimestamp()
 
 	// Get All needed data
 	matchChn := make(chan []structs.Match)
@@ -449,6 +450,10 @@ func ExportMatchResults(w http.ResponseWriter, seasonID, weekID, nbaWeekID, matc
 		if !m.GameComplete {
 			continue
 		}
+		if (matchType == "A" && !ts.GamesARan) || (matchType == "B" && !ts.GamesBRan) || (matchType == "C" && !ts.GamesCRan) || (matchType == "D" && !ts.GamesDRan) {
+			m.HideScore()
+		}
+
 		homeTeam := collegeTeamMap[m.HomeTeamID]
 		awayTeam := collegeTeamMap[m.AwayTeamID]
 		neutralStr := "N"
