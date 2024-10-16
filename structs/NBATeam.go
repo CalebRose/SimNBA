@@ -32,6 +32,9 @@ type NBATeam struct {
 	IsActive          bool
 	CanTrade          bool
 	WaiverOrder       uint
+	ColorOne          string
+	ColorTwo          string
+	ColorThree        string
 	Gameplan          NBAGameplan           `gorm:"foreignKey:TeamID"`
 	TeamStats         []NBATeamStats        `gorm:"foreignKey:TeamID"`
 	TeamSeasonStats   NBATeamSeasonStats    `gorm:"foreignKey:TeamID"`

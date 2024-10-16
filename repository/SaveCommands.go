@@ -62,13 +62,6 @@ func SaveProfessionalMatchRecord(match structs.NBAMatch, db *gorm.DB) {
 	}
 }
 
-func SaveCBBTeamRecruitingProfile(profile *structs.TeamRecruitingProfile, db *gorm.DB) {
-	err := db.Save(&profile).Error
-	if err != nil {
-		log.Panicln("Could not save team profile record")
-	}
-}
-
 func SaveISLScoutingDeptRecord(dept structs.ISLScoutingDept, db *gorm.DB) {
 	if dept.ID == 0 {
 		log.Panicln("ID is not set for the scouting dept record")
@@ -130,6 +123,30 @@ func SaveNBATeamSeasonStatRecord(stats structs.NBATeamSeasonStats, db *gorm.DB) 
 
 func SaveNotification(noti structs.Notification, db *gorm.DB) {
 	err := db.Save(&noti).Error
+	if err != nil {
+		log.Panicln("Could not save notification record!")
+	}
+}
+
+func SaveCBBRecruit(recruit structs.Recruit, db *gorm.DB) {
+	recruit.RecruitProfiles = nil
+	err := db.Save(&recruit).Error
+	if err != nil {
+		log.Panicln("Could not save notification record!")
+	}
+}
+
+func SaveCBBRecruitProfile(profile structs.PlayerRecruitProfile, db *gorm.DB) {
+	profile.Recruit = structs.Recruit{}
+	err := db.Save(&profile).Error
+	if err != nil {
+		log.Panicln("Could not save notification record!")
+	}
+}
+
+func SaveCBBTeamRecruitingProfile(tp structs.TeamRecruitingProfile, db *gorm.DB) {
+	tp.Recruits = nil
+	err := db.Save(&tp).Error
 	if err != nil {
 		log.Panicln("Could not save notification record!")
 	}

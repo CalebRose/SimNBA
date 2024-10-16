@@ -181,20 +181,12 @@ func SyncRecruiting() {
 		// Save Player Files towards Recruit
 		for _, rp := range recruitProfiles {
 			// Save Team Profile
-			err := db.Save(&rp).Error
-			if err != nil {
-				fmt.Println(err.Error())
-				log.Fatalf("Could not sync recruiting profile.")
-			}
+			repository.SaveCBBRecruitProfile(rp, db)
 			fmt.Println("Save recruit profile from " + rp.TeamAbbreviation + " towards " + recruit.FirstName + " " + recruit.LastName)
 		}
 
 		// Save Recruit
-		err := db.Save(&recruit).Error
-		if err != nil {
-			fmt.Println(err.Error())
-			log.Fatalf("Could not sync recruit")
-		}
+		repository.SaveCBBRecruit(recruit, db)
 	}
 
 	updateTeamRankings(teamRecruitingProfiles, teamMap, recruitProfilePointsMap, db)
@@ -207,11 +199,7 @@ func SyncRecruiting() {
 		timestamp.ToggleLockRecruiting()
 	}
 
-	err := db.Save(&timestamp).Error
-	if err != nil {
-		fmt.Println(err.Error())
-		log.Fatalf("Could not save timestamp.")
-	}
+	repository.SaveTimeStamp(timestamp, db)
 }
 
 func FillAIRecruitingBoards() {
@@ -607,7 +595,7 @@ func AllocatePointsToAIBoards() {
 				} else {
 					fmt.Println("Because " + croot.Recruit.FirstName + " " + croot.Recruit.LastName + " is heavily considering other teams, they are being removed from " + team.TeamAbbr + "'s Recruiting Board.")
 				}
-				db.Save(&croot)
+				repository.SaveCBBRecruitProfile(croot, db)
 				continue
 			}
 
@@ -624,7 +612,7 @@ func AllocatePointsToAIBoards() {
 			}
 			team.AIAllocateSpentPoints(num)
 			// Save croot
-			db.Save(&croot)
+			repository.SaveCBBRecruitProfile(croot, db)
 			fmt.Println(team.TeamAbbr + " allocating " + strconv.Itoa(num) + " points to " + croot.Recruit.FirstName + " " + croot.Recruit.LastName)
 
 			positionCount[croot.Recruit.Position] += 1
@@ -642,7 +630,7 @@ func AllocatePointsToAIBoards() {
 		}
 		// Save Team Profile after iterating through recruits
 		fmt.Println("Saved " + team.TeamAbbr + " Recruiting Board!")
-		db.Save(&team)
+		repository.SaveCBBTeamRecruitingProfile(team, db)
 	}
 }
 
@@ -665,10 +653,10 @@ func ResetAIBoardsForCompletedTeams() {
 				if team.IsAI {
 					croot.ToggleTotalMax()
 				}
-				db.Save(&croot)
+				repository.SaveCBBRecruitProfile(croot, db)
 			}
 			team.ResetSpentPoints()
-			db.Save(&team)
+			repository.SaveCBBTeamRecruitingProfile(team, db)
 		}
 	}
 }
@@ -767,6 +755,10 @@ func processRecruitProfile(i int, recruit structs.Recruit, recruitProfiles *[]st
 		curr += bonus
 	}
 
+	if (*recruitProfiles)[i].ProfileID == 134 {
+		fmt.Println("PING!")
+	}
+
 	if (*recruitProfiles)[i].CurrentWeeksPoints < 0 || (*recruitProfiles)[i].CurrentWeeksPoints > 20 {
 		curr = 0
 		rpa.ApplyCaughtCheating()
@@ -850,11 +842,7 @@ func updateTeamRankings(teamRecruitingProfiles []structs.TeamRecruitingProfile, 
 		rp.ResetSpentPoints()
 
 		// Save TEAM Recruiting Profile
-		err := db.Save(&rp).Error
-		if err != nil {
-			fmt.Println(err.Error())
-			log.Fatalf("Could not save timestamp")
-		}
+		repository.SaveCBBTeamRecruitingProfile(rp, db)
 		fmt.Println("Saved Rank Scores for Team " + rp.TeamAbbr)
 	}
 }

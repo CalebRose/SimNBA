@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
 	"gorm.io/gorm"
@@ -190,7 +191,7 @@ func AddRecruitToTeamBoard(recruitProfileDto structs.CreateRecruitProfileDto) st
 	// If Recruit Already Exists
 	if recruitProfile.RecruitID != 0 && recruitProfile.ProfileID != 0 {
 		recruitProfile.ReplaceRecruitToBoard()
-		db.Save(&recruitProfile)
+		repository.SaveCBBRecruitProfile(recruitProfile, db)
 		return recruitProfile
 	}
 
@@ -300,10 +301,8 @@ func AllocateRecruitingPointsForRecruit(updateRecruitPointsDto structs.UpdateRec
 	}
 
 	recruitingPointsProfile.AllocatePoints(updateRecruitPointsDto.SpentPoints)
-
-	db.Save(&recruitingPointsProfile)
-
-	db.Save(&recruitingProfile)
+	repository.SaveCBBRecruitProfile(recruitingPointsProfile, db)
+	repository.SaveCBBTeamRecruitingProfile(recruitingProfile, db)
 }
 
 func SendScholarshipToRecruit(updateRecruitPointsDto structs.UpdateRecruitPointsDto) (structs.PlayerRecruitProfile, structs.TeamRecruitingProfile) {
@@ -327,9 +326,8 @@ func SendScholarshipToRecruit(updateRecruitPointsDto structs.UpdateRecruitPoints
 		recruitingProfile.ReallocateScholarship()
 	}
 
-	db.Save(&crootProfile)
-	db.Save(&recruitingProfile)
-
+	repository.SaveCBBRecruitProfile(crootProfile, db)
+	repository.SaveCBBTeamRecruitingProfile(recruitingProfile, db)
 	return crootProfile, recruitingProfile
 }
 
@@ -351,8 +349,8 @@ func RevokeScholarshipFromRecruit(updateRecruitPointsDto structs.UpdateRecruitPo
 	recruitingPointsProfile.RevokeScholarship()
 	recruitingProfile.ReallocateScholarship()
 
-	db.Save(&recruitingPointsProfile)
-	db.Save(&recruitingProfile)
+	repository.SaveCBBRecruitProfile(recruitingPointsProfile, db)
+	repository.SaveCBBTeamRecruitingProfile(recruitingProfile, db)
 
 	return recruitingPointsProfile, recruitingProfile
 }
@@ -370,7 +368,7 @@ func RemoveRecruitFromBoard(updateRecruitPointsDto structs.UpdateRecruitPointsDt
 	}
 
 	recruitingPointsProfile.RemoveRecruitFromBoard()
-	db.Save(&recruitingPointsProfile)
+	repository.SaveCBBRecruitProfile(recruitingPointsProfile, db)
 
 	return recruitingPointsProfile
 }
@@ -403,7 +401,7 @@ func UpdateRecruitingProfile(updateRecruitingBoardDto structs.UpdateRecruitingBo
 			} else {
 				panic("Error: Allocated more points for Profile " + strconv.Itoa(int(profile.TeamID)) + " than what is allowed.")
 			}
-			db.Save(&recruitingPoints[i])
+			repository.SaveCBBRecruitProfile(recruitingPoints[i], db)
 		} else {
 			currentPoints += recruitingPoints[i].CurrentWeeksPoints
 			profile.AllocateSpentPoints(currentPoints)
@@ -411,7 +409,7 @@ func UpdateRecruitingProfile(updateRecruitingBoardDto structs.UpdateRecruitingBo
 	}
 
 	// Save profile
-	db.Save(&profile)
+	repository.SaveCBBTeamRecruitingProfile(profile, db)
 
 	return profile
 }
@@ -489,8 +487,7 @@ func DetermineRecruitingClassSize() {
 		nonLeaving := limit - count
 		classSize := limit - nonLeaving
 		rp.SetClassSize(classSize)
-
-		db.Save(&rp)
+		repository.SaveCBBTeamRecruitingProfile(rp, db)
 	}
 }
 
