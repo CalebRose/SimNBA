@@ -30,11 +30,13 @@ type NBADraftee struct {
 	PerimeterDefenseGrade string
 	OverallGrade          string
 	Prediction            int
+	IsInternational       bool
 }
 
 func (n *NBADraftee) Map(cp CollegePlayer) {
 	n.ID = cp.ID
 	n.PlayerID = cp.PlayerID
+	n.CollegeID = cp.TeamID
 	n.College = cp.TeamAbbr
 	n.State = cp.State
 	n.Country = cp.Country
@@ -76,6 +78,7 @@ func (n *NBADraftee) Map(cp CollegePlayer) {
 func (n *NBADraftee) MapInternational(cp NBAPlayer) {
 	n.ID = cp.ID
 	n.PlayerID = cp.PlayerID
+	n.CollegeID = cp.TeamID
 	n.College = cp.TeamAbbr
 	n.State = cp.State
 	n.Country = cp.Country
@@ -112,6 +115,7 @@ func (n *NBADraftee) MapInternational(cp NBAPlayer) {
 	n.SpecRebounding = cp.SpecRebounding
 	n.SpecShooting2 = cp.SpecShooting2
 	n.SpecShooting3 = cp.SpecShooting3
+	n.IsInternational = true
 }
 
 func (n *NBADraftee) AssignPrimeAge(age int) {
