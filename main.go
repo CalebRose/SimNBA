@@ -37,7 +37,10 @@ func monitorDBForUpdates() {
 		currentTS := controller.GetUpdatedTimestamp()
 		if currentTS.UpdatedAt.After(ts.UpdatedAt) {
 			ts = currentTS
-			ws.BroadcastTSUpdate(ts)
+			err := ws.BroadcastTSUpdate(ts)
+			if err != nil {
+				log.Printf("Error broadcasting timestamp: %v", err)
+			}
 		}
 
 		time.Sleep(60 * time.Second)

@@ -7,7 +7,9 @@ import (
 )
 
 // BroadcastTSUpdate sends the updated timestamp to all connected WebSocket clients
-func BroadcastTSUpdate(ts structs.Timestamp) {
+func BroadcastTSUpdate(ts structs.Timestamp) error {
+	mu.Lock()
+	defer mu.Unlock()
 	for conn := range clients {
 		err := conn.WriteJSON(ts)
 		if err != nil {
@@ -16,4 +18,5 @@ func BroadcastTSUpdate(ts structs.Timestamp) {
 			delete(clients, conn) // Remove client on error
 		}
 	}
+	return nil
 }

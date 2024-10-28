@@ -3,6 +3,7 @@ package ws
 import (
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/CalebRose/SimNBA/managers"
 	"github.com/gorilla/websocket"
@@ -19,7 +20,10 @@ var upgrader = websocket.Upgrader{
 }
 
 // Global map to keep track of connected WebSocket clients
-var clients = make(map[*websocket.Conn]bool)
+var (
+	clients = make(map[*websocket.Conn]bool)
+	mu      sync.Mutex
+)
 
 // WebSocketHandler handles WebSocket connection requests
 func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
@@ -32,8 +36,18 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	// Add new WebSocket connection to the clients map
+	mu.Lock()
 	clients[conn] = true
+	mu.Unlock()
 	log.Println("New WebSocket client connected")
+
+	defer func() {
+		conn.Close()
+		mu.Lock()
+		delete(clients, conn)
+		mu.Unlock()
+		log.Println("WebSocket client disconnected")
+	}()
 
 	ts := managers.GetTimestamp()
 	// Send the latest timestamp to the user immediately upon connection
@@ -47,9 +61,7 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	for {
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
-			log.Println("WebSocket client disconnected:", err)
-			conn.Close()
-			delete(clients, conn)
+			log.Println("WebSocket client error:", err)
 			break
 		}
 
