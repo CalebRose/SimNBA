@@ -323,7 +323,7 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/dis/cbb/conf/matches/{conferenceID}/{day}", controller.CollegeMatchesByConference).Methods("GET")
 
 	// Websocket
-	myRouter.HandleFunc("ws", ws.WebSocketHandler)
+	myRouter.HandleFunc("/ws", ws.WebSocketHandler)
 
 	// Handler
 	handler := cors.AllowAll().Handler(myRouter)
