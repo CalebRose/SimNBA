@@ -346,6 +346,8 @@ func (s *NBATeamSeasonStats) ResetSeasonsRecord() {
 
 type NBAPlayerSeasonStats struct {
 	gorm.Model
+	TeamID                    uint
+	PreviousTeamID            uint
 	GamesPlayed               uint
 	NBAPlayerID               uint
 	SeasonID                  uint
@@ -392,6 +394,7 @@ type NBAPlayerSeasonStats struct {
 
 type NBAPlayerStats struct {
 	gorm.Model
+	TeamID             uint
 	NBAPlayerID        uint
 	MatchID            uint
 	SeasonID           uint
@@ -433,6 +436,13 @@ func (s *NBAPlayerSeasonStats) AddStatsToSeasonRecord(stat NBAPlayerStats) {
 	}
 	if s.Year == 0 {
 		s.Year = stat.Year
+	}
+	if s.TeamID == 0 {
+		s.TeamID = stat.TeamID
+	}
+	if s.TeamID > 0 && stat.TeamID > 0 && s.TeamID != stat.TeamID {
+		s.PreviousTeamID = s.TeamID
+		s.TeamID = stat.TeamID
 	}
 	s.NBAPlayerID = stat.NBAPlayerID
 	s.SeasonID = stat.SeasonID

@@ -4,6 +4,8 @@ import "github.com/jinzhu/gorm"
 
 type CollegePlayerSeasonStats struct {
 	gorm.Model
+	TeamID                    uint
+	PreviousTeamID            uint
 	GamesPlayed               uint
 	CollegePlayerID           uint
 	SeasonID                  uint
@@ -60,6 +62,13 @@ func (s *CollegePlayerSeasonStats) AddStatsToSeasonRecord(stat CollegePlayerStat
 	s.FGA += stat.FGA
 	if s.Year == 0 {
 		s.Year = stat.Year
+	}
+	if s.TeamID == 0 {
+		s.TeamID = stat.TeamID
+	}
+	if s.TeamID > 0 && stat.TeamID > 0 && s.TeamID != stat.TeamID {
+		s.PreviousTeamID = s.TeamID
+		s.TeamID = stat.TeamID
 	}
 	if s.FGA > 0 {
 		s.FGPercent = float64(s.FGM) / float64(s.FGA)

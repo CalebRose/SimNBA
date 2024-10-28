@@ -4,6 +4,7 @@ import "github.com/jinzhu/gorm"
 
 type CollegePlayerStats struct {
 	gorm.Model
+	TeamID             uint
 	CollegePlayerID    uint
 	MatchID            uint
 	SeasonID           uint

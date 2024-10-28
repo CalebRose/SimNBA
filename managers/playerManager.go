@@ -1141,3 +1141,27 @@ func ProcessRecovery() {
 	}
 
 }
+
+func GetCollegePlayersWithSeasonStatsByTeamID(teamId, seasonID string) []structs.CollegePlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var players []structs.CollegePlayer
+	err := db.Preload("SeasonStats", "season_id = ?", seasonID).Order("overall desc").Order("team_id asc").Where("team_id = ?", teamId).Find(&players).Error
+	if err != nil {
+		log.Fatalln("Could not retrieve players from CollegePlayer Table")
+	}
+
+	return players
+}
+
+func GetNBAPlayersWithSeasonStatsByTeamID(teamId, seasonID string) []structs.NBAPlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var players []structs.NBAPlayer
+	err := db.Preload("SeasonStats", "season_id = ?", seasonID).Order("overall desc").Order("team_id asc").Where("team_id = ?", teamId).Find(&players).Error
+	if err != nil {
+		log.Fatalln("Could not retrieve players from NBAPlayer Table")
+	}
+
+	return players
+}

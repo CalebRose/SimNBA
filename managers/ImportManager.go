@@ -1132,6 +1132,7 @@ func mapToNBATeamStatsObject(teamID, matchID, weekID, week, seasonID uint, match
 
 func mapToCBBPlayerStatsObject(player structs.PlayerDTO, id, matchID int, seasonID, weekID, week uint, matchType string) structs.CollegePlayerStats {
 	return structs.CollegePlayerStats{
+		TeamID:             uint(player.TeamID),
 		CollegePlayerID:    uint(id),
 		MatchID:            uint(matchID),
 		SeasonID:           seasonID,
@@ -1169,6 +1170,7 @@ func mapToCBBPlayerStatsObject(player structs.PlayerDTO, id, matchID int, season
 
 func mapToNBAPlayerStatsObject(player structs.PlayerDTO, id, matchID int, seasonID, weekID, week uint, matchType string) structs.NBAPlayerStats {
 	return structs.NBAPlayerStats{
+		TeamID:             uint(player.TeamID),
 		NBAPlayerID:        uint(id),
 		MatchID:            uint(matchID),
 		SeasonID:           seasonID,

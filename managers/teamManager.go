@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
@@ -711,5 +712,182 @@ func FormISLRosters() {
 		}
 		currentCount += 1
 		oneYear = !oneYear
+	}
+}
+
+func GetDashboardByTeamID(isCBB bool, teamID string) structs.DashboardResponseData {
+	ts := GetTimestamp()
+	seasonID := strconv.Itoa(int(ts.SeasonID))
+	collegeTeam := structs.Team{}
+	nbaTeam := structs.NBATeam{}
+	if isCBB {
+		collegeTeam = GetTeamByTeamID(teamID)
+	} else {
+		nbaTeam = GetNBATeamByTeamID(teamID)
+	}
+	cStandings := make(chan []structs.CollegeStandings)
+	nStandings := make(chan []structs.NBAStandings)
+	cGames := make(chan []structs.Match)
+	nGames := make(chan []structs.NBAMatch)
+	newsChan := make(chan []structs.NewsLog)
+	cfbPlayerChan := make(chan []structs.CollegePlayer)
+	nflPlayerChan := make(chan []structs.NBAPlayer)
+	cfbTeamStatsChan := make(chan structs.TeamSeasonStats)
+	nflTeamStatsChan := make(chan structs.NBATeamSeasonStats)
+	pollChan := make(chan structs.CollegePollOfficial)
+
+	var waitGroup sync.WaitGroup
+	waitGroup.Add(10)
+	go func() {
+		waitGroup.Wait()
+		close(cStandings)
+		close(nStandings)
+		close(cGames)
+		close(nGames)
+		close(newsChan)
+		close(cfbPlayerChan)
+		close(nflPlayerChan)
+		close(cfbTeamStatsChan)
+		close(nflTeamStatsChan)
+		close(pollChan)
+	}()
+
+	go func() {
+		defer waitGroup.Done()
+		cSt := []structs.CollegeStandings{}
+		if isCBB {
+			cSt = GetCollegeConferenceStandingsByConference(strconv.Itoa(int(collegeTeam.ConferenceID)))
+		}
+		cStandings <- cSt
+	}()
+
+	go func() {
+		defer waitGroup.Done()
+		nSt := []structs.NBAStandings{}
+		if !isCBB {
+			nSt = GetNBAConferenceStandingsByConferenceID(strconv.Itoa(int(nbaTeam.ConferenceID)), seasonID)
+		}
+		nStandings <- nSt
+	}()
+
+	go func() {
+		defer waitGroup.Done()
+		cG := []structs.Match{}
+		if isCBB {
+			cG = GetCollegeTeamMatchesBySeasonId(seasonID, teamID)
+		}
+		cGames <- cG
+	}()
+
+	go func() {
+		defer waitGroup.Done()
+		nG := []structs.NBAMatch{}
+		if !isCBB {
+			nG = GetNBATeamMatchesBySeasonId(seasonID, teamID)
+		}
+		nGames <- nG
+	}()
+
+	go func() {
+		defer waitGroup.Done()
+		nL := []structs.NewsLog{}
+		if isCBB {
+			nL = GetCBBRelatedNews(teamID)
+		} else {
+			nL = GetNBARelatedNews(teamID)
+		}
+		newsChan <- nL
+	}()
+
+	go func() {
+		defer waitGroup.Done()
+		players := []structs.CollegePlayer{}
+		if isCBB {
+			seasonKey := ts.SeasonID
+			if ts.IsOffSeason {
+				seasonKey -= 1
+			}
+			players = GetCollegePlayersWithSeasonStatsByTeamID(teamID, strconv.Itoa(int(seasonKey)))
+		}
+		cfbPlayerChan <- players
+	}()
+
+	go func() {
+		defer waitGroup.Done()
+		players := []structs.NBAPlayer{}
+		if !isCBB {
+			seasonKey := ts.SeasonID
+			if ts.IsNBAOffseason {
+				seasonKey -= 1
+			}
+			players = GetNBAPlayersWithSeasonStatsByTeamID(teamID, strconv.Itoa(int(seasonKey)))
+		}
+		nflPlayerChan <- players
+	}()
+
+	go func() {
+		defer waitGroup.Done()
+		stats := structs.TeamSeasonStats{}
+		if isCBB {
+			seasonKey := ts.SeasonID
+			if ts.IsOffSeason {
+				seasonKey -= 1
+			}
+			stats = GetTeamSeasonStatsByTeamID(teamID, strconv.Itoa(int(seasonKey)))
+		}
+		cfbTeamStatsChan <- stats
+	}()
+
+	go func() {
+		defer waitGroup.Done()
+		stats := structs.NBATeamSeasonStats{}
+		if !isCBB {
+			seasonKey := ts.SeasonID
+			if ts.IsNBAOffseason {
+				seasonKey -= 1
+			}
+			stats = GetNBATeamSeasonStatsByTeamID(teamID, strconv.Itoa(int(seasonKey)))
+		}
+		nflTeamStatsChan <- stats
+	}()
+
+	go func() {
+		defer waitGroup.Done()
+		poll := structs.CollegePollOfficial{}
+		if isCBB {
+			seasonKey := ts.SeasonID
+			if ts.IsOffSeason {
+				seasonKey -= 1
+			}
+			polls := GetOfficialPollBySeasonID(strconv.Itoa(int(seasonKey)))
+			if len(polls) > 0 {
+				poll = polls[len(polls)-1]
+			}
+		}
+		pollChan <- poll
+	}()
+
+	collegeStandings := <-cStandings
+	nbaStandings := <-nStandings
+	collegeGames := <-cGames
+	nbaGames := <-nGames
+	newsLogs := <-newsChan
+	collegePlayers := <-cfbPlayerChan
+	nbaPlayers := <-nflPlayerChan
+	cbbTeamStats := <-cfbTeamStatsChan
+	nbaTeamStats := <-nflTeamStatsChan
+	collegePoll := <-pollChan
+
+	return structs.DashboardResponseData{
+		CollegeStandings: collegeStandings,
+		NBAStandings:     nbaStandings,
+		CollegeGames:     collegeGames,
+		NBAGames:         nbaGames,
+		NewsLogs:         newsLogs,
+		TopCBBPlayers:    collegePlayers,
+		TopNBAPlayers:    nbaPlayers,
+		CBBTeamStats:     cbbTeamStats,
+		NBATeamStats:     nbaTeamStats,
+		TopTenPoll:       collegePoll,
 	}
 }

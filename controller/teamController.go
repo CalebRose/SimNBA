@@ -152,3 +152,25 @@ func SyncNBATeamRatings(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode("Team Ratings Sync Done!")
 }
+
+func GetCBBDashboardByTeamID(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	teamID := vars["teamID"]
+	if len(teamID) == 0 {
+		panic("User did not provide teamID")
+	}
+	// Schedule, Standings, News Logs, top players by stats
+	dashboard := managers.GetDashboardByTeamID(true, teamID)
+	json.NewEncoder(w).Encode(dashboard)
+}
+
+func GetNBADashboardByTeamID(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	teamID := vars["teamID"]
+	if len(teamID) == 0 {
+		panic("User did not provide teamID")
+	}
+	// Schedule, Standings, News Logs, top players by stats
+	dashboard := managers.GetDashboardByTeamID(false, teamID)
+	json.NewEncoder(w).Encode(dashboard)
+}

@@ -43,3 +43,16 @@ type CBBRosterResponse struct {
 	Players  []CollegePlayerResponse
 	Promises []CollegePromise
 }
+
+type DashboardResponseData struct {
+	CollegeStandings []CollegeStandings
+	NewsLogs         []NewsLog
+	CollegeGames     []Match
+	NBAStandings     []NBAStandings
+	NBAGames         []NBAMatch
+	TopCBBPlayers    []CollegePlayer
+	TopNBAPlayers    []NBAPlayer
+	TopTenPoll       CollegePollOfficial
+	CBBTeamStats     TeamSeasonStats
+	NBATeamStats     NBATeamSeasonStats
+}
