@@ -4,9 +4,6 @@ LABEL maintainer='@ctrose17'
 
 WORKDIR /app
 
-EXPOSE 8081
-EXPOSE 80
-
 COPY go.mod go.sum ./
 
 RUN go mod download

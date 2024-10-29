@@ -356,9 +356,16 @@ func GetNBAMatchByMatchId(matchId string) structs.NBAMatch {
 
 func GetMatchResultsByMatchID(matchId string) structs.MatchResultsResponse {
 	match := GetMatchByMatchId(matchId)
-
-	homePlayers := GetCollegePlayersWithMatchStatsByTeamId(strconv.Itoa(int(match.HomeTeamID)), matchId)
-	awayPlayers := GetCollegePlayersWithMatchStatsByTeamId(strconv.Itoa(int(match.AwayTeamID)), matchId)
+	involvedPlayers := GetCollegePlayersWithMatchStatsByTeamId(match.HomeTeamID, match.AwayTeamID, matchId)
+	homePlayers := []structs.MatchResultsPlayer{}
+	awayPlayers := []structs.MatchResultsPlayer{}
+	for _, p := range involvedPlayers {
+		if p.TeamID == match.HomeTeamID {
+			homePlayers = append(homePlayers, p)
+		} else {
+			awayPlayers = append(awayPlayers, p)
+		}
+	}
 	homeStats := GetCBBTeamResultsByMatch(strconv.Itoa(int(match.HomeTeamID)), matchId)
 	awayStats := GetCBBTeamResultsByMatch(strconv.Itoa(int(match.AwayTeamID)), matchId)
 
@@ -372,9 +379,16 @@ func GetMatchResultsByMatchID(matchId string) structs.MatchResultsResponse {
 
 func GetNBAMatchResultsByMatchID(matchId string) structs.MatchResultsResponse {
 	match := GetNBAMatchByMatchId(matchId)
-
-	homePlayers := GetNBAPlayersWithMatchStatsByTeamId(strconv.Itoa(int(match.HomeTeamID)), matchId)
-	awayPlayers := GetNBAPlayersWithMatchStatsByTeamId(strconv.Itoa(int(match.AwayTeamID)), matchId)
+	involvedPlayers := GetNBAPlayersWithMatchStatsByTeamId(match.HomeTeamID, match.AwayTeamID, matchId)
+	homePlayers := []structs.MatchResultsPlayer{}
+	awayPlayers := []structs.MatchResultsPlayer{}
+	for _, p := range involvedPlayers {
+		if p.TeamID == match.HomeTeamID {
+			homePlayers = append(homePlayers, p)
+		} else {
+			awayPlayers = append(awayPlayers, p)
+		}
+	}
 	homeStats := GetNBATeamResultsByMatch(strconv.Itoa(int(match.HomeTeamID)), matchId)
 	awayStats := GetNBATeamResultsByMatch(strconv.Itoa(int(match.AwayTeamID)), matchId)
 

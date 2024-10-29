@@ -138,28 +138,43 @@ func GetCollegePlayersByTeamIdForProgression(teamId string, ts structs.Timestamp
 	return players
 }
 
-func GetCollegePlayersWithMatchStatsByTeamId(teamId string, matchID string) []structs.MatchResultsPlayer {
+func GetCollegePlayersWithMatchStatsByTeamId(homeTeamID, awayTeamID uint, matchID string) []structs.MatchResultsPlayer {
 	db := dbprovider.GetInstance().GetDB()
 
 	var matchRows []structs.MatchResultsPlayer
 
+	var stats []structs.CollegePlayerStats
+
+	err := db.Where("match_id = ?", matchID).Find(&stats).Error
+	if err != nil {
+		log.Fatalln("Could not retrieve players from CollegePlayer Table")
+	}
+
+	playerIDs := []string{}
+	statMap := make(map[uint]structs.CollegePlayerStats)
+
+	for _, s := range stats {
+		playerIDs = append(playerIDs, strconv.Itoa(int(s.CollegePlayerID)))
+		statMap[s.CollegePlayerID] = s
+	}
+
 	var players []structs.CollegePlayer
-	err := db.Preload("Stats", func(db *gorm.DB) *gorm.DB {
-		return db.Where("match_id = ?", matchID)
-	}).Where("team_id = ?", teamId).Find(&players).Error
+	err = db.Where("id in (?)", playerIDs).Find(&players).Error
 	if err != nil {
 		log.Fatalln("Could not retrieve players from CollegePlayer Table")
 	}
 
 	for _, p := range players {
-		if len(p.Stats) == 0 {
-			continue
-		}
-		s := p.Stats[0]
+		s := statMap[p.ID]
 		if s.Minutes == 0 {
 			continue
 		}
+		teamId := homeTeamID
+		if s.TeamID == awayTeamID {
+			teamId = awayTeamID
+		}
 		row := structs.MatchResultsPlayer{
+			TeamID:             teamId,
 			FirstName:          p.FirstName,
 			LastName:           p.LastName,
 			Position:           p.Position,
@@ -192,22 +207,22 @@ func GetCollegePlayersWithMatchStatsByTeamId(teamId string, matchID string) []st
 	}
 
 	var historicPlayers []structs.HistoricCollegePlayer
-	err = db.Preload("Stats", func(db *gorm.DB) *gorm.DB {
-		return db.Where("match_id = ?", matchID)
-	}).Where("team_id = ?", teamId).Find(&historicPlayers).Error
+	err = db.Where("id in (?)", playerIDs).Find(&historicPlayers).Error
 	if err != nil {
 		log.Fatalln("Could not retrieve players from CollegePlayer Table")
 	}
 
 	for _, p := range historicPlayers {
-		if len(p.Stats) == 0 {
-			continue
-		}
-		s := p.Stats[0]
+		s := statMap[p.ID]
 		if s.Minutes == 0 {
 			continue
 		}
+		teamId := homeTeamID
+		if s.TeamID == awayTeamID {
+			teamId = awayTeamID
+		}
 		row := structs.MatchResultsPlayer{
+			TeamID:             teamId,
 			FirstName:          p.FirstName,
 			LastName:           p.LastName,
 			Position:           p.Position,
@@ -245,28 +260,41 @@ func GetCollegePlayersWithMatchStatsByTeamId(teamId string, matchID string) []st
 	return matchRows
 }
 
-func GetNBAPlayersWithMatchStatsByTeamId(teamId string, matchID string) []structs.MatchResultsPlayer {
+func GetNBAPlayersWithMatchStatsByTeamId(homeTeamID, awayTeamID uint, matchID string) []structs.MatchResultsPlayer {
 	db := dbprovider.GetInstance().GetDB()
 
 	var matchRows []structs.MatchResultsPlayer
-
+	var playerIDs []string
+	statMap := make(map[uint]structs.NBAPlayerStats)
 	var players []structs.NBAPlayer
-	err := db.Preload("Stats", func(db *gorm.DB) *gorm.DB {
-		return db.Where("match_id = ?", matchID)
-	}).Where("team_id = ?", teamId).Find(&players).Error
+	var stats []structs.NBAPlayerStats
+
+	err := db.Where("match_id = ?", matchID).Find(&stats).Error
 	if err != nil {
-		log.Fatalln("Could not retrieve players from CollegePlayer Table")
+		log.Fatalln("Could not retrieve players from NBAPlayerStats Table")
+	}
+
+	for _, s := range stats {
+		playerIDs = append(playerIDs, strconv.Itoa(int(s.NBAPlayerID)))
+		statMap[s.NBAPlayerID] = s
+	}
+
+	err = db.Where("id in (?)", playerIDs).Find(&players).Error
+	if err != nil {
+		log.Fatalln("Could not retrieve players from NBAPlayer Table")
 	}
 
 	for _, p := range players {
-		if len(p.Stats) == 0 {
-			continue
-		}
-		s := p.Stats[0]
+		s := statMap[p.ID]
 		if s.Minutes == 0 {
 			continue
 		}
+		teamId := homeTeamID
+		if s.TeamID == awayTeamID {
+			teamId = awayTeamID
+		}
 		row := structs.MatchResultsPlayer{
+			TeamID:             teamId,
 			FirstName:          p.FirstName,
 			LastName:           p.LastName,
 			Position:           p.Position,
@@ -299,22 +327,22 @@ func GetNBAPlayersWithMatchStatsByTeamId(teamId string, matchID string) []struct
 	}
 
 	var historicPlayers []structs.RetiredPlayer
-	err = db.Preload("Stats", func(db *gorm.DB) *gorm.DB {
-		return db.Where("match_id = ?", matchID)
-	}).Where("team_id = ?", teamId).Find(&historicPlayers).Error
+	err = db.Where("id in (?)", playerIDs).Find(&historicPlayers).Error
 	if err != nil {
 		log.Fatalln("Could not retrieve players from CollegePlayer Table")
 	}
 
 	for _, p := range historicPlayers {
-		if len(p.Stats) == 0 {
-			continue
-		}
-		s := p.Stats[0]
+		s := statMap[p.ID]
 		if s.Minutes == 0 {
 			continue
 		}
+		teamId := homeTeamID
+		if s.TeamID == awayTeamID {
+			teamId = awayTeamID
+		}
 		row := structs.MatchResultsPlayer{
+			TeamID:             teamId,
 			FirstName:          p.FirstName,
 			LastName:           p.LastName,
 			Position:           p.Position,
