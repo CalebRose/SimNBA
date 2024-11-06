@@ -236,7 +236,7 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/nba/requests/all/", controller.GetNBATeamRequests).Methods("GET")
 	apiRouter.HandleFunc("/nba/requests/create/", controller.CreateNBATeamRequest).Methods("POST")
 	apiRouter.HandleFunc("/nba/requests/approve/", controller.ApproveNBATeamRequest).Methods("POST")
-	apiRouter.HandleFunc("/nba/requests/reject/", controller.RejectNBATeamRequest).Methods("DELETE")
+	apiRouter.HandleFunc("/nba/requests/reject/", controller.RejectNBATeamRequest).Methods("POST")
 	apiRouter.HandleFunc("/nba/requests/revoke/", controller.RemoveNBAUserFromNBATeam).Methods("POST")
 
 	// Run Controls
