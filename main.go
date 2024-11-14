@@ -233,6 +233,8 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/requests/createTeamRequest", controller.CreateTeamRequest).Methods("POST")
 	apiRouter.HandleFunc("/requests/approveTeamRequest", controller.ApproveTeamRequest).Methods("PUT")
 	apiRouter.HandleFunc("/requests/rejectTeamRequest", controller.RejectTeamRequest).Methods("DELETE")
+	apiRouter.HandleFunc("/requests/view/cbb/{teamID}/", controller.ViewCBBTeamUponRequest).Methods("GET")
+	apiRouter.HandleFunc("/requests/view/nba/{teamID}/", controller.ViewNBATeamUponRequest).Methods("GET")
 	apiRouter.HandleFunc("/nba/requests/all/", controller.GetNBATeamRequests).Methods("GET")
 	apiRouter.HandleFunc("/nba/requests/create/", controller.CreateNBATeamRequest).Methods("POST")
 	apiRouter.HandleFunc("/nba/requests/approve/", controller.ApproveNBATeamRequest).Methods("POST")
@@ -343,13 +345,13 @@ func loadEnvs() {
 func handleCron() *cron.Cron {
 
 	c := cron.New()
-	c.AddFunc("0 16 * * 3", controller.SyncRecruitingViaCron)
-	c.AddFunc("0 6 * * 4,6", controller.SyncAIBoardsViaCron)
-	c.AddFunc("0 20 * * 1,3,5,6", controller.ShowGamesViaCron)
-	c.AddFunc("0 22 * * 1,3,5,6", controller.RunAIGameplansViaCron)
-	c.AddFunc("0 10 * * 4", controller.FillAIBoardsViaCron)
-	c.AddFunc("0 12 * * 0", controller.SyncToNextWeekViaCron)
-	c.AddFunc("0 16 * * 2", controller.SyncFreeAgencyOffersViaCron)
+	// c.AddFunc("0 16 * * 3", controller.SyncRecruitingViaCron)
+	// c.AddFunc("0 6 * * 4,6", controller.SyncAIBoardsViaCron)
+	// c.AddFunc("0 20 * * 1,3,5,6", controller.ShowGamesViaCron)
+	// c.AddFunc("0 22 * * 1,3,5,6", controller.RunAIGameplansViaCron)
+	// c.AddFunc("0 10 * * 4", controller.FillAIBoardsViaCron)
+	// c.AddFunc("0 12 * * 0", controller.SyncToNextWeekViaCron)
+	// c.AddFunc("0 16 * * 2", controller.SyncFreeAgencyOffersViaCron)
 	c.Start()
 
 	return c

@@ -7,6 +7,7 @@ import (
 
 	"github.com/CalebRose/SimNBA/managers"
 	"github.com/CalebRose/SimNBA/structs"
+	"github.com/gorilla/mux"
 )
 
 func GetTeamRequests(w http.ResponseWriter, r *http.Request) {
@@ -128,4 +129,28 @@ func RemoveNBAUserFromNBATeam(w http.ResponseWriter, r *http.Request) {
 	managers.RemoveUserFromNBATeam(request)
 
 	json.NewEncoder(w).Encode(request)
+}
+
+func ViewCBBTeamUponRequest(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	teamID := vars["teamID"]
+	if len(teamID) == 0 {
+		panic("User did not provide TeamID")
+	}
+
+	res := managers.GetCBBTeamForAvailableTeamsPage(teamID)
+
+	json.NewEncoder(w).Encode(res)
+}
+
+func ViewNBATeamUponRequest(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	teamID := vars["teamID"]
+	if len(teamID) == 0 {
+		panic("User did not provide TeamID")
+	}
+
+	res := managers.GetNBATeamForAvailableTeamsPage(teamID)
+
+	json.NewEncoder(w).Encode(res)
 }

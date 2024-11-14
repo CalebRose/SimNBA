@@ -3,10 +3,12 @@ package managers
 import (
 	"fmt"
 	"log"
+	"sort"
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
+	"github.com/CalebRose/SimNBA/util"
 )
 
 func GetAllTeamRequests() []structs.RequestDTO {
@@ -192,4 +194,55 @@ func RemoveUserFromNBATeam(request structs.NBARequest) {
 
 	timestamp := GetTimestamp()
 	CreateNewsLog("NBA", message, "CoachJob", int(team.ID), timestamp)
+}
+
+func GetCBBTeamForAvailableTeamsPage(teamID string) structs.TeamRecordResponse {
+	historicalDataResponse := GetHistoricalCBBRecordsByTeamID(teamID)
+
+	// Get top 3 players on roster
+	roster := GetCollegePlayersByTeamId(teamID)
+	sort.Slice(roster, func(i, j int) bool {
+		return roster[i].Overall < roster[j].Overall
+	})
+
+	topPlayers := []structs.TopPlayer{}
+
+	for i := range roster {
+		if i > 4 {
+			break
+		}
+		tp := structs.TopPlayer{}
+		grade := util.GetOverallGrade(roster[i].Overall)
+		tp.MapCollegePlayer(roster[i], grade)
+		topPlayers = append(topPlayers, tp)
+	}
+
+	historicalDataResponse.AddTopPlayers(topPlayers)
+
+	return historicalDataResponse
+}
+
+func GetNBATeamForAvailableTeamsPage(teamID string) structs.TeamRecordResponse {
+	historicalDataResponse := GetHistoricalNBARecordsByTeamID(teamID)
+
+	// Get top 3 players on roster
+	roster := GetAllNBAPlayersByTeamID(teamID)
+	sort.Slice(roster, func(i, j int) bool {
+		return roster[i].Overall < roster[j].Overall
+	})
+
+	topPlayers := []structs.TopPlayer{}
+
+	for i := range roster {
+		if i > 4 {
+			break
+		}
+		tp := structs.TopPlayer{}
+		tp.MapNBAPlayer(roster[i])
+		topPlayers = append(topPlayers, tp)
+	}
+
+	historicalDataResponse.AddTopPlayers(topPlayers)
+
+	return historicalDataResponse
 }

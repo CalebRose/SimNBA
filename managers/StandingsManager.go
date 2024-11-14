@@ -54,6 +54,16 @@ func GetAllNBAConferenceStandingsBySeasonID(seasonID string) []structs.NBAStandi
 	return standings
 }
 
+func GetNBAStandingsHistoryByTeamID(id string) []structs.NBAStandings {
+	db := dbprovider.GetInstance().GetDB()
+
+	var standings []structs.NBAStandings
+
+	db.Where("team_id = ?", id).Find(&standings)
+
+	return standings
+}
+
 func GetStandingsHistoryByTeamID(id string) []structs.CollegeStandings {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -541,4 +551,240 @@ func GenerateNBAStandings() {
 
 		db.Create(&standings)
 	}
+}
+
+func GetHistoricalCBBRecordsByTeamID(TeamID string) structs.TeamRecordResponse {
+	tsChn := make(chan structs.Timestamp)
+
+	go func() {
+		ts := GetTimestamp()
+		tsChn <- ts
+	}()
+
+	timestamp := <-tsChn
+	close(tsChn)
+	historicGames := GetCBBMatchesByTeamId(TeamID)
+	standings := GetStandingsHistoryByTeamID(TeamID)
+	var ConferenceTournamentChampionships []string
+	var sweetSixteens []string
+	var eliteEights []string
+	var finalFours []string
+	var runnerUps []string
+	var nationalChampionships []string
+	overallWins := 0
+	overallLosses := 0
+	currentSeasonWins := 0
+	currentSeasonLosses := 0
+	conferenceTournamentWins := 0
+	conferenceTournamentLosses := 0
+	playoffWins := 0
+	playoffLosses := 0
+	nitWins := 0
+	nitLosses := 0
+	CBIWins := 0
+	CBILosses := 0
+
+	for _, s := range standings {
+		if s.PostSeasonStatus == "Sweet Sixteen" {
+			sweetSixteens = append(sweetSixteens, strconv.Itoa(s.Season))
+		}
+
+		if s.PostSeasonStatus == "Elite Eight" {
+			eliteEights = append(eliteEights, strconv.Itoa(s.Season))
+		}
+
+		if s.PostSeasonStatus == "Final Four" {
+			finalFours = append(finalFours, strconv.Itoa(s.Season))
+		}
+
+		if s.PostSeasonStatus == "National Champion Runner-Up" {
+			runnerUps = append(runnerUps, strconv.Itoa(s.Season))
+		}
+
+		if s.PostSeasonStatus == "National Champion" {
+			nationalChampionships = append(nationalChampionships, strconv.Itoa(s.Season))
+		}
+
+		if s.IsConferenceChampion {
+			ConferenceTournamentChampionships = append(ConferenceTournamentChampionships, strconv.Itoa(s.Season))
+		}
+
+	}
+
+	for _, game := range historicGames {
+		if !game.GameComplete || (game.GameComplete && game.SeasonID == timestamp.SeasonID && game.WeekID == timestamp.CollegeWeekID) {
+			continue
+		}
+
+		isAway := strconv.Itoa(int(game.AwayTeamID)) == TeamID
+
+		if (isAway && game.AwayTeamWin) || (!isAway && game.HomeTeamWin) {
+			overallWins++
+
+			if game.SeasonID == timestamp.SeasonID {
+				currentSeasonWins++
+			}
+
+			if game.IsConferenceTournament {
+				conferenceTournamentWins++
+			}
+
+			if game.IsPlayoffGame {
+				playoffWins++
+			}
+
+			if game.IsNITGame {
+				nitWins++
+			}
+
+			if game.IsCBIGame {
+				CBIWins++
+			}
+
+		} else {
+			overallLosses++
+
+			if game.SeasonID == timestamp.SeasonID {
+				currentSeasonLosses++
+			}
+
+			if game.IsConferenceTournament {
+				conferenceTournamentLosses++
+			}
+
+			if game.IsPlayoffGame {
+				playoffLosses++
+			}
+
+			if game.IsNITGame {
+				nitLosses++
+			}
+
+			if game.IsCBIGame {
+				CBILosses++
+			}
+		}
+	}
+
+	response := structs.TeamRecordResponse{
+		OverallWins:             overallWins,
+		OverallLosses:           overallLosses,
+		CurrentSeasonWins:       currentSeasonWins,
+		CurrentSeasonLosses:     currentSeasonLosses,
+		TournamentWins:          conferenceTournamentWins,
+		TournamentLosses:        conferenceTournamentLosses,
+		PlayoffWins:             playoffWins,
+		PlayoffLosses:           playoffLosses,
+		NITWins:                 nitWins,
+		NITLosses:               nitLosses,
+		CBIWins:                 CBIWins,
+		CBILosses:               CBILosses,
+		ConferenceChampionships: ConferenceTournamentChampionships,
+		SweetSixteens:           sweetSixteens,
+		EliteEights:             eliteEights,
+		FinalFours:              finalFours,
+		RunnerUps:               runnerUps,
+		NationalChampionships:   nationalChampionships,
+	}
+
+	return response
+}
+
+func GetHistoricalNBARecordsByTeamID(teamID string) structs.TeamRecordResponse {
+	tsChn := make(chan structs.Timestamp)
+
+	go func() {
+		ts := GetTimestamp()
+		tsChn <- ts
+	}()
+
+	timestamp := <-tsChn
+	close(tsChn)
+	season := strconv.Itoa(int(timestamp.Season))
+	historicGames := GetNBAMatchesByTeamId(teamID)
+	nbaSeries := GetNBASeriesByTeamID(teamID)
+	var ConferenceTournamentChampionships []string
+	var firstRound []string
+	var conferenceSemifinals []string
+	var conferenceFinals []string
+	var runnerUps []string
+	var nationalChampionships []string
+	overallWins := 0
+	overallLosses := 0
+	currentSeasonWins := 0
+	currentSeasonLosses := 0
+	playoffWins := 0
+	playoffLosses := 0
+
+	for _, s := range nbaSeries {
+		homeTeamID := strconv.Itoa(int(s.HomeTeamID))
+		if s.SeriesName == "First Round" && (s.HomeTeamWin && homeTeamID != teamID) {
+			firstRound = append(firstRound, season)
+		}
+
+		if s.SeriesName == "Conference Semifinals" && (s.HomeTeamWin && homeTeamID != teamID) {
+			conferenceSemifinals = append(conferenceSemifinals, season)
+		}
+
+		if s.SeriesName == "Conference Finals" && (s.HomeTeamWin && homeTeamID != teamID) {
+			conferenceFinals = append(conferenceFinals, season)
+		}
+
+		if s.SeriesName == "The Finals" && (s.HomeTeamWin && homeTeamID != teamID) {
+			runnerUps = append(runnerUps, season)
+		} else if s.SeriesName == "The Finals" && ((s.HomeTeamWin && homeTeamID == teamID) || (s.AwayTeamWin && homeTeamID != teamID)) {
+			nationalChampionships = append(nationalChampionships, season)
+		}
+
+		if s.SeriesName == "ISL Finals" && (s.HomeTeamWin && homeTeamID != teamID) {
+			runnerUps = append(runnerUps, season)
+		} else if s.SeriesName == "ISL Finals" && ((s.HomeTeamWin && homeTeamID == teamID) || (s.AwayTeamWin && homeTeamID != teamID)) {
+			nationalChampionships = append(nationalChampionships, season)
+		}
+	}
+
+	for _, game := range historicGames {
+		if !game.GameComplete || (game.GameComplete && game.SeasonID == timestamp.SeasonID && game.WeekID == timestamp.CollegeWeekID) {
+			continue
+		}
+
+		isAway := strconv.Itoa(int(game.AwayTeamID)) == teamID
+
+		if (isAway && game.AwayTeamWin) || (!isAway && game.HomeTeamWin) {
+			overallWins++
+
+			if game.SeasonID == timestamp.SeasonID {
+				currentSeasonWins++
+			}
+
+			if game.IsPlayoffGame {
+				playoffWins++
+			}
+
+		} else {
+			overallLosses++
+
+			if game.SeasonID == timestamp.SeasonID {
+				currentSeasonLosses++
+			}
+
+			if game.IsPlayoffGame {
+				playoffLosses++
+			}
+		}
+	}
+
+	response := structs.TeamRecordResponse{
+		OverallWins:             overallWins,
+		OverallLosses:           overallLosses,
+		CurrentSeasonWins:       currentSeasonWins,
+		CurrentSeasonLosses:     currentSeasonLosses,
+		PlayoffWins:             playoffWins,
+		PlayoffLosses:           playoffLosses,
+		ConferenceChampionships: ConferenceTournamentChampionships,
+		RunnerUps:               runnerUps,
+		NationalChampionships:   nationalChampionships,
+	}
+
+	return response
 }
