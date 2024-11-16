@@ -202,7 +202,7 @@ func GetCBBTeamForAvailableTeamsPage(teamID string) structs.TeamRecordResponse {
 	// Get top 3 players on roster
 	roster := GetCollegePlayersByTeamId(teamID)
 	sort.Slice(roster, func(i, j int) bool {
-		return roster[i].Overall < roster[j].Overall
+		return roster[i].Overall > roster[j].Overall
 	})
 
 	topPlayers := []structs.TopPlayer{}
@@ -228,7 +228,7 @@ func GetNBATeamForAvailableTeamsPage(teamID string) structs.TeamRecordResponse {
 	// Get top 3 players on roster
 	roster := GetAllNBAPlayersByTeamID(teamID)
 	sort.Slice(roster, func(i, j int) bool {
-		return roster[i].Overall < roster[j].Overall
+		return roster[i].Overall > roster[j].Overall
 	})
 
 	topPlayers := []structs.TopPlayer{}
