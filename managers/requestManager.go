@@ -212,7 +212,7 @@ func GetCBBTeamForAvailableTeamsPage(teamID string) structs.TeamRecordResponse {
 			break
 		}
 		tp := structs.TopPlayer{}
-		grade := util.GetOverallGrade(roster[i].Overall)
+		grade := util.GetPlayerOverallGrade(roster[i].Overall)
 		tp.MapCollegePlayer(roster[i], grade)
 		topPlayers = append(topPlayers, tp)
 	}
