@@ -433,8 +433,16 @@ func ImportCBBGames() {
 		}
 		homeTeamAbbr := row[6]
 		awayTeamAbbr := row[7]
-		htRank := util.ConvertStringToInt(row[5])
-		atRank := util.ConvertStringToInt(row[8])
+		htRankStr := row[5]
+		atRankStr := row[8]
+		htRank := 0
+		atRank := 0
+		if htRankStr != "" {
+			htRank = util.ConvertStringToInt(htRankStr)
+		}
+		if atRankStr != "" {
+			atRank = util.ConvertStringToInt(atRankStr)
+		}
 
 		homeTeam := collegeMap[homeTeamAbbr]
 		awayTeam := collegeMap[awayTeamAbbr]

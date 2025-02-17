@@ -113,7 +113,7 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 		teamMap := GetCollegeTeamMap()
 		for i := 0; i < len(games); i++ {
 			game := games[i]
-			if !game.GameComplete {
+			if !game.GameComplete || game.ID != 13786 {
 				continue
 			}
 			HomeID := game.HomeTeamID

@@ -45,8 +45,8 @@ func SyncRecruitingViaCron() {
 	if ts.RunCron && ts.IsOffSeason && ts.CollegeSeasonOver {
 		// Run First Phase of Transfer Portal
 		if ts.TransferPortalPhase == 1 {
-			managers.ProcessTransferIntention()
-			managers.ProcessEarlyDeclareeAnnouncements()
+			// managers.ProcessTransferIntention()
+			// managers.ProcessEarlyDeclareeAnnouncements()
 		} else if ts.TransferPortalPhase == 2 && !ts.ProgressedCollegePlayers {
 			// Run Second Phase of Transfer Portal (Progressions & Move Players Over)
 			// If CBB Progression wasn't ran

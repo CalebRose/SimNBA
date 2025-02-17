@@ -72,9 +72,9 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/admin/results/import/", controller.ImportMatchResults).Methods("POST")
 	apiRouter.HandleFunc("/admin/show/results", controller.ShowGames).Methods("GET")
 	// apiRouter.HandleFunc("/admin/show/b", controller.ShowBGames).Methods("GET")
-	// apiRouter.HandleFunc("/admin/regress/d", controller.RegressAGamesByOneWeek).Methods("GET")
+	// apiRouter.HandleFunc("/admin/regress/a", controller.RegressAGamesByOneWeek).Methods("GET")
 	// apiRouter.HandleFunc("/admin/regress/b", controller.RegressBGamesByOneWeek).Methods("GET")
-	apiRouter.HandleFunc("/admin/week/sync", controller.SyncToNextWeek).Methods("GET")
+	// apiRouter.HandleFunc("/admin/week/sync", controller.SyncToNextWeek).Methods("GET")
 	apiRouter.HandleFunc("/admin/sync/contract/values", controller.SyncContractValues).Methods("GET")
 	apiRouter.HandleFunc("/simbba/matches/simulation", controller.GetMatchesForSimulation).Methods("GET")
 

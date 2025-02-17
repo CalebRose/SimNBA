@@ -64,6 +64,6 @@ func GetAllNBAConferenceStandings(w http.ResponseWriter, r *http.Request) {
 
 func ResetSeasonStandings(w http.ResponseWriter, r *http.Request) {
 	managers.ResetStandings()
-	// managers.SeasonStatReset()
+	managers.SeasonStatReset()
 	json.NewEncoder(w).Encode("Standings reset for season.")
 }

@@ -1,9 +1,9 @@
 package util
 
 import (
-	"io/ioutil"
 	"log"
 	"math"
+	"os"
 
 	"github.com/CalebRose/SimNBA/structs"
 )
@@ -309,7 +309,7 @@ func ESPNModifiers() map[string]map[string]string {
 }
 
 func ReadJson(path string) []byte {
-	content, err := ioutil.ReadFile(path)
+	content, err := os.ReadFile(path)
 	if err != nil {
 		log.Fatal("Error when opening file: ", err)
 	}

@@ -80,10 +80,10 @@ func ImportMatchResults(w http.ResponseWriter, r *http.Request) {
 }
 
 func SyncToNextWeek(w http.ResponseWriter, r *http.Request) {
-	managers.ResetCollegeStandingsRanks()
+	// managers.ResetCollegeStandingsRanks()
 	managers.SyncToNextWeek()
-	ts := managers.GetTimestamp()
-	managers.SyncCollegePollSubmissionForCurrentWeek(uint(ts.CollegeWeek), ts.CollegeWeekID, ts.SeasonID)
+	// ts := managers.GetTimestamp()
+	// managers.SyncCollegePollSubmissionForCurrentWeek(uint(ts.CollegeWeek), ts.CollegeWeekID, ts.SeasonID)
 	w.WriteHeader(http.StatusOK)
 }
 
