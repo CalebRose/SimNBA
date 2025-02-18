@@ -21,6 +21,7 @@ type HistoricCollegePlayer struct {
 }
 
 func (h *HistoricCollegePlayer) Map(cp CollegePlayer) {
+	h.ID = cp.ID
 	h.BasePlayer = cp.BasePlayer
 	h.PlayerID = cp.PlayerID
 	h.TeamID = cp.TeamID
