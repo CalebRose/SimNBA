@@ -163,3 +163,10 @@ func AllocateAndPromisePlayersAI(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode("Allocated and promised.")
 }
+
+func SyncPromises(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	managers.SyncPromises()
+
+	json.NewEncoder(w).Encode("Allocated and promised.")
+}

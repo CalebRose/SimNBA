@@ -180,6 +180,65 @@ func GetRegionMap() map[string]string {
 	}
 }
 
+func GetStateKey(key string) string {
+	stateMap := map[string]string{
+		"Alaska":               "AK",
+		"California":           "CA",
+		"Hawai'i":              "HI",
+		"Hawaii":               "HI",
+		"Idaho":                "ID",
+		"Nevada":               "NV",
+		"Oregon":               "OR",
+		"Utah":                 "UT",
+		"Washington":           "WA",
+		"Arizona":              "AZ",
+		"Arkansas":             "AR",
+		"New Mexico":           "NM",
+		"Oklahoma":             "OK",
+		"Texas":                "TX",
+		"Colorado":             "CO",
+		"Kansas":               "KS",
+		"Montana":              "MT",
+		"Nebraska":             "NE",
+		"North Dakota":         "ND",
+		"South Dakota":         "SD",
+		"Wyoming":              "WY",
+		"Illinois":             "IL",
+		"Indiana":              "IN",
+		"Iowa":                 "IA",
+		"Kentucky":             "KY",
+		"Michigan":             "MI",
+		"Minnesota":            "MN",
+		"Missouri":             "MO",
+		"Ohio":                 "OH",
+		"Wisconsin":            "WI",
+		"Alabama":              "AL",
+		"Florida":              "FL",
+		"Georgia":              "GA",
+		"Louisiana":            "LA",
+		"Mississippi":          "MS",
+		"North Carolina":       "NC",
+		"South Carolina":       "SC",
+		"Tennessee":            "TN",
+		"Delaware":             "DE",
+		"Maryland":             "MD",
+		"New Jersey":           "NJ",
+		"New York":             "NY",
+		"Pennsylvania":         "PA",
+		"Virginia":             "VA",
+		"West Virginia":        "WV",
+		"District of Columbia": "DC",
+		"DC":                   "DC",
+		"Connecticut":          "CT",
+		"Maine":                "ME",
+		"Massachusetts":        "MA",
+		"New Hampshire":        "NH",
+		"Rhode Island":         "RI",
+		"Vermont":              "VT",
+	}
+	return stateMap[key]
+}
+
 func IsPlayerOffensivelyStrong(r structs.Recruit) bool {
 	if r.Stars == 3 && (r.Shooting2 > 12 || r.Shooting3 > 12 || r.Finishing > 12) {
 		return true

@@ -48,7 +48,7 @@ func ProcessTransferIntention() {
 	giantgain := 40.0
 	for _, p := range allCollegePlayers {
 		// Do not include redshirts and all graduating players
-		if p.IsRedshirting || p.WillDeclare || p.TeamID == 0 {
+		if p.IsRedshirting || p.WillDeclare || p.TeamID == 0 || p.TransferStatus == 1 {
 			continue
 		}
 
@@ -77,13 +77,19 @@ func ProcessTransferIntention() {
 		// the more likely they will transfer.
 		/// Have this be a multiplicative factor to odds
 		if p.Year == 1 {
-			ageMod = .33
-		} else if p.Year == 2 {
+			ageMod = .1
+		} else if p.Year == 2 && p.IsRedshirt {
+			ageMod = .2
+		} else if p.Year == 2 && !p.IsRedshirt {
 			ageMod = .5
-		} else if p.Year == 3 {
-			ageMod = .66
+		} else if p.Year == 3 && p.IsRedshirt {
+			ageMod = .65
+		} else if p.Year == 3 && !p.IsRedshirt {
+			ageMod = util.GenerateFloatFromRange(0.7, 1)
 		} else if p.Year == 4 {
-			ageMod = 1
+			ageMod = util.GenerateFloatFromRange(1, 1.25)
+		} else if p.Year == 5 {
+			ageMod = util.GenerateFloatFromRange(1.26, 1.45)
 		}
 
 		/// Higher star players are more likely to transfer
@@ -94,11 +100,11 @@ func ProcessTransferIntention() {
 		} else if p.Stars == 2 {
 			starMod = .75
 		} else if p.Stars == 3 {
-			starMod = 1
+			starMod = util.GenerateFloatFromRange(0.9, 1.1)
 		} else if p.Stars == 4 {
-			starMod = 1.25
+			starMod = util.GenerateFloatFromRange(1.11, 1.3)
 		} else if p.Stars == 5 {
-			starMod = 1.50
+			starMod = util.GenerateFloatFromRange(1.31, 1.75)
 		}
 
 		teamRoster := fullRosterMap[uint(p.TeamID)]
@@ -179,7 +185,7 @@ func ProcessTransferIntention() {
 
 		/// Not playing = 25, low depth chart = 16 or 33, scheme = 10, if you're all 3, that's a ~60% chance of transferring pre- modifiers
 		transferWeight = starMod * ageMod * (minutesMod + depthChartCompetitionMod + biasMod)
-		diceRoll := util.GenerateIntFromRange(1, 75)
+		diceRoll := util.GenerateIntFromRange(1, 90)
 		// NOT INTENDING TO TRANSFER
 		transferInt := int(transferWeight)
 		// Make it more likely for players on AI teams to transfer
@@ -199,13 +205,13 @@ func ProcessTransferIntention() {
 			message := "Breaking News! " + strconv.Itoa(p.Stars) + " star " + p.Position + " " + p.FirstName + " " + p.LastName + " has announced their intention to transfer from " + p.TeamAbbr + "!"
 			CreateNewsLog("CBB", message, "Transfer Portal", int(p.TeamID), ts)
 		}
-		db.Save(&p)
+		repository.SaveCollegePlayerRecord(p, db)
 		fmt.Println(strconv.Itoa(p.Year)+" YEAR "+p.TeamAbbr+" "+p.Position+" "+p.FirstName+" "+p.LastName+" HAS ANNOUNCED THEIR INTENTION TO TRANSFER | Weight: ", int(transferWeight))
 	}
 	transferPortalMessage := "Breaking News! About " + strconv.Itoa(transferCount) + " players intend to transfer from their current schools. Teams have one week to commit promises to retain players."
 	CreateNewsLog("CBB", transferPortalMessage, "Transfer Portal", 0, ts)
 	ts.EnactPromisePhase()
-	db.Save(&ts)
+	repository.SaveTimeStamp(ts, db)
 }
 
 func AICoachPromisePhase() {
@@ -297,6 +303,22 @@ func AICoachPromisePhase() {
 			}
 		}
 	}
+}
+
+func GetAllCollegePromises() []structs.CollegePromise {
+	db := dbprovider.GetInstance().GetDB()
+
+	p := []structs.CollegePromise{}
+
+	err := db.Find(&p).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return []structs.CollegePromise{}
+		} else {
+			log.Fatal(err)
+		}
+	}
+	return p
 }
 
 func GetCollegePromiseByID(id string) structs.CollegePromise {
@@ -967,7 +989,7 @@ func SyncTransferPortal() {
 
 		for i := range portalProfiles {
 			roster := rosterMap[portalProfiles[i].ProfileID]
-			if len(roster) > 13 {
+			if len(roster) > 15 {
 				continue
 			}
 			if eligiblePointThreshold == 0.0 {
@@ -1018,7 +1040,7 @@ func SyncTransferPortal() {
 
 					teamProfile := teamProfileMap[winningTeamIDSTR]
 					currentRoster := rosterMap[teamProfile.ID]
-					if len(currentRoster) < 13 {
+					if len(currentRoster) < 15 {
 						portalPlayer.SignWithNewTeam(teamProfile.ID, teamProfile.TeamAbbr)
 						message := portalPlayer.FirstName + " " + portalPlayer.LastName + ", " + strconv.Itoa(portalPlayer.Stars) + " star " + portalPlayer.Position + " from " + portalPlayer.PreviousTeam + " has signed with " + portalPlayer.TeamAbbr + " with " + strconv.Itoa(int(odds)) + " percent odds."
 						CreateNewsLog("CBB", message, "Transfer Portal", int(winningTeamID), ts)
@@ -1068,7 +1090,126 @@ func SyncTransferPortal() {
 
 // At end of season, sync through promises to confirm if promises were made
 func SyncPromises() {
+	db := dbprovider.GetInstance().GetDB()
+	ts := GetTimestamp()
+	seasonID := strconv.Itoa(int(ts.SeasonID))
+	teamProfileMap := GetTeamProfileMap()
+	activePromises := GetAllCollegePromises()
+	collegePlayerMap := GetCollegePlayerMap()
+	historicPlayerMap := GetHistoricCollegePlayerMap()
+	standingsMap := GetCollegeStandingsMap(seasonID)
+	seasonStatsMap := GetCollegePlayerSeasonStatMap(seasonID)
 
+	for _, promise := range activePromises {
+		if !promise.IsActive {
+			continue
+		}
+		isHistoric := false
+		benchMarkStr := ""
+		result := ""
+		player := collegePlayerMap[promise.CollegePlayerID]
+		if player.ID == 0 {
+			player = historicPlayerMap[promise.CollegePlayerID]
+			if player.ID == 0 {
+				continue
+			}
+			isHistoric = true
+		}
+		teamID := strconv.Itoa(int(promise.TeamID))
+		team := teamProfileMap[teamID]
+
+		seasonStats := seasonStatsMap[promise.CollegePlayerID]
+		if promise.PromiseType == "Wins" {
+			benchMarkStr = strconv.Itoa(int(promise.Benchmark))
+			standings := standingsMap[promise.TeamID]
+			result = strconv.Itoa(int(standings.TotalWins))
+			if standings.TotalWins >= promise.Benchmark {
+				promise.FulfillPromise()
+			}
+		} else if promise.PromiseType == "Minutes" {
+			benchMarkStr = strconv.Itoa(int(promise.Benchmark))
+			result = util.ConvertFloatToString(seasonStats.MinutesPerGame)
+			if seasonStats.MinutesPerGame >= float64(promise.Benchmark) {
+				promise.FulfillPromise()
+			}
+		} else if promise.PromiseType == "Home State Game" || promise.PromiseType == "Different State" {
+			// Loop through games
+			benchMarkStr = promise.BenchmarkStr
+			result = "Did not play game in requested state."
+			games := GetMatchesByTeamIdAndSeasonId(teamID, seasonID)
+			for _, game := range games {
+				stateKey := util.GetStateKey(promise.BenchmarkStr)
+				if game.State == stateKey {
+					result = ""
+					promise.FulfillPromise()
+					break
+				}
+			}
+		} else if promise.PromiseType == "No Redshirt" {
+			result = "Was Redshirted"
+			if !player.IsRedshirting {
+				result = ""
+				promise.FulfillPromise()
+			}
+		} else if promise.PromiseType == "National Championship" {
+			result = "Did not win the Natty."
+			standings := standingsMap[promise.TeamID]
+			if standings.PostSeasonStatus == "National Champion" {
+				result = ""
+				promise.FulfillPromise()
+			}
+		} else if promise.PromiseType == "Conference Championship" {
+			result = "Did not win Conference Championship"
+			standings := standingsMap[promise.TeamID]
+			if standings.IsConferenceChampion {
+				result = ""
+				promise.FulfillPromise()
+			}
+		} else if promise.PromiseType == "Specific Coach" {
+			// Fulfill for now, will need to adjust value
+			promise.FulfillPromise()
+		}
+		weightValue := getPromiseWeightValue(!promise.IsFullfilled, promise.PromiseWeight)
+		team.AdjustPortalReputation(weightValue)
+		repository.SaveCBBTeamRecruitingProfile(*team, db)
+		if !promise.IsFullfilled && !isHistoric {
+			message := "Breaking News! " + player.TeamAbbr + " " + player.FirstName + " " + player.LastName + " will be re-entering the portal after a promise was broken! Promise: " + promise.PromiseType + " | Expected: " + benchMarkStr + " | Result: " + result
+			player.WillTransfer()
+			repository.SaveCollegePlayerRecord(player, db)
+			CreateNewsLog("CBB", message, "Portal", int(team.TeamID), ts)
+		}
+		repository.DeleteCollegePromise(promise, db)
+	}
+}
+
+func getPromiseWeightValue(isPenalty bool, weight string) int {
+	if weight == "Low" {
+		if isPenalty {
+			return -5
+		}
+		return 3
+	} else if weight == "Very Low" {
+		if isPenalty {
+			return -3
+		}
+		return 1
+	} else if weight == "Medium" {
+		if isPenalty {
+			return -10
+		}
+		return 8
+	} else if weight == "High" {
+		if isPenalty {
+			return -20
+		}
+		return 15
+	} else if weight == "Very High" {
+		if isPenalty {
+			return -30
+		}
+		return 20
+	}
+	return 0
 }
 
 func GetPromisesByTeamID(teamID string) []structs.CollegePromise {

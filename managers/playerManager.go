@@ -227,7 +227,7 @@ func GetCollegePlayersWithMatchStatsByTeamId(homeTeamID, awayTeamID uint, matchI
 			LastName:           p.LastName,
 			Position:           p.Position,
 			Archetype:          p.Archetype,
-			League:             "CFB",
+			League:             "CBB",
 			Year:               s.Year,
 			Minutes:            s.Minutes,
 			Possessions:        s.Possessions,
@@ -392,6 +392,16 @@ func GetCollegePlayerByPlayerID(playerID string) structs.CollegePlayer {
 	return player
 }
 
+func GetAllHistoricCollegePlayers() []structs.HistoricCollegePlayer {
+	db := dbprovider.GetInstance().GetDB()
+
+	var players []structs.HistoricCollegePlayer
+
+	db.Find(&players)
+
+	return players
+}
+
 func GetAllCollegePlayers() []structs.CollegePlayer {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -440,6 +450,20 @@ func GetCollegePlayerMap() map[uint]structs.CollegePlayer {
 
 	for _, p := range players {
 		portalMap[p.ID] = p
+	}
+
+	return portalMap
+}
+
+func GetHistoricCollegePlayerMap() map[uint]structs.CollegePlayer {
+
+	portalMap := make(map[uint]structs.CollegePlayer)
+
+	players := GetAllHistoricCollegePlayers()
+
+	for _, p := range players {
+		player := (structs.CollegePlayer)(p)
+		portalMap[p.ID] = player
 	}
 
 	return portalMap

@@ -41,10 +41,10 @@ func (cs *CollegeStandings) UpdateCollegeStandings(game Match) {
 			cs.ConferenceWins += 1
 		}
 		cs.Streak += 1
-		if game.IsInvitational && strings.Contains(game.MatchName, "Finals") {
+		if game.IsInvitational && strings.Contains(game.MatchName, "Finals") && !strings.Contains(game.MatchName, "Semifinals") {
 			cs.InvitationalChampion = true
 		}
-		if game.IsConferenceTournament && strings.Contains(game.MatchName, "Finals") {
+		if game.IsConferenceTournament && strings.Contains(game.MatchName, "Finals") && !strings.Contains(game.MatchName, "Semifinals") {
 			cs.PostSeasonStatus = "Conference Champion"
 			cs.IsConferenceChampion = true
 		}

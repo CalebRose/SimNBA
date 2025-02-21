@@ -506,7 +506,7 @@ func SyncISLYouthDevelopment() {
 				weight += int(r.TotalPoints)
 				teamID := strconv.Itoa(int(r.TeamID))
 				currentRoster := GetAllNBAPlayersByTeamID(teamID)
-				if winningTeamID == 0 && roll <= weight && len(currentRoster) < 13 {
+				if winningTeamID == 0 && roll <= weight && len(currentRoster) < 15 {
 					// Player signs with THIS team
 					winningTeamID = int(r.TeamID)
 				}

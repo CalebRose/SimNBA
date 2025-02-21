@@ -1,0 +1,109 @@
+package controller
+
+import (
+	"encoding/json"
+	"net/http"
+
+	"github.com/CalebRose/SimNBA/managers"
+	"github.com/CalebRose/SimNBA/structs"
+	"github.com/tkrajina/typescriptify-golang-structs/typescriptify"
+)
+
+func CreateTSModelsFile(w http.ResponseWriter, r *http.Request) {
+	converter := typescriptify.New().
+		Add(managers.BootstrapData{}).
+		Add(structs.BasePlayer{}).
+		Add(structs.CollegePlayer{}).
+		Add(structs.NBAPlayer{}).
+		Add(structs.Team{}).
+		Add(structs.NBATeam{}).
+		Add(structs.Arena{}).
+		Add(structs.CollegeStandings{}).
+		Add(structs.NBAStandings{}).
+		Add(structs.Recruit{}).
+		Add(structs.PlayerRecruitProfile{}).
+		Add(structs.TeamRecruitingProfile{}).
+		Add(structs.Croot{}).
+		Add(structs.LeadingTeams{}).
+		Add(structs.CreateRecruitProfileDto{}).
+		Add(structs.UpdateRecruitPointsDto{}).
+		Add(structs.CrootProfile{}).
+		Add(structs.SimTeamBoardResponse{}).
+		Add(structs.UpdateRecruitingBoardDto{}).
+		Add(structs.RecruitPointAllocation{}).
+		Add(structs.RedshirtDTO{}).
+		Add(structs.CBBRosterResponse{}).
+		Add(structs.CollegePromise{}).
+		Add(structs.TransferPortalProfile{}).
+		Add(structs.TransferPortalProfileResponse{}).
+		Add(structs.TransferPortalResponse{}).
+		Add(structs.TransferPortalBoardDto{}).
+		Add(structs.UpdateTransferPortalBoard{}).
+		Add(structs.Match{}).
+		Add(structs.NBACapsheet{}).
+		Add(structs.NBAContract{}).
+		Add(structs.NBAContractOffer{}).
+		Add(structs.NBAContractOfferDTO{}).
+		Add(structs.NBAWaiverOffer{}).
+		Add(structs.NBAWaiverOfferDTO{}).
+		Add(structs.NBAExtensionOffer{}).
+		Add(structs.CollegePollSubmission{}).
+		Add(structs.CollegePollOfficial{}).
+		Add(structs.PollDataResponse{}).
+		Add(structs.NBAWaiverOffer{}).
+		Add(structs.DraftPick{}).
+		Add(structs.NBADraftee{}).
+		Add(structs.NBADraftPageResponse{}).
+		Add(structs.NBAWarRoom{}).
+		Add(structs.ScoutingProfile{}).
+		Add(structs.ScoutingProfileDTO{}).
+		Add(structs.ScoutingDataResponse{}).
+		Add(structs.RevealAttributeDTO{}).
+		Add(structs.ExportDraftPicksDTO{}).
+		Add(structs.CollegePlayerResponse{}).
+		Add(structs.NBAPlayerResponse{}).
+		Add(structs.CollegePlayerSeasonStats{}).
+		Add(structs.CollegePlayerStats{}).
+		Add(structs.NBAPlayerStats{}).
+		Add(structs.NBAPlayerSeasonStats{}).
+		Add(structs.TeamStats{}).
+		Add(structs.TeamSeasonStats{}).
+		Add(structs.NBATeamStats{}).
+		Add(structs.NBATeamSeasonStats{}).
+		Add(structs.Gameplan{}).
+		Add(structs.NBAGameplan{}).
+		Add(structs.HistoricCollegePlayer{}).
+		Add(structs.RetiredPlayer{}).
+		Add(structs.NBARequest{}).
+		Add(structs.Request{}).
+		Add(structs.RequestDTO{}).
+		Add(structs.NBATradeProposal{}).
+		Add(structs.NBATradeProposalDTO{}).
+		Add(structs.NBATradeOption{}).
+		Add(structs.NBATradeOptionObj{}).
+		Add(structs.NBATeamProposals{}).
+		Add(structs.NBATradePreferences{}).
+		Add(structs.NBATradePreferencesDTO{}).
+		Add(structs.NBAUser{}).
+		Add(structs.CollegeCoach{}).
+		Add(structs.AvailableTeamResponse{}).
+		Add(structs.CBBMatchDataResponse{}).
+		Add(structs.CollegeTeamResponse{}).
+		Add(structs.CollegeTeamResponseData{}).
+		Add(structs.DashboardResponseData{}).
+		Add(structs.DashboardResponseData{}).
+		Add(structs.DashboardTeamProfileResponse{}).
+		Add(structs.GameplanResponse{}).
+		Add(structs.TeamRecordResponse{}).
+		Add(structs.TopPlayer{}).
+		Add(structs.InboxResponse{}).
+		Add(structs.NewsLog{}).
+		Add(structs.Notification{}).
+		Add(structs.CollusionDto{}).
+		Add(structs.Timestamp{})
+	err := converter.ConvertToFile("ts/basketballModels.ts")
+	if err != nil {
+		panic(err.Error())
+	}
+	json.NewEncoder(w).Encode("Models ran!")
+}

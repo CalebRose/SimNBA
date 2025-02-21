@@ -166,3 +166,13 @@ func (r *TeamRecruitingProfile) AssignBonusPoints(bonus int) {
 	r.Rank247Score = 0
 	r.CompositeScore = 0
 }
+
+func (r *TeamRecruitingProfile) AdjustPortalReputation(points int) {
+	r.PortalReputation += points
+	if r.PortalReputation > 120 {
+		r.PortalReputation = 120
+	}
+	if r.PortalReputation < 1 {
+		r.PortalReputation = 1
+	}
+}

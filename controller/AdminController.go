@@ -21,13 +21,19 @@ func RankCroots(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("Ranking COMPLETE")
 }
 
+// Progress Standings -- Assigns recruiting rankings for all current CBB recruits
+func ProgressStandings(w http.ResponseWriter, r *http.Request) {
+	managers.ProgressStandings()
+	json.NewEncoder(w).Encode("Standings COMPLETE")
+}
+
 // func MigratePlayers(w http.ResponseWriter, r *http.Request) {
 // 	managers.MigrateOldPlayerDataToNewTables()
 // 	json.NewEncoder(w).Encode("DONE!")
 // }
 
 func ProgressPlayers(w http.ResponseWriter, r *http.Request) {
-	// managers.ProgressionMain()
+	managers.ProgressionMain()
 	// Sync Promises
 	// managers.SyncPromises()
 	// Enter Transfer Portal

@@ -579,7 +579,7 @@ func FormISLRosters() {
 		jVal := freeAgents[j].Overall
 		return iVal > jVal
 	})
-	maxRosterCount := 13
+	maxRosterCount := 15
 	currentCount := 2
 	// Format Team Needs
 	islTeamNeedsMap := make(map[uint]structs.ISLTeamNeeds)

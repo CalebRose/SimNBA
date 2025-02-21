@@ -18,6 +18,7 @@ type HistoricCollegePlayer struct {
 	LegacyID           uint
 	Stats              []CollegePlayerStats     `gorm:"foreignKey:CollegePlayerID"`
 	SeasonStats        CollegePlayerSeasonStats `gorm:"foreignKey:CollegePlayerID"`
+	Profiles           []TransferPortalProfile  `gorm:"foreignKey:CollegePlayerID"`
 }
 
 func (h *HistoricCollegePlayer) Map(cp CollegePlayer) {

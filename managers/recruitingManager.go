@@ -475,7 +475,7 @@ func GetRecruitingClassByTeamID(id string) []structs.Croot {
 func DetermineRecruitingClassSize() {
 	db := dbprovider.GetInstance().GetDB()
 	recruitingProfiles := GetRecruitingProfileForRecruitSync()
-	limit := 13
+	limit := 15
 	for _, rp := range recruitingProfiles {
 		existingRoster := GetCollegePlayersByTeamId(strconv.Itoa(int(rp.ID)))
 		count := 0

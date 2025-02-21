@@ -755,10 +755,6 @@ func processRecruitProfile(i int, recruit structs.Recruit, recruitProfiles *[]st
 		curr += bonus
 	}
 
-	if (*recruitProfiles)[i].ProfileID == 134 {
-		fmt.Println("PING!")
-	}
-
 	if (*recruitProfiles)[i].CurrentWeeksPoints < 0 || (*recruitProfiles)[i].CurrentWeeksPoints > 20 {
 		curr = 0
 		rpa.ApplyCaughtCheating()

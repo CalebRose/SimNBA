@@ -43,6 +43,10 @@ func GenerateIntFromRange(min int, max int) int {
 	return rand.Intn(max-min+1) + min
 }
 
+func GenerateFloatFromRange(min float64, max float64) float64 {
+	return min + rand.Float64()*(max-min)
+}
+
 func GenerateNormalizedIntFromRange(min int, max int) int {
 	mean := float64(min+max) / 2.0
 	stdDev := float64(max-min) / 6.0 // This approximates the 3-sigma rule
@@ -364,7 +368,7 @@ func GetSpecialties(pos string) []string {
 
 	// FN
 	diceRoll = GenerateIntFromRange(1, 20)
-	if pos == "SF" || pos == "C" || pos == "SG" {
+	if pos == "SF" || pos == "SG" {
 		mod = 2
 	}
 	if diceRoll > 13 {
@@ -393,6 +397,8 @@ func GetSpecialties(pos string) []string {
 	diceRoll = GenerateIntFromRange(1, 20)
 	if pos == "C" || pos == "PF" {
 		mod = 2
+	} else if pos == "PG" || pos == "SG" {
+		mod = -2
 	}
 	if diceRoll+mod > 13 {
 		list = append(list, "SpecInteriorDefense")
@@ -400,8 +406,10 @@ func GetSpecialties(pos string) []string {
 
 	// PD
 	diceRoll = GenerateIntFromRange(1, 20)
-	if pos == "SG" || pos == "SF" {
+	if pos == "PG" || pos == "SF" {
 		mod = 2
+	} else if pos == "PF" || pos == "C" {
+		mod = -2
 	}
 	if diceRoll+mod > 13 {
 		list = append(list, "SpecPerimeterDefense")
@@ -893,6 +901,9 @@ func ConvertStringToBool(str string) bool {
 }
 
 func ConvertStringToInt(num string) int {
+	if num == "" {
+		return 0
+	}
 	val, err := strconv.Atoi(num)
 	if err != nil {
 		log.Fatalln("Could not convert string to int")

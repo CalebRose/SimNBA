@@ -61,6 +61,7 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/health", HealthCheck.Handler).Methods("GET")
 
 	// Admin Controls
+	apiRouter.HandleFunc("/admin/generate/ts/models/", controller.CreateTSModelsFile).Methods("GET")
 	apiRouter.HandleFunc("/admin/rankCroots", controller.RankCroots).Methods("GET")
 	apiRouter.HandleFunc("/admin/ai/fill/boards", controller.FillAIBoards).Methods("GET")
 	apiRouter.HandleFunc("/admin/ai/sync/boards", controller.SyncAIBoards).Methods("GET")
@@ -85,10 +86,14 @@ func handleRequests() http.Handler {
 	// apiRouter.HandleFunc("/admin/generate/draft/rounds", controller.GeneratePredictionRound).Methods("GET")
 	// apiRouter.HandleFunc("/admin/migrate/data", controller.MigratePlayers).Methods("GET")
 	// apiRouter.HandleFunc("/admin/migrate/progress", controller.ProgressPlayers).Methods("GET")
+	// apiRouter.HandleFunc("/admin/migrate/draftees", controller.ProgressPlayers).Methods("GET")
 	// apiRouter.HandleFunc("/admin/migrate/new/teams", controller.ImportNewTeams).Methods("GET")
 	// apiRouter.HandleFunc("/admin/migrate/nba/players", controller.MigrateNBAPlayersToTables).Methods("GET")
 	// apiRouter.HandleFunc("/admin/progress/nba/players", controller.ProgressNBAPlayers).Methods("GET")
 	// apiRouter.HandleFunc("/admin/clean/nba/tables", controller.CleanNBAPlayerTables).Methods("GET")
+
+	// Bootstrap
+	apiRouter.HandleFunc("/bootstrap/{collegeID}/{proID}", controller.BootstrapBasketballData).Methods("GET")
 
 	// Capsheet Controls
 	apiRouter.HandleFunc("/nba/capsheet/generate", controller.GenerateCapsheets).Methods("GET")
@@ -298,6 +303,7 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/admin/trades/cleanup", controller.CleanUpRejectedTrades).Methods("GET")
 
 	// Transfer Intentions
+	apiRouter.HandleFunc("/portal/sync/promises", controller.SyncPromises).Methods("GET")
 	apiRouter.HandleFunc("/portal/transfer/intention", controller.ProcessTransferIntention).Methods("GET")
 	apiRouter.HandleFunc("/portal/transfer/sync", controller.SyncTransferPortal).Methods("GET")
 	apiRouter.HandleFunc("/portal/ai/generate/profiles", controller.FillUpTransferBoardsAI).Methods("GET")
@@ -345,13 +351,13 @@ func loadEnvs() {
 func handleCron() *cron.Cron {
 
 	c := cron.New()
-	c.AddFunc("0 16 * * 3", controller.SyncRecruitingViaCron)
-	c.AddFunc("0 6 * * 4,6", controller.SyncAIBoardsViaCron)
-	c.AddFunc("0 20 * * 1,3,5,6", controller.ShowGamesViaCron)
-	c.AddFunc("0 22 * * 1,3,5,6", controller.RunAIGameplansViaCron)
-	c.AddFunc("0 10 * * 4", controller.FillAIBoardsViaCron)
-	c.AddFunc("0 12 * * 0", controller.SyncToNextWeekViaCron)
-	c.AddFunc("0 16 * * 2", controller.SyncFreeAgencyOffersViaCron)
+	// c.AddFunc("0 16 * * 3", controller.SyncRecruitingViaCron)
+	// c.AddFunc("0 6 * * 4,6", controller.SyncAIBoardsViaCron)
+	// c.AddFunc("0 20 * * 1,3,5,6", controller.ShowGamesViaCron)
+	// c.AddFunc("0 22 * * 1,3,5,6", controller.RunAIGameplansViaCron)
+	// c.AddFunc("0 10 * * 4", controller.FillAIBoardsViaCron)
+	// c.AddFunc("0 12 * * 0", controller.SyncToNextWeekViaCron)
+	// c.AddFunc("0 16 * * 2", controller.SyncFreeAgencyOffersViaCron)
 	c.Start()
 
 	return c
