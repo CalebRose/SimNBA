@@ -151,3 +151,11 @@ func SaveCBBTeamRecruitingProfile(tp structs.TeamRecruitingProfile, db *gorm.DB)
 		log.Panicln("Could not save notification record!")
 	}
 }
+
+func SaveCollegePromiseRecord(promise structs.CollegePromise, db *gorm.DB) {
+	// Save College Promise Record
+	err := db.Save(&promise).Error
+	if err != nil {
+		log.Panicln("Could not save new college recruit record")
+	}
+}

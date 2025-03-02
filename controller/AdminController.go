@@ -69,6 +69,12 @@ func SyncRecruiting(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("Recruiting Synced for Week.")
 }
 
+func EnterTheTransferPortal(w http.ResponseWriter, r *http.Request) {
+	managers.EnterTheTransferPortal()
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode("TP Synced for Week.")
+}
+
 func SyncTransferPortal(w http.ResponseWriter, r *http.Request) {
 	managers.SyncTransferPortal()
 	w.WriteHeader(http.StatusOK)

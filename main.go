@@ -71,11 +71,11 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/admin/recruit/create", controller.CreateRecruit).Methods("POST")
 	apiRouter.HandleFunc("/admin/ai/gameplans/", controller.SetAIGameplans).Methods("GET")
 	apiRouter.HandleFunc("/admin/results/import/", controller.ImportMatchResults).Methods("POST")
-	apiRouter.HandleFunc("/admin/show/results", controller.ShowGames).Methods("GET")
+	// apiRouter.HandleFunc("/admin/show/results", controller.ShowGames).Methods("GET")
 	// apiRouter.HandleFunc("/admin/show/b", controller.ShowBGames).Methods("GET")
 	// apiRouter.HandleFunc("/admin/regress/a", controller.RegressAGamesByOneWeek).Methods("GET")
 	// apiRouter.HandleFunc("/admin/regress/b", controller.RegressBGamesByOneWeek).Methods("GET")
-	// apiRouter.HandleFunc("/admin/week/sync", controller.SyncToNextWeek).Methods("GET")
+	apiRouter.HandleFunc("/admin/week/sync", controller.SyncToNextWeek).Methods("GET")
 	apiRouter.HandleFunc("/admin/sync/contract/values", controller.SyncContractValues).Methods("GET")
 	apiRouter.HandleFunc("/simbba/matches/simulation", controller.GetMatchesForSimulation).Methods("GET")
 
@@ -305,6 +305,7 @@ func handleRequests() http.Handler {
 	// Transfer Intentions
 	apiRouter.HandleFunc("/portal/sync/promises", controller.SyncPromises).Methods("GET")
 	apiRouter.HandleFunc("/portal/transfer/intention", controller.ProcessTransferIntention).Methods("GET")
+	apiRouter.HandleFunc("/portal/transfer/enter", controller.EnterTheTransferPortal).Methods("GET")
 	apiRouter.HandleFunc("/portal/transfer/sync", controller.SyncTransferPortal).Methods("GET")
 	apiRouter.HandleFunc("/portal/ai/generate/profiles", controller.FillUpTransferBoardsAI).Methods("GET")
 	apiRouter.HandleFunc("/portal/ai/allocate/profiles", controller.AllocateAndPromisePlayersAI).Methods("GET")
@@ -351,13 +352,13 @@ func loadEnvs() {
 func handleCron() *cron.Cron {
 
 	c := cron.New()
-	// c.AddFunc("0 16 * * 3", controller.SyncRecruitingViaCron)
-	// c.AddFunc("0 6 * * 4,6", controller.SyncAIBoardsViaCron)
-	// c.AddFunc("0 20 * * 1,3,5,6", controller.ShowGamesViaCron)
-	// c.AddFunc("0 22 * * 1,3,5,6", controller.RunAIGameplansViaCron)
-	// c.AddFunc("0 10 * * 4", controller.FillAIBoardsViaCron)
-	// c.AddFunc("0 12 * * 0", controller.SyncToNextWeekViaCron)
-	// c.AddFunc("0 16 * * 2", controller.SyncFreeAgencyOffersViaCron)
+	c.AddFunc("0 16 * * 3", controller.SyncRecruitingViaCron)
+	c.AddFunc("0 6 * * 4,6", controller.SyncAIBoardsViaCron)
+	c.AddFunc("0 20 * * 1,3,5,6", controller.ShowGamesViaCron)
+	c.AddFunc("0 22 * * 1,3,5,6", controller.RunAIGameplansViaCron)
+	c.AddFunc("0 10 * * 4", controller.FillAIBoardsViaCron)
+	c.AddFunc("0 12 * * 0", controller.SyncToNextWeekViaCron)
+	c.AddFunc("0 16 * * 2", controller.SyncFreeAgencyOffersViaCron)
 	c.Start()
 
 	return c

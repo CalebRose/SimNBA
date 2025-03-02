@@ -77,7 +77,7 @@ func ProcessTransferIntention() {
 		// the more likely they will transfer.
 		/// Have this be a multiplicative factor to odds
 		if p.Year == 1 {
-			ageMod = .1
+			ageMod = .001
 		} else if p.Year == 2 && p.IsRedshirt {
 			ageMod = .2
 		} else if p.Year == 2 && !p.IsRedshirt {
@@ -439,8 +439,8 @@ func EnterTheTransferPortal() {
 				message := "Breaking News! " + p.TeamAbbr + " " + strconv.Itoa(p.Stars) + " Star " + p.Position + " " + p.FirstName + " " + p.LastName + " has officially entered the transfer portal!"
 				CreateNewsLog("CBB", message, "Transfer Portal", int(p.PreviousTeamID), ts)
 
-				db.Save(&p)
-				db.Delete(&promise)
+				repository.SaveCollegePlayerRecord(p, db)
+				repository.DeleteCollegePromise(promise, db)
 				continue
 			}
 
@@ -449,9 +449,9 @@ func EnterTheTransferPortal() {
 			CreateNewsLog("CBB", message, "Transfer Portal", int(p.PreviousTeamID), ts)
 
 			promise.MakePromise()
-			db.Save(&promise)
+			repository.SaveCollegePromiseRecord(promise, db)
 			p.WillStay()
-			db.Save(&p)
+			repository.SaveCollegePlayerRecord(p, db)
 		}
 	}
 
@@ -1419,15 +1419,15 @@ func getTransferPortalProfileMap(players []structs.CollegePlayer) map[uint][]str
 
 // GetTransferFloor -- Get the Base Floor to determine if a player will transfer or not based on a promise
 func getTransferFloor(likeliness string) int {
-	min := 15
+	min := 25
 	max := 100
 	if likeliness == "Low" {
-		max = 33
+		max = 40
 	} else if likeliness == "Medium" {
-		min = 34
-		max = 60
+		min = 45
+		max = 70
 	} else {
-		min = 61
+		min = 75
 	}
 
 	return util.GenerateIntFromRange(min, max)
