@@ -200,7 +200,7 @@ func (c *TransferPlayerResponse) Map(r CollegePlayer, ovr string) {
 
 	}
 
-	for i := 0; i < len(sortedProfiles); i++ {
+	for i := range sortedProfiles {
 		if sortedProfiles[i].RemovedFromBoard {
 			continue
 		}
@@ -211,6 +211,7 @@ func (c *TransferPlayerResponse) Map(r CollegePlayer, ovr string) {
 		}
 		leadingTeam := LeadingTeams{
 			TeamAbbr: r.Profiles[i].TeamAbbreviation,
+			TeamID:   r.Profiles[i].ProfileID,
 			Odds:     odds,
 		}
 		c.LeadingTeams = append(c.LeadingTeams, leadingTeam)

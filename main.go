@@ -71,7 +71,7 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/admin/recruit/create", controller.CreateRecruit).Methods("POST")
 	apiRouter.HandleFunc("/admin/ai/gameplans/", controller.SetAIGameplans).Methods("GET")
 	apiRouter.HandleFunc("/admin/results/import/", controller.ImportMatchResults).Methods("POST")
-	// apiRouter.HandleFunc("/admin/show/results", controller.ShowGames).Methods("GET")
+	apiRouter.HandleFunc("/admin/show/results", controller.ShowGames).Methods("GET")
 	// apiRouter.HandleFunc("/admin/show/b", controller.ShowBGames).Methods("GET")
 	// apiRouter.HandleFunc("/admin/regress/a", controller.RegressAGamesByOneWeek).Methods("GET")
 	// apiRouter.HandleFunc("/admin/regress/b", controller.RegressBGamesByOneWeek).Methods("GET")
