@@ -272,3 +272,7 @@ func (f *NBAPlayer) DeclineOffer(week int) {
 		f.Rejections += 2
 	}
 }
+
+func (cp *NBAPlayer) AddSeasonStats(seasonStats NBAPlayerSeasonStats) {
+	cp.SeasonStats = seasonStats
+}

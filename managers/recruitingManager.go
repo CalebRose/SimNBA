@@ -296,7 +296,7 @@ func AllocateRecruitingPointsForRecruit(updateRecruitPointsDto structs.UpdateRec
 
 	recruitingProfile.AllocateSpentPoints(updateRecruitPointsDto.SpentPoints)
 	if recruitingProfile.SpentPoints > recruitingProfile.WeeklyPoints {
-		fmt.Printf("Recruiting Profile " + strconv.Itoa(updateRecruitPointsDto.ProfileId) + " cannot spend more points than weekly amount")
+		fmt.Printf("%s", "Recruiting Profile "+strconv.Itoa(updateRecruitPointsDto.ProfileId)+" cannot spend more points than weekly amount")
 		return
 	}
 
@@ -311,7 +311,7 @@ func SendScholarshipToRecruit(updateRecruitPointsDto structs.UpdateRecruitPoints
 	recruitingProfile := GetOnlyTeamRecruitingProfileByTeamID(strconv.Itoa(updateRecruitPointsDto.ProfileId))
 
 	if recruitingProfile.ScholarshipsAvailable == 0 {
-		log.Fatalf("\nTeamId: " + strconv.Itoa(updateRecruitPointsDto.ProfileId) + " does not have any availabe scholarships")
+		log.Fatalf("%s", "\nTeamId: "+strconv.Itoa(updateRecruitPointsDto.ProfileId)+" does not have any availabe scholarships")
 	}
 
 	crootProfile := GetPlayerRecruitProfileByPlayerId(
@@ -342,7 +342,7 @@ func RevokeScholarshipFromRecruit(updateRecruitPointsDto structs.UpdateRecruitPo
 	)
 
 	if recruitingPointsProfile.Scholarship {
-		fmt.Printf("\nCannot revoke an inexistant scholarship from Recruit " + strconv.Itoa(int(recruitingPointsProfile.RecruitID)))
+		fmt.Printf("%s", "\nCannot revoke an inexistant scholarship from Recruit "+strconv.Itoa(int(recruitingPointsProfile.RecruitID)))
 		return recruitingPointsProfile, recruitingProfile
 	}
 

@@ -23,6 +23,10 @@ type CollegePlayer struct {
 	Profiles           []TransferPortalProfile  `gorm:"foreignKey:CollegePlayerID"`
 }
 
+func (cp *CollegePlayer) AddSeasonStats(seasonStats CollegePlayerSeasonStats) {
+	cp.SeasonStats = seasonStats
+}
+
 func (c *CollegePlayer) SetRedshirtingStatus() {
 	c.IsRedshirting = true
 	if c.WillDeclare {
@@ -36,6 +40,10 @@ func (c *CollegePlayer) UpdateMinutes(newMinutes int) {
 
 func (c *CollegePlayer) SetID(id uint) {
 	c.ID = id
+}
+
+func (c *CollegePlayer) AssignTransferProfiles(profiles []TransferPortalProfile) {
+	c.Profiles = profiles
 }
 
 func (cp *CollegePlayer) Progress(attr CollegePlayerProgressions) {

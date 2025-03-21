@@ -96,7 +96,7 @@ func GenerateNBAPlayoffGames(db *gorm.DB, ts structs.Timestamp) {
 				}
 
 			}
-			gameCount := strconv.Itoa(int(s.GameCount) + 1)
+			gameCount := strconv.Itoa(int(s.GameCount))
 			homeTeam := ""
 			homeTeamID := 0
 			homeTeamCoach := ""

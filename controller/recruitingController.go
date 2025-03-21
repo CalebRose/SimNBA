@@ -131,8 +131,8 @@ func SendScholarshipToRecruit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	recruitingPointsProfile, recruitingProfile := managers.SendScholarshipToRecruit(updateRecruitPointsDto)
-	fmt.Printf("\nScholarship allocated to player " + strconv.Itoa(int(recruitingPointsProfile.RecruitID)) + ". Record saved")
-	fmt.Printf("\nProfile: " + strconv.Itoa(int(recruitingProfile.TeamID)) + " Saved")
+	fmt.Printf("%s", "\nScholarship allocated to player "+strconv.Itoa(int(recruitingPointsProfile.RecruitID))+". Record saved")
+	fmt.Printf("%s", "\nProfile: "+strconv.Itoa(int(recruitingProfile.TeamID))+" Saved")
 }
 
 func RemoveRecruitFromBoard(w http.ResponseWriter, r *http.Request) {
@@ -146,7 +146,7 @@ func RemoveRecruitFromBoard(w http.ResponseWriter, r *http.Request) {
 
 	recruitingPointsProfile := managers.RemoveRecruitFromBoard(updateRecruitPointsDto)
 
-	fmt.Printf("\nPlayer " + strconv.Itoa(int(recruitingPointsProfile.RecruitID)) + " removed from board.")
+	fmt.Printf("%s", "\nPlayer "+strconv.Itoa(int(recruitingPointsProfile.RecruitID))+" removed from board.")
 }
 
 func SaveRecruitingBoard(w http.ResponseWriter, r *http.Request) {

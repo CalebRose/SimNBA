@@ -46,6 +46,38 @@ func GetAllAvailableNBAPlayers(TeamID string) structs.FreeAgencyResponse {
 	}
 }
 
+func GetAllAvailableNBAPlayersViaChan(TeamID string, ch chan<- structs.FreeAgencyResponse) {
+	ts := GetTimestamp()
+	seasonID := ts.SeasonID
+
+	if ts.IsNBAOffseason {
+		seasonID = ts.SeasonID - 1
+	}
+	seasonIDStr := strconv.Itoa(int(seasonID))
+	FAs := GetAllFreeAgentsWithOffers(seasonIDStr)
+	waiverPlayers := GetAllWaiverWirePlayers(seasonIDStr)
+	gLeagePlayer := GetAllGLeaguePlayersForFA(seasonIDStr)
+	islPlayers := GetAllISLPlayersForFA(seasonIDStr)
+	Offers := GetFreeAgentOffersByTeamID(TeamID)
+	roster := GetAllNBAPlayersByTeamID(TeamID)
+	count := 0
+	for _, p := range roster {
+		if p.IsGLeague {
+			continue
+		}
+		count += 1
+	}
+
+	ch <- structs.FreeAgencyResponse{
+		FreeAgents:     FAs,
+		WaiverPlayers:  waiverPlayers,
+		GLeaguePlayers: gLeagePlayer,
+		ISLPlayers:     islPlayers,
+		TeamOffers:     Offers,
+		RosterCount:    uint(count),
+	}
+}
+
 func GetAllFreeAgents() []structs.NBAPlayer {
 	db := dbprovider.GetInstance().GetDB()
 

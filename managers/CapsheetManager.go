@@ -9,6 +9,20 @@ import (
 	"github.com/CalebRose/SimNBA/structs"
 )
 
+func GetAllCapsheets() []structs.NBACapsheet {
+	db := dbprovider.GetInstance().GetDB()
+
+	capSheet := []structs.NBACapsheet{}
+
+	err := db.Find(&capSheet).Error
+	if err != nil {
+		fmt.Println("Could not find capsheet, returning new one")
+		return []structs.NBACapsheet{}
+	}
+
+	return capSheet
+}
+
 func GetCapsheetByTeamID(TeamID string) structs.NBACapsheet {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -114,4 +128,16 @@ func CalculateContractValues() {
 		c.CalculateContract()
 		db.Save(&c)
 	}
+}
+
+func GetCapsheetMap() map[uint]structs.NBACapsheet {
+
+	capsheetMap := make(map[uint]structs.NBACapsheet)
+	capsheets := GetAllCapsheets()
+
+	for _, cs := range capsheets {
+		capsheetMap[cs.TeamID] = cs
+	}
+
+	return capsheetMap
 }

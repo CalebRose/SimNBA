@@ -27,7 +27,7 @@ func UpdateGameplan(updateGameplanDto structs.UpdateGameplanDto) {
 	// Otherwise, update the gameplan
 	gameplan.UpdateGameplan(ug.Pace, ug.OffensiveFormation, ug.DefensiveFormation, ug.OffensiveStyle, ug.FocusPlayer)
 	gameplan.UpdateToggles(ug.Toggle2pt, ug.Toggle3pt, ug.ToggleFN, ug.ToggleFT, ug.ToggleBW, ug.ToggleRB, ug.ToggleID, ug.TogglePD, ug.ToggleP2, ug.ToggleP3)
-	fmt.Printf("Saving Gameplan for Team " + teamId + "\n")
+	fmt.Printf("%s", "Saving Gameplan for Team "+teamId+"\n")
 	db.Save(&gameplan)
 
 	// Get Players
@@ -56,7 +56,7 @@ func UpdateNBAGameplan(updateGameplanDto structs.UpdateGameplanDto) {
 	// Otherwise, update the gameplan
 	gameplan.UpdateGameplan(ug.Pace, ug.OffensiveFormation, ug.DefensiveFormation, ug.OffensiveStyle, ug.FocusPlayer)
 	gameplan.UpdateToggles(ug.Toggle2pt, ug.Toggle3pt, ug.ToggleFN, ug.ToggleFT, ug.ToggleBW, ug.ToggleRB, ug.ToggleID, ug.TogglePD, ug.ToggleP2, ug.ToggleP3)
-	fmt.Printf("Saving Gameplan for Team " + teamId + "\n")
+	fmt.Printf("%s", "Saving Gameplan for Team "+teamId+"\n")
 	db.Save(&gameplan)
 
 	// Get Players

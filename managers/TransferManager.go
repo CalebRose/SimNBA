@@ -1242,6 +1242,16 @@ func GetTransferPortalProfilesByPlayerID(playerID string) []structs.TransferPort
 	return profiles
 }
 
+func GetTransferPortalProfilesByPlayerIDs(playerID []string) []structs.TransferPortalProfile {
+	db := dbprovider.GetInstance().GetDB()
+
+	var profiles []structs.TransferPortalProfile
+
+	db.Where("college_player_id in (?) AND removed_from_board = ?", playerID, false).Find(&profiles)
+
+	return profiles
+}
+
 func GetTransferPortalProfilesForPage(teamID string) []structs.TransferPortalProfileResponse {
 	db := dbprovider.GetInstance().GetDB()
 
