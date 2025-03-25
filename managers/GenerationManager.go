@@ -23,12 +23,14 @@ import (
 type CrootGenerator struct {
 	firstNameMap      map[string][][]string
 	lastNameMap       map[string][][]string
+	faceDataBlob      map[string][]string
 	collegePlayerList []structs.CollegePlayer
 	coachList         []structs.CollegeCoach
 	teamMap           map[uint]structs.Team
 	positionList      []string
 	CrootList         []structs.Recruit
 	GlobalList        []structs.GlobalPlayer
+	FacesList         []structs.FaceData
 	newID             uint
 	count             int
 	requiredPlayers   int
@@ -206,7 +208,11 @@ func (pg *CrootGenerator) generatePlayer() (structs.Recruit, structs.GlobalPlaye
 		RecruitID:       pg.newID,
 		NBAPlayerID:     pg.newID,
 	}
+	skinColor := getSkinColor(player.Country)
 
+	face := getFace(pg.newID, skinColor, pg.faceDataBlob)
+
+	pg.FacesList = append(pg.FacesList, face)
 	globalPlayer.SetID(pg.newID)
 	return player, globalPlayer
 }
@@ -250,7 +256,11 @@ func (pg *CrootGenerator) generateTwin(player *structs.Recruit) (structs.Recruit
 		RecruitID:       pg.newID,
 		NBAPlayerID:     pg.newID,
 	}
+	skinColor := getSkinColor(player.Country)
 
+	face := getFace(pg.newID, skinColor, pg.faceDataBlob)
+
+	pg.FacesList = append(pg.FacesList, face)
 	globalPlayer.SetID(pg.newID)
 	return twinPlayer, globalPlayer
 }
@@ -589,6 +599,7 @@ func GenerateCroots() {
 		positionList:      []string{"PG", "SG", "PF", "SF", "C"},
 		newID:             lastPlayerRecord.ID + 1,
 		requiredPlayers:   util.GenerateIntFromRange(1031, 1101),
+		faceDataBlob:      getFaceDataBlob(),
 		count:             0,
 		star5:             0,
 		star4:             0,
@@ -604,6 +615,7 @@ func GenerateCroots() {
 		lowestOvr:         100000,
 		CrootList:         []structs.Recruit{},
 		GlobalList:        []structs.GlobalPlayer{},
+		FacesList:         []structs.FaceData{},
 		caser:             cases.Title(language.English),
 		pickedEthnicity:   "",
 	}
@@ -625,7 +637,7 @@ func GenerateCroots() {
 	for _, g := range generator.GlobalList {
 		repository.CreateGlobalPlayerRecord(g, db)
 	}
-
+	repository.CreateFaceRecordsBatch(db, generator.FacesList, 500)
 	ts.ToggleGeneratedCroots()
 	repository.SaveTimeStamp(ts, db)
 	// return playerList
