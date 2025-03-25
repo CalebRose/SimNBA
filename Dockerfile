@@ -20,6 +20,9 @@ WORKDIR /root/
 
 COPY --from=0 /app/SimNBA .
 
+COPY --from=base-builder /app/data /app/data
+
+
 ENV PORT 8081
 EXPOSE 8081
 

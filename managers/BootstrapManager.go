@@ -24,6 +24,7 @@ type BootstrapData struct {
 	AllProTeams          []structs.NBATeam
 	ProNotifications     []structs.Notification
 	NBAGameplan          structs.NBAGameplan
+	FaceData             map[uint]structs.FaceDataResponse
 }
 
 type BootstrapDataTwo struct {
@@ -70,6 +71,7 @@ func GetBootstrapData(collegeID, proID string) BootstrapData {
 		allProTeams         []structs.NBATeam
 		proNotifications    []structs.Notification
 		nbaGameplan         structs.NBAGameplan
+		faceDataMap         map[uint]structs.FaceDataResponse
 	)
 
 	ts := GetTimestamp()
@@ -150,6 +152,15 @@ func GetBootstrapData(collegeID, proID string) BootstrapData {
 		}()
 		wg.Wait()
 	}
+
+	wg.Add(1)
+
+	go func() {
+		defer wg.Done()
+		faceDataMap = GetAllFaces()
+	}()
+
+	wg.Wait()
 	return BootstrapData{
 		CollegeTeam:          collegeTeam,
 		AllCollegeTeams:      allCollegeTeams,
@@ -165,6 +176,7 @@ func GetBootstrapData(collegeID, proID string) BootstrapData {
 		NBATeam:              nbaTeam,
 		ProNotifications:     proNotifications,
 		NBAGameplan:          nbaGameplan,
+		FaceData:             faceDataMap,
 	}
 }
 
