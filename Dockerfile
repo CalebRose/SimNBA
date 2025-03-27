@@ -24,6 +24,8 @@ COPY --from=base-builder /app/data /app/data
 
 
 ENV PORT 8081
+ENV ROOT=/app
+ENV GOPATH /go
 EXPOSE 8081
 
 CMD ["./SimNBA"]
