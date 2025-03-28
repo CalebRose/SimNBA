@@ -134,7 +134,7 @@ func MigrateFaceDataToRecruits() {
 		skinColor := getSkinColor(r.Country)
 		// Store data
 
-		face := getFace(r.ID, skinColor, faceDataBlob)
+		face := getFace(r.ID, 238, skinColor, faceDataBlob)
 
 		faceDataList = append(faceDataList, face)
 	}
@@ -154,7 +154,7 @@ func MigrateFaceDataToCollegePlayers() {
 		skinColor := getSkinColor(p.Country)
 		// Store data
 
-		face := getFace(p.ID, skinColor, faceDataBlob)
+		face := getFace(p.ID, 238, skinColor, faceDataBlob)
 
 		faceDataList = append(faceDataList, face)
 	}
@@ -174,7 +174,7 @@ func MigrateFaceDataToProPlayers() {
 		skinColor := getSkinColor(p.Country)
 		// Store data
 
-		face := getFace(p.ID, skinColor, faceDataBlob)
+		face := getFace(p.ID, 238, skinColor, faceDataBlob)
 
 		faceDataList = append(faceDataList, face)
 	}
@@ -182,7 +182,7 @@ func MigrateFaceDataToProPlayers() {
 	repository.CreateFaceRecordsBatch(db, faceDataList, 500)
 }
 
-func getFace(id uint, ethnicity string, faceDataBlob map[string][]string) structs.FaceData {
+func getFace(id uint, weight int, ethnicity string, faceDataBlob map[string][]string) structs.FaceData {
 	hairColorIdx := uint8(0)
 	hairColorLen := len(faceDataBlob[ethnicity+"HairColor"]) - 1
 	if hairColorLen > 0 {
@@ -196,8 +196,8 @@ func getFace(id uint, ethnicity string, faceDataBlob map[string][]string) struct
 	face := structs.FaceData{
 		PlayerID:        id,
 		Accessories:     uint8(util.GenerateIntFromRange(0, len(faceDataBlob["accessories"])-1)),
-		Body:            uint8(util.GenerateIntFromRange(0, len(faceDataBlob["body"])-1)),
-		BodySize:        float32(util.GenerateFloatFromRange(0.8, 1.2)),
+		Body:            getBodySize(weight),
+		BodySize:        getBodyFat(weight),
 		Ear:             uint8(util.GenerateIntFromRange(0, len(faceDataBlob["ear"])-1)),
 		EarSize:         float32(util.GenerateFloatFromRange(0.5, 1.5)),
 		Eye:             uint8(util.GenerateIntFromRange(0, len(faceDataBlob["eye"])-1)),
@@ -205,9 +205,9 @@ func getFace(id uint, ethnicity string, faceDataBlob map[string][]string) struct
 		EyeAngle:        int8(util.GenerateIntFromRange(-10, 15)),
 		Eyebrow:         uint8(util.GenerateIntFromRange(0, len(faceDataBlob["eyebrow"])-1)),
 		EyeBrowAngle:    int8(util.GenerateIntFromRange(-15, 20)),
-		FaceSize:        float32(util.GenerateFloatFromRange(0, 1)),
-		FacialHair:      uint8(util.GenerateIntFromRange(0, len(faceDataBlob["facialHair"])-1)),
-		FacialHairShave: uint8(util.GenerateIntFromRange(1, 5)),
+		FaceSize:        getFaceSize(weight),
+		FacialHair:      getFacialHair(len(faceDataBlob["facialHair"]) - 1),
+		FacialHairShave: getShaveStyle(),
 		Glasses:         0,
 		Hair:            uint8(util.GenerateIntFromRange(0, len(faceDataBlob[ethnicity+"Hair"])-1)),
 		HairBG:          getHairBackground(),
@@ -343,4 +343,41 @@ func getHairBackground() uint8 {
 		return 0
 	}
 	return 2
+}
+
+func getBodyFat(weight int) float32 {
+	if weight < 240 {
+		return float32(util.GenerateFloatFromRange(0.8, 0.96))
+	}
+	return float32(util.GenerateFloatFromRange(0.97, 1.2))
+}
+
+func getFaceSize(weight int) float32 {
+	if weight < 240 {
+		return float32(util.GenerateFloatFromRange(0, 0.6))
+	}
+	return float32(util.GenerateFloatFromRange(0.60001, 1))
+}
+
+func getShaveStyle() uint8 {
+	dr := util.GenerateIntFromRange(1, 100)
+	if dr < 60 {
+		return 0
+	}
+	return uint8(util.GenerateIntFromRange(0, 5))
+}
+
+func getBodySize(weight int) uint8 {
+	if weight < 241 {
+		return uint8(util.GenerateIntFromRange(0, 2))
+	}
+	return uint8(util.GenerateIntFromRange(0, 4))
+}
+
+func getFacialHair(len int) uint8 {
+	dr := util.GenerateIntFromRange(1, 100)
+	if dr < 70 {
+		return 0
+	}
+	return uint8(util.GenerateIntFromRange(0, len))
 }

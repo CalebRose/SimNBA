@@ -210,7 +210,7 @@ func (pg *CrootGenerator) generatePlayer() (structs.Recruit, structs.GlobalPlaye
 	}
 	skinColor := getSkinColor(player.Country)
 
-	face := getFace(pg.newID, skinColor, pg.faceDataBlob)
+	face := getFace(pg.newID, 238, skinColor, pg.faceDataBlob)
 
 	pg.FacesList = append(pg.FacesList, face)
 	globalPlayer.SetID(pg.newID)
@@ -258,7 +258,7 @@ func (pg *CrootGenerator) generateTwin(player *structs.Recruit) (structs.Recruit
 	}
 	skinColor := getSkinColor(player.Country)
 
-	face := getFace(pg.newID, skinColor, pg.faceDataBlob)
+	face := getFace(pg.newID, 238, skinColor, pg.faceDataBlob)
 
 	pg.FacesList = append(pg.FacesList, face)
 	globalPlayer.SetID(pg.newID)
