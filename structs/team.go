@@ -30,10 +30,15 @@ type Team struct {
 	ColorOne          string
 	ColorTwo          string
 	ColorThree        string
+	DiscordID         string
 	Gameplan          []Gameplan            `gorm:"foreignKey:TeamID"`
 	TeamStats         []TeamStats           `gorm:"foreignKey:TeamID"`
 	TeamSeasonStats   TeamSeasonStats       `gorm:"foreignKey:TeamID"`
 	RecruitingProfile TeamRecruitingProfile `gorm:"foreignKey:TeamID"`
+}
+
+func (t *Team) AssignDiscordID(id string) {
+	t.DiscordID = id
 }
 
 // GetTeam - retrieve team

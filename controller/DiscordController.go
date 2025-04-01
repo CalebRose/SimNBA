@@ -153,3 +153,28 @@ func CollegeMatchesByConference(w http.ResponseWriter, r *http.Request) {
 	player := managers.GetCollegeMatchesByConfAndDay(conf, day)
 	json.NewEncoder(w).Encode(player)
 }
+
+// GetCollegeGamesByConference
+func AssignDiscordIDtoCollegeTeam(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	teamID := vars["teamID"]
+	discordID := vars["discordID"]
+	if len(teamID) == 0 {
+		panic("User did not provide conference name")
+	}
+
+	managers.AssignDiscordIDToCollegeTeam(teamID, discordID)
+}
+
+// GetCollegeGamesByConference
+func AssignDiscordIDtoNBATeam(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	teamID := vars["teamID"]
+	discordID := vars["discordID"]
+	username := vars["username"]
+	if len(teamID) == 0 {
+		panic("User did not provide conference name")
+	}
+
+	managers.AssignDiscordIDToNFLTeam(teamID, discordID, username)
+}

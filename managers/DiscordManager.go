@@ -346,3 +346,23 @@ func GetCollegeMatchesByConfAndDay(conf, day string) []structs.Match {
 
 	return matchList
 }
+
+func AssignDiscordIDToCollegeTeam(tID, dID string) {
+	db := dbprovider.GetInstance().GetDB()
+
+	team := GetTeamByTeamID(tID)
+
+	team.AssignDiscordID(dID)
+
+	db.Save(&team)
+}
+
+func AssignDiscordIDToNFLTeam(tID, dID, un string) {
+	db := dbprovider.GetInstance().GetDB()
+
+	team := GetNBATeamByTeamID(tID)
+
+	team.AssignDiscordID(dID, un)
+
+	db.Save(&team)
+}

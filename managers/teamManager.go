@@ -356,32 +356,6 @@ func GetNBATeamByTeamID(teamId string) structs.NBATeam {
 	return team
 }
 
-func RemoveUserFromTeam(teamId string) structs.Team {
-	db := dbprovider.GetInstance().GetDB()
-
-	ts := GetTimestamp()
-
-	team := GetTeamByTeamID(teamId)
-
-	team.RemoveUser()
-
-	standings := GetStandingsRecordByTeamID(teamId, strconv.Itoa(int(ts.SeasonID)))
-
-	standings.UpdateCoach("AI")
-
-	recruitingProfile := GetOnlyTeamRecruitingProfileByTeamID(teamId)
-
-	recruitingProfile.ToggleAIBehavior(true)
-
-	db.Save(&team)
-
-	db.Save(&standings)
-
-	db.Save(&recruitingProfile)
-
-	return team
-}
-
 func GetTeamsInConference(db *gorm.DB, conference string) []structs.Team {
 	var teams []structs.Team
 	err := db.Where("conference = ?", conference).Find(&teams).Error

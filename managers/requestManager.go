@@ -155,6 +155,33 @@ func RejectNBATeamRequest(request structs.NBARequest) {
 	}
 }
 
+func RemoveUserFromTeam(teamId string) structs.Team {
+	db := dbprovider.GetInstance().GetDB()
+
+	ts := GetTimestamp()
+
+	team := GetTeamByTeamID(teamId)
+
+	team.RemoveUser()
+	team.AssignDiscordID("")
+
+	standings := GetStandingsRecordByTeamID(teamId, strconv.Itoa(int(ts.SeasonID)))
+
+	standings.UpdateCoach("AI")
+
+	recruitingProfile := GetOnlyTeamRecruitingProfileByTeamID(teamId)
+
+	recruitingProfile.ToggleAIBehavior(true)
+
+	db.Save(&team)
+
+	db.Save(&standings)
+
+	db.Save(&recruitingProfile)
+
+	return team
+}
+
 func RemoveUserFromNBATeam(request structs.NBARequest) {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -165,6 +192,8 @@ func RemoveUserFromNBATeam(request structs.NBARequest) {
 	user := GetNBAUserByUsername(request.Username)
 
 	message := ""
+
+	team.AssignDiscordID("", request.Username)
 
 	if request.Username == team.NBAOwnerName {
 		user.RemoveOwnership()

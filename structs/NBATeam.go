@@ -4,48 +4,64 @@ import "github.com/jinzhu/gorm"
 
 type NBATeam struct {
 	gorm.Model
-	Team              string
-	Nickname          string
-	Abbr              string
-	City              string
-	State             string
-	Country           string
-	LeagueID          uint
-	League            string
-	ConferenceID      uint
-	Conference        string
-	DivisionID        uint
-	Division          string
-	ArenaID           uint
-	Arena             string
-	NBAOwnerID        uint
-	NBAOwnerName      string
-	NBACoachID        uint
-	NBACoachName      string
-	NBAGMID           uint
-	NBAGMName         string
-	NBAAssistantID    uint
-	NBAAssistantName  string
-	OverallGrade      string
-	OffenseGrade      string
-	DefenseGrade      string
-	IsActive          bool
-	CanTrade          bool
-	WaiverOrder       uint
-	ColorOne          string
-	ColorTwo          string
-	ColorThree        string
-	Gameplan          NBAGameplan           `gorm:"foreignKey:TeamID"`
-	TeamStats         []NBATeamStats        `gorm:"foreignKey:TeamID"`
-	TeamSeasonStats   NBATeamSeasonStats    `gorm:"foreignKey:TeamID"`
-	RecruitingProfile TeamRecruitingProfile `gorm:"foreignKey:TeamID"`
-	Capsheet          NBACapsheet           `gorm:"foreignKey:TeamID"`
-	Contracts         []NBAContract         `gorm:"foreignKey:TeamID"`
-	DraftPicks        []DraftPick           `gorm:"foreignKey:TeamID"`
+	Team               string
+	Nickname           string
+	Abbr               string
+	City               string
+	State              string
+	Country            string
+	LeagueID           uint
+	League             string
+	ConferenceID       uint
+	Conference         string
+	DivisionID         uint
+	Division           string
+	ArenaID            uint
+	Arena              string
+	NBAOwnerID         uint
+	NBAOwnerName       string
+	NBACoachID         uint
+	NBACoachName       string
+	NBAGMID            uint
+	NBAGMName          string
+	NBAAssistantID     uint
+	NBAAssistantName   string
+	OverallGrade       string
+	OffenseGrade       string
+	DefenseGrade       string
+	IsActive           bool
+	CanTrade           bool
+	WaiverOrder        uint
+	ColorOne           string
+	ColorTwo           string
+	ColorThree         string
+	OwnerDiscordID     string
+	GMDiscordID        string
+	CoachDiscordID     string
+	AssistantDiscordID string
+	Gameplan           NBAGameplan           `gorm:"foreignKey:TeamID"`
+	TeamStats          []NBATeamStats        `gorm:"foreignKey:TeamID"`
+	TeamSeasonStats    NBATeamSeasonStats    `gorm:"foreignKey:TeamID"`
+	RecruitingProfile  TeamRecruitingProfile `gorm:"foreignKey:TeamID"`
+	Capsheet           NBACapsheet           `gorm:"foreignKey:TeamID"`
+	Contracts          []NBAContract         `gorm:"foreignKey:TeamID"`
+	DraftPicks         []DraftPick           `gorm:"foreignKey:TeamID"`
 }
 
 func (t *NBATeam) AssignID(id uint) {
 	t.ID = id
+}
+
+func (t *NBATeam) AssignDiscordID(id, username string) {
+	if t.NBAOwnerName == username {
+		t.OwnerDiscordID = id
+	} else if t.NBAGMName == username {
+		t.GMDiscordID = id
+	} else if t.NBACoachName == username {
+		t.CoachDiscordID = id
+	} else if t.NBAAssistantName == username {
+		t.AssistantDiscordID = id
+	}
 }
 
 func (t *NBATeam) AssignNBAUserToTeam(r NBARequest, u NBAUser) {

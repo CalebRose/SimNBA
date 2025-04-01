@@ -339,6 +339,8 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/dis/cbb/conf/standings/{conferenceID}", controller.CollegeConferenceStandings).Methods("GET")
 	apiRouter.HandleFunc("/dis/nba/conf/standings/{conferenceID}", controller.NBAConferenceStandings).Methods("GET")
 	apiRouter.HandleFunc("/dis/cbb/conf/matches/{conferenceID}/{day}", controller.CollegeMatchesByConference).Methods("GET")
+	apiRouter.HandleFunc("/ds/cbb/assign/discord/{teamID}/{discordID}/{username}", controller.AssignDiscordIDtoCollegeTeam).Methods("GET")
+	apiRouter.HandleFunc("/ds/nba/assign/discord/{teamID}/{discordID}/{username}", controller.AssignDiscordIDtoNBATeam).Methods("GET")
 
 	// Websocket
 	myRouter.HandleFunc("/ws", ws.WebSocketHandler)
