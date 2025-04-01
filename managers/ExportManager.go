@@ -127,6 +127,63 @@ func ExportCollegePlayers(w http.ResponseWriter) {
 	}
 }
 
+func ExportTransferPortalToCSV(w http.ResponseWriter) {
+	// Get Team Data
+	w.Header().Set("Content-Disposition", "attachment;filename=Official_CBB_Portal_List.csv")
+	w.Header().Set("Transfer-Encoding", "chunked")
+	// Initialize writer
+	writer := csv.NewWriter(w)
+
+	// Get Players
+	players := GetTransferPortalPlayers()
+
+	HeaderRow := []string{
+		"College", "First Name", "Last Name", "Position", "Year", "Is_Redshirt", "Age",
+		"Stars", "State", "Country", "Height",
+		"Overall", "Shooting 2s", "Shooting 3s", "Free Throwing", "Finishing",
+		"Ballwork", "Rebounding", "InteriorDefense", "PerimeterDefense", "Stamina", "Potential Grade",
+		"Personality", "RecruitingBias", "Work Ethic", "Previous Team",
+	}
+
+	err := writer.Write(HeaderRow)
+	if err != nil {
+		log.Fatal("Cannot write header row", err)
+	}
+
+	for _, player := range players {
+		shooting2Grade := util.GetAttributeGrade(player.Shooting2)
+		shooting3Grade := util.GetAttributeGrade(player.Shooting3)
+		freeThrowGrade := util.GetAttributeGrade(player.FreeThrow)
+		finishingGrade := util.GetAttributeGrade(player.Finishing)
+		reboundingGrade := util.GetAttributeGrade(player.Rebounding)
+		ballworkGrade := util.GetAttributeGrade(player.Ballwork)
+		interiorDefenseGrade := util.GetAttributeGrade(player.InteriorDefense)
+		perimeterDefenseGrade := util.GetAttributeGrade(player.PerimeterDefense)
+		potentialGrade := util.GetPotentialGrade(player.Potential)
+		overallGrade := util.GetPlayerOverallGrade(player.Overall)
+		sta := strconv.Itoa(player.Stamina)
+
+		playerRow := []string{
+			player.TeamAbbr, player.FirstName, player.LastName, player.Position, strconv.Itoa(player.Year), strconv.FormatBool(player.IsRedshirt), strconv.Itoa(player.Age),
+			strconv.Itoa(player.Stars), player.State, player.Country, player.Height,
+			overallGrade, shooting2Grade, shooting3Grade, freeThrowGrade, finishingGrade,
+			ballworkGrade, reboundingGrade, interiorDefenseGrade, perimeterDefenseGrade, sta, potentialGrade,
+			player.Personality, player.RecruitingBias, player.WorkEthic, player.PreviousTeam,
+		}
+
+		err = writer.Write(playerRow)
+		if err != nil {
+			log.Fatal("Cannot write player row to CSV", err)
+		}
+
+		writer.Flush()
+		err = writer.Error()
+		if err != nil {
+			log.Fatal("Error while writing to file ::", err)
+		}
+	}
+}
+
 func ExportCBBPreseasonRanks(w http.ResponseWriter) {
 	db := dbprovider.GetInstance().GetDB()
 	w.Header().Set("Content-Disposition", "attachment;filename=toucan_preseason_list.csv")

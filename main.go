@@ -186,7 +186,7 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/nba/match/team/{teamId}/season/{seasonId}", controller.GetNBAMatchesByTeamIdAndSeasonId).Methods("GET")
 
 	// Migrations
-	// apiRouter.HandleFunc("/migrate/faces", controller.MigrateFaceData).Methods("GET")
+	apiRouter.HandleFunc("/migrate/faces", controller.MigrateFaceData).Methods("GET")
 
 	// News Controls
 	apiRouter.HandleFunc("/cbb/news/all/", controller.GetAllCBBNewsInASeason).Methods("GET")
@@ -322,6 +322,7 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/portal/promise/cancel/{promiseID}", controller.CancelPromise).Methods("GET")
 	apiRouter.HandleFunc("/portal/promise/player/{playerID}/{teamID}", controller.GetPromiseByPlayerID).Methods("GET")
 	apiRouter.HandleFunc("/portal/player/scout/{id}", controller.GetScoutingDataByTransfer).Methods("GET")
+	apiRouter.HandleFunc("/portal/export/players/", controller.ExportPortalPlayersToCSV).Methods("GET")
 
 	// Timestamp Controls
 	apiRouter.HandleFunc("/simbba/get/timestamp", controller.GetCurrentTimestamp).Methods("GET")

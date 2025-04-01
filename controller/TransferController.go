@@ -170,3 +170,8 @@ func SyncPromises(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode("Allocated and promised.")
 }
+
+func ExportPortalPlayersToCSV(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/csv")
+	managers.ExportTransferPortalToCSV(w)
+}
