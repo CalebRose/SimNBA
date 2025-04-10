@@ -92,3 +92,23 @@ func MakeFullTransferPortalProfileMap(players []structs.CollegePlayer) map[uint]
 	close(semaphore)
 	return portalMap
 }
+
+func MakeContractMap(contracts []structs.NBAContract) map[uint]structs.NBAContract {
+	contractMap := make(map[uint]structs.NBAContract)
+
+	for _, c := range contracts {
+		contractMap[uint(c.PlayerID)] = c
+	}
+
+	return contractMap
+}
+
+func MakeExtensionMap(extensions []structs.NBAExtensionOffer) map[uint]structs.NBAExtensionOffer {
+	contractMap := make(map[uint]structs.NBAExtensionOffer)
+
+	for _, c := range extensions {
+		contractMap[uint(c.NBAPlayerID)] = c
+	}
+
+	return contractMap
+}

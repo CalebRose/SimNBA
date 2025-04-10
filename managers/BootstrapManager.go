@@ -46,6 +46,8 @@ type BootstrapDataThree struct {
 	ProNews         []structs.NewsLog
 	AllCollegeGames []structs.Match
 	AllProGames     []structs.NBAMatch
+	ContractMap     map[uint]structs.NBAContract
+	ExtensionMap    map[uint]structs.NBAExtensionOffer
 }
 
 func GetBootstrapData(collegeID, proID string) BootstrapData {
@@ -288,6 +290,8 @@ func GetThirdBootstrapData(collegeID, proID string) BootstrapDataThree {
 		proNews         []structs.NewsLog
 		allCollegeGames []structs.Match
 		allProGames     []structs.NBAMatch
+		contractMap     map[uint]structs.NBAContract
+		extensionMap    map[uint]structs.NBAExtensionOffer
 	)
 	ts := GetTimestamp()
 	seasonID := strconv.Itoa(int(ts.SeasonID))
@@ -307,7 +311,7 @@ func GetThirdBootstrapData(collegeID, proID string) BootstrapDataThree {
 		wg.Wait()
 	}
 	if len(proID) > 0 {
-		wg.Add(3)
+		wg.Add(5)
 
 		go func() {
 			defer wg.Done()
@@ -323,6 +327,16 @@ func GetThirdBootstrapData(collegeID, proID string) BootstrapDataThree {
 			GetAllAvailableNBAPlayersViaChan(proID, freeAgencyCh)
 		}()
 
+		go func() {
+			defer wg.Done()
+			contractMap = GetContractMap()
+		}()
+
+		go func() {
+			defer wg.Done()
+			extensionMap = GetExtensionMap()
+		}()
+
 		freeAgency = <-freeAgencyCh
 		wg.Wait()
 	}
@@ -332,5 +346,7 @@ func GetThirdBootstrapData(collegeID, proID string) BootstrapDataThree {
 		ProNews:         proNews,
 		AllCollegeGames: allCollegeGames,
 		AllProGames:     allProGames,
+		ContractMap:     contractMap,
+		ExtensionMap:    extensionMap,
 	}
 }

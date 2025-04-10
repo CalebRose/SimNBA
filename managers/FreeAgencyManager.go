@@ -577,6 +577,16 @@ func RunExtensionsAlgorithm() {
 	repository.SaveTimeStamp(ts, db)
 }
 
+func GetContractMap() map[uint]structs.NBAContract {
+	contracts := repository.FindAllProContracts(true)
+	return MakeContractMap(contracts)
+}
+
+func GetExtensionMap() map[uint]structs.NBAExtensionOffer {
+	extensions := repository.FindAllProExtensions(true)
+	return MakeExtensionMap(extensions)
+}
+
 func validateFreeAgencyPref(playerRecord structs.NBAPlayer, roster []structs.NBAPlayer, team structs.NBATeam, seasonID string, offerLength, idx int) bool {
 	preference := playerRecord.FreeAgency
 

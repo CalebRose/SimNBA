@@ -648,16 +648,16 @@ func GetNBATeamGrade(rating int) string {
 }
 
 func GetAttributeGrade(rating int) string {
-	if rating > 15 {
+	if rating > 16 {
 		return "A"
-	}
-	if rating > 10 {
+	} else if rating > 13 {
 		return "B"
-	}
-	if rating > 5 {
+	} else if rating > 10 {
 		return "C"
+	} else if rating > 7 {
+		return "D"
 	}
-	return "D"
+	return "F"
 }
 
 func GetDrafteeGrade(rating int) string {
