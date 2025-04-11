@@ -3256,6 +3256,8 @@ export class BootstrapDataTwo {
     TopNBAAssists: NBAPlayer[];
     TopNBARebounds: NBAPlayer[];
     ProInjuryReport: NBAPlayer[];
+    GLeaguePlayers: NBAPlayer[];
+    InternationalPlayers: NBAPlayer[];
 
     constructor(source: any = {}) {
         if ('string' === typeof source) source = JSON.parse(source);
@@ -3269,6 +3271,8 @@ export class BootstrapDataTwo {
         this.TopNBAAssists = this.convertValues(source["TopNBAAssists"], NBAPlayer);
         this.TopNBARebounds = this.convertValues(source["TopNBARebounds"], NBAPlayer);
         this.ProInjuryReport = this.convertValues(source["ProInjuryReport"], NBAPlayer);
+        this.GLeaguePlayers = this.convertValues(source["GLeaguePlayers"], NBAPlayer);
+        this.InternationalPlayers = this.convertValues(source["InternationalPlayers"], NBAPlayer);
     }
 
 	convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -3489,42 +3493,6 @@ export class Match {
 	    return a;
 	}
 }
-export class FreeAgencyResponse {
-    FreeAgents: NBAPlayer[];
-    WaiverPlayers: NBAPlayer[];
-    GLeaguePlayers: NBAPlayer[];
-    ISLPlayers: NBAPlayer[];
-    TeamOffers: NBAContractOffer[];
-    RosterCount: number;
-
-    constructor(source: any = {}) {
-        if ('string' === typeof source) source = JSON.parse(source);
-        this.FreeAgents = this.convertValues(source["FreeAgents"], NBAPlayer);
-        this.WaiverPlayers = this.convertValues(source["WaiverPlayers"], NBAPlayer);
-        this.GLeaguePlayers = this.convertValues(source["GLeaguePlayers"], NBAPlayer);
-        this.ISLPlayers = this.convertValues(source["ISLPlayers"], NBAPlayer);
-        this.TeamOffers = this.convertValues(source["TeamOffers"], NBAContractOffer);
-        this.RosterCount = source["RosterCount"];
-    }
-
-	convertValues(a: any, classs: any, asMap: boolean = false): any {
-	    if (!a) {
-	        return a;
-	    }
-	    if (Array.isArray(a)) {
-	        return (a as any[]).map(elem => this.convertValues(elem, classs));
-	    } else if ("object" === typeof a) {
-	        if (asMap) {
-	            for (const key of Object.keys(a)) {
-	                a[key] = new classs(a[key]);
-	            }
-	            return a;
-	        }
-	        return new classs(a);
-	    }
-	    return a;
-	}
-}
 export class Croot {
     ID: number;
     PlayerID: number;
@@ -3625,17 +3593,19 @@ export class Croot {
 }
 export class BootstrapDataThree {
     Recruits: Croot[];
-    FreeAgency: FreeAgencyResponse;
+    FreeAgentOffers: NBAContractOffer[];
+    WaiverOffers: NBAWaiverOffer[];
     ProNews: NewsLog[];
     AllCollegeGames: Match[];
     AllProGames: NBAMatch[];
-    ContractMap: {[key: number]: NBAContract};
-    ExtensionMap: {[key: number]: NBAExtensionOffer};
+    ContractMap: {[key: uint]: NBAContract};
+    ExtensionMap: {[key: uint]: NBAExtensionOffer};
 
     constructor(source: any = {}) {
         if ('string' === typeof source) source = JSON.parse(source);
         this.Recruits = this.convertValues(source["Recruits"], Croot);
-        this.FreeAgency = this.convertValues(source["FreeAgency"], FreeAgencyResponse);
+        this.FreeAgentOffers = this.convertValues(source["FreeAgentOffers"], NBAContractOffer);
+        this.WaiverOffers = this.convertValues(source["WaiverOffers"], NBAWaiverOffer);
         this.ProNews = this.convertValues(source["ProNews"], NewsLog);
         this.AllCollegeGames = this.convertValues(source["AllCollegeGames"], Match);
         this.AllProGames = this.convertValues(source["AllProGames"], NBAMatch);

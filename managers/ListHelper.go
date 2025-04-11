@@ -30,14 +30,36 @@ func MakeCollegePortalList(players []structs.CollegePlayer) []structs.CollegePla
 }
 
 func MakeProInjuryList(players []structs.NBAPlayer) []structs.NBAPlayer {
-	injuryList := []structs.NBAPlayer{}
+	playerList := []structs.NBAPlayer{}
 
 	for _, p := range players {
 		if p.IsInjured {
-			injuryList = append(injuryList, p)
+			playerList = append(playerList, p)
 		}
 	}
-	return injuryList
+	return playerList
+}
+
+func MakeGLeagueList(players []structs.NBAPlayer) []structs.NBAPlayer {
+	playerList := []structs.NBAPlayer{}
+
+	for _, p := range players {
+		if p.IsGLeague {
+			playerList = append(playerList, p)
+		}
+	}
+	return playerList
+}
+
+func MakeInternationalList(players []structs.NBAPlayer) []structs.NBAPlayer {
+	playerList := []structs.NBAPlayer{}
+
+	for _, p := range players {
+		if p.IsInternational {
+			playerList = append(playerList, p)
+		}
+	}
+	return playerList
 }
 
 func MakeTransferPortalPlayerResponseList(players []structs.CollegePlayer, profileMap map[uint][]structs.TransferPortalProfile) []structs.TransferPlayerResponse {

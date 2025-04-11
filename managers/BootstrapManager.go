@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"sync"
 
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
 )
@@ -28,21 +29,24 @@ type BootstrapData struct {
 }
 
 type BootstrapDataTwo struct {
-	CollegeNews      []structs.NewsLog
-	TeamProfileMap   map[string]*structs.TeamRecruitingProfile
-	CollegeStandings []structs.CollegeStandings
-	ProStandings     []structs.NBAStandings
-	CapsheetMap      map[uint]structs.NBACapsheet
-	ProRosterMap     map[uint][]structs.NBAPlayer
-	TopNBAPoints     []structs.NBAPlayer
-	TopNBAAssists    []structs.NBAPlayer
-	TopNBARebounds   []structs.NBAPlayer
-	ProInjuryReport  []structs.NBAPlayer
+	CollegeNews          []structs.NewsLog
+	TeamProfileMap       map[string]*structs.TeamRecruitingProfile
+	CollegeStandings     []structs.CollegeStandings
+	ProStandings         []structs.NBAStandings
+	CapsheetMap          map[uint]structs.NBACapsheet
+	ProRosterMap         map[uint][]structs.NBAPlayer
+	TopNBAPoints         []structs.NBAPlayer
+	TopNBAAssists        []structs.NBAPlayer
+	TopNBARebounds       []structs.NBAPlayer
+	ProInjuryReport      []structs.NBAPlayer
+	GLeaguePlayers       []structs.NBAPlayer
+	InternationalPlayers []structs.NBAPlayer
 }
 
 type BootstrapDataThree struct {
 	Recruits        []structs.Croot
-	FreeAgency      structs.FreeAgencyResponse
+	FreeAgentOffers []structs.NBAContractOffer
+	WaiverOffers    []structs.NBAWaiverOffer
 	ProNews         []structs.NewsLog
 	AllCollegeGames []structs.Match
 	AllProGames     []structs.NBAMatch
@@ -189,16 +193,18 @@ func GetSecondBootstrapData(collegeID, proID string) BootstrapDataTwo {
 	var mu sync.Mutex
 
 	var (
-		collegeNews      []structs.NewsLog
-		teamProfileMap   map[string]*structs.TeamRecruitingProfile
-		collegeStandings []structs.CollegeStandings
-		proStandings     []structs.NBAStandings
-		capsheetMap      map[uint]structs.NBACapsheet
-		proRosterMap     map[uint][]structs.NBAPlayer
-		topNBAPoints     []structs.NBAPlayer
-		topNBAAssists    []structs.NBAPlayer
-		topNBARebounds   []structs.NBAPlayer
-		proInjuryReport  []structs.NBAPlayer
+		collegeNews          []structs.NewsLog
+		teamProfileMap       map[string]*structs.TeamRecruitingProfile
+		collegeStandings     []structs.CollegeStandings
+		proStandings         []structs.NBAStandings
+		capsheetMap          map[uint]structs.NBACapsheet
+		proRosterMap         map[uint][]structs.NBAPlayer
+		gLeaguePlayers       []structs.NBAPlayer
+		internationalPlayers []structs.NBAPlayer
+		topNBAPoints         []structs.NBAPlayer
+		topNBAAssists        []structs.NBAPlayer
+		topNBARebounds       []structs.NBAPlayer
+		proInjuryReport      []structs.NBAPlayer
 	)
 
 	ts := GetTimestamp()
@@ -257,6 +263,8 @@ func GetSecondBootstrapData(collegeID, proID string) BootstrapDataTwo {
 			nbaPlayerMap := MakeNBAPlayerMap(proPlayers)
 			proRosterMap = MakeNBAPlayerMapByTeamID(proPlayers, true)
 			proInjuryReport = MakeProInjuryList(proPlayers)
+			gLeaguePlayers = MakeGLeagueList(proPlayers)
+			internationalPlayers = MakeInternationalList(proPlayers)
 			topNBAPoints = getNFLOrderedListByStatType("POINTS", uint(nbaTeamID), nbaStats, nbaPlayerMap)
 			topNBAAssists = getNFLOrderedListByStatType("ASSISTS", uint(nbaTeamID), nbaStats, nbaPlayerMap)
 			topNBARebounds = getNFLOrderedListByStatType("REBOUNDS", uint(nbaTeamID), nbaStats, nbaPlayerMap)
@@ -269,16 +277,18 @@ func GetSecondBootstrapData(collegeID, proID string) BootstrapDataTwo {
 	}
 
 	return BootstrapDataTwo{
-		CollegeNews:      collegeNews,
-		TeamProfileMap:   teamProfileMap,
-		CollegeStandings: collegeStandings,
-		ProStandings:     proStandings,
-		CapsheetMap:      capsheetMap,
-		ProRosterMap:     proRosterMap,
-		TopNBAPoints:     topNBAPoints,
-		TopNBAAssists:    topNBAAssists,
-		TopNBARebounds:   topNBARebounds,
-		ProInjuryReport:  proInjuryReport,
+		CollegeNews:          collegeNews,
+		TeamProfileMap:       teamProfileMap,
+		CollegeStandings:     collegeStandings,
+		ProStandings:         proStandings,
+		CapsheetMap:          capsheetMap,
+		ProRosterMap:         proRosterMap,
+		TopNBAPoints:         topNBAPoints,
+		TopNBAAssists:        topNBAAssists,
+		TopNBARebounds:       topNBARebounds,
+		ProInjuryReport:      proInjuryReport,
+		GLeaguePlayers:       gLeaguePlayers,
+		InternationalPlayers: internationalPlayers,
 	}
 }
 
@@ -286,7 +296,8 @@ func GetThirdBootstrapData(collegeID, proID string) BootstrapDataThree {
 	var wg sync.WaitGroup
 	var (
 		recruits        []structs.Croot
-		freeAgency      structs.FreeAgencyResponse
+		freeAgentOffers []structs.NBAContractOffer
+		waiverOffers    []structs.NBAWaiverOffer
 		proNews         []structs.NewsLog
 		allCollegeGames []structs.Match
 		allProGames     []structs.NBAMatch
@@ -295,7 +306,6 @@ func GetThirdBootstrapData(collegeID, proID string) BootstrapDataThree {
 	)
 	ts := GetTimestamp()
 	seasonID := strconv.Itoa(int(ts.SeasonID))
-	freeAgencyCh := make(chan structs.FreeAgencyResponse, 1)
 
 	if len(collegeID) > 0 {
 		wg.Add(2)
@@ -311,7 +321,7 @@ func GetThirdBootstrapData(collegeID, proID string) BootstrapDataThree {
 		wg.Wait()
 	}
 	if len(proID) > 0 {
-		wg.Add(5)
+		wg.Add(6)
 
 		go func() {
 			defer wg.Done()
@@ -324,7 +334,12 @@ func GetThirdBootstrapData(collegeID, proID string) BootstrapDataThree {
 
 		go func() {
 			defer wg.Done()
-			GetAllAvailableNBAPlayersViaChan(proID, freeAgencyCh)
+			freeAgentOffers = repository.FindAllFreeAgentOffers(repository.FreeAgencyQuery{IsActive: true})
+		}()
+
+		go func() {
+			defer wg.Done()
+			waiverOffers = repository.FindAllWaiverOffers(repository.FreeAgencyQuery{IsActive: true})
 		}()
 
 		go func() {
@@ -337,13 +352,13 @@ func GetThirdBootstrapData(collegeID, proID string) BootstrapDataThree {
 			extensionMap = GetExtensionMap()
 		}()
 
-		freeAgency = <-freeAgencyCh
 		wg.Wait()
 	}
 	return BootstrapDataThree{
 		Recruits:        recruits,
-		FreeAgency:      freeAgency,
 		ProNews:         proNews,
+		FreeAgentOffers: freeAgentOffers,
+		WaiverOffers:    waiverOffers,
 		AllCollegeGames: allCollegeGames,
 		AllProGames:     allProGames,
 		ContractMap:     contractMap,
