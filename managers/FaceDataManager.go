@@ -142,6 +142,26 @@ func MigrateFaceDataToRecruits() {
 	repository.CreateFaceRecordsBatch(db, faceDataList, 500)
 }
 
+func MigrateFaceDataToHistoricCollegePlayers() {
+	db := dbprovider.GetInstance().GetDB()
+	// Get Recruits
+	players := GetAllHistoricCollegePlayers()
+	// Get Full Name Lists
+	faceDataBlob := getFaceDataBlob()
+	faceDataList := []structs.FaceData{}
+	// Initialize List
+	for _, p := range players {
+		skinColor := getSkinColor(p.Country)
+		// Store data
+
+		face := getFace(p.ID, 238, skinColor, faceDataBlob)
+
+		faceDataList = append(faceDataList, face)
+	}
+
+	repository.CreateFaceRecordsBatch(db, faceDataList, 500)
+}
+
 func MigrateFaceDataToCollegePlayers() {
 	db := dbprovider.GetInstance().GetDB()
 	// Get Recruits
