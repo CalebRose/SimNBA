@@ -5,7 +5,6 @@ import (
 	"log"
 	"sort"
 	"strconv"
-	"time"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/repository"
@@ -26,7 +25,6 @@ func ToggleDraftTime() {
 
 func ConductDraftLottery() {
 	db := dbprovider.GetInstance().GetDB()
-	fmt.Println(time.Now().UnixNano())
 	path := secrets.GetPath()["draftlottery"]
 	lotteryCSV := util.ReadCSV(path)
 	lotteryBalls := []structs.DraftLottery{}
@@ -40,8 +38,8 @@ func ConductDraftLottery() {
 		teamID := util.ConvertStringToInt(row[0])
 		team := row[1]
 
-		// Rows 2-17 of the CSV, the 16 teams for the draft lottery
-		if idx < 18 {
+		// Rows 1-16 of the CSV, the 16 teams for the draft lottery
+		if idx < 17 {
 			chances := util.GetLotteryChances(idx)
 			lottery := structs.DraftLottery{
 				ID:      uint(teamID),
@@ -55,20 +53,21 @@ func ConductDraftLottery() {
 	}
 	lotteryPicks := 16
 	draftOrder := []structs.DraftLottery{}
-	for i := 0; i < lotteryPicks; i++ {
+	for i := range lotteryPicks {
 		if i <= 3 {
 			sum := 0
 			for _, l := range lotteryBalls {
-				sum += int(l.Chances)
+				l.ApplyCurrentChance(i)
+				sum += int(l.CurrentChance)
 			}
 
 			chance := util.GenerateIntFromRange(1, sum)
 			sum2 := 0
 			for _, l := range lotteryBalls {
-				sum2 += int(l.Chances)
+				l.ApplyCurrentChance(i)
+				sum2 += int(l.CurrentChance)
 				if chance < sum2 {
 					draftOrder = append(draftOrder, l)
-
 					lotteryBalls = filterLotteryPicks(lotteryBalls, l.ID)
 					break
 				}
@@ -90,7 +89,7 @@ func ConductDraftLottery() {
 	sort.Sort(structs.ByDraftNumber(draftPicks))
 
 	for idx, row := range lotteryCSV {
-		if idx < 18 {
+		if idx < 17 {
 			continue
 		}
 		pickNumber := idx

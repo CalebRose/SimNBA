@@ -40,10 +40,15 @@ func (p *DraftPick) TradePick(id uint, team string) {
 }
 
 type DraftLottery struct {
-	ID        uint
-	Team      string
-	Chances   uint
-	Selection uint
+	ID            uint
+	Team          string
+	Chances       []uint
+	CurrentChance uint
+	Selection     uint
+}
+
+func (dl *DraftLottery) ApplyCurrentChance(pick int) {
+	dl.CurrentChance = dl.Chances[pick]
 }
 
 // Sorting Funcs
@@ -52,7 +57,7 @@ type ByDraftChance []DraftLottery
 func (fo ByDraftChance) Len() int      { return len(fo) }
 func (fo ByDraftChance) Swap(i, j int) { fo[i], fo[j] = fo[j], fo[i] }
 func (fo ByDraftChance) Less(i, j int) bool {
-	return fo[i].Chances < fo[j].Chances
+	return fo[i].CurrentChance < fo[j].CurrentChance
 }
 
 type ByDraftNumber []DraftPick

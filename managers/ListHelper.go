@@ -122,7 +122,7 @@ func GetCBBOrderedListByStatType(statType string, teamID uint, CollegeStats []st
 	return resultList
 }
 
-func getNFLOrderedListByStatType(statType string, teamID uint, CollegeStats []structs.NBAPlayerSeasonStats, proPlayerMap map[uint]structs.NBAPlayer) []structs.NBAPlayer {
+func getNBAOrderedListByStatType(statType string, teamID uint, CollegeStats []structs.NBAPlayerSeasonStats, proPlayerMap map[uint]structs.NBAPlayer) []structs.NBAPlayer {
 	orderedStats := CollegeStats
 	resultList := []structs.NBAPlayer{}
 	if statType == "POINTS" {
@@ -163,4 +163,15 @@ func getNFLOrderedListByStatType(statType string, teamID uint, CollegeStats []st
 		}
 	}
 	return resultList
+}
+
+func makeHistoricPlayerList(hcp []structs.HistoricCollegePlayer) []structs.CollegePlayer {
+	cpList := []structs.CollegePlayer{}
+
+	for _, p := range hcp {
+		cp := structs.CollegePlayer{}
+		cp.MapFromHistoricPlayer(p)
+		cpList = append(cpList, cp)
+	}
+	return cpList
 }

@@ -1,0 +1,65 @@
+﻿id,team,,,,,,,,,,,2024 Order,,2023 Order,
+18,Minnesota Timberwolves,,,,,,,1,Atlanta Hawks,,,12,Indiana Pacers,30,Utah Jazz
+12,Indiana Pacers,,,,,,,2,Brooklyn Nets,,,9,Detroit Pistons,24,Phoenix Suns
+32,Washington Wizards,,,,,,,3,Boston Celtics,,,18,Minnesota Timberwolves,18,Minnesota Timberwolves
+13,Los Angeles Lakers,,,,,,,4,Charlotte Hornets,,,13,Los Angeles Lakers,13,Los Angeles Lakers
+19,New Orleans Pelicans,,,,,,,5,Chicago Bulls,,,29,Toronto Raptors,23,Philadelphia 76ers
+3,Boston Celtics,,,,,,,6,Cleveland Cavaliers,,,25,Portland Trailblazers,4,Charlotte Hornets
+20,New York Knicks,,,,,,,7,Dallas Mavericks,,,19,New Orleans Pelicans,1,Atlanta Hawks
+7,Dallas Mavericks,,,,,,,8,Denver Nuggets,,,23,Philadelphia 76ers,29,Toronto Raptors
+11,Houston Rockets,,,,,,,9,Detroit Pistons,,,24,Phoenix Suns,17,Milwaukee Bucks
+23,Philadelphia 76ers,,,,,,,10,Golden State Warriors,,,17,Milwaukee Bucks,21,Oklahoma City Thunder
+10,Golden State Warriors,,,,,,,11,Houston Rockets,,,27,San Antonio Spurs,6,Cleveland Cavaliers
+6,Cleveland Cavaliers,,,,,,,12,Indiana Pacers,,,32,Washington Wizards,12,Indiana Pacers
+29,Toronto Raptors,,,,,,,13,Los Angeles Lakers,,,21,Oklahoma City Thunder,15,Memphis Grizzlies
+9,Detroit Pistons,,,,,,,14,San Diego Clippers,,,15,Memphis Grizzlies,14,San Diego Clippers
+14,San Diego Clippers,,,,,,,15,Memphis Grizzlies,,,4,Charlotte Hornets,7,Dallas Mavericks
+28,Seattle Supersonics,,,,,,,16,Miami Heat,,,11,Houston Rockets,11,Houston Rockets
+4,Charlotte Hornets,,,,,,,17,Milwaukee Bucks,,,14,San Diego Clippers,32,Washington Wizards
+22,Orlando Magic,,,,,,,18,Minnesota Timberwolves,,,3,Boston Celtics,20,New York Knicks
+2,Brooklyn Nets,,,,,,,19,New Orleans Pelicans,,,5,Chicago Bulls,10,Golden State Warriors
+26,Sacramento Kings,,,,,,,20,New York Knicks,,,2,Brooklyn Nets,3,Boston Celtics
+15,Memphis Grizzlies,,,,,,,21,Oklahoma City Thunder,,,6,Cleveland Cavaliers,26,Sacramento Kings
+5,Chicago Bulls,,,,,,,22,Orlando Magic,,,26,Sacramento Kings,25,Portland Trailblazers
+17,Milwaukee Bucks,,,,,,,23,Philadelphia 76ers,,,7,Dallas Mavericks,5,Chicago Bulls
+21,Oklahoma City Thunder,,,,,,,24,Phoenix Suns,,,22,Orlando Magic,9,Detroit Pistons
+31,Vancouver Sea Lions,,,,,,,25,Portland Trailblazers,,,32,Washington Wizards,19,New Orleans Pelicans
+25,Portland Trailblazers,,,,,,,26,Sacramento Kings,,,16,Miami Heat,28,Seattle Supersonics
+1,Atlanta Hawks,,,,,,,27,San Antonio Spurs,,,8,Denver Nuggets,8,Denver Nuggets
+30,Utah Jazz,,,,,,,28,Seattle Supersonics,,,20,New York Knicks,22,Orlando Magic
+27,San Antonio Spurs,,,,,,,29,Toronto Raptors,,,10,Golden State Warriors,27,San Antonio Spurs
+8,Denver Nuggets,,,,,,,30,Utah Jazz,,,30,Utah Jazz,16,Miami Heat
+16,Miami Heat,,,,,,,31,Vancouver Sea Lions,,,28,Seattle Supersonics,2,Brooklyn Nets
+24,Phoenix Suns,,,,,,,32,Washington Wizards,,,1,Atlanta Hawks,32,Vancouver Sea Lions
+18,Minnesota Timberwolves,,,,,,,,,,,12,Indiana Pacers,30,Utah Jazz
+12,Indiana Pacers,,,,,,,,,,,9,Detroit Pistons,24,Phoenix Suns
+32,Washington Wizards,,,,,,,,,,,18,Minnesota Timberwolves,18,Minnesota Timberwolves
+13,Los Angeles Lakers,,,,,,,,,,,13,Los Angeles Lakers,23,Philadelphia 76ers
+19,New Orleans Pelicans,,,,,,,,,,,29,Toronto Raptors,13,Los Angeles Lakers
+3,Boston Celtics,,,,,,,,,,,25,Portland Trailblazers,17,Milwaukee Bucks
+20,New York Knicks,,,,,,,,,,,19,New Orleans Pelicans,29,Toronto Raptors
+7,Dallas Mavericks,,,,,,,,,,,23,Philadelphia 76ers,1,Atlanta Hawks
+11,Houston Rockets,,,,,,,,,,,24,Phoenix Suns,4,Charlotte Hornets
+23,Philadelphia 76ers,,,,,,,,,,,17,Milwaukee Bucks,12,Indiana Pacers
+10,Golden State Warriors,,,,,,,,,,,27,San Antonio Spurs,6,Cleveland Cavaliers
+6,Cleveland Cavaliers,,,,,,,,,,,32,Washington Wizards,21,Oklahoma City Thunder
+29,Toronto Raptors,,,,,,,,,,,21,Oklahoma City Thunder,7,Dallas Mavericks
+9,Detroit Pistons,,,,,,,,,,,15,Memphis Grizzlies,14,San Diego Clippers
+14,San Diego Clippers,,,,,,,,,,,4,Charlotte Hornets,15,Memphis Grizzlies
+28,Seattle Supersonics,,,,,,,,,,,11,Houston Rockets,11,Houston Rockets
+4,Charlotte Hornets,,,,,,,,,,,14,San Diego Clippers,32,Washington Wizards
+22,Orlando Magic,,,,,,,,,,,3,Boston Celtics,10,Golden State Warriors
+2,Brooklyn Nets,,,,,,,,,,,5,Chicago Bulls,20,New York Knicks
+26,Sacramento Kings,,,,,,,,,,,2,Brooklyn Nets,26,Sacramento Kings
+15,Memphis Grizzlies,,,,,,,,,,,6,Cleveland Cavaliers,3,Boston Celtics
+5,Chicago Bulls,,,,,,,,,,,26,Sacramento Kings,25,Portland Trailblazers
+17,Milwaukee Bucks,,,,,,,,,,,7,Dallas Mavericks,5,Chicago Bulls
+21,Oklahoma City Thunder,,,,,,,,,,,22,Orlando Magic,19,New Orleans Pelicans
+31,Vancouver Sea Lions,,,,,,,,,,,32,Washington Wizards,9,Detroit Pistons
+25,Portland Trailblazers,,,,,,,,,,,16,Miami Heat,28,Seattle Supersonics
+1,Atlanta Hawks,,,,,,,,,,,8,Denver Nuggets,22,Orlando Magic
+30,Utah Jazz,,,,,,,,,,,20,New York Knicks,8,Denver Nuggets
+27,San Antonio Spurs,,,,,,,,,,,10,Golden State Warriors,27,San Antonio Spurs
+8,Denver Nuggets,,,,,,,,,,,30,Utah Jazz,2,Brooklyn Nets
+16,Miami Heat,,,,,,,,,,,28,Seattle Supersonics,16,Miami Heat
+24,Phoenix Suns,,,,,,,,,,,1,Atlanta Hawks,32,Vancouver Sea Lions

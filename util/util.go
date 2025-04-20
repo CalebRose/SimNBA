@@ -987,47 +987,26 @@ func GetNBAPlayerIDsBySeasonStats(nps []structs.NBAPlayerSeasonStats) []string {
 	return list
 }
 
-func GetLotteryChances(idx int) uint {
-	if idx <= 4 {
-		return 140
+func GetLotteryChances(idx int) []uint {
+	chancesMap := map[int][]uint{
+		1:  {1400, 1340, 1270, 1200},
+		2:  {1400, 1340, 1270, 1200},
+		3:  {1185, 1185, 1185, 1185},
+		4:  {1185, 1185, 1185, 1185},
+		5:  {1185, 1185, 1185, 1185},
+		6:  {900, 920, 940, 960},
+		7:  {750, 780, 810, 840},
+		8:  {600, 630, 670, 710},
+		9:  {425, 425, 425, 425},
+		10: {425, 425, 425, 425},
+		11: {200, 220, 240, 260},
+		12: {150, 160, 180, 200},
+		13: {80, 80, 80, 80},
+		14: {80, 80, 80, 80},
+		15: {26, 26, 26, 26},
+		16: {26, 26, 26, 26},
 	}
-	if idx == 5 {
-		return 125
-	}
-	if idx == 6 {
-		return 105
-	}
-	if idx == 7 {
-		return 90
-	}
-	if idx == 8 {
-		return 75
-	}
-	if idx == 9 {
-		return 60
-	}
-	if idx == 10 {
-		return 45
-	}
-	if idx == 11 {
-		return 30
-	}
-	if idx == 12 {
-		return 20
-	}
-	if idx == 13 {
-		return 15
-	}
-	if idx == 14 {
-		return 9
-	}
-	if idx == 15 {
-		return 4
-	}
-	if idx == 16 {
-		return 2
-	}
-	return 1
+	return chancesMap[idx]
 }
 
 func GetAttributeNew(position, attribute string, spec bool) int {

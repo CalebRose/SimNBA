@@ -111,6 +111,16 @@ func (cp *CollegePlayer) MapFromRecruit(r Recruit) {
 	cp.SpecShooting3 = r.SpecShooting3
 }
 
+func (h *CollegePlayer) MapFromHistoricPlayer(cp HistoricCollegePlayer) {
+	h.ID = cp.ID
+	h.BasePlayer = cp.BasePlayer
+	h.PlayerID = cp.PlayerID
+	h.TeamID = cp.TeamID
+	h.TeamAbbr = cp.TeamAbbr
+	h.State = cp.State
+	h.Country = cp.Country
+}
+
 func (cp *CollegePlayer) GraduatePlayer() {
 	cp.HasGraduated = true
 }
