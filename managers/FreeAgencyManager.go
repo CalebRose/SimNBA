@@ -876,7 +876,7 @@ func faSyncISLPlayers(islPlayers []structs.NBAPlayer, ts structs.Timestamp, db *
 		contract := GetNBAContractsByPlayerID(islPlayerID)
 		contract.TradePlayer(ownerOffer.TeamID, ownerOffer.Team)
 		repository.SaveProfessionalContractRecord(contract, db)
-		i.SignWithTeam(ownerOffer.TeamID, ownerOffer.Team, false, 0)
+		i.SignWithTeam(contract.TeamID, contract.Team, false, 0)
 		message := i.Position + " " + i.FirstName + " " + i.LastName + " was picked up from the GLeague by " + ownerOffer.Team
 		CreateNewsLog("NBA", message, "Free Agency", int(ownerOffer.TeamID), ts)
 
