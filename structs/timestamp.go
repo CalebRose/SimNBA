@@ -161,6 +161,10 @@ func (t *Timestamp) SyncToNextWeek() {
 	if t.CollegeSeasonOver && t.NBASeasonOver {
 		t.MoveUpASeason()
 	}
+
+	if t.NBAWeek >= 31 {
+		t.NBASeasonOver = true
+	}
 }
 
 func (t *Timestamp) MoveUpFreeAgencyRound() {
