@@ -45,6 +45,7 @@ type BootstrapDataTwo struct {
 
 type BootstrapDataThree struct {
 	Recruits        []structs.Croot
+	RecruitProfiles []structs.PlayerRecruitProfile
 	FreeAgentOffers []structs.NBAContractOffer
 	WaiverOffers    []structs.NBAWaiverOffer
 	ProNews         []structs.NewsLog
@@ -298,6 +299,7 @@ func GetThirdBootstrapData(collegeID, proID string) BootstrapDataThree {
 	var wg sync.WaitGroup
 	var (
 		recruits        []structs.Croot
+		recruitProfiles []structs.PlayerRecruitProfile
 		freeAgentOffers []structs.NBAContractOffer
 		waiverOffers    []structs.NBAWaiverOffer
 		proNews         []structs.NewsLog
@@ -310,10 +312,15 @@ func GetThirdBootstrapData(collegeID, proID string) BootstrapDataThree {
 	seasonID := strconv.Itoa(int(ts.SeasonID))
 
 	if len(collegeID) > 0 {
-		wg.Add(2)
+		wg.Add(3)
 		go func() {
 			defer wg.Done()
 			recruits = GetAllCollegeRecruits()
+		}()
+
+		go func() {
+			defer wg.Done()
+			recruitProfiles = GetRecruitingProfilesByTeamId(collegeID)
 		}()
 
 		go func() {
@@ -358,6 +365,7 @@ func GetThirdBootstrapData(collegeID, proID string) BootstrapDataThree {
 	}
 	return BootstrapDataThree{
 		Recruits:        recruits,
+		RecruitProfiles: recruitProfiles,
 		ProNews:         proNews,
 		FreeAgentOffers: freeAgentOffers,
 		WaiverOffers:    waiverOffers,

@@ -263,7 +263,7 @@ func GetRecruitWithPlayerProfilesByRecruitID(recruitID string) structs.Recruit {
 	return croot
 }
 
-func GetRecruitingPointsByTeamId(id string) []structs.PlayerRecruitProfile {
+func GetRecruitingProfilesByTeamId(id string) []structs.PlayerRecruitProfile {
 	db := dbprovider.GetInstance().GetDB()
 	var recruits []structs.PlayerRecruitProfile
 	db.Where("profile_id = ? AND removed_from_board = ?", id, false).Find(&recruits)
@@ -380,7 +380,7 @@ func UpdateRecruitingProfile(updateRecruitingBoardDto structs.UpdateRecruitingBo
 
 	var profile = GetOnlyTeamRecruitingProfileByTeamID(teamId)
 
-	var recruitingPoints = GetRecruitingPointsByTeamId(teamId)
+	var recruitingPoints = GetRecruitingProfilesByTeamId(teamId)
 
 	var updatedRecruits = updateRecruitingBoardDto.Recruits
 
