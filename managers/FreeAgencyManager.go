@@ -520,6 +520,9 @@ func RunExtensionsAlgorithm() {
 	nbaTeams := GetAllActiveNBATeams()
 
 	for _, team := range nbaTeams {
+		if team.ID > 32 {
+			break
+		}
 		teamID := strconv.Itoa(int(team.ID))
 		roster := GetNBAPlayersWithContractsAndExtensionsByTeamID(teamID)
 
@@ -532,7 +535,7 @@ func RunExtensionsAlgorithm() {
 			}
 			if contract.YearsRemaining == 1 && len(player.Extensions) > 0 {
 				for idx, e := range player.Extensions {
-					if e.IsRejected || !e.IsActive {
+					if e.IsRejected || !e.IsActive || e.IsAccepted {
 						continue
 					}
 					minimumValueMultiplier := 1.0
@@ -590,7 +593,7 @@ func GetExtensionMap() map[uint]structs.NBAExtensionOffer {
 func validateFreeAgencyPref(playerRecord structs.NBAPlayer, roster []structs.NBAPlayer, team structs.NBATeam, seasonID string, offerLength, idx int) bool {
 	preference := playerRecord.FreeAgency
 
-	if preference == "Average" {
+	if preference == "Average" || preference == "Will eventually play for LeBron" {
 		return true
 	}
 	if preference == "Drafted team discount" && playerRecord.DraftedTeamID == team.ID {

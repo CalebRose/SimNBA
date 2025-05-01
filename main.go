@@ -89,7 +89,7 @@ func handleRequests() http.Handler {
 	// apiRouter.HandleFunc("/admin/migrate/draftees", controller.ProgressPlayers).Methods("GET")
 	// apiRouter.HandleFunc("/admin/migrate/new/teams", controller.ImportNewTeams).Methods("GET")
 	// apiRouter.HandleFunc("/admin/migrate/nba/players", controller.MigrateNBAPlayersToTables).Methods("GET")
-	// apiRouter.HandleFunc("/admin/progress/nba/players", controller.ProgressNBAPlayers).Methods("GET")
+	apiRouter.HandleFunc("/admin/progress/nba/players", controller.ProgressNBAPlayers).Methods("GET")
 	// apiRouter.HandleFunc("/admin/clean/nba/tables", controller.CleanNBAPlayerTables).Methods("GET")
 
 	// Bootstrap
@@ -202,6 +202,7 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/player/AllPlayers", controller.AllCollegePlayers).Methods("GET")
 	// apiRouter.HandleFunc("/player/add/{firstname}/{lastname}", controller.NewPlayer).Methods("POST")
 	apiRouter.HandleFunc("/cbb/player/assign/redshirt/", controller.AssignRedshirtForCollegePlayer).Methods("POST")
+	apiRouter.HandleFunc("/cbb/players/redshirt/{playerId}/", controller.RedshirtCBBPlayer).Methods("GET")
 	apiRouter.HandleFunc("/player/GetPlayer/{playerId}", controller.PlayerById).Methods("GET")
 	// apiRouter.HandleFunc("/player/SetRedshirting/{playerId}", controller.SetRedshirtStatusByPlayerId).Methods("PUT")
 	apiRouter.HandleFunc("/players", controller.AllPlayers).Methods("GET")

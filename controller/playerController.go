@@ -109,6 +109,19 @@ func PlayerById(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(player)
 }
 
+func RedshirtCBBPlayer(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	vars := mux.Vars(r)
+	playerID := vars["playerID"]
+	if len(playerID) == 0 {
+		panic("User did not provide playerID")
+	}
+
+	var player = managers.SetRedshirtStatusForPlayer(playerID)
+
+	json.NewEncoder(w).Encode(player)
+}
+
 func AssignRedshirtForCollegePlayer(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	var redshirtDTO structs.RedshirtDTO

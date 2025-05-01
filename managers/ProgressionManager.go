@@ -71,7 +71,7 @@ func ProgressNBAPlayers() {
 	for _, team := range nbaTeams {
 		teamID := strconv.Itoa(int(team.ID))
 
-		roster := GetAllNBAPlayersByTeamIDForProgression(teamID, strconv.Itoa(int(ts.SeasonID-1)))
+		roster := GetAllNBAPlayersByTeamIDForProgression(teamID, strconv.Itoa(int(ts.SeasonID)))
 
 		for _, player := range roster {
 			if player.HasProgressed {
@@ -106,7 +106,7 @@ func ProgressNBAPlayers() {
 			} else {
 				if (player.IsMVP || player.IsDPOY || player.IsFirstTeamANBA) && player.Overall > 90 {
 					player.QualifyForSuperMax()
-				} else if player.Overall > 94 {
+				} else if player.Overall > 99 {
 					player.QualifiesForMax()
 				} else {
 					player.DoesNotQualify()

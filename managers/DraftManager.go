@@ -455,7 +455,7 @@ func DetermineIfDeclaring(player structs.CollegePlayer) bool {
 
 func InternationalDeclaration(player structs.NBAPlayer, isEligible bool) bool {
 	// Redshirt senior or just a senior
-	if !isEligible {
+	if !isEligible || player.TeamID < 33 || player.Age < 18 {
 		return false
 	}
 	ovr := player.Overall
