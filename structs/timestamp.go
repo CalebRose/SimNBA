@@ -48,6 +48,8 @@ func (t *Timestamp) MoveUpASeason() {
 	t.Season++
 	t.CollegeSeasonOver = false
 	t.NBASeasonOver = false
+	t.IsNBAOffseason = true
+	t.IsOffSeason = true
 	t.CollegeWeek = 0
 	t.CollegeWeekID += 1
 	t.NBAWeek = 0

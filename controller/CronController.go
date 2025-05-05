@@ -74,7 +74,7 @@ func SyncToNextWeekViaCron() {
 	ts := managers.GetTimestamp()
 
 	if ts.RunCron && ts.IsNBAOffseason {
-		managers.SyncISLYouthDevelopment()
+		// managers.SyncISLYouthDevelopment()
 	}
 
 	if ts.RunCron && ((!ts.IsOffSeason || !ts.IsNBAOffseason) || (ts.CollegeSeasonOver && ts.NBASeasonOver && ts.FreeAgencyRound > 2)) {
