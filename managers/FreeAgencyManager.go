@@ -748,6 +748,7 @@ func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *
 }
 
 func faSyncWaiverWirePlayers(waiverWirePlayers []structs.NBAPlayer, ts structs.Timestamp, db *gorm.DB) {
+	capsheets := GetCapsheetMap()
 	for _, w := range waiverWirePlayers {
 
 		waiverWireID := strconv.Itoa(int(w.ID))
@@ -757,6 +758,9 @@ func faSyncWaiverWirePlayers(waiverWirePlayers []structs.NBAPlayer, ts structs.T
 			// Deactivate Contract, convert to Free Agent
 			w.ConvertWaivedPlayerToFA()
 			contract := GetContractByPlayerID(waiverWireID)
+			capsheet := capsheets[contract.TeamID]
+			capsheet.CutPlayerFromCapsheet(contract)
+			db.Save(&capsheet)
 			contract.DeactivateContract()
 			repository.SaveProfessionalContractRecord(contract, db)
 		} else {
