@@ -369,7 +369,7 @@ func handleCron() *cron.Cron {
 		c.AddFunc("0 22 * * 1,3,5,6", controller.RunAIGameplansViaCron)
 		c.AddFunc("0 10 * * 4", controller.FillAIBoardsViaCron)
 		c.AddFunc("0 12 * * 0", controller.SyncToNextWeekViaCron)
-		c.AddFunc("0 16 * * 2", controller.SyncFreeAgencyOffersViaCron)
+		c.AddFunc("0 16 * * 2,4,6", controller.SyncFreeAgencyOffersViaCron)
 	}
 
 	c.Start()
