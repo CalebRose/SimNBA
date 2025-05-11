@@ -142,6 +142,30 @@ func GetCollegePlayerByNameAndAbbr(firstName, lastName, abbr string) structs.Col
 	}
 }
 
+func GetCollegeRecruitByID(id string) []structs.Croot {
+	db := dbprovider.GetInstance().GetDB()
+
+	var players []structs.Recruit
+	var croots []structs.Croot
+
+	err := db.Where("id = ?", id).Find(&players).Error
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, recruit := range players {
+		var croot structs.Croot
+		croot.Map(recruit)
+
+		overallGrade := util.GetOverallGrade(recruit.Overall)
+
+		croot.SetOverallGrade(overallGrade)
+
+		croots = append(croots, croot)
+	}
+
+	return croots
+}
+
 func GetCollegeRecruitByNameAndLocation(firstName, lastName string) []structs.Croot {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -365,4 +389,313 @@ func AssignDiscordIDToNFLTeam(tID, dID, un string) {
 	team.AssignDiscordID(dID, un)
 
 	db.Save(&team)
+}
+
+func CompareTwoCBBTeams(t1ID, t2ID string) structs.FlexComparisonModel {
+	ts := GetTimestamp()
+	teamOneChan := make(chan structs.Team)
+	teamTwoChan := make(chan structs.Team)
+
+	go func() {
+		t1 := GetTeamByTeamID(t1ID)
+		teamOneChan <- t1
+	}()
+
+	teamOne := <-teamOneChan
+	close(teamOneChan)
+
+	go func() {
+		t2 := GetTeamByTeamID(t2ID)
+		teamTwoChan <- t2
+	}()
+
+	teamTwo := <-teamTwoChan
+	close(teamTwoChan)
+
+	allTeamOneGames := GetCBBMatchesByTeamId(t1ID)
+
+	t1Wins := 0
+	t1Losses := 0
+	t1Streak := 0
+	t1CurrentStreak := 0
+	t1LargestMarginSeason := 0
+	t1LargestMarginDiff := 0
+	t1LargestMarginScore := ""
+	t2Wins := 0
+	t2Losses := 0
+	t2Streak := 0
+	t2CurrentStreak := 0
+	latestWin := ""
+	t2LargestMarginSeason := 0
+	t2LargestMarginDiff := 0
+	t2LargestMarginScore := ""
+
+	for _, game := range allTeamOneGames {
+		if !game.GameComplete ||
+			(game.Week == uint(ts.NBAWeek) &&
+				((game.TimeSlot == "A" && !ts.GamesARan) ||
+					(game.TimeSlot == "B" && !ts.GamesBRan) ||
+					(game.TimeSlot == "C" && !ts.GamesCRan) ||
+					(game.TimeSlot == "D" && !ts.GamesDRan))) {
+			continue
+		}
+		doComparison := (game.HomeTeamID == teamOne.ID && game.AwayTeamID == teamTwo.ID) ||
+			(game.HomeTeamID == teamTwo.ID && game.AwayTeamID == teamOne.ID)
+		if !doComparison {
+			continue
+		}
+		homeTeamTeamOne := game.HomeTeamID == teamOne.ID
+		if homeTeamTeamOne {
+			if game.HomeTeamWin {
+				t1Wins += 1
+				t1CurrentStreak += 1
+				latestWin = game.HomeTeam
+				diff := game.HomeTeamScore - game.AwayTeamScore
+				if diff > t1LargestMarginDiff {
+					t1LargestMarginDiff = diff
+					t1LargestMarginSeason = int(game.SeasonID) + 2020
+					t1LargestMarginScore = "" + strconv.Itoa(game.HomeTeamScore) + "-" + strconv.Itoa(game.AwayTeamScore)
+				}
+			} else {
+				t1Streak = t1CurrentStreak
+				t1CurrentStreak = 0
+				t1Losses += 1
+			}
+		} else {
+			if game.HomeTeamWin {
+				t2Wins += 1
+				t2CurrentStreak += 1
+				latestWin = game.HomeTeam
+				diff := game.HomeTeamScore - game.AwayTeamScore
+				if diff > t2LargestMarginDiff {
+					t2LargestMarginDiff = diff
+					t2LargestMarginSeason = int(game.SeasonID) + 2020
+					t2LargestMarginScore = "" + strconv.Itoa(game.HomeTeamScore) + "-" + strconv.Itoa(game.AwayTeamScore)
+				}
+			} else {
+				t2Streak = t2CurrentStreak
+				t2CurrentStreak = 0
+				t2Losses += 1
+			}
+		}
+
+		awayTeamTeamOne := game.AwayTeamID == teamOne.ID
+		if awayTeamTeamOne {
+			if game.AwayTeamWin {
+				t1Wins += 1
+				t1CurrentStreak += 1
+				latestWin = game.AwayTeam
+				diff := game.AwayTeamScore - game.HomeTeamScore
+				if diff > t1LargestMarginDiff {
+					t1LargestMarginDiff = diff
+					t1LargestMarginSeason = int(game.SeasonID) + 2020
+					t1LargestMarginScore = "" + strconv.Itoa(game.AwayTeamScore) + "-" + strconv.Itoa(game.HomeTeamScore)
+				}
+			} else {
+				t1Streak = t1CurrentStreak
+				t1CurrentStreak = 0
+				t1Losses += 1
+			}
+		} else {
+			if game.AwayTeamWin {
+				t2Wins += 1
+				t2CurrentStreak += 1
+				latestWin = game.AwayTeam
+				diff := game.AwayTeamScore - game.HomeTeamScore
+				if diff > t2LargestMarginDiff {
+					t2LargestMarginDiff = diff
+					t2LargestMarginSeason = int(game.SeasonID) + 2020
+					t2LargestMarginScore = "" + strconv.Itoa(game.AwayTeamScore) + "-" + strconv.Itoa(game.HomeTeamScore)
+				}
+			} else {
+				t2Streak = t2CurrentStreak
+				t2CurrentStreak = 0
+				t2Losses += 1
+			}
+		}
+	}
+
+	if t1CurrentStreak > 0 && t1CurrentStreak > t1Streak {
+		t1Streak = t1CurrentStreak
+	}
+	if t2CurrentStreak > 0 && t2CurrentStreak > t2Streak {
+		t2Streak = t2CurrentStreak
+	}
+
+	currentStreak := 0
+	currentStreak = max(t1CurrentStreak, t2CurrentStreak)
+
+	return structs.FlexComparisonModel{
+		TeamOneID:      teamOne.ID,
+		TeamOne:        teamOne.Abbr,
+		TeamOneWins:    uint(t1Wins),
+		TeamOneLosses:  uint(t1Losses),
+		TeamOneStreak:  uint(t1Streak),
+		TeamOneMSeason: t1LargestMarginSeason,
+		TeamOneMScore:  t1LargestMarginScore,
+		TeamTwoID:      teamTwo.ID,
+		TeamTwo:        teamTwo.Abbr,
+		TeamTwoWins:    uint(t2Wins),
+		TeamTwoLosses:  uint(t2Losses),
+		TeamTwoStreak:  uint(t2Streak),
+		TeamTwoMSeason: t2LargestMarginSeason,
+		TeamTwoMScore:  t2LargestMarginScore,
+		CurrentStreak:  uint(currentStreak),
+		LatestWin:      latestWin,
+	}
+}
+
+func CompareTwoNBATeams(t1ID, t2ID string) structs.FlexComparisonModel {
+	ts := GetTimestamp()
+	teamOneChan := make(chan structs.NBATeam)
+	teamTwoChan := make(chan structs.NBATeam)
+
+	go func() {
+		t1 := GetNBATeamByTeamID(t1ID)
+		teamOneChan <- t1
+	}()
+
+	teamOne := <-teamOneChan
+	close(teamOneChan)
+
+	go func() {
+		t2 := GetNBATeamByTeamID(t2ID)
+		teamTwoChan <- t2
+	}()
+
+	teamTwo := <-teamTwoChan
+	close(teamTwoChan)
+
+	allTeamOneGames := GetNBAMatchesByTeamId(t1ID)
+
+	t1Wins := 0
+	t1Losses := 0
+	t1Streak := 0
+	t1CurrentStreak := 0
+	t1LargestMarginSeason := 0
+	t1LargestMarginDiff := 0
+	t1LargestMarginScore := ""
+	t2Wins := 0
+	t2Losses := 0
+	t2Streak := 0
+	t2CurrentStreak := 0
+	latestWin := ""
+	t2LargestMarginSeason := 0
+	t2LargestMarginDiff := 0
+	t2LargestMarginScore := ""
+
+	for _, game := range allTeamOneGames {
+		if !game.GameComplete ||
+			(game.Week == uint(ts.NBAWeek) &&
+				((game.TimeSlot == "A" && !ts.GamesARan) ||
+					(game.TimeSlot == "B" && !ts.GamesBRan) ||
+					(game.TimeSlot == "C" && !ts.GamesCRan) ||
+					(game.TimeSlot == "D" && !ts.GamesDRan))) {
+			continue
+		}
+		doComparison := (game.HomeTeamID == teamOne.ID && game.AwayTeamID == teamTwo.ID) ||
+			(game.HomeTeamID == teamTwo.ID && game.AwayTeamID == teamOne.ID)
+
+		if !doComparison {
+			continue
+		}
+		homeTeamTeamOne := game.HomeTeamID == teamOne.ID
+		if homeTeamTeamOne {
+			if game.HomeTeamWin {
+				t1Wins += 1
+				t1CurrentStreak += 1
+				latestWin = game.HomeTeam
+				diff := game.HomeTeamScore - game.AwayTeamScore
+				if diff > t1LargestMarginDiff {
+					t1LargestMarginDiff = diff
+					t1LargestMarginSeason = int(game.SeasonID) + 2020
+					t1LargestMarginScore = "" + strconv.Itoa(game.HomeTeamScore) + "-" + strconv.Itoa(game.AwayTeamScore)
+				}
+			} else {
+				t1Streak = t1CurrentStreak
+				t1CurrentStreak = 0
+				t1Losses += 1
+			}
+		} else {
+			if game.HomeTeamWin {
+				t2Wins += 1
+				t2CurrentStreak += 1
+				latestWin = game.HomeTeam
+				diff := game.HomeTeamScore - game.AwayTeamScore
+				if diff > t2LargestMarginDiff {
+					t2LargestMarginDiff = diff
+					t2LargestMarginSeason = int(game.SeasonID) + 2020
+					t2LargestMarginScore = "" + strconv.Itoa(game.HomeTeamScore) + "-" + strconv.Itoa(game.AwayTeamScore)
+				}
+			} else {
+				t2Streak = t2CurrentStreak
+				t2CurrentStreak = 0
+				t2Losses += 1
+			}
+		}
+
+		awayTeamTeamOne := game.AwayTeamID == teamOne.ID
+		if awayTeamTeamOne {
+			if game.AwayTeamWin {
+				t1Wins += 1
+				t1CurrentStreak += 1
+				latestWin = game.AwayTeam
+				diff := game.AwayTeamScore - game.HomeTeamScore
+				if diff > t1LargestMarginDiff {
+					t1LargestMarginDiff = diff
+					t1LargestMarginSeason = int(game.SeasonID) + 2020
+					t1LargestMarginScore = "" + strconv.Itoa(game.AwayTeamScore) + "-" + strconv.Itoa(game.HomeTeamScore)
+				}
+			} else {
+				t1Streak = t1CurrentStreak
+				t1CurrentStreak = 0
+				t1Losses += 1
+			}
+		} else {
+			if game.AwayTeamWin {
+				t2Wins += 1
+				t2CurrentStreak += 1
+				latestWin = game.AwayTeam
+				diff := game.AwayTeamScore - game.HomeTeamScore
+				if diff > t2LargestMarginDiff {
+					t2LargestMarginDiff = diff
+					t2LargestMarginSeason = int(game.SeasonID) + 2020
+					t2LargestMarginScore = "" + strconv.Itoa(game.AwayTeamScore) + "-" + strconv.Itoa(game.HomeTeamScore)
+				}
+			} else {
+				t2Streak = t2CurrentStreak
+				t2CurrentStreak = 0
+				t2Losses += 1
+			}
+		}
+	}
+
+	if t1CurrentStreak > 0 && t1CurrentStreak > t1Streak {
+		t1Streak = t1CurrentStreak
+	}
+	if t2CurrentStreak > 0 && t2CurrentStreak > t2Streak {
+		t2Streak = t2CurrentStreak
+	}
+
+	currentStreak := 0
+	currentStreak = max(t1CurrentStreak, t2CurrentStreak)
+
+	return structs.FlexComparisonModel{
+		TeamOneID:      teamOne.ID,
+		TeamOne:        teamOne.Abbr,
+		TeamOneWins:    uint(t1Wins),
+		TeamOneLosses:  uint(t1Losses),
+		TeamOneStreak:  uint(t1Streak),
+		TeamOneMSeason: t1LargestMarginSeason,
+		TeamOneMScore:  t1LargestMarginScore,
+		TeamTwoID:      teamTwo.ID,
+		TeamTwo:        teamTwo.Abbr,
+		TeamTwoWins:    uint(t2Wins),
+		TeamTwoLosses:  uint(t2Losses),
+		TeamTwoStreak:  uint(t2Streak),
+		TeamTwoMSeason: t2LargestMarginSeason,
+		TeamTwoMScore:  t2LargestMarginScore,
+		CurrentStreak:  uint(currentStreak),
+		LatestWin:      latestWin,
+	}
 }

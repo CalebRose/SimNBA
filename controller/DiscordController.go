@@ -83,6 +83,19 @@ func GetCrootsByName(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(player)
 }
 
+func GetRecruitViaDiscord(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	if len(id) == 0 {
+		panic("User did not provide a first name")
+	}
+
+	recruit := managers.GetCollegeRecruitByID(id)
+
+	json.NewEncoder(w).Encode(recruit)
+}
+
 // GetCollegeTeamData - Get all season related data for a college team
 func GetCollegeTeamData(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
@@ -177,4 +190,38 @@ func AssignDiscordIDtoNBATeam(w http.ResponseWriter, r *http.Request) {
 	}
 
 	managers.AssignDiscordIDToNFLTeam(teamID, discordID, username)
+}
+
+func CompareCFBTeams(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	teamOneID := vars["teamOneID"]
+	if len(teamOneID) == 0 {
+		panic("User did not provide teamID")
+	}
+
+	teamTwoID := vars["teamTwoID"]
+	if len(teamTwoID) == 0 {
+		panic("User did not provide teamID")
+	}
+
+	res := managers.CompareTwoCBBTeams(teamOneID, teamTwoID)
+
+	json.NewEncoder(w).Encode(res)
+}
+
+func CompareNFLTeams(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	teamOneID := vars["teamOneID"]
+	if len(teamOneID) == 0 {
+		panic("User did not provide teamID")
+	}
+
+	teamTwoID := vars["teamTwoID"]
+	if len(teamTwoID) == 0 {
+		panic("User did not provide teamID")
+	}
+
+	res := managers.CompareTwoNBATeams(teamOneID, teamTwoID)
+
+	json.NewEncoder(w).Encode(res)
 }
