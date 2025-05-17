@@ -67,3 +67,18 @@ func (fo ByDraftNumber) Swap(i, j int) { fo[i], fo[j] = fo[j], fo[i] }
 func (fo ByDraftNumber) Less(i, j int) bool {
 	return fo[i].DraftNumber < fo[j].DraftNumber
 }
+
+type NBACombineResults struct {
+	gorm.Model
+	PlayerID             uint
+	TwoPointShooting     uint8
+	ThreePointShooting   uint8
+	PassingDrills        uint8
+	BlockingDrills       uint8
+	StealDrills          uint8
+	BenchPress           uint8
+	StandingVerticalLeap float32
+	MaxVerticalLeap      float32
+	LaneAgility          float32
+	ShuttleRun           float32
+}

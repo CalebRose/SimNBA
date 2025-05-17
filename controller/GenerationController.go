@@ -28,7 +28,7 @@ func GenerateCroots(w http.ResponseWriter, r *http.Request) {
 	// managers.DetermineRecruitingClassSize()
 	// managers.GenerateCollegeStandings()
 	// managers.GenerateNBAStandings()
-	// managers.GenerateCroots()
+	managers.GenerateCroots()
 	json.NewEncoder(w).Encode("GENERATION COMPLETE")
 }
 

@@ -25,7 +25,6 @@ type CrootGenerator struct {
 	lastNameMap       map[string][][]string
 	faceDataBlob      map[string][]string
 	collegePlayerList []structs.CollegePlayer
-	coachList         []structs.CollegeCoach
 	teamMap           map[uint]structs.Team
 	positionList      []string
 	CrootList         []structs.Recruit
@@ -70,7 +69,6 @@ func (pg *CrootGenerator) GenerateRecruits() {
 
 func (pg *CrootGenerator) generatePlayer() (structs.Recruit, structs.GlobalPlayer) {
 	cpLen := len(pg.collegePlayerList) - 1
-	coachLen := len(pg.coachList)
 	relativeType := 0
 	relativeID := 0
 	coachTeamID := 0
@@ -147,45 +145,6 @@ func (pg *CrootGenerator) generatePlayer() (structs.Recruit, structs.GlobalPlaye
 			// Twin
 			relativeType = 5
 			relativeID = int(pg.newID)
-		} else if relativeType == 6 {
-			// Coach's Son
-			fmt.Println("COACH'S SON")
-			relativeIdx = util.GenerateIntFromRange(0, coachLen)
-			if relativeIdx < 0 || relativeIdx > len(pg.coachList) {
-				relativeIdx = util.GenerateIntFromRange(0, coachLen)
-			}
-			coach := pg.coachList[relativeIdx]
-			relativeID = int(coach.ID)
-			lastName = getCoachLastName(coach.Name)
-			team := pg.teamMap[coach.TeamID]
-			state = team.State
-			country = "USA"
-			notes = "Son of Coach " + coach.Name + " of " + coach.Team
-			coachTeamID = int(coach.TeamID)
-			coachTeamAbbr = coach.Team
-		} else if relativeType == 7 {
-			// Coach's Nephew
-			fmt.Println("COACH'S NEPHEW")
-			relativeIdx = util.GenerateIntFromRange(0, coachLen)
-			if relativeIdx < 0 || relativeIdx > len(pg.coachList) {
-				relativeIdx = util.GenerateIntFromRange(0, coachLen)
-			}
-			coach := pg.coachList[relativeIdx]
-			relativeID = int(coach.ID)
-			coachLastName := getCoachLastName(coach.Name)
-			coinFlip := util.GenerateIntFromRange(1, 2)
-			if coinFlip == 1 {
-				lastName = coachLastName
-			} else {
-				lName := getName(lastNameList)
-				lastName = pg.caser.String(strings.ToLower(lName))
-			}
-			team := pg.teamMap[coach.TeamID]
-			state = team.State
-			country = "USA"
-			notes = "Son of Coach " + coach.Name + " of " + coach.Team
-			coachTeamID = int(coach.TeamID)
-			coachTeamAbbr = coach.Team
 		}
 	} else {
 		relativeType = 1
@@ -201,7 +160,7 @@ func (pg *CrootGenerator) generatePlayer() (structs.Recruit, structs.GlobalPlaye
 	}
 	pickedPosition := util.PickPositionFromList()
 	year := 1
-	player := createRecruit(firstName, lastName, state, country, pg.pickedEthnicity, pickedPosition, year, pg.newID)
+	player := createRecruit(firstName, lastName, state, country, pickedPosition, year, pg.newID)
 	player.AssignRelativeData(uint(relativeID), uint(relativeType), uint(coachTeamID), coachTeamAbbr, notes)
 	globalPlayer := structs.GlobalPlayer{
 		CollegePlayerID: pg.newID,
@@ -240,7 +199,7 @@ func (pg *CrootGenerator) generateTwin(player *structs.Recruit) (structs.Recruit
 		twinPosition = "SG"
 	}
 	twinNotes := "Twin Brother of " + strconv.Itoa(player.Stars) + " Star Recruit " + player.Position + " " + player.FirstName + " " + player.LastName
-	twinPlayer := createRecruit(twinN, player.LastName, player.State, player.Country, pg.pickedEthnicity, twinPosition, player.Year, pg.newID)
+	twinPlayer := createRecruit(twinN, player.LastName, player.State, player.Country, twinPosition, player.Year, pg.newID)
 	twinPlayer.AssignRelativeData(uint(twinRelativeID), 4, 0, "", twinNotes)
 	notes := "Twin Brother of " + strconv.Itoa(twinPlayer.Stars) + " Star Recruit " + twinPlayer.Position + " " + twinPlayer.FirstName + " " + twinPlayer.LastName
 	player.AssignRelativeData(uint(relativeID), 4, 0, "", notes)
@@ -594,11 +553,10 @@ func GenerateCroots() {
 		firstNameMap:      fNameMap,
 		lastNameMap:       lNameMap,
 		collegePlayerList: GetAllCollegePlayers(),
-		coachList:         GetAllActiveCollegeCoaches(),
 		teamMap:           GetCollegeTeamMap(),
 		positionList:      []string{"PG", "SG", "PF", "SF", "C"},
 		newID:             lastPlayerRecord.ID + 1,
-		requiredPlayers:   util.GenerateIntFromRange(1031, 1101),
+		requiredPlayers:   util.GenerateIntFromRange(1104, 1450),
 		faceDataBlob:      getFaceDataBlob(),
 		count:             0,
 		star5:             0,
@@ -623,20 +581,15 @@ func GenerateCroots() {
 	// Test Generation
 	// requiredPlayers := util.GenerateIntFromRange(203, 205)
 	// 1061 is the number of open spots on teams in the league.
-	// Currently 363 teams. 363 * 3 = 1089, the size of the average class.
+	// Currently 368 teams. 363 * 3 = 1089, the size of the average class.
 	// The plan is to ensure that every recruit is signed
 	generator.GenerateRecruits()
 	// Croot Stats
 	generator.OutputRecruitStats()
 
 	// Import Batches
-	for _, r := range generator.CrootList {
-		repository.CreateRecruitRecord(r, db)
-	}
-
-	for _, g := range generator.GlobalList {
-		repository.CreateGlobalPlayerRecord(g, db)
-	}
+	repository.CreateRecruitRecordsBatch(db, generator.CrootList, 500)
+	repository.CreateGlobalRecordsBatch(db, generator.GlobalList, 500)
 	repository.CreateFaceRecordsBatch(db, generator.FacesList, 500)
 	ts.ToggleGeneratedCroots()
 	repository.SaveTimeStamp(ts, db)
@@ -924,7 +877,7 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 	return collegePlayer
 }
 
-func createRecruit(fName, lName, state, country, ethnicity, position string, year int, id uint) structs.Recruit {
+func createRecruit(fName, lName, state, country, position string, year int, id uint) structs.Recruit {
 	age := 18
 	height := getHeight(position)
 	potential := util.GeneratePotential()
@@ -2234,30 +2187,12 @@ func getRelativeType() int {
 		return 3
 	}
 	// Half brother of existing player
-	if roll < 850 {
+	if roll < 900 {
 		return 4
 	}
 	// Twin
-	if roll < 900 {
+	if roll < 950 {
 		return 5
 	}
-	// Best friend of another recruit
-	if roll < 925 {
-		return 8
-	}
-	// Best friend of a college player
-	if roll < 950 {
-		return 8
-	}
-	// Coach's Son
-	if roll < 985 {
-		return 6
-	}
-	// Coach's Nephew
-	return 7
-}
-
-func getCoachLastName(fullName string) string {
-	nameSplit := strings.Split(fullName, " ")
-	return nameSplit[1]
+	return 1
 }

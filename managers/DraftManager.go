@@ -3,6 +3,8 @@ package managers
 import (
 	"fmt"
 	"log"
+	"math"
+	"math/rand"
 	"sort"
 	"strconv"
 
@@ -595,4 +597,178 @@ func ExportDraftedPlayers(picks []structs.DraftPick) bool {
 	}
 
 	return true
+}
+
+func NBACombineForDraft() {
+	db := dbprovider.GetInstance().GetDB()
+
+	draftees := GetAllNBADraftees()
+	combineGrades := []structs.NBACombineResults{}
+
+	for _, draftee := range draftees {
+		// Disregard all candidates under 55 overall
+		if draftee.Overall < 55 {
+			continue
+		}
+		strength := GetCombineValue(draftee.OverallGrade, draftee.Overall, true)
+		agility := GetCombineValue(draftee.OverallGrade, draftee.Overall, true)
+		shooting2 := GetCombineValue(draftee.Shooting2Grade, draftee.Shooting2, false)
+		shooting3 := GetCombineValue(draftee.Shooting3Grade, draftee.Shooting3, false)
+		passing := GetCombineValue(draftee.BallworkGrade, draftee.Ballwork, false)
+		blocking := GetCombineValue(draftee.InteriorDefenseGrade, draftee.PerimeterDefense, false)
+		stealing := GetCombineValue(draftee.BallworkGrade, draftee.Ballwork, false)
+		rebound := GetCombineValue(draftee.ReboundingGrade, draftee.Rebounding, false)
+
+		// Shooting Drills
+		twoPointShootingCount := 0
+		threePointShootingCount := 0
+		maxReps := 30
+		successfulAssists := 0
+		successfulBlocks := 0
+		successfulSteals := 0
+		for range 30 {
+			twoPointDR := util.GenerateIntFromRange(1, 20) + int(GetCombineModifier(shooting2))
+			threePointDR := util.GenerateIntFromRange(1, 20) + int(GetCombineModifier(shooting3))
+			if twoPointDR > 15 {
+				twoPointShootingCount++
+			}
+			if threePointDR > 15 {
+				threePointShootingCount++
+			}
+			assistsDr := util.GenerateIntFromRange(1, 20) + int(GetCombineModifier(passing))
+			if assistsDr > 15 {
+				successfulAssists++
+			}
+			stealsDr := util.GenerateIntFromRange(1, 20) + int(GetCombineModifier(stealing))
+			if stealsDr > 15 {
+				successfulSteals++
+			}
+			blocksDr := util.GenerateIntFromRange(1, 20) + int(GetCombineModifier(blocking))
+			if blocksDr > 15 {
+				successfulBlocks++
+			}
+			benchPressDr := util.GenerateIntFromRange(1, 100) + strength
+			if benchPressDr < 120 {
+				maxReps--
+			}
+		}
+
+		standingVerticalLeapMod := GetCombineModifier(rebound)
+		laneAgilityMod := GetCombineModifier(agility)
+		shuttleRunMod := GetCombineModifier(agility)
+		standingVerticalLeap := CalculateStandingVerticalLeap(standingVerticalLeapMod)
+		maxVerticalLeap := CalculateMaxVerticalLeap(standingVerticalLeapMod)
+		laneAgilityTime := CalculateLaneAgility(laneAgilityMod)
+		shuttleRunTime := CalculateShuttleRun(shuttleRunMod)
+
+		combineGrade := structs.NBACombineResults{
+			PlayerID:             draftee.ID,
+			TwoPointShooting:     uint8(twoPointShootingCount),
+			ThreePointShooting:   uint8(threePointShootingCount),
+			PassingDrills:        uint8(successfulAssists),
+			BlockingDrills:       uint8(successfulBlocks),
+			StealDrills:          uint8(successfulSteals),
+			BenchPress:           uint8(maxReps),
+			StandingVerticalLeap: float32(standingVerticalLeap),
+			MaxVerticalLeap:      float32(maxVerticalLeap),
+			LaneAgility:          float32(laneAgilityTime),
+			ShuttleRun:           float32(shuttleRunTime),
+		}
+		combineGrades = append(combineGrades, combineGrade)
+	}
+
+	repository.CreateNBACombineRecordsBatch(db, combineGrades, 250)
+}
+
+func GetCombineModifier(value int) float64 {
+	return math.Log(float64(value)+1) * 1.7
+}
+
+func GetCombineValue(grade string, value int, isOverall bool) int {
+	gradeVal := GetValueFromGrade(grade)
+	if gradeVal == value {
+		return value
+	}
+	if isOverall {
+		return util.GenerateIntFromRange(value-15, value+15)
+	}
+	min := math.Min(float64(gradeVal), float64(value))
+	max := math.Max(float64(gradeVal), float64(value))
+	return util.GenerateIntFromRange(int(min), int(max))
+}
+
+func GetValueFromGrade(grade string) int {
+	if grade == "A+" {
+		return 24
+	} else if grade == "A" {
+		return 22
+	} else if grade == "A-" {
+		return 20
+	} else if grade == "B+" {
+		return 18
+	} else if grade == "B" {
+		return 16
+	} else if grade == "B-" {
+		return 14
+	} else if grade == "C+" {
+		return 12
+	} else if grade == "C" {
+		return 10
+	} else if grade == "C-" {
+		return 8
+	} else if grade == "D" {
+		return 5
+	}
+	return 1
+}
+
+func CalculateStandingVerticalLeap(modifier float64) float64 {
+	base := 24.0
+	max := 42.0
+	factor := 0.1
+
+	// mean = base + modifier*factor
+	mean := base + float64(modifier)*factor
+	// choose a standard deviation (e.g. 4 inches)
+	sd := 4.0
+
+	leap := mean + rand.NormFloat64()*sd
+	// clamp into [base, max]
+	return math.Min(math.Max(leap, base), max)
+}
+
+func CalculateMaxVerticalLeap(modifier float64) float64 {
+	base := 30.0
+	max := 42.0
+	factor := 0.12
+
+	mean := base + float64(modifier)*factor
+	sd := 5.0 // a bit wider spread
+	leap := mean + rand.NormFloat64()*sd
+	return math.Min(math.Max(leap, base), max)
+}
+
+func CalculateLaneAgility(modifier float64) float64 {
+	base := 12.0
+	best := 10.0
+	factor := 0.02
+
+	mean := base - float64(modifier)*factor
+	sd := 0.5 // half-second std dev
+
+	t := mean + rand.NormFloat64()*sd
+	return math.Max(t, best)
+}
+
+func CalculateShuttleRun(modifier float64) float64 {
+	base := 3.7
+	best := 2.9
+	factor := 0.015
+
+	centre := base - float64(modifier)*factor
+	spread := 0.7 // ±0.4 seconds
+
+	min := math.Max(best, centre-spread)
+	maxVal := centre + spread
+	return min + rand.Float64()*(maxVal-min)
 }

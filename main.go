@@ -89,7 +89,7 @@ func handleRequests() http.Handler {
 	// apiRouter.HandleFunc("/admin/migrate/draftees", controller.ProgressPlayers).Methods("GET")
 	// apiRouter.HandleFunc("/admin/migrate/new/teams", controller.ImportNewTeams).Methods("GET")
 	// apiRouter.HandleFunc("/admin/migrate/nba/players", controller.MigrateNBAPlayersToTables).Methods("GET")
-	apiRouter.HandleFunc("/admin/progress/nba/players", controller.ProgressNBAPlayers).Methods("GET")
+	// apiRouter.HandleFunc("/admin/progress/nba/players", controller.ProgressNBAPlayers).Methods("GET")
 	// apiRouter.HandleFunc("/admin/clean/nba/tables", controller.CleanNBAPlayerTables).Methods("GET")
 
 	// Bootstrap
@@ -104,6 +104,7 @@ func handleRequests() http.Handler {
 	// Draft Controls
 	// apiRouter.HandleFunc("/nba/draft/conduct/lottery", controller.ConductDraftLottery).Methods("GET")
 	apiRouter.HandleFunc("/nba/draft/export/picks", controller.ExportDraftedPicks).Methods("POST")
+	// apiRouter.HandleFunc("/nba/draft/run/combine", controller.RunNBACombine).Methods("GET")
 	apiRouter.HandleFunc("/nba/draft/page/{teamID}", controller.GetDraftPageData).Methods("GET")
 	apiRouter.HandleFunc("/nba/draft/time/change", controller.ToggleDraftTime).Methods("GET")
 	apiRouter.HandleFunc("/nba/draft/create/scoutprofile", controller.AddPlayerToScoutBoard).Methods("POST")

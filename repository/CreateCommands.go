@@ -115,6 +115,30 @@ func CreateRecruitRecord(croot structs.Recruit, db *gorm.DB) {
 	}
 }
 
+func CreateRecruitRecordsBatch(db *gorm.DB, fds []structs.Recruit, batchSize int) error {
+	total := len(fds)
+	for i := 0; i < total; i += batchSize {
+		end := min(i+batchSize, total)
+
+		if err := db.CreateInBatches(fds[i:end], batchSize).Error; err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func CreateGlobalRecordsBatch(db *gorm.DB, fds []structs.GlobalPlayer, batchSize int) error {
+	total := len(fds)
+	for i := 0; i < total; i += batchSize {
+		end := min(i+batchSize, total)
+
+		if err := db.CreateInBatches(fds[i:end], batchSize).Error; err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func CreateRetireeRecord(retiree structs.RetiredPlayer, db *gorm.DB) {
 	// Save College Player Record
 	retiree.Offers = nil

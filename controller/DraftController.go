@@ -172,3 +172,10 @@ func ToggleDraftTime(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode("Draft Time Changed")
 }
+
+func RunNBACombine(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	managers.NBACombineForDraft()
+
+	json.NewEncoder(w).Encode("Draft Time Changed")
+}
