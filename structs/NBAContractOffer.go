@@ -29,6 +29,7 @@ type NBAContractOfferDTO struct {
 	Year5Opt       bool
 	IsAccepted     bool
 	IsRejected     bool
+	ToGLeague      bool
 	// Do we want to kep track of the year?
 }
 
@@ -55,6 +56,8 @@ type NBAContractOffer struct {
 	IsAccepted    bool
 	IsRejected    bool
 	IsActive      bool
+	Syncs         uint8
+	ToGLeague     bool
 	// Do we want to kep track of the year?
 }
 
@@ -88,6 +91,10 @@ func (n *NBAContractOffer) CalculateOffer(offer NBAContractOfferDTO) {
 	y5BonusVal := n.Year5Total * 0.6
 
 	n.ContractValue = y1BonusVal + y2BonusVal + y3BonusVal + y4BonusVal + y5BonusVal
+}
+
+func (o *NBAContractOffer) IncrementSyncs() {
+	o.Syncs++
 }
 
 func (o *NBAContractOffer) AcceptOffer() {

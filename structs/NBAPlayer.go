@@ -133,9 +133,6 @@ func (n *NBAPlayer) SignWithTeam(teamID uint, team string, isFAorExt bool, minVa
 	n.IsAcceptingOffers = false
 	n.IsNegotiating = false
 	n.IsInternational = teamID < 33
-	if isFAorExt {
-		n.MinimumValue = minValue
-	}
 	n.ResetMinutes()
 }
 

@@ -490,66 +490,69 @@ func InternationalDeclaration(player structs.NBAPlayer, isEligible bool) bool {
 func ExportDraftedPlayers(picks []structs.DraftPick) bool {
 	db := dbprovider.GetInstance().GetDB()
 
-	// for _, pick := range picks {
-	// 	playerId := strconv.Itoa(int(pick.SelectedPlayerID))
-	// 	draftee := GetNBADrafteeByID(playerId)
-	// 	nbaPlayer := structs.NBAPlayer{}
-	// 	if draftee.College == "DRAFT" {
-	// 		// Get International Player Record
-	// 		nbaPlayer = GetNBAPlayerByID(playerId)
-	// 		nbaPlayer.DraftInternationalPlayer(pick.ID, pick.DraftRound, pick.DraftNumber, pick.TeamID, pick.Team)
-	// 		repository.SaveProfessionalPlayerRecord(nbaPlayer, db)
-	// 	} else {
-	// 		nbaPlayer = structs.NBAPlayer{
-	// 			BasePlayer:      draftee.BasePlayer, // Assuming BasePlayer fields are common
-	// 			PlayerID:        draftee.PlayerID,
-	// 			TeamID:          pick.TeamID,
-	// 			TeamAbbr:        pick.Team,
-	// 			CollegeID:       draftee.CollegeID,
-	// 			College:         draftee.College,
-	// 			DraftPickID:     draftee.DraftPickID,
-	// 			DraftedTeamID:   pick.TeamID,
-	// 			DraftedTeamAbbr: pick.Team,
-	// 			DraftedRound:    pick.DraftRound,
-	// 			DraftPick:       pick.DraftNumber,
-	// 			PrimeAge:        uint(draftee.PrimeAge),
-	// 			IsNBA:           true,
-	// 		}
-	// 		nbaPlayer.SetID(draftee.PlayerID)
-	// 		repository.CreateProfessionalPlayerRecord(nbaPlayer, db)
-	// 	}
-	// 	draftee.AssignDraftedTeam(strconv.Itoa(int(pick.DraftNumber)), pick.ID, pick.TeamID, pick.Team)
-	// 	db.Save(&draftee)
-	// 	year1Salary := util.GetDrafteeSalary(pick.DraftNumber, 1)
-	// 	year2Salary := util.GetDrafteeSalary(pick.DraftNumber, 2)
-	// 	year3Salary := util.GetDrafteeSalary(pick.DraftNumber, 3)
-	// 	year4Salary := util.GetDrafteeSalary(pick.DraftNumber, 4)
-	// 	yearsRemaining := util.GetYearsRemainingForDrafteeContract(pick.DraftNumber)
-	// 	contract := structs.NBAContract{
-	// 		PlayerID:       nbaPlayer.PlayerID,
-	// 		TeamID:         nbaPlayer.TeamID,
-	// 		Team:           nbaPlayer.TeamAbbr,
-	// 		OriginalTeamID: nbaPlayer.TeamID,
-	// 		OriginalTeam:   nbaPlayer.TeamAbbr,
-	// 		YearsRemaining: yearsRemaining,
-	// 		ContractType:   "Rookie",
-	// 		TotalRemaining: year1Salary + year2Salary + year3Salary + year4Salary,
-	// 		Year1Total:     year1Salary,
-	// 		Year2Total:     year2Salary,
-	// 		Year3Total:     year3Salary,
-	// 		Year4Total:     year4Salary,
-	// 		Year3Opt:       true,
-	// 		Year4Opt:       true,
-	// 		IsActive:       true,
-	// 	}
+	for _, pick := range picks {
+		if pick.SelectedPlayerID == 2445 {
+			continue
+		}
+		playerId := strconv.Itoa(int(pick.SelectedPlayerID))
+		draftee := GetNBADrafteeByID(playerId)
+		nbaPlayer := structs.NBAPlayer{}
+		if draftee.College == "DRAFT" {
+			// Get International Player Record
+			nbaPlayer = GetNBAPlayerByID(playerId)
+			nbaPlayer.DraftInternationalPlayer(pick.ID, pick.DraftRound, pick.DraftNumber, pick.TeamID, pick.Team)
+			repository.SaveProfessionalPlayerRecord(nbaPlayer, db)
+		} else {
+			nbaPlayer = structs.NBAPlayer{
+				BasePlayer:      draftee.BasePlayer, // Assuming BasePlayer fields are common
+				PlayerID:        draftee.PlayerID,
+				TeamID:          pick.TeamID,
+				TeamAbbr:        pick.Team,
+				CollegeID:       draftee.CollegeID,
+				College:         draftee.College,
+				DraftPickID:     draftee.DraftPickID,
+				DraftedTeamID:   pick.TeamID,
+				DraftedTeamAbbr: pick.Team,
+				DraftedRound:    pick.DraftRound,
+				DraftPick:       pick.DraftNumber,
+				PrimeAge:        uint(draftee.PrimeAge),
+				IsNBA:           true,
+			}
+			nbaPlayer.SetID(draftee.PlayerID)
+			repository.CreateProfessionalPlayerRecord(nbaPlayer, db)
+		}
+		draftee.AssignDraftedTeam(strconv.Itoa(int(pick.DraftNumber)), pick.ID, pick.TeamID, pick.Team)
+		db.Save(&draftee)
+		year1Salary := util.GetDrafteeSalary(pick.DraftNumber, 1)
+		year2Salary := util.GetDrafteeSalary(pick.DraftNumber, 2)
+		year3Salary := util.GetDrafteeSalary(pick.DraftNumber, 3)
+		year4Salary := util.GetDrafteeSalary(pick.DraftNumber, 4)
+		yearsRemaining := util.GetYearsRemainingForDrafteeContract(pick.DraftNumber)
+		contract := structs.NBAContract{
+			PlayerID:       nbaPlayer.PlayerID,
+			TeamID:         nbaPlayer.TeamID,
+			Team:           nbaPlayer.TeamAbbr,
+			OriginalTeamID: nbaPlayer.TeamID,
+			OriginalTeam:   nbaPlayer.TeamAbbr,
+			YearsRemaining: yearsRemaining,
+			ContractType:   "Rookie",
+			TotalRemaining: year1Salary + year2Salary + year3Salary + year4Salary,
+			Year1Total:     year1Salary,
+			Year2Total:     year2Salary,
+			Year3Total:     year3Salary,
+			Year4Total:     year4Salary,
+			Year3Opt:       true,
+			Year4Opt:       true,
+			IsActive:       true,
+		}
 
-	// 	repository.CreateProfessionalContractRecord(contract, db)
-	// }
+		repository.CreateProfessionalContractRecord(contract, db)
+	}
 
 	draftablePlayers := GetAllNBADraftees()
 
 	for _, draftee := range draftablePlayers {
-		if draftee.DraftedTeamID > 0 || draftee.ID < 154 {
+		if draftee.DraftedTeamID > 0 {
 			continue
 		}
 		playerID := strconv.Itoa(int(draftee.ID))

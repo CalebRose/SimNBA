@@ -686,63 +686,72 @@ func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *
 	rosterMap := GetFullRosterNBAMap()
 	for _, FA := range freeAgents {
 		// Check if still accepting offers
-		if ts.IsNBAOffseason && FA.IsAcceptingOffers && ts.FreeAgencyRound < FA.NegotiationRound {
-			continue
-		}
-
-		// If the Player is ready to negotiate, toggle the Player as IsNegotiating, save the record, and continue to the next player
-		if ts.IsNBAOffseason && FA.IsAcceptingOffers && ts.FreeAgencyRound >= FA.NegotiationRound {
-			FA.ToggleIsNegotiating()
-			db.Save(&FA)
+		if ts.IsNBAOffseason && !FA.IsAcceptingOffers {
 			continue
 		}
 
 		// Is Ready to Sign, Get All Offers on the Free Agent
 		Offers := GetFreeAgentOffersByPlayerID(strconv.Itoa(int(FA.ID)))
 
-		// Sort by highest contract value
-		sort.Sort(structs.ByContractValue(Offers))
-
-		WinningOffer := &structs.NBAContractOffer{}
-		minimumValue := FA.MinimumValue
-		// Logic to confirm if the Free Agent is requesting a Max contract or SuperMax contract
-		contractStatus := ""
-		if FA.MaxRequested {
-			contractStatus = "Max"
+		if len(Offers) == 0 {
+			continue
 		}
-		if FA.IsSuperMaxQualified {
-			contractStatus = "SuperMax"
+		maxDay := 1000
+		for _, offer := range Offers {
+			if maxDay > int(offer.Syncs) {
+				maxDay = int(offer.Syncs)
+			}
 		}
-		for idx, Offer := range Offers {
-			minimumValueMultiplier := 1.0
-			team := GetNBATeamByTeamID(strconv.Itoa(int(Offer.TeamID)))
-			roster := rosterMap[Offer.TeamID]
-			validation := validateFreeAgencyPref(FA, roster, team, seasonID, int(Offer.TotalYears), idx)
-			// If the offer is valid and meets the player's free agency bias, reduce the minimum value required by 15%
-			if validation && FA.FreeAgency != "Average" && FA.Year > 2 {
-				minimumValueMultiplier = 0.85
-				// If the offer does not meet the player's free agency bias, increase the minimum value required by 15%
-			} else if !validation && FA.FreeAgency != "Average" && FA.Year > 2 {
-				minimumValueMultiplier = 1.15
+		if maxDay < 3 {
+			for _, offer := range Offers {
+				offer.IncrementSyncs()
+				repository.SaveContractOfferRecord(offer, db)
 			}
-			minimumValue = minimumValue * minimumValueMultiplier
-			validOffer := validateOffer(Offer, contractStatus, minimumValue)
+		} else {
+			// Sort by highest contract value
+			sort.Sort(structs.ByContractValue(Offers))
 
-			// Get the Contract with the best value for the FA
-			if Offer.IsActive && WinningOffer.ID == 0 && validOffer {
-				*WinningOffer = Offer
+			WinningOffer := &structs.NBAContractOffer{}
+			minimumValue := FA.MinimumValue
+			// Logic to confirm if the Free Agent is requesting a Max contract or SuperMax contract
+			contractStatus := ""
+			if FA.MaxRequested {
+				contractStatus = "Max"
+			}
+			if FA.IsSuperMaxQualified {
+				contractStatus = "SuperMax"
+			}
+			for idx, Offer := range Offers {
+				minimumValueMultiplier := 1.0
+				team := GetNBATeamByTeamID(strconv.Itoa(int(Offer.TeamID)))
+				roster := rosterMap[Offer.TeamID]
+				validation := validateFreeAgencyPref(FA, roster, team, seasonID, int(Offer.TotalYears), idx)
+				// If the offer is valid and meets the player's free agency bias, reduce the minimum value required by 15%
+				if validation && FA.FreeAgency != "Average" && FA.Year > 2 {
+					minimumValueMultiplier = 0.85
+					// If the offer does not meet the player's free agency bias, increase the minimum value required by 15%
+				} else if !validation && FA.FreeAgency != "Average" && FA.Year > 2 {
+					minimumValueMultiplier = 1.15
+				}
+				minimumValue = minimumValue * minimumValueMultiplier
+				validOffer := validateOffer(Offer, contractStatus, minimumValue)
+
+				// Get the Contract with the best value for the FA
+				if Offer.IsActive && WinningOffer.ID == 0 && validOffer {
+					*WinningOffer = Offer
+				}
+
+				// If the offer being iterated through ISN'T the winning offer, cancel the offer.
+				if Offer.IsActive && WinningOffer.ID != 0 && WinningOffer.ID != Offer.ID {
+					Offer.CancelOffer()
+				}
+				db.Save(&Offer)
 			}
 
-			// If the offer being iterated through ISN'T the winning offer, cancel the offer.
-			if Offer.IsActive && WinningOffer.ID != 0 && WinningOffer.ID != Offer.ID {
-				Offer.CancelOffer()
+			// If there is a winning offer, sign the player
+			if WinningOffer.ID > 0 {
+				SignFreeAgent(*WinningOffer, FA, ts)
 			}
-			db.Save(&Offer)
-		}
-
-		// If there is a winning offer, sign the player
-		if WinningOffer.ID > 0 {
-			SignFreeAgent(*WinningOffer, FA, ts)
 		}
 	}
 }
