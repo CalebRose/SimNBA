@@ -55,34 +55,12 @@ type BootstrapDataThree struct {
 	ExtensionMap    map[uint]structs.NBAExtensionOffer
 }
 
-func GetBootstrapData(collegeID, proID string) BootstrapData {
-	log.Println("GetBootstrapData called with collegeID:", collegeID, "and proID:", proID)
-
+func GetBootstrapTeams() BootstrapData {
 	var wg sync.WaitGroup
-	var mu sync.Mutex
-
 	var (
-		collegeTeam         structs.Team
-		allCollegeTeams     []structs.Team
-		collegePlayers      []structs.CollegePlayer
-		collegeRosterMap    map[uint][]structs.CollegePlayer
-		portalPrep          []structs.CollegePlayer
-		portalPlayers       []structs.TransferPlayerResponse
-		collegeInjuryReport []structs.CollegePlayer
-		collegeNoti         []structs.Notification
-		collegeGameplan     structs.Gameplan
-		cbbPoints           []structs.CollegePlayer
-		cbbAssists          []structs.CollegePlayer
-		cbbRebounds         []structs.CollegePlayer
-		nbaTeam             structs.NBATeam
-		allProTeams         []structs.NBATeam
-		proNotifications    []structs.Notification
-		nbaGameplan         structs.NBAGameplan
-		faceDataMap         map[uint]structs.FaceDataResponse
+		allCollegeTeams []structs.Team
+		allProTeams     []structs.NBATeam
 	)
-
-	ts := GetTimestamp()
-	seasonID := strconv.Itoa(int(ts.SeasonID))
 
 	wg.Add(2)
 
@@ -96,6 +74,39 @@ func GetBootstrapData(collegeID, proID string) BootstrapData {
 	}()
 
 	wg.Wait()
+
+	return BootstrapData{
+		AllCollegeTeams: allCollegeTeams,
+		AllProTeams:     allProTeams,
+	}
+}
+
+func GetBootstrapData(collegeID, proID string) BootstrapData {
+	log.Println("GetBootstrapData called with collegeID:", collegeID, "and proID:", proID)
+
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+
+	var (
+		collegeTeam         structs.Team
+		collegePlayers      []structs.CollegePlayer
+		collegeRosterMap    map[uint][]structs.CollegePlayer
+		portalPrep          []structs.CollegePlayer
+		portalPlayers       []structs.TransferPlayerResponse
+		collegeInjuryReport []structs.CollegePlayer
+		collegeNoti         []structs.Notification
+		collegeGameplan     structs.Gameplan
+		cbbPoints           []structs.CollegePlayer
+		cbbAssists          []structs.CollegePlayer
+		cbbRebounds         []structs.CollegePlayer
+		nbaTeam             structs.NBATeam
+		proNotifications    []structs.Notification
+		nbaGameplan         structs.NBAGameplan
+		faceDataMap         map[uint]structs.FaceDataResponse
+	)
+
+	ts := GetTimestamp()
+	seasonID := strconv.Itoa(int(ts.SeasonID))
 
 	if len(collegeID) > 0 && collegeID != "0" {
 		wg.Add(3)
@@ -172,7 +183,6 @@ func GetBootstrapData(collegeID, proID string) BootstrapData {
 	wg.Wait()
 	return BootstrapData{
 		CollegeTeam:          collegeTeam,
-		AllCollegeTeams:      allCollegeTeams,
 		CollegeRosterMap:     collegeRosterMap,
 		PortalPlayers:        portalPlayers,
 		CollegeInjuryReport:  collegeInjuryReport,
@@ -181,7 +191,6 @@ func GetBootstrapData(collegeID, proID string) BootstrapData {
 		TopCBBPoints:         cbbPoints,
 		TopCBBAssists:        cbbAssists,
 		TopCBBRebounds:       cbbRebounds,
-		AllProTeams:          allProTeams,
 		NBATeam:              nbaTeam,
 		ProNotifications:     proNotifications,
 		NBAGameplan:          nbaGameplan,

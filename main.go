@@ -93,6 +93,7 @@ func handleRequests() http.Handler {
 	// apiRouter.HandleFunc("/admin/clean/nba/tables", controller.CleanNBAPlayerTables).Methods("GET")
 
 	// Bootstrap
+	apiRouter.HandleFunc("/bootstrap/teams/", controller.BootstrapTeamData).Methods("GET")
 	apiRouter.HandleFunc("/bootstrap/one/{collegeID}/{proID}", controller.BootstrapBasketballData).Methods("GET")
 	apiRouter.HandleFunc("/bootstrap/two/{collegeID}/{proID}", controller.SecondBootstrapBasketballData).Methods("GET")
 	apiRouter.HandleFunc("/bootstrap/three/{collegeID}/{proID}", controller.ThirdBootstrapBasketballData).Methods("GET")
@@ -153,6 +154,7 @@ func handleRequests() http.Handler {
 	// apiRouter.HandleFunc("/import/nba", controller.ImportNBATeamsAndArenas).Methods("GET")
 	// apiRouter.HandleFunc("/import/cbb/games", controller.ImportCBBMatches).Methods("GET")
 	// apiRouter.HandleFunc("/import/nba/games", controller.ImportNBAMatches).Methods("GET")
+	// apiRouter.HandleFunc("/import/isl/games", controller.ImportISLMatches).Methods("GET")
 	// apiRouter.HandleFunc("/import/nba/series", controller.ImportNBASeries).Methods("GET")
 	// apiRouter.HandleFunc("/rollback/nba/season", controller.RollbackNBASeason).Methods("GET")
 
@@ -170,7 +172,8 @@ func handleRequests() http.Handler {
 	// apiRouter.HandleFunc("/isl/identify/players", controller.ISLIdentifyYouthPlayers).Methods("GET")
 	// apiRouter.HandleFunc("/isl/scout/players", controller.ISLScoutYouthPlayers).Methods("GET")
 	// apiRouter.HandleFunc("/isl/invest/players", controller.ISLInvestYouthPlayers).Methods("GET")
-	// apiRouter.HandleFunc("/isl/sync/players", controller.ISLSyncYouthPlayers).Methods("GET")
+	// apiRouter.HandleFunc("/isl/quick/sync/players", controller.ISLSyncYouthPlayers).Methods("GET")
+	// apiRouter.HandleFunc("/isl/quick/draft/players", controller.ISLGenerateNewBatch).Methods("GET")
 
 	// Match Controls
 	apiRouter.HandleFunc("/match/{matchId}", controller.GetMatchByMatchId).Methods("GET")
