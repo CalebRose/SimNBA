@@ -97,7 +97,7 @@ func GetBootstrapData(collegeID, proID string) BootstrapData {
 
 	wg.Wait()
 
-	if len(collegeID) > 0 {
+	if len(collegeID) > 0 && collegeID != "0" {
 		wg.Add(3)
 		go func() {
 			defer wg.Done()
@@ -144,7 +144,7 @@ func GetBootstrapData(collegeID, proID string) BootstrapData {
 			collegeGameplan = GetGameplansByTeam(collegeID)
 		}()
 	}
-	if len(proID) > 0 {
+	if len(proID) > 0 && proID != "0" {
 		wg.Add(3)
 		go func() {
 			defer wg.Done()
@@ -215,7 +215,7 @@ func GetSecondBootstrapData(collegeID, proID string) BootstrapDataTwo {
 
 	seasonID := strconv.Itoa(int(ts.SeasonID))
 
-	if len(collegeID) > 0 {
+	if len(collegeID) > 0 && collegeID != "0" {
 		wg.Add(3)
 		go func() {
 			defer wg.Done()
@@ -239,7 +239,7 @@ func GetSecondBootstrapData(collegeID, proID string) BootstrapDataTwo {
 		log.Println("Completed all College data queries.")
 
 	}
-	if len(proID) > 0 {
+	if len(proID) > 0 && proID != "0" {
 		nbaTeamID := util.ConvertStringToInt(proID)
 		wg.Add(3)
 		go func() {
@@ -311,7 +311,7 @@ func GetThirdBootstrapData(collegeID, proID string) BootstrapDataThree {
 	ts := GetTimestamp()
 	seasonID := strconv.Itoa(int(ts.SeasonID))
 
-	if len(collegeID) > 0 {
+	if len(collegeID) > 0 && collegeID != "0" {
 		wg.Add(3)
 		go func() {
 			defer wg.Done()
@@ -329,7 +329,7 @@ func GetThirdBootstrapData(collegeID, proID string) BootstrapDataThree {
 		}()
 		wg.Wait()
 	}
-	if len(proID) > 0 {
+	if len(proID) > 0 && proID != "0" {
 		wg.Add(6)
 
 		go func() {
