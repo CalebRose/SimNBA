@@ -38,6 +38,10 @@ func ImportNBAMatches(w http.ResponseWriter, r *http.Request) {
 	managers.ImportNBAGames()
 }
 
+func ImportISLMatches(w http.ResponseWriter, r *http.Request) {
+	managers.ImportISLGames()
+}
+
 func ImportNBASeries(w http.ResponseWriter, r *http.Request) {
 	managers.ImportNBASeries()
 }

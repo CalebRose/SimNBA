@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
 
+	edmondsblossom "github.com/CalebRose/SimNBA/EdmondsBlossom"
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/secrets"
@@ -503,6 +505,297 @@ func ImportCBBGames() {
 }
 
 func ImportNBAGames() {
+	db := dbprovider.GetInstance().GetDB()
+	ts := GetTimestamp()
+
+	nbaTeams := GetOnlyNBATeams()
+	schedule, err := GenerateNBASeasonSchedule(nbaTeams, ts.SeasonID, 5000, 68)
+	if err != nil {
+		log.Println("Generation Failed: ", err)
+		return
+	}
+	finalUpload := []structs.NBAMatch{}
+	for _, game := range schedule {
+		seasonBase := ts.Season - 2000 // 2025
+		game.AddWeekData((uint(seasonBase)*100 + uint(game.Round)), uint(game.Round), game.Slot)
+		finalUpload = append(finalUpload, game.NBAMatch)
+	}
+	repository.CreateNBARecordsBatch(db, finalUpload, 100)
+}
+
+func ImportISLGames() {
+	db := dbprovider.GetInstance().GetDB()
+	ts := GetTimestamp()
+
+	nbaTeams := GetInternationalTeams()
+
+	fullSchedule, err := GenerateISLSeasonSchedule(nbaTeams, ts.SeasonID, 15000)
+	if err != nil {
+		log.Println("Generation Failed: ", err)
+		return
+	}
+
+	finalUpload := []structs.NBAMatch{}
+	for _, game := range fullSchedule {
+		seasonBase := ts.Season - 2000 // 2025
+		game.AddWeekData((uint(seasonBase)*100 + uint(game.Round)), uint(game.Round), game.Slot)
+		finalUpload = append(finalUpload, game.NBAMatch)
+	}
+	repository.CreateNBARecordsBatch(db, finalUpload, 100)
+}
+
+type ScheduledGame struct {
+	structs.NBAMatch
+	Round int
+	Slot  string // "A", "B", "C", or "D"
+}
+
+func (sg *ScheduledGame) ApplyRoundAndSlot(round int, slot string) {
+	sg.Round = round
+	sg.TimeSlot = slot
+}
+
+func GenerateNBASeasonSchedule(
+	teams []structs.NBATeam,
+	seasonID uint,
+	maxPartitionAttempts,
+	totalRounds int,
+) ([]ScheduledGame, error) {
+	src := rand.NewSource(time.Now().UnixNano())
+	rng := rand.New(src)
+
+	var master []ScheduledGame
+	for i := 0; i < len(teams); i++ {
+		for j := i + 1; j < len(teams); j++ {
+			teamA := teams[i]
+			teamB := teams[j]
+			if teamA.ID == teamB.ID {
+				continue
+			}
+			numGames := 0
+			if teamA.DivisionID == teamB.DivisionID {
+				numGames = 4
+			} else {
+				numGames = 2
+			}
+			half := numGames / 2
+			extra := numGames % 2
+			for x := 0; x < half+extra; x++ {
+				g := generateProGameRecord(teamA, teamB, seasonID)
+				master = append(master, ScheduledGame{NBAMatch: g})
+			}
+			// Team B hosts half
+			for x := 0; x < half; x++ {
+				g := generateProGameRecord(teamB, teamA, seasonID)
+				master = append(master, ScheduledGame{NBAMatch: g})
+			}
+		}
+	}
+	counts := make(map[uint]int)
+	for _, g := range master {
+		counts[g.HomeTeamID]++
+		counts[g.AwayTeamID]++
+	}
+	for _, t := range teams {
+		if counts[t.ID] != totalRounds {
+			log.Printf("⚠️ team %d has %d games (expected %d)\n",
+				t.ID, counts[t.ID], totalRounds)
+		}
+	}
+
+	rng.Shuffle(len(master), func(i, j int) {
+		master[i], master[j] = master[j], master[i]
+	})
+
+	teamIDs := make([]uint, len(teams))
+	for i, t := range teams {
+		teamIDs[i] = t.ID
+	}
+	matchesPerRound := len(teams) / 2 // 32 teams → 16 games per round
+
+	rounds, err := greedyPartition(rng, master, totalRounds, matchesPerRound, maxPartitionAttempts)
+	if err != nil {
+		return nil, err
+	}
+	var final []ScheduledGame
+	for rIdx, roundGames := range rounds {
+		roundNum := rIdx + 1
+		// zero-based week index, then +1 to make it 1-based
+		week := (roundNum-1)/4 + 1
+		slot := []string{"A", "B", "C", "D"}[(roundNum-1)%4]
+
+		for _, g := range roundGames {
+			g.ApplyRoundAndSlot(week, slot)
+			final = append(final, g)
+		}
+	}
+
+	return final, nil
+}
+
+func GenerateISLSeasonSchedule(
+	teams []structs.NBATeam,
+	seasonID uint,
+	maxPartitionAttempts int,
+) ([]ScheduledGame, error) {
+	// 1) Group teams by conference
+	confGroups := make(map[uint][]structs.NBATeam)
+	for _, t := range teams {
+		confGroups[t.ConferenceID] = append(confGroups[t.ConferenceID], t)
+	}
+	// must be exactly 8 conferences of 20
+	if len(confGroups) != 8 {
+		return nil, fmt.Errorf("expected 8 conferences, got %d", len(confGroups))
+	}
+	for conf, grp := range confGroups {
+		if len(grp) != 20 {
+			return nil, fmt.Errorf("conf %d has %d teams (want 20)", conf, len(grp))
+		}
+	}
+
+	// 2) Build each conference's 76 rounds of 10 games
+	perConfRounds := make(map[uint][][]ScheduledGame, 8)
+	totalRounds := 0
+	for conf, grp := range confGroups {
+		// leg1 = 19 rounds (single-leg RR)
+		leg1 := makeRoundRobinRounds(grp, seasonID) // 19×10
+		// leg2 = mirror of leg1
+		leg2 := mirrorRounds(leg1) // 19×10
+		// stack 4 legs => 76 rounds
+		rounds := make([][]ScheduledGame, 0, 38)
+		rounds = append(rounds, leg1...)
+		rounds = append(rounds, leg2...)
+
+		// sanity check
+		if len(rounds) != 38 {
+			return nil, fmt.Errorf("conf %d has %d rounds (want 76)", conf, len(rounds))
+		}
+		for i, rnd := range rounds {
+			if len(rnd) != 10 {
+				return nil, fmt.Errorf("conf %d round %d has %d games (want 10)", conf, i, len(rnd))
+			}
+		}
+
+		perConfRounds[conf] = rounds
+		totalRounds = len(rounds)
+	}
+
+	// 3) Zip into league rounds of 8×10=80 games
+	confIDs := make([]uint, 0, len(perConfRounds))
+	for c := range perConfRounds {
+		confIDs = append(confIDs, c)
+	}
+	sort.Slice(confIDs, func(i, j int) bool { return confIDs[i] < confIDs[j] })
+
+	leagueRounds := make([][]ScheduledGame, totalRounds)
+	for r := 0; r < totalRounds; r++ {
+		leagueRounds[r] = make([]ScheduledGame, 0, 80)
+		for _, conf := range confIDs {
+			leagueRounds[r] = append(leagueRounds[r], perConfRounds[conf][r]...)
+		}
+		if len(leagueRounds[r]) != 80 {
+			return nil, fmt.Errorf("league round %d has %d games (want 80)", r, len(leagueRounds[r]))
+		}
+	}
+
+	// 4) Slot into weeks A/B/C and flatten
+	var final []ScheduledGame
+	slots := []string{"A", "B", "C"}
+	for r, rnd := range leagueRounds {
+		week := (r / 3) + 1
+		slot := slots[r%3]
+		for _, g := range rnd {
+			g.ApplyRoundAndSlot(week, slot)
+			final = append(final, g)
+		}
+	}
+
+	// 5) Final check: each team must appear exactly totalRounds times
+	counts := make(map[uint]int, len(teams))
+	for _, g := range final {
+		counts[g.HomeTeamID]++
+		counts[g.AwayTeamID]++
+	}
+	for _, t := range teams {
+		if counts[t.ID] != totalRounds {
+			return nil, fmt.Errorf("team %d has %d games (want %d)", t.ID, counts[t.ID], totalRounds)
+		}
+	}
+
+	return final, nil
+}
+
+func greedyPartition(
+	rng *rand.Rand,
+	allGames []ScheduledGame,
+	totalRounds, matchesPerRound, perRoundMaxAttempts int,
+) ([][]ScheduledGame, error) {
+	// start with full pool
+	remaining := append([]ScheduledGame(nil), allGames...)
+	rounds := make([][]ScheduledGame, 0, totalRounds)
+
+	for round := 1; round <= totalRounds; round++ {
+		var thisRound []ScheduledGame
+		success := false
+
+		// keep an immutable snapshot for retries
+		orig := append([]ScheduledGame(nil), remaining...)
+
+		for attempt := 1; attempt <= perRoundMaxAttempts; attempt++ {
+			// copy the snapshot
+			pool := append([]ScheduledGame(nil), orig...)
+			// shuffle the copy
+			rng.Shuffle(len(pool), func(i, j int) {
+				pool[i], pool[j] = pool[j], pool[i]
+			})
+
+			used := make(map[uint]bool, matchesPerRound*2)
+			candidate := make([]ScheduledGame, 0, matchesPerRound)
+
+			// greedily pull non‑conflicting games
+			for i := 0; i < len(pool) && len(candidate) < matchesPerRound; {
+				g := pool[i]
+				if !used[g.HomeTeamID] && !used[g.AwayTeamID] {
+					used[g.HomeTeamID] = true
+					used[g.AwayTeamID] = true
+					candidate = append(candidate, g)
+					// remove from pool
+					pool = append(pool[:i], pool[i+1:]...)
+				} else {
+					i++
+				}
+			}
+
+			if len(candidate) == matchesPerRound {
+				// success: lock in this round and remaining pool
+				thisRound = candidate
+				remaining = pool
+				success = true
+				break
+			}
+			// else: try again with fresh snapshot
+		}
+
+		if !success {
+			return nil, fmt.Errorf(
+				"round %d: failed to fill after %d attempts (got %d/%d games)",
+				round, perRoundMaxAttempts, len(thisRound), matchesPerRound,
+			)
+		}
+
+		rounds = append(rounds, thisRound)
+	}
+
+	if len(remaining) != 0 {
+		return nil, fmt.Errorf(
+			"leftover games after %d rounds: %d",
+			totalRounds, len(remaining),
+		)
+	}
+	return rounds, nil
+}
+
+func ImportNBAGamesOLD() {
 	db := dbprovider.GetInstance().GetDB()
 	path := secrets.GetPath()["nbamatches"]
 	professionalMatches := util.ReadCSV(path)
@@ -1212,4 +1505,190 @@ func mapToNBAPlayerStatsObject(player structs.PlayerDTO, id, matchID int, season
 		InjuryType:         player.Stats.InjuryType,
 		WeeksOfRecovery:    player.Stats.WeeksOfRecovery,
 	}
+}
+
+// makeRoundRobin returns N−1 rounds of a single home+away visit per opponent
+func makeRoundRobinRounds(grp []structs.NBATeam, seasonID uint) [][]ScheduledGame {
+	N := len(grp)
+	rounds := make([][]ScheduledGame, N-1)
+
+	// build the rotating array (teams[1..])
+	rotating := make([]structs.NBATeam, N-1)
+	copy(rotating, grp[1:])
+
+	for r := 0; r < N-1; r++ {
+		var games []ScheduledGame
+		// 1) anchor vs its rotating opponent
+		games = append(games, ScheduledGame{NBAMatch: generateProGameRecord(grp[0], rotating[r], seasonID)})
+		// 2) the remaining N/2−1 cross‐pairs
+		for i := 1; i < N/2; i++ {
+			a := rotating[(r+i)%(N-1)]
+			b := rotating[(r-i+(N-1))%(N-1)]
+			games = append(games, ScheduledGame{NBAMatch: generateProGameRecord(a, b, seasonID)})
+		}
+		rounds[r] = games
+	}
+	return rounds
+}
+
+// mirrorRounds returns a “swap home/away” copy of each round
+func mirrorRounds(legs [][]ScheduledGame) [][]ScheduledGame {
+	out := make([][]ScheduledGame, len(legs))
+	for i, rnd := range legs {
+		mirror := make([]ScheduledGame, len(rnd))
+		for j, sg := range rnd {
+			rev := sg
+			rev.HomeTeamID, rev.AwayTeamID = sg.AwayTeamID, sg.HomeTeamID
+			rev.HomeTeam, rev.AwayTeam = sg.AwayTeam, sg.HomeTeam
+			rev.Arena, rev.City, rev.State, rev.Country =
+				sg.Arena, sg.City, sg.State, sg.Country
+			mirror[j] = rev
+		}
+		out[i] = mirror
+	}
+	return out
+}
+
+func generateProGameRecord(teamA structs.NBATeam, teamB structs.NBATeam, seasonID uint) structs.NBAMatch {
+	return structs.NBAMatch{
+		SeasonID:        seasonID,
+		HomeTeamID:      teamA.ID,
+		HomeTeam:        teamA.Team,
+		AwayTeamID:      teamB.ID,
+		AwayTeam:        teamB.Team,
+		Arena:           teamA.Arena,
+		City:            teamA.City,
+		State:           teamA.State,
+		Country:         teamA.Country,
+		IsConference:    teamA.ConferenceID == teamB.ConferenceID,
+		IsDivisional:    teamA.DivisionID == teamB.DivisionID,
+		IsInternational: teamA.ID > 32,
+	}
+}
+
+// pair represents an undirected matchup between two teams
+type pair struct{ A, B int }
+
+// pickInterConferencePairs returns exactly 6 non-conference opponents per team,
+// by making 6 “stubs” per team and randomly pairing them.
+// It will either succeed or return an error after N attempts.
+func pickInterConferencePairs(
+	teams []structs.NBATeam,
+) ([]pair, error) {
+	N := len(teams)
+	// map team ID -> index 0..N-1
+	idxOf := make(map[uint]int, N)
+	for i, t := range teams {
+		idxOf[t.ID] = i
+	}
+	// build the set of *allowed* inter-conference edges
+	allowed := make(map[pair]bool)
+	for i := 0; i < N; i++ {
+		for j := i + 1; j < N; j++ {
+			if teams[i].ConferenceID != teams[j].ConferenceID {
+				allowed[pair{A: i, B: j}] = true
+			}
+		}
+	}
+
+	var allPairs []pair
+	// we need exactly 6 perfect matchings
+	for round := 0; round < 6; round++ {
+		// build a new Graph
+		g := edmondsblossom.NewGraph(N)
+		// add only the allowed edges
+		for e := range allowed {
+			u, v := int(e.A), int(e.B)
+			g.G[u][v] = 1
+			g.G[v][u] = 1
+		}
+
+		// find one perfect matching on the inter-conference graph
+		edmondsblossom.FindMaxMatching(g)
+		// ensure this was a *perfect* matching
+		matched := 0
+		for u := 0; u < N; u++ {
+			if g.M[u] >= 0 {
+				matched++
+			}
+		}
+		log.Printf("After full matching: %d/%d matched\n", matched, N)
+
+		// extract matched pairs, and remove them from allowed
+		for u, v := range g.M {
+			if v > u {
+				key := pair{A: u, B: v}
+				if !allowed[key] {
+					// this should never happen if Blossom found only allowed edges
+					return nil, fmt.Errorf("unexpected edge %v in matching", key)
+				}
+				allPairs = append(allPairs, key)
+				// remove so we never pick this same inter-conf matchup again
+				delete(allowed, key)
+			}
+		}
+
+		// sanity check
+		if len(allPairs) != (round+1)*(N/2) {
+			return nil, fmt.Errorf("round %d: only %d pairs found", round+1, len(allPairs))
+		}
+	}
+
+	return allPairs, nil
+
+}
+
+func BlossomPartition(teams []structs.NBATeam, master []ScheduledGame, totalRounds int) ([][]ScheduledGame, error) {
+	teamIDs := make([]uint, len(teams))
+	for i, t := range teams {
+		teamIDs[i] = t.ID
+	}
+	idxOf := map[uint]int{}
+	for i, id := range teamIDs {
+		idxOf[id] = i
+	}
+	pool := map[pair][]ScheduledGame{}
+	for _, g := range master { // master from your GenerateISL code
+		A, B := idxOf[g.HomeTeamID], idxOf[g.AwayTeamID]
+		if A > B {
+			A, B = B, A
+		}
+		pool[pair{A, B}] = append(pool[pair{A, B}], g)
+	}
+
+	rounds := [][]ScheduledGame{}
+
+	for round := 1; round <= totalRounds; round++ {
+		// a) build a Graph of size N
+		g := edmondsblossom.NewGraph(len(teams))
+		// b) add an edge between i and j iff pool[[i,j]] is non-empty
+		for key, games := range pool {
+			if len(games) > 0 {
+				g.G[key.A][key.B] = 1
+				g.G[key.B][key.A] = 1
+			}
+		}
+		// c) run blossom matching
+		edmondsblossom.FindMaxMatching(g)
+		// d) extract all matched pairs, pick one ScheduledGame from pool
+		thisRound := make([]ScheduledGame, 0, len(teams)/2)
+		used := make(map[pair]bool)
+		for u, v := range g.M {
+			if v > u {
+				key := pair{A: u, B: v}
+				if !used[key] {
+					used[key] = true
+					game := pool[key][0] // pop the first game
+					pool[key] = pool[key][1:]
+					thisRound = append(thisRound, game)
+				}
+			}
+		}
+		if len(thisRound) != len(teams)/2 {
+			return nil, fmt.Errorf("round %d: only %d games scheduled", round, len(thisRound))
+		}
+		rounds = append(rounds, thisRound)
+	}
+
+	return rounds, nil
 }

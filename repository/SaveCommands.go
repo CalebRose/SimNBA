@@ -100,6 +100,13 @@ func SaveNBAPlayerSeasonStatRecord(stats structs.NBAPlayerSeasonStats, db *gorm.
 	}
 }
 
+func SaveNBAPlayerRecord(stats structs.NBAPlayer, db *gorm.DB) {
+	err := db.Save(&stats).Error
+	if err != nil {
+		log.Panicln("Could not save nba player record")
+	}
+}
+
 func SaveCollegeStandingsRecord(s structs.CollegeStandings, db *gorm.DB) {
 	err := db.Save(&s).Error
 	if err != nil {

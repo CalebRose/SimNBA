@@ -127,16 +127,16 @@ func ConvertFloatToString(f float64) string {
 }
 
 func GenerateISLAge() int {
-	mean := 18.0
+	mean := 17.0
 	standardDeviation := 1.5 // Adjust this value to change the spread
 
 	value := rand.NormFloat64()*standardDeviation + mean
 
 	// Clamp the value to the range [16, 22]
-	if value <= 16 {
-		value = 16
-	} else if value > 22 {
-		value = 22
+	if value <= 15 {
+		value = 15
+	} else if value > 20 {
+		value = 20
 	}
 
 	return int(value)

@@ -207,3 +207,51 @@ func CreateNotification(noti structs.Notification, db *gorm.DB) {
 		log.Panicln("Could not create notification record!")
 	}
 }
+
+func CreateNBARecordsBatch(db *gorm.DB, fds []structs.NBAMatch, batchSize int) error {
+	total := len(fds)
+	for i := 0; i < total; i += batchSize {
+		end := min(i+batchSize, total)
+
+		if err := db.CreateInBatches(fds[i:end], batchSize).Error; err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func CreatePlayerRecruitProfileRecordsBatch(db *gorm.DB, cp []structs.PlayerRecruitProfile, batchSize int) error {
+	total := len(cp)
+	for i := 0; i < total; i += batchSize {
+		end := min(i+batchSize, total)
+
+		if err := db.CreateInBatches(cp[i:end], batchSize).Error; err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func CreateProContractRecordsBatch(db *gorm.DB, cp []structs.NBAContract, batchSize int) error {
+	total := len(cp)
+	for i := 0; i < total; i += batchSize {
+		end := min(i+batchSize, total)
+
+		if err := db.CreateInBatches(cp[i:end], batchSize).Error; err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func CreateNBAPlayerRecordsBatch(db *gorm.DB, fds []structs.NBAPlayer, batchSize int) error {
+	total := len(fds)
+	for i := 0; i < total; i += batchSize {
+		end := min(i+batchSize, total)
+
+		if err := db.CreateInBatches(fds[i:end], batchSize).Error; err != nil {
+			return err
+		}
+	}
+	return nil
+}

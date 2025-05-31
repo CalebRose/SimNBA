@@ -30,7 +30,14 @@ func ISLInvestYouthPlayers(w http.ResponseWriter, r *http.Request) {
 
 func ISLSyncYouthPlayers(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
-	managers.SyncISLYouthDevelopment()
+	managers.PickUpISLPlayers()
+
+	json.NewEncoder(w).Encode("Synced players.")
+}
+
+func ISLGenerateNewBatch(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	managers.GenerateInternationalPlayersByTeam()
 
 	json.NewEncoder(w).Encode("Synced players.")
 }

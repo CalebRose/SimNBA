@@ -60,6 +60,12 @@ func (m *NBAMatch) UpdateCoach(TeamID int, Username string) {
 	}
 }
 
+func (m *NBAMatch) AddWeekData(id, week uint, timeslot string) {
+	m.WeekID = id
+	m.Week = week
+	m.TimeSlot = timeslot
+}
+
 func (m *NBAMatch) HideScore() {
 	m.HomeTeamScore = 0
 	m.AwayTeamScore = 0

@@ -221,6 +221,8 @@ func FillAIRecruitingBoards() {
 
 	boardCount := 20
 
+	profileBatch := []structs.PlayerRecruitProfile{}
+
 	for _, team := range AITeams {
 		count := 0
 		lateSeasonCount := 0
@@ -410,12 +412,13 @@ func FillAIRecruitingBoards() {
 				}
 				crootProfiles = append(crootProfiles, playerProfile)
 				recruitProfileMap[croot.ID] = crootProfiles
-				repository.CreatePlayerRecruitProfileRecord(playerProfile, db)
+				profileBatch = append(profileBatch, playerProfile)
 				count++
 			}
 		}
 	}
 
+	repository.CreatePlayerRecruitProfileRecordsBatch(db, profileBatch, 100)
 }
 
 func AllocatePointsToAIBoards() {

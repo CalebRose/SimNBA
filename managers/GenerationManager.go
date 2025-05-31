@@ -1345,6 +1345,7 @@ func pickLocale(country string) string {
 		"South Korea":        {"ko_KR"},
 		"Taiwan":             {"zh_TW"},
 		"Philippines":        {"en_PH", "es_ES"},
+		"Phillipines":        {"en_PH", "es_ES"},
 		"Indonesia":          {"ms_MY", "zh_CN"},
 		"Malaysia":           {"ms_MY", "vi_VN", "th_TH", "zh_CN"},
 		"Singapore":          {"zh_CN", "th_TH"},
@@ -2195,4 +2196,164 @@ func getRelativeType() int {
 		return 5
 	}
 	return 1
+}
+
+func GenerateInternationalPlayersByTeam() {
+	db := dbprovider.GetInstance().GetDB()
+	var lastPlayerRecord structs.GlobalPlayer
+
+	err := db.Last(&lastPlayerRecord).Error
+	if err != nil {
+		log.Fatalln("Could not grab last player record from players table...")
+	}
+
+	// var playerList []structs.CollegePlayer
+
+	newID := lastPlayerRecord.ID + 1
+
+	nameMap := getInternationalNameMap()
+
+	islTeams := GetInternationalTeams()
+	facesBlob := getFaceDataBlob()
+	faces := []structs.FaceData{}
+	positions := []string{"PG", "SG", "SF", "PF", "C"}
+	globalPlayers := []structs.GlobalPlayer{}
+	newIntPlayers := []structs.NBAPlayer{}
+	contracts := []structs.NBAContract{}
+	for _, t := range islTeams {
+		teamID := strconv.Itoa(int(t.ID))
+		roster := GetAllNBAPlayersByTeamID(teamID)
+		count := len(roster)
+		if count > 14 {
+			continue
+		}
+
+		teamNeedsMap := make(map[string]bool)
+		positionCount := make(map[string]int)
+
+		if _, ok := teamNeedsMap["PG"]; !ok {
+			teamNeedsMap["PG"] = true
+		}
+		if _, ok := teamNeedsMap["SG"]; !ok {
+			teamNeedsMap["SG"] = true
+		}
+		if _, ok := teamNeedsMap["SF"]; !ok {
+			teamNeedsMap["SF"] = true
+		}
+		if _, ok := teamNeedsMap["PF"]; !ok {
+			teamNeedsMap["PF"] = true
+		}
+		if _, ok := teamNeedsMap["C"]; !ok {
+			teamNeedsMap["C"] = true
+		}
+
+		if _, ok := positionCount["PG"]; !ok {
+			positionCount["PG"] = 0
+		}
+		if _, ok := positionCount["SG"]; !ok {
+			positionCount["SG"] = 0
+		}
+		if _, ok := positionCount["SF"]; !ok {
+			positionCount["SF"] = 0
+		}
+		if _, ok := positionCount["PF"]; !ok {
+			positionCount["PF"] = 0
+		}
+		if _, ok := positionCount["C"]; !ok {
+			positionCount["C"] = 0
+		}
+
+		for _, r := range roster {
+			positionCount[r.Position] += 1
+		}
+
+		if positionCount["PG"] >= 3 {
+			teamNeedsMap["PG"] = false
+		} else if positionCount["SG"] >= 4 {
+			teamNeedsMap["SG"] = false
+		} else if positionCount["SF"] >= 4 {
+			teamNeedsMap["SF"] = false
+		} else if positionCount["PF"] >= 4 {
+			teamNeedsMap["PF"] = false
+		} else if positionCount["C"] >= 3 {
+			teamNeedsMap["C"] = false
+		}
+
+		positionList := []string{}
+
+		for _, p := range positions {
+			if !teamNeedsMap[p] {
+				continue
+			}
+			maxCount := 4
+			posCount := positionCount[p]
+			if p == "PG" || p == "C" {
+				maxCount = 3
+			}
+
+			diff := maxCount - posCount
+			for i := 1; i <= diff; i++ {
+				positionList = append(positionList, p)
+				positionCount[p] += 1
+				if p == "PG" || p == "C" {
+					teamNeedsMap[p] = positionCount[p] < 3
+				} else {
+					teamNeedsMap[p] = positionCount[p] < 4
+				}
+			}
+		}
+
+		country := t.Country
+		pickedEthnicity := pickLocale(country)
+		countryNames := nameMap[pickedEthnicity]
+		year := 1
+
+		rand.Shuffle(len(positionList), func(i, j int) {
+			positionList[i], positionList[j] = positionList[j], positionList[i]
+		})
+
+		for _, pos := range positionList {
+			if count > 13 {
+				break
+			}
+			player := createInternationalPlayer(0, "", country, pickedEthnicity, pos, year, countryNames["first_names"], countryNames["last_names"], newID)
+			if player.Overall > 79 {
+				fmt.Printf("PING! %d", player.Overall)
+			}
+			player.SignWithTeam(t.ID, t.Team, false, 3)
+			globalPlayer := structs.GlobalPlayer{
+				CollegePlayerID: newID,
+				RecruitID:       newID,
+				NBAPlayerID:     newID,
+			}
+
+			globalPlayer.SetID(newID)
+			globalPlayers = append(globalPlayers, globalPlayer)
+			newIntPlayers = append(newIntPlayers, player)
+			skinColor := getSkinColor(country)
+			face := getFace(newID, 238, skinColor, facesBlob)
+			faces = append(faces, face)
+			c := structs.NBAContract{
+				PlayerID:       newID,
+				TeamID:         t.ID,
+				Team:           t.Team,
+				OriginalTeamID: t.ID,
+				OriginalTeam:   t.Team,
+				YearsRemaining: 3,
+				ContractType:   "ISL",
+				TotalRemaining: 3,
+				Year1Total:     1,
+				Year2Total:     1,
+				Year3Total:     1,
+				IsActive:       true,
+			}
+			contracts = append(contracts, c)
+			newID++
+			count++
+		}
+	}
+	repository.CreateFaceRecordsBatch(db, faces, 100)
+	repository.CreateGlobalRecordsBatch(db, globalPlayers, 100)
+	repository.CreateNBAPlayerRecordsBatch(db, newIntPlayers, 100)
+	repository.CreateProContractRecordsBatch(db, contracts, 100)
 }

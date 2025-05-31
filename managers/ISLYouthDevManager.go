@@ -577,3 +577,122 @@ func ISLResetAllPoints() {
 
 	db.Model(&structs.ISLScoutingDept{}).Updates(map[string]interface{}{"resources": 100, "identity_pool": 0, "scouting_pool": 0, "investing_pool": 0})
 }
+
+func PickUpISLPlayers() {
+	db := dbprovider.GetInstance().GetDB()
+
+	islPlayers := GetAllYouthDevelopmentPlayers()
+	internationalTeams := GetInternationalTeams()
+	contractUpload := []structs.NBAContract{}
+
+	for _, t := range internationalTeams {
+		teamID := strconv.Itoa(int(t.ID))
+		roster := GetAllNBAPlayersByTeamID(teamID)
+
+		if len(roster) > 14 {
+			continue
+		}
+
+		teamNeedsMap := make(map[string]bool)
+		positionCount := make(map[string]int)
+
+		if _, ok := teamNeedsMap["PG"]; !ok {
+			teamNeedsMap["PG"] = true
+		}
+		if _, ok := teamNeedsMap["SG"]; !ok {
+			teamNeedsMap["SG"] = true
+		}
+		if _, ok := teamNeedsMap["SF"]; !ok {
+			teamNeedsMap["SF"] = true
+		}
+		if _, ok := teamNeedsMap["PF"]; !ok {
+			teamNeedsMap["PF"] = true
+		}
+		if _, ok := teamNeedsMap["C"]; !ok {
+			teamNeedsMap["C"] = true
+		}
+
+		if _, ok := positionCount["PG"]; !ok {
+			positionCount["PG"] = 0
+		}
+		if _, ok := positionCount["SG"]; !ok {
+			positionCount["SG"] = 0
+		}
+		if _, ok := positionCount["SF"]; !ok {
+			positionCount["SF"] = 0
+		}
+		if _, ok := positionCount["PF"]; !ok {
+			positionCount["PF"] = 0
+		}
+		if _, ok := positionCount["C"]; !ok {
+			positionCount["C"] = 0
+		}
+
+		for _, r := range roster {
+			positionCount[r.Position] += 1
+		}
+
+		if positionCount["PG"] >= 3 {
+			teamNeedsMap["PG"] = false
+		} else if positionCount["SG"] >= 4 {
+			teamNeedsMap["SG"] = false
+		} else if positionCount["SF"] >= 4 {
+			teamNeedsMap["SF"] = false
+		} else if positionCount["PF"] >= 4 {
+			teamNeedsMap["PF"] = false
+		} else if positionCount["C"] >= 3 {
+			teamNeedsMap["C"] = false
+		}
+
+		// Team Needs Map Acquired
+		// Position Counts acquired
+		// Loop through
+
+		for _, p := range islPlayers {
+			if !teamNeedsMap[p.Position] {
+				continue
+			}
+
+			if p.Age > 22 || p.Overall > 71 {
+				continue
+			}
+
+			odds := 25
+
+			if p.Country == t.Country {
+				odds += 25
+			}
+
+			dr := util.GenerateIntFromRange(1, 100)
+
+			if odds > dr {
+				// Sign Player
+				c := structs.NBAContract{
+					PlayerID:       p.ID,
+					TeamID:         t.ID,
+					Team:           t.Team,
+					OriginalTeamID: t.ID,
+					OriginalTeam:   t.Team,
+					YearsRemaining: 3,
+					ContractType:   "ISL",
+					TotalRemaining: 3,
+					Year1Total:     1,
+					Year2Total:     1,
+					Year3Total:     1,
+					IsActive:       true,
+				}
+				contractUpload = append(contractUpload, c)
+				p.SignWithTeam(t.ID, t.Team, false, 1)
+				repository.SaveNBAPlayerRecord(p, db)
+				positionCount[p.Position] += 1
+				if positionCount[p.Position] >= 3 && (p.Position == "PG" || p.Position == "C") {
+					teamNeedsMap[p.Position] = false
+				} else if positionCount[p.Position] >= 4 && (p.Position == "SG" || p.Position == "SF" || p.Position == "PF") {
+					teamNeedsMap[p.Position] = false
+				}
+			}
+		}
+	}
+
+	repository.CreateProContractRecordsBatch(db, contractUpload, 100)
+}
