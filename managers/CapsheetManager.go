@@ -42,6 +42,9 @@ func AllocateCapsheets() {
 
 	teams := GetAllActiveNBATeams()
 
+	players := GetAllNBAPlayers()
+	playerMap := MakeNBAPlayerMap(players)
+
 	for _, team := range teams {
 		TeamID := strconv.Itoa(int(team.ID))
 
@@ -63,6 +66,10 @@ func AllocateCapsheets() {
 
 		for _, contract := range players {
 			if contract.IsComplete {
+				continue
+			}
+			player := playerMap[contract.PlayerID]
+			if player.IsGLeague || player.IsTwoWay {
 				continue
 			}
 			y1 += contract.Year1Total
