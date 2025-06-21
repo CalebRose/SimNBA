@@ -1009,7 +1009,7 @@ func GetLotteryChances(idx int) []uint {
 	return chancesMap[idx]
 }
 
-func GetAttributeNew(position, attribute string, spec bool) int {
+func GetAttributeNew(position, attribute string, spec, isWalkon bool) int {
 	mod := 0
 	if spec {
 		mod = 4
@@ -1039,6 +1039,9 @@ func GetAttributeNew(position, attribute string, spec bool) int {
 			attribute == "FreeThrow" || attribute == "Ballwork" {
 			mod -= GenerateIntFromRange(0, 1)
 		}
+	}
+	if isWalkon {
+		mod = 0
 	}
 	return GenerateIntFromRange(3, 14) + mod
 }

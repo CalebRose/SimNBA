@@ -255,3 +255,27 @@ func CreateNBAPlayerRecordsBatch(db *gorm.DB, fds []structs.NBAPlayer, batchSize
 	}
 	return nil
 }
+
+func CreateCollegeMatchesRecordsBatch(db *gorm.DB, fds []structs.Match, batchSize int) error {
+	total := len(fds)
+	for i := 0; i < total; i += batchSize {
+		end := min(i+batchSize, total)
+
+		if err := db.CreateInBatches(fds[i:end], batchSize).Error; err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func CreateCollegePlayersRecordBatch(db *gorm.DB, fds []structs.CollegePlayer, batchSize int) error {
+	total := len(fds)
+	for i := 0; i < total; i += batchSize {
+		end := min(i+batchSize, total)
+
+		if err := db.CreateInBatches(fds[i:end], batchSize).Error; err != nil {
+			return err
+		}
+	}
+	return nil
+}

@@ -334,7 +334,7 @@ func GenerateTestPlayersForTP() {
 		pickedPosition := util.PickFromStringList(positionList)
 		year := util.GenerateIntFromRange(1, 3)
 		emptyTeam := structs.Team{}
-		player := createCollegePlayer(emptyTeam, pickedEthnicity, pickedPosition, year, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], newID)
+		player := createCollegePlayer(emptyTeam, pickedEthnicity, pickedPosition, year, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], newID, false)
 		// playerList = append(playerList, player)
 		err = db.Create(&player).Error
 		if err != nil {
@@ -365,9 +365,9 @@ func GenerateNewTeams() {
 	// var playerList []structs.CollegePlayer
 
 	newID := lastPlayerRecord.ID + 1
-
-	teams := GetAllActiveCollegeTeams()
 	firstNameMap, lastNameMap := getNameMaps()
+	teams := GetAllActiveCollegeTeams()
+
 	var positionList []string = []string{"PG", "SG", "PF", "SF", "C"}
 
 	for _, team := range teams {
@@ -469,21 +469,20 @@ func GenerateNewTeams() {
 		})
 
 		for count < requiredPlayers {
+			year := yearList[count]
 			pickedEthnicity := pickEthnicity()
 			pickedPosition := positionQueue[count]
-			year := yearList[count]
-			player := createCollegePlayer(team, pickedEthnicity, pickedPosition, year, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], newID)
-			// playerList = append(playerList, player)
-			err := db.Create(&player).Error
-			if err != nil {
-				log.Panicln("Could not save player record")
-			}
-
+			player := createCollegePlayer(team, pickedEthnicity, pickedPosition, year, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], newID, false)
 			globalPlayer := structs.GlobalPlayer{
 				Model:           gorm.Model{ID: newID},
 				CollegePlayerID: newID,
 				RecruitID:       newID,
 				NBAPlayerID:     newID,
+			}
+			// playerList = append(playerList, player)
+			err := db.Create(&player).Error
+			if err != nil {
+				log.Panicln("Could not save player record")
 			}
 
 			db.Create(&globalPlayer)
@@ -783,7 +782,7 @@ func GenerateNewAttributes() {
 }
 
 // Private Methods
-func createCollegePlayer(team structs.Team, ethnicity string, position string, year int, firstNameList [][]string, lastNameList [][]string, id uint) structs.CollegePlayer {
+func createCollegePlayer(team structs.Team, ethnicity string, position string, year int, firstNameList [][]string, lastNameList [][]string, id uint, isWalkon bool) structs.CollegePlayer {
 	fName := getName(firstNameList)
 	lName := getName(lastNameList)
 	caser := cases.Title(language.English)
@@ -797,63 +796,41 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 	}
 	height := getHeight(position)
 	potential := util.GeneratePotential()
+	potentialGrade := util.GetWeightedPotentialGrade(potential)
 	proPotential := util.GeneratePotential()
 	stamina := util.GenerateIntFromRange(25, 38)
-	shooting2 := getAttribute(position, "Shooting2", true)
-	shooting3 := getAttribute(position, "Shooting3", true)
-	finishing := getAttribute(position, "Finishing", true)
-	freeThrow := getAttribute(position, "FreeThrow", true)
-	ballwork := getAttribute(position, "Ballwork", true)
-	rebounding := getAttribute(position, "Rebounding", true)
-	interiorDefense := getAttribute(position, "Interior Defense", true)
-	perimeterDefense := getAttribute(position, "Perimeter Defense", true)
 	discipline := util.GenerateNormalizedIntFromRange(1, 20)
 	injuryRating := util.GenerateNormalizedIntFromRange(1, 20)
-	overall := (int((shooting2 + shooting3 + freeThrow) / 3)) + finishing + ballwork + rebounding + int((interiorDefense+perimeterDefense)/2)
-	stars := getStarRating(overall)
-
-	expectations := util.GetPlaytimeExpectations(stars, year, overall)
 	personality := util.GetPersonality()
 	academicBias := util.GetAcademicBias()
 	workEthic := util.GetWorkEthic()
 	recruitingBias := util.GetRecruitingBias()
 	freeAgency := util.GetFreeAgencyBias(0, 0)
-	potentialGrade := util.GetWeightedPotentialGrade(potential)
-	var basePlayer = structs.BasePlayer{
-		FirstName:            firstName,
-		LastName:             lastName,
-		Position:             position,
-		Age:                  19,
-		Year:                 1,
-		State:                state,
-		Country:              country,
-		Stars:                stars,
-		Height:               height,
-		Shooting2:            shooting2,
-		Shooting3:            shooting3,
-		FreeThrow:            freeThrow,
-		Finishing:            finishing,
-		Ballwork:             ballwork,
-		Rebounding:           rebounding,
-		InteriorDefense:      interiorDefense,
-		PerimeterDefense:     perimeterDefense,
-		Potential:            potential,
-		ProPotentialGrade:    proPotential,
-		Stamina:              stamina,
-		PlaytimeExpectations: expectations,
-		Minutes:              0,
-		Overall:              overall,
-		Personality:          personality,
-		FreeAgency:           freeAgency,
-		RecruitingBias:       recruitingBias,
-		WorkEthic:            workEthic,
-		AcademicBias:         academicBias,
-		PotentialGrade:       potentialGrade,
-		Discipline:           discipline,
-		InjuryRating:         injuryRating,
+
+	basePlayer := structs.BasePlayer{
+		FirstName:         firstName,
+		LastName:          lastName,
+		Position:          position,
+		Age:               19,
+		Year:              year,
+		State:             state,
+		Country:           country,
+		Height:            height,
+		Potential:         potential,
+		PotentialGrade:    potentialGrade,
+		ProPotentialGrade: proPotential,
+		Stamina:           stamina,
+		Minutes:           0,
+		Personality:       personality,
+		FreeAgency:        freeAgency,
+		RecruitingBias:    recruitingBias,
+		WorkEthic:         workEthic,
+		AcademicBias:      academicBias,
+		InjuryRating:      injuryRating,
+		Discipline:        discipline,
 	}
 
-	var collegePlayer = structs.CollegePlayer{
+	collegePlayer := structs.CollegePlayer{
 		BasePlayer:    basePlayer,
 		PlayerID:      id,
 		TeamID:        team.ID,
@@ -862,18 +839,28 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 		IsRedshirting: false,
 		HasGraduated:  false,
 	}
-	collegePlayer.SetID(id)
 
-	// Specialties
-	specs := util.GetSpecialties(collegePlayer.Position)
+	specs := util.GetSpecialties(position)
 	for _, spec := range specs {
 		collegePlayer.ToggleSpecialties(spec)
 	}
 
-	for i := 1; i < year && year > 1; i++ {
-		collegePlayer = ProgressCollegePlayer(collegePlayer, 0, true)
+	shooting2 := util.GetAttributeNew(position, "Shooting2", collegePlayer.SpecShooting2, isWalkon)
+	shooting3 := util.GetAttributeNew(position, "Shooting3", collegePlayer.SpecShooting3, isWalkon)
+	finishing := util.GetAttributeNew(position, "Finishing", collegePlayer.SpecFinishing, isWalkon)
+	freeThrow := util.GetAttributeNew(position, "FreeThrow", collegePlayer.SpecFreeThrow, isWalkon)
+	ballwork := util.GetAttributeNew(position, "Ballwork", collegePlayer.SpecBallwork, isWalkon)
+	rebounding := util.GetAttributeNew(position, "Rebounding", collegePlayer.SpecRebounding, isWalkon)
+	interiorDefense := util.GetAttributeNew(position, "Interior Defense", collegePlayer.SpecInteriorDefense, isWalkon)
+	perimeterDefense := util.GetAttributeNew(position, "Perimeter Defense", collegePlayer.SpecPerimeterDefense, isWalkon)
+	overall := (int((shooting2 + shooting3 + freeThrow) / 3)) + finishing + ballwork + rebounding + int((interiorDefense+perimeterDefense)/2)
+	stars := getStarRating(overall)
+	if isWalkon {
+		stars = 0
 	}
-
+	expectations := util.GetPlaytimeExpectations(stars, year, overall)
+	collegePlayer.SetAttributes(shooting2, shooting3, finishing, freeThrow, ballwork, rebounding, interiorDefense, perimeterDefense, overall, stars, expectations)
+	collegePlayer.SetID(id)
 	return collegePlayer
 }
 
@@ -930,14 +917,14 @@ func createRecruit(fName, lName, state, country, position string, year int, id u
 		croot.ToggleSpecialties(spec)
 	}
 
-	shooting2 := util.GetAttributeNew(position, "Shooting2", croot.SpecShooting2)
-	shooting3 := util.GetAttributeNew(position, "Shooting3", croot.SpecShooting3)
-	finishing := util.GetAttributeNew(position, "Finishing", croot.SpecFinishing)
-	freeThrow := util.GetAttributeNew(position, "FreeThrow", croot.SpecFreeThrow)
-	ballwork := util.GetAttributeNew(position, "Ballwork", croot.SpecBallwork)
-	rebounding := util.GetAttributeNew(position, "Rebounding", croot.SpecRebounding)
-	interiorDefense := util.GetAttributeNew(position, "Interior Defense", croot.SpecInteriorDefense)
-	perimeterDefense := util.GetAttributeNew(position, "Perimeter Defense", croot.SpecPerimeterDefense)
+	shooting2 := util.GetAttributeNew(position, "Shooting2", croot.SpecShooting2, false)
+	shooting3 := util.GetAttributeNew(position, "Shooting3", croot.SpecShooting3, false)
+	finishing := util.GetAttributeNew(position, "Finishing", croot.SpecFinishing, false)
+	freeThrow := util.GetAttributeNew(position, "FreeThrow", croot.SpecFreeThrow, false)
+	ballwork := util.GetAttributeNew(position, "Ballwork", croot.SpecBallwork, false)
+	rebounding := util.GetAttributeNew(position, "Rebounding", croot.SpecRebounding, false)
+	interiorDefense := util.GetAttributeNew(position, "Interior Defense", croot.SpecInteriorDefense, false)
+	perimeterDefense := util.GetAttributeNew(position, "Perimeter Defense", croot.SpecPerimeterDefense, false)
 
 	overall := (int((shooting2 + shooting3 + freeThrow) / 3)) + finishing + ballwork + rebounding + int((interiorDefense+perimeterDefense)/2)
 	stars := getStarRating(overall)
@@ -1015,14 +1002,14 @@ func createInternationalPlayer(teamID uint, team, country, ethnicity, position s
 		player.ToggleSpecialties(spec)
 	}
 
-	shooting2 := util.GetAttributeNew(position, "Shooting2", player.SpecShooting2)
-	shooting3 := util.GetAttributeNew(position, "Shooting3", player.SpecShooting3)
-	finishing := util.GetAttributeNew(position, "Finishing", player.SpecFinishing)
-	freeThrow := util.GetAttributeNew(position, "FreeThrow", player.SpecFreeThrow)
-	ballwork := util.GetAttributeNew(position, "Ballwork", player.SpecBallwork)
-	rebounding := util.GetAttributeNew(position, "Rebounding", player.SpecRebounding)
-	interiorDefense := util.GetAttributeNew(position, "Interior Defense", player.SpecInteriorDefense)
-	perimeterDefense := util.GetAttributeNew(position, "Perimeter Defense", player.SpecPerimeterDefense)
+	shooting2 := util.GetAttributeNew(position, "Shooting2", player.SpecShooting2, false)
+	shooting3 := util.GetAttributeNew(position, "Shooting3", player.SpecShooting3, false)
+	finishing := util.GetAttributeNew(position, "Finishing", player.SpecFinishing, false)
+	freeThrow := util.GetAttributeNew(position, "FreeThrow", player.SpecFreeThrow, false)
+	ballwork := util.GetAttributeNew(position, "Ballwork", player.SpecBallwork, false)
+	rebounding := util.GetAttributeNew(position, "Rebounding", player.SpecRebounding, false)
+	interiorDefense := util.GetAttributeNew(position, "Interior Defense", player.SpecInteriorDefense, false)
+	perimeterDefense := util.GetAttributeNew(position, "Perimeter Defense", player.SpecPerimeterDefense, false)
 	discipline := util.GenerateNormalizedIntFromRange(1, 20)
 	injuryRating := util.GenerateNormalizedIntFromRange(1, 20)
 
@@ -2356,4 +2343,154 @@ func GenerateInternationalPlayersByTeam() {
 	repository.CreateGlobalRecordsBatch(db, globalPlayers, 100)
 	repository.CreateNBAPlayerRecordsBatch(db, newIntPlayers, 100)
 	repository.CreateProContractRecordsBatch(db, contracts, 100)
+}
+
+func GenerateCollegeWalkons() {
+	db := dbprovider.GetInstance().GetDB()
+	var lastPlayerRecord structs.GlobalPlayer
+
+	err := db.Last(&lastPlayerRecord).Error
+	if err != nil {
+		log.Fatalln("Could not grab last player record from players table...")
+	}
+
+	// var playerList []structs.CollegePlayer
+
+	newID := lastPlayerRecord.ID + 1
+	firstNameMap, lastNameMap := getNameMaps()
+	// Get All User Teams
+	teams := GetAllActiveCollegeTeams()
+	collegePlayers := GetAllCollegePlayers()
+	collegePlayerMapByTeamID := MakeCollegePlayerMapByTeamID(collegePlayers, true)
+	positions := []string{"PG", "SG", "SF", "PF", "C"}
+	facesBlob := getFaceDataBlob()
+	faces := []structs.FaceData{}
+	globalPlayers := []structs.GlobalPlayer{}
+	collegePlayersToUpload := []structs.CollegePlayer{}
+
+	for _, team := range teams {
+		if !team.IsUserCoached {
+			continue
+		}
+
+		roster := collegePlayerMapByTeamID[team.ID]
+
+		if len(roster) > 9 {
+			continue
+		}
+
+		count := 0
+		playersNeeded := 10 - len(roster)
+
+		teamNeedsMap := make(map[string]bool)
+		positionCount := make(map[string]int)
+
+		if _, ok := teamNeedsMap["PG"]; !ok {
+			teamNeedsMap["PG"] = true
+		}
+		if _, ok := teamNeedsMap["SG"]; !ok {
+			teamNeedsMap["SG"] = true
+		}
+		if _, ok := teamNeedsMap["SF"]; !ok {
+			teamNeedsMap["SF"] = true
+		}
+		if _, ok := teamNeedsMap["PF"]; !ok {
+			teamNeedsMap["PF"] = true
+		}
+		if _, ok := teamNeedsMap["C"]; !ok {
+			teamNeedsMap["C"] = true
+		}
+
+		if _, ok := positionCount["PG"]; !ok {
+			positionCount["PG"] = 0
+		}
+		if _, ok := positionCount["SG"]; !ok {
+			positionCount["SG"] = 0
+		}
+		if _, ok := positionCount["SF"]; !ok {
+			positionCount["SF"] = 0
+		}
+		if _, ok := positionCount["PF"]; !ok {
+			positionCount["PF"] = 0
+		}
+		if _, ok := positionCount["C"]; !ok {
+			positionCount["C"] = 0
+		}
+
+		for _, r := range roster {
+			positionCount[r.Position] += 1
+		}
+
+		if positionCount["PG"] >= 3 {
+			teamNeedsMap["PG"] = false
+		} else if positionCount["SG"] >= 4 {
+			teamNeedsMap["SG"] = false
+		} else if positionCount["SF"] >= 4 {
+			teamNeedsMap["SF"] = false
+		} else if positionCount["PF"] >= 4 {
+			teamNeedsMap["PF"] = false
+		} else if positionCount["C"] >= 3 {
+			teamNeedsMap["C"] = false
+		}
+
+		positionList := []string{}
+
+		for _, p := range positions {
+			if !teamNeedsMap[p] {
+				continue
+			}
+			maxCount := 4
+			posCount := positionCount[p]
+			if p == "PG" || p == "C" {
+				maxCount = 3
+			}
+
+			diff := maxCount - posCount
+			for i := 1; i <= diff; i++ {
+				positionList = append(positionList, p)
+				positionCount[p] += 1
+				if p == "PG" || p == "C" {
+					teamNeedsMap[p] = positionCount[p] < 3
+				} else {
+					teamNeedsMap[p] = positionCount[p] < 4
+				}
+			}
+		}
+
+		year := 1
+
+		rand.Shuffle(len(positionList), func(i, j int) {
+			positionList[i], positionList[j] = positionList[j], positionList[i]
+		})
+
+		for _, position := range positionList {
+			if count >= playersNeeded {
+				break
+			}
+			pickedEthnicity := pickEthnicity()
+			player := createCollegePlayer(team, pickedEthnicity, position, year, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], newID, true)
+			globalPlayer := structs.GlobalPlayer{
+				Model:           gorm.Model{ID: newID},
+				CollegePlayerID: newID,
+				RecruitID:       newID,
+				NBAPlayerID:     newID,
+			}
+
+			if player.ID == 0 {
+				player.SetID(newID)
+			}
+
+			collegePlayersToUpload = append(collegePlayersToUpload, player)
+			globalPlayers = append(globalPlayers, globalPlayer)
+			skinColor := getSkinColor(player.Country)
+			face := getFace(newID, 238, skinColor, facesBlob)
+			faces = append(faces, face)
+
+			newID++
+			count++
+		}
+	}
+	repository.CreateCollegePlayersRecordBatch(db, collegePlayersToUpload, 500)
+	repository.CreateGlobalRecordsBatch(db, globalPlayers, 500)
+	repository.CreateFaceRecordsBatch(db, faces, 500)
 }

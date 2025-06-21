@@ -143,6 +143,7 @@ func handleRequests() http.Handler {
 	// apiRouter.HandleFunc("/admin/generateTeam", controller.GeneratePlayers).Methods("GET")
 	// apiRouter.HandleFunc("/admin/generateTestPlayers", controller.GenerateTestPlayers).Methods("GET")
 	// apiRouter.HandleFunc("/admin/generateCroots", controller.GenerateCroots).Methods("GET")
+	// apiRouter.HandleFunc("/admin/generate/walkons", controller.GenerateCollegeWalkons).Methods("GET")
 	// apiRouter.HandleFunc("/admin/generate/international", controller.GenerateInternationalPlayers).Methods("GET")
 	// apiRouter.HandleFunc("/admin/migrate/international", controller.MoveISLPlayersToDraft).Methods("GET")
 	// apiRouter.HandleFunc("/admin/allocate/international/rosters", controller.GenerateInternationalRoster).Methods("GET")

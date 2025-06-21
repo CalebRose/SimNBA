@@ -32,6 +32,11 @@ func GenerateCroots(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode("GENERATION COMPLETE")
 }
 
+func GenerateCollegeWalkons(w http.ResponseWriter, r *http.Request) {
+	managers.GenerateCollegeWalkons()
+	json.NewEncoder(w).Encode("GENERATION COMPLETE")
+}
+
 func GenerateInternationalPlayers(w http.ResponseWriter, r *http.Request) {
 	managers.GenerateInternationalPlayers()
 	json.NewEncoder(w).Encode("GENERATION COMPLETE")

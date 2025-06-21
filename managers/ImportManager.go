@@ -417,6 +417,8 @@ func ImportCBBGames() {
 		collegeMap[t.Abbr] = t
 	}
 
+	collegeGames := []structs.Match{}
+
 	for idx, row := range collegeMatches {
 		if idx < 1 {
 			continue
@@ -426,13 +428,10 @@ func ImportCBBGames() {
 		season := util.ConvertStringToInt(row[1])
 		seasonID := season - 2020
 		week := util.ConvertStringToInt(row[2])
-		weekID := week + 20
+		seasonDiff := season - 2000
+		baseWeekID := seasonDiff * 100
+		weekID := week + baseWeekID
 		timeSlot := row[3]
-		matchType := row[4]
-		isConf := false
-		if matchType == "CONF" {
-			isConf = true
-		}
 		homeTeamAbbr := row[6]
 		awayTeamAbbr := row[7]
 		htRankStr := row[5]
@@ -448,11 +447,15 @@ func ImportCBBGames() {
 
 		homeTeam := collegeMap[homeTeamAbbr]
 		awayTeam := collegeMap[awayTeamAbbr]
+		isConf := false
+		neutralSite := util.ConvertStringToBool(row[10])
+		invitational := util.ConvertStringToBool(row[11])
+		if homeTeam.ConferenceID == awayTeam.ConferenceID && !invitational {
+			isConf = true
+		}
 		gameTitle := row[22]
 		nextGameID := util.ConvertStringToInt(row[24])
 		hoA := row[25]
-		neutralSite := util.ConvertStringToBool(row[10])
-		invitational := util.ConvertStringToBool(row[11])
 		conferenceTournament := util.ConvertStringToBool(row[12])
 		cbi := util.ConvertStringToBool(row[13])
 		nit := util.ConvertStringToBool(row[14])
@@ -500,8 +503,9 @@ func ImportCBBGames() {
 			State:                  state,
 		}
 
-		db.Create(&match)
+		collegeGames = append(collegeGames, match)
 	}
+	repository.CreateCollegeMatchesRecordsBatch(db, collegeGames, 500)
 }
 
 func ImportNBAGames() {

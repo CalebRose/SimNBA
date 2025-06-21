@@ -8,7 +8,7 @@ func GetPath() map[string]string {
 	DraftLotteryPath := "./data/2025/DraftStandings.csv"
 	aiBehaviorPath := "./data/NewAIBehaviors.csv"
 	extensionsPath := "./data/TempExtensions.csv"
-	cbbMatchPath := "./data/2024/2024_SimCBB_Postseason.csv"
+	cbbMatchPath := "./data/2025/2025_SimCBB_Regular_Season.csv"
 	nbaMatchPath := "./data/2024/2024_SimNBA_Play_In.csv"
 	nbaSeriesPath := "./data/2024/2024_SimNBA_Series.csv"
 	draftPickPath := "./data/draft_picks.csv"
