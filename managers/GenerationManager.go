@@ -15,10 +15,21 @@ import (
 	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
-	"github.com/jinzhu/gorm"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+	"gorm.io/gorm"
 )
+
+func getLatestRecord(db *gorm.DB) uint {
+	var lastPlayerRecord structs.GlobalPlayer
+
+	err := db.Last(&lastPlayerRecord).Error
+	if err != nil {
+		log.Fatalln("Could not grab last player record from players table...")
+	}
+
+	return lastPlayerRecord.ID + 1
+}
 
 type CrootGenerator struct {
 	firstNameMap      map[string][][]string
@@ -933,7 +944,6 @@ func createRecruit(fName, lName, state, country, position string, year int, id u
 	croot.SetID(id)
 	croot.AssignRecruitModifier(recruitModifier)
 	croot.SetAttributes(shooting2, shooting3, finishing, freeThrow, ballwork, rebounding, interiorDefense, perimeterDefense, overall, stars, expectations)
-
 	croot.SetID(id)
 
 	return croot
@@ -2493,4 +2503,56 @@ func GenerateCollegeWalkons() {
 	repository.CreateCollegePlayersRecordBatch(db, collegePlayersToUpload, 500)
 	repository.CreateGlobalRecordsBatch(db, globalPlayers, 500)
 	repository.CreateFaceRecordsBatch(db, faces, 500)
+}
+
+func CreateCustomCroots() {
+	db := dbprovider.GetInstance().GetDB()
+	path := "C:\\Users\\ctros\\go\\src\\github.com\\CalebRose\\SimNBA\\data\\2025\\2025_Custom_Croot_Class.csv"
+	crootCSV := util.ReadCSV(path)
+	latestID := getLatestRecord(db)
+
+	crootList := []structs.Recruit{}
+
+	for idx, row := range crootCSV {
+		if idx < 1 {
+			continue
+		}
+		if row[0] == "" {
+			break
+		}
+		firstName := row[0]
+		lastName := row[1]
+		position := row[2]
+		height := row[3]
+		state := row[4]
+		country := row[5]
+		attr1 := row[6]
+		attr2 := row[7]
+		crootFor := row[8]
+		croot := createRecruit(firstName, lastName, state, country, position, 1, latestID)
+		croot.SetID(latestID)
+		croot.FixHeight(height)
+		croot.SetCustomCroot(crootFor)
+		croot.SetCustomAttribute(attr1)
+		croot.SetCustomAttribute(attr2)
+		croot.AssignArchetype()
+		croot.AssignOverall()
+		croot.AssignStar()
+		latestID++
+		crootList = append(crootList, croot)
+	}
+
+	for _, croot := range crootList {
+		gp := structs.GlobalPlayer{
+			CollegePlayerID: croot.ID,
+			NBAPlayerID:     croot.ID,
+			RecruitID:       croot.ID,
+		}
+
+		gp.SetID(croot.ID)
+
+		repository.CreateRecruitRecord(croot, db)
+		repository.CreateGlobalPlayerRecord(gp, db)
+	}
+	AssignAllRecruitRanks()
 }

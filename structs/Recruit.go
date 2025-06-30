@@ -1,6 +1,10 @@
 package structs
 
-import "gorm.io/gorm"
+import (
+	"math/rand"
+
+	"gorm.io/gorm"
+)
 
 type Recruit struct {
 	gorm.Model
@@ -113,6 +117,63 @@ func (r *Recruit) FixRecruit(grade string, pro int, mod int) {
 
 func (r *Recruit) FixHeight(h string) {
 	r.Height = h
+}
+
+func (r *Recruit) SetCustomAttribute(attr string) {
+	if attr == "Finishing" {
+		if !r.SpecFinishing {
+			r.SpecFinishing = true
+			r.SpecCount++
+		}
+		r.Finishing = rand.Intn(18-14+1) + 14
+	} else if attr == "Shooting2" {
+		if !r.SpecShooting2 {
+			r.SpecShooting2 = true
+			r.SpecCount++
+		}
+		r.Shooting2 = rand.Intn(18-14+1) + 14
+	} else if attr == "Shooting3" {
+		if !r.SpecShooting3 {
+			r.SpecShooting3 = true
+			r.SpecCount++
+		}
+		r.Shooting3 = rand.Intn(18-14+1) + 14
+	} else if attr == "FreeThrow" {
+		if !r.SpecFreeThrow {
+			r.SpecFreeThrow = true
+			r.SpecCount++
+		}
+		r.FreeThrow = rand.Intn(18-14+1) + 14
+	} else if attr == "Ballwork" {
+		if !r.SpecBallwork {
+			r.SpecBallwork = true
+			r.SpecCount++
+		}
+		r.Ballwork = rand.Intn(18-14+1) + 14
+	} else if attr == "Rebounding" {
+		if !r.SpecRebounding {
+			r.SpecRebounding = true
+			r.SpecCount++
+		}
+		r.Rebounding = rand.Intn(18-14+1) + 14
+	} else if attr == "InteriorDefense" {
+		if !r.SpecInteriorDefense {
+			r.SpecInteriorDefense = true
+			r.SpecCount++
+		}
+		r.InteriorDefense = rand.Intn(18-14+1) + 14
+	} else if attr == "PerimeterDefense" {
+		if !r.SpecPerimeterDefense {
+			r.SpecPerimeterDefense = true
+			r.SpecCount++
+		}
+		r.PerimeterDefense = rand.Intn(18-14+1) + 14
+	}
+}
+
+func (r *Recruit) SetCustomCroot(crootFor string) {
+	r.CreatedFor = crootFor
+	r.IsCustomCroot = true
 }
 
 func (r *Recruit) SetNewAttributes(ft int, id int, pd int) {

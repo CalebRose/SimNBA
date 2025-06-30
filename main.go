@@ -158,6 +158,7 @@ func handleRequests() http.Handler {
 	// apiRouter.HandleFunc("/import/isl/games", controller.ImportISLMatches).Methods("GET")
 	// apiRouter.HandleFunc("/import/nba/series", controller.ImportNBASeries).Methods("GET")
 	// apiRouter.HandleFunc("/rollback/nba/season", controller.RollbackNBASeason).Methods("GET")
+	apiRouter.HandleFunc("/import/custom/croots", controller.ImportCustomCroots).Methods("GET")
 
 	// apiRouter.HandleFunc("/import/archetypes", controller.ImportArchetypes).Methods("GET")
 	// apiRouter.HandleFunc("/import/fa/preferences", controller.ImportFAPreferences).Methods("GET")

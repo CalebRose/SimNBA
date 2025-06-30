@@ -208,14 +208,15 @@ func FillAIRecruitingBoards() {
 	ts := GetTimestamp()
 
 	AITeams := GetOnlyAITeamRecruitingProfiles()
-	coachMap := GetActiveCollegeCoachMap()
 	// Shuffles the list of AI teams so that it's not always iterating from A-Z. Gives the teams at the lower end of the list a chance to recruit other croots
 	rand.Shuffle(len(AITeams), func(i, j int) {
 		AITeams[i], AITeams[j] = AITeams[j], AITeams[i]
 	})
 
 	UnsignedRecruits := GetAllUnsignedRecruits()
-	recruitProfileMap := fetchRecruitProfiles(UnsignedRecruits)
+	profiles := GetAllRecruitPlayerProfiles()
+	recruitProfileMapByRecruit := MakeRecruitProfileMapByRecruitID(profiles)
+	recruitProfileMapByProfile := MakeRecruitProfileMapByProfileID(profiles)
 
 	regionMap := util.GetRegionMap()
 
@@ -230,15 +231,11 @@ func FillAIRecruitingBoards() {
 			continue
 		}
 		id := strconv.Itoa(int(team.ID))
-		existingBoard := GetAllRecruitsByProfileID(id)
+		existingBoard := recruitProfileMapByProfile[team.ID]
 
 		count = len(existingBoard)
 		boardCount = team.RecruitClassSize * 5
 		if count >= boardCount {
-			continue
-		}
-		coach := coachMap[team.ID]
-		if coach.ID == 0 {
 			continue
 		}
 		currentRoster := GetCollegePlayersByTeamId(id)
@@ -303,12 +300,12 @@ func FillAIRecruitingBoards() {
 			recruitingNeed := teamNeedsMap[croot.Position]
 			willPursue := true
 			if croot.IsCustomCroot || (!recruitingNeed && ts.CollegeWeek < 12) ||
-				(croot.Stars > coach.StarMax || croot.Stars < coach.StarMin) {
+				(croot.Stars > team.AIStarMax || croot.Stars < team.AIStarMin) {
 				willPursue = false
 			}
 
-			crootProfile := GetPlayerRecruitProfileByPlayerId(strconv.Itoa(int(croot.ID)), strconv.Itoa(int(team.ID)))
-			crootProfiles := recruitProfileMap[croot.ID]
+			crootProfiles := recruitProfileMapByRecruit[croot.ID]
+			crootProfile := FindRecruitPlayerProfileByProfileID(crootProfiles, team.ID)
 
 			leadingVal := util.IsAITeamContendingForCroot(crootProfiles)
 			if leadingVal > 14 {
@@ -335,26 +332,14 @@ func FillAIRecruitingBoards() {
 
 			if croot.Country == "USA" {
 				if regionMap[croot.State] == team.Region {
-					odds += 25
+					odds += 30
 				}
 				if croot.State == team.State {
-					odds += 33
+					odds += 38
 				}
 				if regionMap[croot.State] != team.Region && croot.State != team.State && team.AIQuality == "Mid-Major" {
 					odds -= 15
 				}
-			}
-			/* Initial Base */
-			if croot.Stars == 5 {
-				odds += coach.Odds5
-			} else if croot.Stars == 4 {
-				odds += coach.Odds4
-			} else if croot.Stars == 3 {
-				odds += coach.Odds3
-			} else if croot.Stars == 2 {
-				odds += coach.Odds2
-			} else {
-				odds += coach.Odds1
 			}
 
 			if team.AIQuality == "Cinderella" && util.IsPlayerHighPotential(croot) {
@@ -380,8 +365,8 @@ func FillAIRecruitingBoards() {
 
 			teamCount := 0
 
-			for _, team := range crootProfiles {
-				if team.RemovedFromBoard {
+			for _, p := range crootProfiles {
+				if p.RemovedFromBoard {
 					continue
 				}
 				teamCount++
@@ -411,7 +396,7 @@ func FillAIRecruitingBoards() {
 					IsLocked:           false,
 				}
 				crootProfiles = append(crootProfiles, playerProfile)
-				recruitProfileMap[croot.ID] = crootProfiles
+				recruitProfileMapByRecruit[croot.ID] = crootProfiles
 				profileBatch = append(profileBatch, playerProfile)
 				count++
 			}
@@ -846,27 +831,36 @@ func updateTeamRankings(teamRecruitingProfiles []structs.TeamRecruitingProfile, 
 	}
 }
 
-func fetchRecruitProfiles(UnsignedRecruits []structs.Recruit) map[uint][]structs.PlayerRecruitProfile {
+func MakeRecruitProfileMapByRecruitID(profiles []structs.PlayerRecruitProfile) map[uint][]structs.PlayerRecruitProfile {
 	recruitProfileMap := make(map[uint][]structs.PlayerRecruitProfile)
-	var mu sync.Mutex     // to safely update the map
-	var wg sync.WaitGroup // to wait for all goroutines to finish
-	semaphore := make(chan struct{}, 10)
 
-	for _, croot := range UnsignedRecruits {
-		semaphore <- struct{}{}
-		wg.Add(1)
-		go func(c structs.Recruit) {
-			defer wg.Done()
-			crootProfiles := GetRecruitPlayerProfilesByRecruitId(strconv.Itoa(int(c.ID)))
-			mu.Lock()
-			recruitProfileMap[c.ID] = crootProfiles
-			mu.Unlock()
-
-			<-semaphore
-		}(croot)
+	for _, profile := range profiles {
+		if profile.RemovedFromBoard {
+			continue
+		}
+		if len(recruitProfileMap[profile.RecruitID]) == 0 {
+			recruitProfileMap[profile.RecruitID] = []structs.PlayerRecruitProfile{profile}
+		} else {
+			recruitProfileMap[profile.RecruitID] = append(recruitProfileMap[profile.RecruitID], profile)
+		}
 	}
 
-	wg.Wait()
-	close(semaphore)
+	return recruitProfileMap
+}
+
+func MakeRecruitProfileMapByProfileID(profiles []structs.PlayerRecruitProfile) map[uint][]structs.PlayerRecruitProfile {
+	recruitProfileMap := make(map[uint][]structs.PlayerRecruitProfile)
+
+	for _, profile := range profiles {
+		if profile.RemovedFromBoard {
+			continue
+		}
+		if len(recruitProfileMap[profile.ProfileID]) == 0 {
+			recruitProfileMap[profile.ProfileID] = []structs.PlayerRecruitProfile{profile}
+		} else {
+			recruitProfileMap[profile.ProfileID] = append(recruitProfileMap[profile.ProfileID], profile)
+		}
+	}
+
 	return recruitProfileMap
 }

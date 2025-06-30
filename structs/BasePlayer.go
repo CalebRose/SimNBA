@@ -320,6 +320,24 @@ func (np *BasePlayer) SetAttributes(s2, s3, fn, ft, bl, rb, id, pd, ovr, stars, 
 	np.InjuryType = ""
 }
 
+func (np *BasePlayer) AssignOverall() {
+	np.Overall = ((np.Shooting2 + np.Shooting3 + np.FreeThrow) / 3) + np.Finishing + np.Ballwork + np.Rebounding + ((np.InteriorDefense + np.PerimeterDefense) / 2)
+}
+
+func (np *BasePlayer) AssignStar() {
+	if np.Overall > 67 {
+		np.Stars = 5
+	} else if np.Overall > 61 {
+		np.Stars = 4
+	} else if np.Overall > 52 {
+		np.Stars = 3
+	} else if np.Overall > 45 {
+		np.Stars = 2
+	} else {
+		np.Stars = 1
+	}
+}
+
 func (np *BasePlayer) ResetMinutes() {
 	np.P1Minutes = 0
 	np.P2Minutes = 0

@@ -168,6 +168,21 @@ func GetSignedRecruitsByTeamProfileID(ProfileID string) []structs.Recruit {
 	return croots
 }
 
+func GetAllRecruitPlayerProfiles() []structs.PlayerRecruitProfile {
+	db := dbprovider.GetInstance().GetDB()
+
+	var croots []structs.PlayerRecruitProfile
+	err := db.Where("removed_from_board = false").Order("total_points desc").Find(&croots).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return []structs.PlayerRecruitProfile{}
+		} else {
+			log.Fatal(err)
+		}
+	}
+	return croots
+}
+
 func GetRecruitPlayerProfilesByRecruitId(recruitID string) []structs.PlayerRecruitProfile {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -238,6 +253,19 @@ func GetPlayerRecruitProfileByPlayerId(playerId string, profileId string) struct
 		}
 	}
 	return recruitingPoints
+}
+
+func FindRecruitPlayerProfileByProfileID(profiles []structs.PlayerRecruitProfile, profileID uint) structs.PlayerRecruitProfile {
+	if len(profiles) == 0 {
+		return structs.PlayerRecruitProfile{}
+	}
+
+	for _, p := range profiles {
+		if p.ProfileID == profileID {
+			return p
+		}
+	}
+	return structs.PlayerRecruitProfile{}
 }
 
 func GetRecruitingProfileForRecruitSync() []structs.TeamRecruitingProfile {
@@ -480,14 +508,16 @@ func DetermineRecruitingClassSize() {
 		existingRoster := GetCollegePlayersByTeamId(strconv.Itoa(int(rp.ID)))
 		count := 0
 		for _, p := range existingRoster {
-			if p.WillDeclare {
+			if !p.WillDeclare {
 				count++
 			}
 		}
 		nonLeaving := limit - count
 		classSize := limit - nonLeaving
-		rp.SetClassSize(classSize)
-		repository.SaveCBBTeamRecruitingProfile(rp, db)
+		if rp.RecruitClassSize != classSize {
+			rp.SetClassSize(classSize)
+			repository.SaveCBBTeamRecruitingProfile(rp, db)
+		}
 	}
 }
 

@@ -70,3 +70,7 @@ func ImportFAPreferences(w http.ResponseWriter, r *http.Request) {
 func ImportPlaytimeExpectations(w http.ResponseWriter, r *http.Request) {
 	managers.ImportMinutesExpectations()
 }
+
+func ImportCustomCroots(w http.ResponseWriter, r *http.Request) {
+	managers.CreateCustomCroots()
+}
