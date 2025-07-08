@@ -65,7 +65,7 @@ func AllocateCapsheets() {
 		y5 := 0.0
 
 		for _, contract := range players {
-			if contract.IsComplete {
+			if contract.IsComplete || !contract.IsActive {
 				continue
 			}
 			player := playerMap[contract.PlayerID]
