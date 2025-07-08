@@ -83,7 +83,7 @@ func GetAllFreeAgents() []structs.NBAPlayer {
 
 	fas := []structs.NBAPlayer{}
 
-	db.Where("is_free_agent = ?", true).Find(&fas)
+	db.Order("overall desc").Where("is_free_agent = ?", true).Find(&fas)
 
 	return fas
 }
@@ -963,6 +963,7 @@ func GetAllFreeAgencyOffers() []structs.NBAContractOffer {
 
 func SyncAIOffers() {
 	db := dbprovider.GetInstance().GetDB()
+	ts := GetTimestamp()
 
 	teams := GetAllActiveNBATeams()
 
@@ -971,6 +972,7 @@ func SyncAIOffers() {
 	freeAgents := GetAllFreeAgents()
 	players := GetAllNBAPlayers()
 	playerMap := MakeNBAPlayerMapByTeamID(players, true)
+	capsheetMap := GetCapsheetMap()
 
 	for _, team := range teams {
 		if len(team.NBAOwnerName) > 0 && team.NBAOwnerName != "AI" && team.NBAOwnerName != "" {
@@ -979,13 +981,16 @@ func SyncAIOffers() {
 		if team.NBAOwnerName == "" && len(team.NBAGMName) > 0 && team.NBAGMName != "AI" {
 			continue
 		}
-
+		capsheet := capsheetMap[team.ID]
 		offersByTeam := offerMapByTeamID[team.ID]
 		if len(offersByTeam) > 7 {
 			continue
 		}
 		freeAgentOfferMap := MakeFreeAgencyOfferMap(offersByTeam)
 		roster := playerMap[team.ID]
+		if len(roster) > 17 {
+			continue
+		}
 		cCount := 0
 		pfCount := 0
 		sfCount := 0
@@ -1072,6 +1077,9 @@ func SyncAIOffers() {
 				yearsOnContract = 1
 			}
 			y1 := basePay
+			if capsheet.Year1Total+capsheet.Year1Cap+capsheet.Year1CashTransferred-capsheet.Year1CashReceived+y1 > ts.Y1Capspace {
+				continue
+			}
 			y2 := 0.0
 			y3 := 0.0
 			if yearsOnContract > 2 {
