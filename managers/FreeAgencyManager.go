@@ -765,13 +765,13 @@ func faSyncWaiverWirePlayers(waiverWirePlayers []structs.NBAPlayer, ts structs.T
 		waiverOffers := GetWaiverOffersByPlayerID(waiverWireID)
 		if len(waiverOffers) == 0 {
 			// Deactivate Contract, convert to Free Agent
-			w.ConvertWaivedPlayerToFA()
 			contract := GetContractByPlayerID(waiverWireID)
 			capsheet := capsheets[contract.TeamID]
 			capsheet.CutPlayerFromCapsheet(contract)
 			db.Save(&capsheet)
 			contract.DeactivateContract()
 			repository.SaveProfessionalContractRecord(contract, db)
+			w.ConvertWaivedPlayerToFA()
 		} else {
 			winningOffer := waiverOffers[0]
 			winningOfferTeamID := strconv.Itoa(int(winningOffer.TeamID))
@@ -953,4 +953,157 @@ func getExtensionPercentageOdds(percentage float64) float64 {
 		return 25
 	}
 	return 0
+}
+
+func GetAllFreeAgencyOffers() []structs.NBAContractOffer {
+	return repository.FindAllFreeAgentOffers(repository.FreeAgencyQuery{
+		IsActive: true,
+	})
+}
+
+func SyncAIOffers() {
+	db := dbprovider.GetInstance().GetDB()
+
+	teams := GetAllActiveNBATeams()
+
+	offers := GetAllFreeAgencyOffers()
+	offerMapByTeamID := MakeFreeAgencyOfferMapByTeamID(offers)
+	freeAgents := GetAllFreeAgents()
+	players := GetAllNBAPlayers()
+	playerMap := MakeNBAPlayerMapByTeamID(players, true)
+
+	for _, team := range teams {
+		if len(team.NBAOwnerName) > 0 && team.NBAOwnerName != "AI" && team.NBAOwnerName != "" {
+			continue
+		}
+		if team.NBAOwnerName == "" && len(team.NBAGMName) > 0 && team.NBAGMName != "AI" {
+			continue
+		}
+
+		offersByTeam := offerMapByTeamID[team.ID]
+		if len(offersByTeam) > 7 {
+			continue
+		}
+		freeAgentOfferMap := MakeFreeAgencyOfferMap(offersByTeam)
+		roster := playerMap[team.ID]
+		cCount := 0
+		pfCount := 0
+		sfCount := 0
+		sgCount := 0
+		pgCount := 0
+		cBids := 0
+		pfBids := 0
+		sfBids := 0
+		sgBids := 0
+		pgBids := 0
+		for _, p := range roster {
+			if p.Position == "C" {
+				cCount++
+			} else if p.Position == "PF" {
+				pfCount++
+			} else if p.Position == "SF" {
+				sfCount++
+			} else if p.Position == "SG" {
+				sgCount++
+			} else {
+				pgCount++
+			}
+		}
+
+		// Iterate through FA list to get bids
+		for _, fa := range freeAgents {
+			existingOffers := freeAgentOfferMap[fa.ID]
+			if len(existingOffers) > 0 {
+				if fa.Position == "C" {
+					cBids++
+				} else if fa.Position == "PF" {
+					pfBids++
+				} else if fa.Position == "SF" {
+					sfBids++
+				} else if fa.Position == "SG" {
+					sgBids++
+				} else {
+					pgBids++
+				}
+			}
+		}
+
+		for _, fa := range freeAgents {
+			existingOffers := freeAgentOfferMap[fa.ID]
+			if len(existingOffers) > 0 {
+				continue
+			}
+			if fa.Position == "C" && (cCount > 3 || cBids > 2) {
+				continue
+			}
+			if fa.Position == "PF" && (pfCount > 4 || pfBids > 3) {
+				continue
+			}
+			if fa.Position == "SF" && (sfCount > 4 || sfBids > 3) {
+				continue
+			}
+			if fa.Position == "SG" && (sgCount > 4 || sgBids > 3) {
+				continue
+			}
+			if fa.Position == "PG" && (pgCount > 3 || pgBids > 2) {
+				continue
+			}
+			coinFlip := util.GenerateIntFromRange(1, 2)
+			if coinFlip == 2 {
+				continue
+			}
+
+			// Okay, now we found an open player. Send a bid.
+			basePay := 1.0
+			if fa.Age < 25 || fa.Overall < 80 {
+				basePay = 0.7
+			} else if fa.Overall > 79 {
+				rangedPay := util.GenerateFloatFromRange(1, 3.5)
+				if rangedPay < fa.MinimumValue {
+					rangedPay = util.GenerateFloatFromRange(fa.MinimumValue, fa.MinimumValue+3.5)
+				}
+				basePay = RoundToFixedDecimalPlace(rangedPay, 2)
+			}
+
+			yearsOnContract := 2
+			if fa.Overall > 79 {
+				yearsOnContract = 3
+			} else {
+				yearsOnContract = 1
+			}
+			y1 := basePay
+			y2 := 0.0
+			y3 := 0.0
+			if yearsOnContract > 2 {
+				y3 = basePay
+			}
+			if yearsOnContract > 1 {
+				y2 = basePay
+			}
+			if fa.Position == "C" {
+				cBids++
+			} else if fa.Position == "PF" {
+				pfBids++
+			} else if fa.Position == "SF" {
+				sfBids++
+			} else if fa.Position == "SG" {
+				sgBids++
+			} else {
+				pgBids++
+			}
+			offer := structs.NBAContractOffer{
+				Year1Total:    y1,
+				Year2Total:    y2,
+				Year3Total:    y3,
+				TotalCost:     basePay * float64(yearsOnContract),
+				ContractValue: basePay,
+				IsActive:      true,
+				PlayerID:      fa.ID,
+				TeamID:        team.ID,
+				TotalYears:    uint(yearsOnContract),
+			}
+
+			repository.SaveContractOfferRecord(offer, db)
+		}
+	}
 }

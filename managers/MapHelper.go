@@ -112,3 +112,31 @@ func MakeExtensionMap(extensions []structs.NBAExtensionOffer) map[uint]structs.N
 
 	return contractMap
 }
+
+func MakeFreeAgencyOfferMap(offers []structs.NBAContractOffer) map[uint][]structs.NBAContractOffer {
+	offerMap := make(map[uint][]structs.NBAContractOffer)
+
+	for _, offer := range offers {
+		if len(offerMap[offer.PlayerID]) > 0 {
+			offerMap[offer.PlayerID] = append(offerMap[uint(offer.PlayerID)], offer)
+		} else {
+			offerMap[offer.PlayerID] = []structs.NBAContractOffer{offer}
+		}
+	}
+
+	return offerMap
+}
+
+func MakeFreeAgencyOfferMapByTeamID(offers []structs.NBAContractOffer) map[uint][]structs.NBAContractOffer {
+	offerMap := make(map[uint][]structs.NBAContractOffer)
+
+	for _, offer := range offers {
+		if len(offerMap[offer.TeamID]) > 0 {
+			offerMap[offer.TeamID] = append(offerMap[uint(offer.TeamID)], offer)
+		} else {
+			offerMap[offer.TeamID] = []structs.NBAContractOffer{offer}
+		}
+	}
+
+	return offerMap
+}

@@ -111,6 +111,7 @@ func RunAIGameplansViaCron() {
 func SyncFreeAgencyOffersViaCron() {
 	ts := managers.GetTimestamp()
 	if ts.RunCron && !ts.IsFreeAgencyLocked && !ts.IsDraftTime {
+		managers.SyncAIOffers()
 		managers.SyncFreeAgencyOffers()
 	}
 	if ts.RunCron && ts.NBASeasonOver {
