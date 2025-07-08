@@ -46,6 +46,9 @@ func AllocateCapsheets() {
 	playerMap := MakeNBAPlayerMap(players)
 
 	for _, team := range teams {
+		if team.ID > 32 {
+			break
+		}
 		TeamID := strconv.Itoa(int(team.ID))
 
 		players := GetNBAContractsByTeamID(TeamID)
