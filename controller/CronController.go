@@ -113,6 +113,7 @@ func SyncFreeAgencyOffersViaCron() {
 	if ts.RunCron && !ts.IsFreeAgencyLocked && !ts.IsDraftTime {
 		managers.SyncAIOffers()
 		managers.SyncFreeAgencyOffers()
+		managers.AllocateCapsheets()
 	}
 	if ts.RunCron && ts.NBASeasonOver {
 		managers.RunExtensionsAlgorithm()

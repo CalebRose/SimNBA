@@ -220,10 +220,13 @@ func CreateWaiverOffer(offer structs.NBAWaiverOfferDTO) structs.NBAWaiverOffer {
 	playerIDStr := strconv.Itoa(int(offer.PlayerID))
 	nbaPlayer := GetNBAPlayerRecord(playerIDStr)
 
-	if nbaPlayer.IsGLeague && nbaPlayer.TeamID == offer.TeamID {
+	if nbaPlayer.IsGLeague && nbaPlayer.TeamID != offer.TeamID {
+		message := "Breaking News! " + nbaPlayer.FirstName + " " + nbaPlayer.LastName + " has received an offer from the " + offer.Team + "!"
+		CreateNotification("CBB", message, "Offer", nbaPlayer.TeamID)
+	} else if nbaPlayer.IsGLeague && nbaPlayer.TeamID == offer.TeamID {
 		// Sign player back to team
 		nbaPlayer.ToggleGLeague()
-		db.Save(&nbaPlayer)
+		repository.SaveNBAPlayerRecord(nbaPlayer, db)
 
 		otherWaiverOffers := GetWaiverOffersByPlayerID(playerIDStr)
 
@@ -745,7 +748,7 @@ func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *
 				if Offer.IsActive && WinningOffer.ID != 0 && WinningOffer.ID != Offer.ID {
 					Offer.CancelOffer()
 				}
-				db.Save(&Offer)
+				repository.SaveContractOfferRecord(Offer, db)
 			}
 
 			// If there is a winning offer, sign the player
@@ -969,12 +972,16 @@ func SyncAIOffers() {
 
 	offers := GetAllFreeAgencyOffers()
 	offerMapByTeamID := MakeFreeAgencyOfferMapByTeamID(offers)
+	offerMapByPlayerID := MakeFreeAgencyOfferMap(offers)
 	freeAgents := GetAllFreeAgents()
 	players := GetAllNBAPlayers()
 	playerMap := MakeNBAPlayerMapByTeamID(players, true)
 	capsheetMap := GetCapsheetMap()
 
 	for _, team := range teams {
+		if team.ID > 32 {
+			continue
+		}
 		if len(team.NBAOwnerName) > 0 && team.NBAOwnerName != "AI" && team.NBAOwnerName != "" {
 			continue
 		}
@@ -1058,14 +1065,23 @@ func SyncAIOffers() {
 				continue
 			}
 
+			existingCompetition := offerMapByPlayerID[fa.ID]
+			if len(existingCompetition) > 4 {
+				continue
+			}
+			maxPercentage := GetMaxPercentage(fa.Year, fa.MaxRequested, fa.IsSuperMaxQualified)
+			minRequired := maxPercentage * ts.Y1Capspace
+			if minRequired == 0 {
+				minRequired = fa.MinimumValue
+			}
 			// Okay, now we found an open player. Send a bid.
 			basePay := 1.0
 			if fa.Age < 25 || fa.Overall < 80 {
 				basePay = 0.7
 			} else if fa.Overall > 79 {
 				rangedPay := util.GenerateFloatFromRange(1, 3.5)
-				if rangedPay < fa.MinimumValue {
-					rangedPay = util.GenerateFloatFromRange(fa.MinimumValue, fa.MinimumValue+3.5)
+				if rangedPay < minRequired {
+					rangedPay = util.GenerateFloatFromRange(minRequired, minRequired+3.5)
 				}
 				basePay = RoundToFixedDecimalPlace(rangedPay, 2)
 			}
@@ -1110,8 +1126,31 @@ func SyncAIOffers() {
 				TeamID:        team.ID,
 				TotalYears:    uint(yearsOnContract),
 			}
+			offerMapByPlayerID[fa.ID] = append(offerMapByPlayerID[fa.ID], offer)
+			offerMapByTeamID[team.ID] = append(offerMapByTeamID[team.ID], offer)
 
 			repository.SaveContractOfferRecord(offer, db)
 		}
 	}
+}
+
+func GetMaxPercentage(year int, maxRequested, isSuperMax bool) float64 {
+	if isSuperMax {
+		if year > 9 {
+			return 0.35
+		} else if year > 6 {
+			return 0.3
+		} else {
+			return 0.25
+		}
+	} else if maxRequested {
+		if year > 9 {
+			return 0.3
+		} else if year > 6 {
+			return 0.25
+		} else {
+			return 0.2
+		}
+	}
+	return 0
 }
