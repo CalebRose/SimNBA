@@ -64,6 +64,7 @@ func (m *NBAMatch) AddWeekData(id, week uint, timeslot string) {
 	m.WeekID = id
 	m.Week = week
 	m.TimeSlot = timeslot
+	m.MatchOfWeek = timeslot
 }
 
 func (m *NBAMatch) HideScore() {

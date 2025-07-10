@@ -542,7 +542,7 @@ func ImportISLGames() {
 	finalUpload := []structs.NBAMatch{}
 	for _, game := range fullSchedule {
 		seasonBase := ts.Season - 2000 // 2025
-		game.AddWeekData((uint(seasonBase)*100 + uint(game.Round)), uint(game.Round), game.Slot)
+		game.AddWeekData((uint(seasonBase)*100 + uint(game.Round)), uint(game.Round), game.TimeSlot)
 		finalUpload = append(finalUpload, game.NBAMatch)
 	}
 	repository.CreateNBARecordsBatch(db, finalUpload, 100)
