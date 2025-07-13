@@ -3,6 +3,7 @@ package structs
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -31,10 +32,15 @@ type Team struct {
 	ColorTwo          string
 	ColorThree        string
 	DiscordID         string
+	LastLogin         time.Time
 	Gameplan          []Gameplan            `gorm:"foreignKey:TeamID"`
 	TeamStats         []TeamStats           `gorm:"foreignKey:TeamID"`
 	TeamSeasonStats   TeamSeasonStats       `gorm:"foreignKey:TeamID"`
 	RecruitingProfile TeamRecruitingProfile `gorm:"foreignKey:TeamID"`
+}
+
+func (bt *Team) UpdateLatestInstance() {
+	bt.LastLogin = time.Now()
 }
 
 func (t *Team) AssignDiscordID(id string) {

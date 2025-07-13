@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"sync"
 
+	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
@@ -113,6 +114,8 @@ func GetBootstrapData(collegeID, proID string) BootstrapData {
 		go func() {
 			defer wg.Done()
 			collegeTeam = GetTeamByTeamID(collegeID)
+			collegeTeam.UpdateLatestInstance()
+			repository.SaveCollegeTeamRecord(collegeTeam, dbprovider.GetInstance().GetDB())
 		}()
 
 		go func() {
@@ -160,6 +163,8 @@ func GetBootstrapData(collegeID, proID string) BootstrapData {
 		go func() {
 			defer wg.Done()
 			nbaTeam = GetNBATeamByTeamID(proID)
+			nbaTeam.UpdateLatestInstance()
+			repository.SaveNBATeamRecord(nbaTeam, dbprovider.GetInstance().GetDB())
 		}()
 
 		go func() {

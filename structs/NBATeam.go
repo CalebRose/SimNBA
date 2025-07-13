@@ -1,6 +1,10 @@
 package structs
 
-import "github.com/jinzhu/gorm"
+import (
+	"time"
+
+	"github.com/jinzhu/gorm"
+)
 
 type NBATeam struct {
 	gorm.Model
@@ -39,13 +43,17 @@ type NBATeam struct {
 	GMDiscordID        string
 	CoachDiscordID     string
 	AssistantDiscordID string
-	Gameplan           NBAGameplan           `gorm:"foreignKey:TeamID"`
-	TeamStats          []NBATeamStats        `gorm:"foreignKey:TeamID"`
-	TeamSeasonStats    NBATeamSeasonStats    `gorm:"foreignKey:TeamID"`
-	RecruitingProfile  TeamRecruitingProfile `gorm:"foreignKey:TeamID"`
-	Capsheet           NBACapsheet           `gorm:"foreignKey:TeamID"`
-	Contracts          []NBAContract         `gorm:"foreignKey:TeamID"`
-	DraftPicks         []DraftPick           `gorm:"foreignKey:TeamID"`
+	LastLogin          time.Time
+	Gameplan           NBAGameplan        `gorm:"foreignKey:TeamID"`
+	TeamStats          []NBATeamStats     `gorm:"foreignKey:TeamID"`
+	TeamSeasonStats    NBATeamSeasonStats `gorm:"foreignKey:TeamID"`
+	Capsheet           NBACapsheet        `gorm:"foreignKey:TeamID"`
+	Contracts          []NBAContract      `gorm:"foreignKey:TeamID"`
+	DraftPicks         []DraftPick        `gorm:"foreignKey:TeamID"`
+}
+
+func (bt *NBATeam) UpdateLatestInstance() {
+	bt.LastLogin = time.Now()
 }
 
 func (t *NBATeam) AssignID(id uint) {

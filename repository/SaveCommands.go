@@ -142,6 +142,30 @@ func SaveNotification(noti structs.Notification, db *gorm.DB) {
 	}
 }
 
+func SaveCollegeTeamRecord(team structs.Team, db *gorm.DB) {
+	team.Gameplan = []structs.Gameplan{}
+	team.TeamStats = nil
+	team.TeamSeasonStats = structs.TeamSeasonStats{}
+	team.RecruitingProfile = structs.TeamRecruitingProfile{}
+	err := db.Save(&team).Error
+	if err != nil {
+		log.Panicln("Could not save team record!")
+	}
+}
+
+func SaveNBATeamRecord(team structs.NBATeam, db *gorm.DB) {
+	team.Gameplan = structs.NBAGameplan{}
+	team.TeamStats = nil
+	team.TeamSeasonStats = structs.NBATeamSeasonStats{}
+	team.Capsheet = structs.NBACapsheet{}
+	team.Contracts = nil
+	team.DraftPicks = nil
+	err := db.Save(&team).Error
+	if err != nil {
+		log.Panicln("Could not save team record!")
+	}
+}
+
 func SaveCBBRecruit(recruit structs.Recruit, db *gorm.DB) {
 	recruit.RecruitProfiles = nil
 	err := db.Save(&recruit).Error
