@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/CalebRose/SimNBA/managers"
@@ -35,7 +34,7 @@ func CreateTeamRequest(w http.ResponseWriter, r *http.Request) {
 
 	managers.CreateTeamRequest(request)
 
-	fmt.Fprintf(w, "Request Successfully Created")
+	json.NewEncoder(w).Encode(request)
 }
 
 func CreateNBATeamRequest(w http.ResponseWriter, r *http.Request) {
@@ -49,7 +48,6 @@ func CreateNBATeamRequest(w http.ResponseWriter, r *http.Request) {
 
 	managers.CreateNBATeamRequest(request)
 
-	fmt.Fprintf(w, "Request Successfully Created")
 	json.NewEncoder(w).Encode(request)
 }
 
@@ -64,7 +62,6 @@ func ApproveTeamRequest(w http.ResponseWriter, r *http.Request) {
 
 	managers.ApproveTeamRequest(request)
 
-	fmt.Fprintf(w, "Request: %+v", request)
 	json.NewEncoder(w).Encode(request)
 }
 
@@ -80,7 +77,6 @@ func RejectTeamRequest(w http.ResponseWriter, r *http.Request) {
 
 	managers.RejectTeamRequest(request)
 
-	fmt.Fprintf(w, "Request: %+v", request)
 	json.NewEncoder(w).Encode(request)
 }
 
@@ -96,7 +92,6 @@ func ApproveNBATeamRequest(w http.ResponseWriter, r *http.Request) {
 
 	managers.ApproveNBATeamRequest(request)
 
-	fmt.Fprintf(w, "Request: %+v", request)
 	json.NewEncoder(w).Encode(request)
 }
 
@@ -112,7 +107,6 @@ func RejectNBATeamRequest(w http.ResponseWriter, r *http.Request) {
 
 	managers.RejectNBATeamRequest(request)
 
-	fmt.Fprintf(w, "Request: %+v", request)
 	json.NewEncoder(w).Encode(request)
 }
 
