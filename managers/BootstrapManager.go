@@ -113,9 +113,11 @@ func GetBootstrapData(collegeID, proID string) BootstrapData {
 		wg.Add(3)
 		go func() {
 			defer wg.Done()
+			mu.Lock()
 			collegeTeam = GetTeamByTeamID(collegeID)
 			collegeTeam.UpdateLatestInstance()
 			repository.SaveCollegeTeamRecord(collegeTeam, dbprovider.GetInstance().GetDB())
+			mu.Unlock()
 		}()
 
 		go func() {
@@ -162,9 +164,11 @@ func GetBootstrapData(collegeID, proID string) BootstrapData {
 		wg.Add(3)
 		go func() {
 			defer wg.Done()
+			mu.Lock()
 			nbaTeam = GetNBATeamByTeamID(proID)
 			nbaTeam.UpdateLatestInstance()
 			repository.SaveNBATeamRecord(nbaTeam, dbprovider.GetInstance().GetDB())
+			mu.Unlock()
 		}()
 
 		go func() {
