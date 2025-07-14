@@ -285,7 +285,7 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/team/{teamId}", controller.GetTeamByTeamID).Methods("GET")
 	apiRouter.HandleFunc("/team/nba/{teamId}", controller.GetNBATeamByTeamID).Methods("GET")
 	apiRouter.HandleFunc("/team/removeUserFromTeam/{teamId}", controller.RemoveUserFromTeam).Methods("PUT")
-	apiRouter.HandleFunc("/team/nba/removeUserFromTeam/{teamId}", controller.RemoveUserFromTeam).Methods("PUT")
+	apiRouter.HandleFunc("/team/nba/removeUserFromTeam/{teamId}", controller.RemoveNBAUserFromNBATeam).Methods("POST")
 	apiRouter.HandleFunc("/teams", controller.AllTeams).Methods("GET")
 	apiRouter.HandleFunc("/teams/active", controller.AllActiveTeams).Methods("GET")
 	apiRouter.HandleFunc("/teams/active/college", controller.AllActiveCollegeTeams).Methods("GET")
