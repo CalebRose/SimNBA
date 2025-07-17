@@ -90,6 +90,13 @@ func SyncToNextWeekViaCron() {
 	}
 }
 
+func CheckUserGameplansViaCron() {
+	ts := managers.GetTimestamp()
+	if ts.RunCron && ts.RunGames && (!ts.IsOffSeason || !ts.IsNBAOffseason) {
+		managers.CheckAllUserGameplans()
+	}
+}
+
 func ShowGamesViaCron() {
 	ts := managers.GetTimestamp()
 	if ts.RunCron && ts.RunGames && (!ts.IsOffSeason || !ts.IsNBAOffseason) {

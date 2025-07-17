@@ -78,6 +78,7 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/admin/week/sync", controller.SyncToNextWeek).Methods("GET")
 	apiRouter.HandleFunc("/admin/sync/contract/values", controller.SyncContractValues).Methods("GET")
 	apiRouter.HandleFunc("/simbba/matches/simulation", controller.GetMatchesForSimulation).Methods("GET")
+	apiRouter.HandleFunc("/simcbb/user/gameplans/fix", controller.CheckUserGameplans).Methods("GET")
 
 	// apiRouter.HandleFunc("/admin/generateGlobalPlayers", controller.GenerateGlobalPlayerRecords).Methods("GET")
 	// apiRouter.HandleFunc("/admin/generate/gameplans", controller.GenerateGameplans).Methods("GET")
@@ -375,6 +376,7 @@ func handleCron() *cron.Cron {
 	if runJobs != "FALSE" {
 		c.AddFunc("0 16 * * 3", controller.SyncRecruitingViaCron)
 		c.AddFunc("0 6 * * 4,6", controller.SyncAIBoardsViaCron)
+		c.AddFunc("0 10 * * 1,3,5,6", controller.CheckUserGameplansViaCron)
 		c.AddFunc("0 20 * * 1,3,5,6", controller.ShowGamesViaCron)
 		c.AddFunc("0 22 * * 1,3,5,6", controller.RunAIGameplansViaCron)
 		c.AddFunc("0 10 * * 4", controller.FillAIBoardsViaCron)

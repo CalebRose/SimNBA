@@ -140,3 +140,23 @@ func MakeFreeAgencyOfferMapByTeamID(offers []structs.NBAContractOffer) map[uint]
 
 	return offerMap
 }
+
+func MakeCollegeGameplanMap(gamePlans []structs.Gameplan) map[uint]structs.Gameplan {
+	gameplanMap := make(map[uint]structs.Gameplan)
+
+	for _, gp := range gamePlans {
+		gameplanMap[gp.TeamID] = gp
+	}
+
+	return gameplanMap
+}
+
+func MakeCollegeTeamMap(teams []structs.Team) map[uint]structs.Team {
+	gameplanMap := make(map[uint]structs.Team)
+
+	for _, team := range teams {
+		gameplanMap[team.ID] = team
+	}
+
+	return gameplanMap
+}

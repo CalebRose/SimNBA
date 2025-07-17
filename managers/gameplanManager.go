@@ -9,6 +9,7 @@ import (
 	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
+	"gorm.io/gorm"
 )
 
 // UpdateGameplan -- Need to update
@@ -68,6 +69,16 @@ func UpdateNBAGameplan(updateGameplanDto structs.UpdateGameplanDto) {
 		record.UpdatePlayer(player.P1Minutes, player.P2Minutes, player.P3Minutes, player.PositionOne, player.PositionTwo, player.PositionThree, player.InsideProportion, player.MidRangeProportion, player.ThreePointProportion)
 		db.Save(&record)
 	}
+}
+
+func GetAllCollegeGameplans() []structs.Gameplan {
+	db := dbprovider.GetInstance().GetDB()
+
+	var gameplans []structs.Gameplan
+
+	db.Find(&gameplans)
+
+	return gameplans
 }
 
 // GetGameplansByTeam
@@ -152,14 +163,113 @@ func GetOpposingNBATeamRoster(teamID string) []structs.NBAPlayer {
 	return opposingRoster
 }
 
+func CheckAllUserGameplans() {
+	db := dbprovider.GetInstance().GetDB()
+	teams := GetAllActiveCollegeTeams()
+	collegeTeamMap := MakeCollegeTeamMap(teams)
+	collegePlayers := GetAllCollegePlayers()
+	collegePlayerMapByTeamID := MakeCollegePlayerMapByTeamID(collegePlayers, true)
+	gameplans := GetAllCollegeGameplans()
+	gameplanMap := MakeCollegeGameplanMap(gameplans)
+	teamIDsToCheck := []uint{}
+	teamIDStrings := []string{}
+	for _, team := range teams {
+		if !team.IsUserCoached {
+			continue
+		}
+		totalMinutes := 0
+		insideShotAllocation := 0.0
+		midRangeShotAllocation := 0.0
+		threePointShotAllocation := 0.0
+		pgMinutes := 0
+		sgMinutes := 0
+		sfMinutes := 0
+		pfMinutes := 0
+		cMinutes := 0
+		roster := collegePlayerMapByTeamID[team.ID]
+
+		for _, player := range roster {
+			if player.IsRedshirting || player.IsInjured {
+				continue
+			}
+			positionOne := player.PositionOne
+			positionTwo := player.PositionTwo
+			positionThree := player.PositionThree
+			if positionOne == "" && positionTwo == "" && positionThree == "" {
+				continue
+			}
+
+			positions := []struct {
+				pos     string
+				minutes int
+			}{
+				{positionOne, player.P1Minutes},
+				{positionTwo, player.P2Minutes},
+				{positionThree, player.P3Minutes},
+			}
+
+			for _, p := range positions {
+				switch p.pos {
+				case "PG":
+					pgMinutes += p.minutes
+				case "SG":
+					sgMinutes += p.minutes
+				case "SF":
+					sfMinutes += p.minutes
+				case "PF":
+					pfMinutes += p.minutes
+				case "C":
+					cMinutes += p.minutes
+				}
+			}
+
+			insideShotAllocation += player.InsideProportion
+			midRangeShotAllocation += player.MidRangeProportion
+			threePointShotAllocation += player.ThreePointProportion
+			totalMinutes += player.Minutes
+		}
+		totalShotAllocation := insideShotAllocation + midRangeShotAllocation + threePointShotAllocation
+
+		if totalMinutes <= 199 || totalShotAllocation < 100 {
+			message := fmt.Sprintf("Your team did not properly gameplan: %d\n of 200 Minutes were allocated across your roster", totalMinutes)
+			CreateNotification("CBB", message, "Gameplan", team.ID)
+			teamIDsToCheck = append(teamIDsToCheck, team.ID)
+			teamIDStrings = append(teamIDStrings, strconv.Itoa(int(team.ID)))
+		}
+	}
+
+	db.Model(&structs.CollegePlayer{}).Where("team_id in (?)", teamIDStrings).Updates(map[string]interface{}{
+		"minutes":                0,
+		"p1_minutes":             0,
+		"p2_minutes":             0,
+		"p3_minutes":             0,
+		"position_one":           "",
+		"position_two":           "",
+		"position_three":         "",
+		"inside_proportion":      0,
+		"mid_range_proportion":   0,
+		"three_point_proportion": 0,
+	})
+
+	for _, teamID := range teamIDsToCheck {
+		team := collegeTeamMap[teamID]
+		team.MarkTeamPenalty()
+		repository.SaveCollegeTeamRecord(team, db)
+		SetCollegeMinutesAndShotProportions(db, teamID, gameplanMap, collegePlayerMapByTeamID)
+	}
+}
+
 func SetAIGameplans() bool {
 	db := dbprovider.GetInstance().GetDB()
 
 	teams := GetAllActiveCollegeTeams()
 	teamIDs := []string{}
-
+	collegePlayers := GetAllCollegePlayers()
+	collegePlayerMapByTeamID := MakeCollegePlayerMapByTeamID(collegePlayers, true)
+	gameplans := GetAllCollegeGameplans()
+	gameplanMap := MakeCollegeGameplanMap(gameplans)
 	for _, team := range teams {
-		if team.IsUserCoached {
+		if team.IsUserCoached || team.ID != 60 {
 			continue
 		}
 		teamID := strconv.Itoa(int(team.ID))
@@ -183,256 +293,11 @@ func SetAIGameplans() bool {
 	// Update Minutes here
 
 	for _, team := range teams {
-		if !team.IsActive {
-			continue
-		}
-
 		if team.IsUserCoached {
 			continue
 		}
 
-		pgCount := 0
-		sgCount := 0
-		sfCount := 0
-		pfCount := 0
-		cCount := 0
-		pgMinutes := 0
-		sgMinutes := 0
-		sfMinutes := 0
-		pfMinutes := 0
-		cMinutes := 0
-
-		pgList := []structs.CollegePlayer{}
-		sgList := []structs.CollegePlayer{}
-		sfList := []structs.CollegePlayer{}
-		pfList := []structs.CollegePlayer{}
-		cList := []structs.CollegePlayer{}
-
-		gameplan := GetGameplansByTeam(strconv.Itoa(int(team.ID)))
-		off := "Balanced"
-		def := "Man-to-Man"
-		ost := ""
-		pace := "Balanced"
-
-		roster := GetCollegePlayersByTeamId(strconv.Itoa(int(team.ID)))
-		rMap := make(map[string]*structs.CollegePlayer)
-		for i := 0; i < len(roster); i++ {
-			id := strconv.Itoa(int(roster[i].ID))
-			rMap[id] = &roster[i]
-		}
-
-		for _, c := range roster {
-			if c.IsRedshirting || c.IsInjured {
-				continue
-			}
-
-			if c.Position == "PG" {
-				pgCount++
-				pgList = append(pgList, c)
-				sgList = append(sgList, c)
-			} else if c.Position == "SG" {
-				sgCount++
-				sgList = append(sgList, c)
-				pgList = append(pgList, c)
-				sfList = append(sfList, c)
-			} else if c.Position == "SF" {
-				sfCount++
-				sfList = append(sfList, c)
-				sgList = append(sgList, c)
-				pfList = append(pfList, c)
-			} else if c.Position == "PF" {
-				pfCount++
-				pfList = append(pfList, c)
-				sfList = append(sfList, c)
-				cList = append(cList, c)
-			} else if c.Position == "C" {
-				cCount++
-				cList = append(cList, c)
-				pfList = append(pfList, c)
-			}
-		}
-
-		if pgCount <= 2 && sgCount < 4 {
-			ost = "Jumbo"
-		} else if cCount <= 2 && pfCount < 4 {
-			ost = util.PickFromStringList([]string{"Small Ball", "Microball"})
-		} else {
-			ost = "Traditional"
-		}
-
-		if ost == "Traditional" {
-			pgMinutes = 40
-			sgMinutes = 40
-			pfMinutes = 40
-			sfMinutes = 40
-			cMinutes = 40
-		} else if ost == "Small Ball" {
-			pgMinutes = 40
-			sgMinutes = 80
-			pfMinutes = 40
-			sfMinutes = 40
-			cMinutes = 0
-		} else if ost == "Microball" {
-			pgMinutes = 80
-			sgMinutes = 80
-			pfMinutes = 00
-			sfMinutes = 40
-			cMinutes = 0
-		} else if ost == "Jumbo" {
-			pgMinutes = 0
-			sgMinutes = 40
-			pfMinutes = 80
-			sfMinutes = 40
-			cMinutes = 40
-		}
-		sort.Slice(pgList, func(i, j int) bool {
-			return pgList[i].Overall > pgList[j].Overall
-		})
-
-		sort.Slice(sgList, func(i, j int) bool {
-			return sgList[i].Overall > sgList[j].Overall
-		})
-
-		sort.Slice(sfList, func(i, j int) bool {
-			return sfList[i].Overall > sfList[j].Overall
-		})
-
-		sort.Slice(pfList, func(i, j int) bool {
-			return pfList[i].Overall > pfList[j].Overall
-		})
-
-		sort.Slice(cList, func(i, j int) bool {
-			return cList[i].Overall > cList[j].Overall
-		})
-		totalMinutes := 0
-		if ost == "Traditional" {
-			totalMinutes += setPositionMinutes(pgList, rMap, pgMinutes, "PG", ost)
-			totalMinutes += setPositionMinutes(sgList, rMap, sgMinutes, "SG", ost)
-			totalMinutes += setPositionMinutes(sfList, rMap, sfMinutes, "SF", ost)
-			totalMinutes += setPositionMinutes(pfList, rMap, pfMinutes, "PF", ost)
-			totalMinutes += setPositionMinutes(cList, rMap, cMinutes, "C", ost)
-		} else if ost == "Jumbo" {
-			totalMinutes += setPositionMinutes(cList, rMap, cMinutes, "C", ost)
-			totalMinutes += setPositionMinutes(pfList, rMap, pfMinutes, "PF", ost)
-			totalMinutes += setPositionMinutes(sfList, rMap, sfMinutes, "SF", ost)
-			totalMinutes += setPositionMinutes(sgList, rMap, sgMinutes, "SG", ost)
-		} else if ost == "Small Ball" {
-			totalMinutes += setPositionMinutes(sgList, rMap, sgMinutes, "SG", ost)
-			totalMinutes += setPositionMinutes(pgList, rMap, pgMinutes, "PG", ost)
-			totalMinutes += setPositionMinutes(sfList, rMap, sfMinutes, "SF", ost)
-			totalMinutes += setPositionMinutes(pfList, rMap, pfMinutes, "PF", ost)
-		} else if ost == "Microball" {
-			totalMinutes += setPositionMinutes(pgList, rMap, pgMinutes, "PG", ost)
-			totalMinutes += setPositionMinutes(sgList, rMap, sgMinutes, "SG", ost)
-			totalMinutes += setPositionMinutes(sfList, rMap, sfMinutes, "SF", ost)
-		}
-
-		// For testing purposes
-		teamMidRangeProportion := 0.0
-		teamMidrangeLimit := 40.0
-		teamInsideProportion := 0.0
-		teamInsideLimit := 40.0
-		teamThreePointProportion := 0.0
-		teamThreePointLimit := 20.0
-
-		sort.Slice(roster, func(i, j int) bool {
-			return roster[i].Minutes > roster[j].Minutes && roster[i].Overall > roster[j].Overall
-		})
-
-		teamTotalSkill := 0
-		for i := 0; i < len(roster); i++ {
-			if roster[i].Minutes == 0 || roster[i].IsRedshirting || roster[i].IsInjured {
-				continue
-			}
-			teamTotalSkill += roster[i].Shooting2 + roster[i].Shooting3 + roster[i].Finishing
-		}
-
-		// Loop for team shot proportions
-		for i := 0; i < len(roster); i++ {
-			if roster[i].Minutes == 0 || roster[i].IsRedshirting || roster[i].IsInjured {
-				continue
-			}
-			totalSkill := roster[i].Shooting2 + roster[i].Shooting3 + roster[i].Finishing
-			twoPointPercentage := float64(roster[i].Shooting2*100) / float64(totalSkill) * float64(roster[i].Minutes) / float64(roster[i].Stamina)
-			threePointPercentage := float64(roster[i].Shooting3*100) / float64(totalSkill) * float64(roster[i].Minutes) / float64(roster[i].Stamina)
-			insidePercentage := float64(roster[i].Finishing*100) / float64(totalSkill) * float64(roster[i].Minutes) / float64(roster[i].Stamina)
-			teamInsideProportion += insidePercentage
-			roster[i].SetInsideProportion(insidePercentage)
-			teamMidRangeProportion += twoPointPercentage
-			roster[i].SetMidShotProportion(twoPointPercentage)
-			teamThreePointProportion += threePointPercentage
-			roster[i].SetThreePointProportion(threePointPercentage)
-		}
-
-		insideProp := 0.0
-		midProp := 0.0
-		tpProp := 0.0
-
-		// Motion
-		if float64(teamThreePointProportion/teamMidRangeProportion) > 1.3 && float64(teamInsideProportion/teamMidRangeProportion) > 1.3 {
-			off = "Motion"
-			teamInsideLimit = 20
-			teamMidrangeLimit = 10
-			teamThreePointLimit = 70
-			// Pick-And-Roll
-		} else if float64(teamInsideProportion/teamMidRangeProportion) > 1.3 && float64(teamInsideProportion/teamThreePointProportion) > 1.3 {
-			off = "Pick-and-Roll"
-			teamInsideLimit = 40
-			teamMidrangeLimit = 20
-			teamThreePointLimit = 40
-			// Post-Up
-		} else if float64(teamInsideProportion/teamMidRangeProportion) > 1.5 && float64(teamInsideProportion/teamThreePointProportion) > 1.5 {
-			off = "Post-Up"
-			teamInsideLimit = 80
-			teamMidrangeLimit = 15
-			teamThreePointLimit = 5
-			// Space-And-Post
-		} else if float64(teamMidRangeProportion/teamInsideProportion) > 1.3 && float64(teamThreePointProportion/teamInsideProportion) > 1.3 {
-			off = "Space-and-Post"
-			teamInsideLimit = 20
-			teamMidrangeLimit = 40
-			teamThreePointLimit = 40
-		}
-
-		for i := 0; i < len(roster); i++ {
-			if roster[i].Minutes == 0 || roster[i].IsRedshirting || roster[i].IsInjured {
-				continue
-			}
-			normalizedInsideProportion := (roster[i].InsideProportion * float64(teamInsideLimit)) / teamInsideProportion
-			insideProp += normalizedInsideProportion
-			if insideProp > teamInsideLimit {
-				diff := insideProp - teamInsideLimit
-				insideProp -= diff
-				normalizedInsideProportion -= diff
-			}
-			roster[i].SetInsideProportion(normalizedInsideProportion)
-
-			normalizedMidrangeProportion := (roster[i].MidRangeProportion * float64(teamMidrangeLimit)) / teamMidRangeProportion
-			midProp += normalizedMidrangeProportion
-			if midProp > teamMidrangeLimit {
-				diff := midProp - teamMidrangeLimit
-				midProp -= diff
-				normalizedMidrangeProportion -= diff
-			}
-			roster[i].SetMidShotProportion(normalizedMidrangeProportion)
-
-			normalized3ptProportion := (roster[i].ThreePointProportion * float64(teamThreePointLimit)) / teamThreePointProportion
-			tpProp += normalized3ptProportion
-			if tpProp > teamThreePointLimit {
-				diff := tpProp - teamThreePointLimit
-				tpProp -= diff
-				normalized3ptProportion -= diff
-			}
-			roster[i].SetThreePointProportion(normalized3ptProportion)
-		}
-
-		for _, r := range roster {
-			repository.SaveCollegePlayerRecord(r, db)
-		}
-
-		gameplan.UpdateGameplan(pace, off, def, ost, "")
-
-		db.Save(&gameplan)
+		SetCollegeMinutesAndShotProportions(db, team.ID, gameplanMap, collegePlayerMapByTeamID)
 	}
 
 	islTeams := GetAllActiveNBATeams()
@@ -712,6 +577,252 @@ func SetAIGameplans() bool {
 	}
 
 	return true
+}
+
+func SetCollegeMinutesAndShotProportions(db *gorm.DB, teamID uint, gameplanMap map[uint]structs.Gameplan, collegePlayerMapByTeamID map[uint][]structs.CollegePlayer) {
+
+	pgCount := 0
+	sgCount := 0
+	sfCount := 0
+	pfCount := 0
+	cCount := 0
+	pgMinutes := 0
+	sgMinutes := 0
+	sfMinutes := 0
+	pfMinutes := 0
+	cMinutes := 0
+
+	pgList := []structs.CollegePlayer{}
+	sgList := []structs.CollegePlayer{}
+	sfList := []structs.CollegePlayer{}
+	pfList := []structs.CollegePlayer{}
+	cList := []structs.CollegePlayer{}
+
+	gameplan := gameplanMap[teamID]
+	off := "Balanced"
+	def := "Man-to-Man"
+	ost := ""
+	pace := "Balanced"
+
+	roster := collegePlayerMapByTeamID[teamID]
+	rMap := make(map[string]*structs.CollegePlayer)
+	for i := 0; i < len(roster); i++ {
+		id := strconv.Itoa(int(roster[i].ID))
+		rMap[id] = &roster[i]
+	}
+
+	for _, c := range roster {
+		if c.IsRedshirting || c.IsInjured {
+			continue
+		}
+
+		if c.Position == "PG" {
+			pgCount++
+			pgList = append(pgList, c)
+			sgList = append(sgList, c)
+		} else if c.Position == "SG" {
+			sgCount++
+			sgList = append(sgList, c)
+			pgList = append(pgList, c)
+			sfList = append(sfList, c)
+		} else if c.Position == "SF" {
+			sfCount++
+			sfList = append(sfList, c)
+			sgList = append(sgList, c)
+			pfList = append(pfList, c)
+		} else if c.Position == "PF" {
+			pfCount++
+			pfList = append(pfList, c)
+			sfList = append(sfList, c)
+			cList = append(cList, c)
+		} else if c.Position == "C" {
+			cCount++
+			cList = append(cList, c)
+			pfList = append(pfList, c)
+		}
+	}
+
+	if pgCount <= 2 && sgCount < 4 {
+		ost = "Jumbo"
+	} else if cCount <= 2 && pfCount < 4 {
+		ost = util.PickFromStringList([]string{"Small Ball", "Microball"})
+	} else {
+		ost = "Traditional"
+	}
+
+	if ost == "Traditional" {
+		pgMinutes = 40
+		sgMinutes = 40
+		pfMinutes = 40
+		sfMinutes = 40
+		cMinutes = 40
+	} else if ost == "Small Ball" {
+		pgMinutes = 40
+		sgMinutes = 80
+		pfMinutes = 40
+		sfMinutes = 40
+		cMinutes = 0
+	} else if ost == "Microball" {
+		pgMinutes = 80
+		sgMinutes = 80
+		pfMinutes = 00
+		sfMinutes = 40
+		cMinutes = 0
+	} else if ost == "Jumbo" {
+		pgMinutes = 0
+		sgMinutes = 40
+		pfMinutes = 80
+		sfMinutes = 40
+		cMinutes = 40
+	}
+	sort.Slice(pgList, func(i, j int) bool {
+		return pgList[i].Overall > pgList[j].Overall
+	})
+
+	sort.Slice(sgList, func(i, j int) bool {
+		return sgList[i].Overall > sgList[j].Overall
+	})
+
+	sort.Slice(sfList, func(i, j int) bool {
+		return sfList[i].Overall > sfList[j].Overall
+	})
+
+	sort.Slice(pfList, func(i, j int) bool {
+		return pfList[i].Overall > pfList[j].Overall
+	})
+
+	sort.Slice(cList, func(i, j int) bool {
+		return cList[i].Overall > cList[j].Overall
+	})
+	totalMinutes := 0
+	if ost == "Traditional" {
+		totalMinutes += setPositionMinutes(pgList, rMap, pgMinutes, "PG", ost)
+		totalMinutes += setPositionMinutes(sgList, rMap, sgMinutes, "SG", ost)
+		totalMinutes += setPositionMinutes(sfList, rMap, sfMinutes, "SF", ost)
+		totalMinutes += setPositionMinutes(pfList, rMap, pfMinutes, "PF", ost)
+		totalMinutes += setPositionMinutes(cList, rMap, cMinutes, "C", ost)
+	} else if ost == "Jumbo" {
+		totalMinutes += setPositionMinutes(cList, rMap, cMinutes, "C", ost)
+		totalMinutes += setPositionMinutes(pfList, rMap, pfMinutes, "PF", ost)
+		totalMinutes += setPositionMinutes(sfList, rMap, sfMinutes, "SF", ost)
+		totalMinutes += setPositionMinutes(sgList, rMap, sgMinutes, "SG", ost)
+	} else if ost == "Small Ball" {
+		totalMinutes += setPositionMinutes(sgList, rMap, sgMinutes, "SG", ost)
+		totalMinutes += setPositionMinutes(pgList, rMap, pgMinutes, "PG", ost)
+		totalMinutes += setPositionMinutes(sfList, rMap, sfMinutes, "SF", ost)
+		totalMinutes += setPositionMinutes(pfList, rMap, pfMinutes, "PF", ost)
+	} else if ost == "Microball" {
+		totalMinutes += setPositionMinutes(pgList, rMap, pgMinutes, "PG", ost)
+		totalMinutes += setPositionMinutes(sgList, rMap, sgMinutes, "SG", ost)
+		totalMinutes += setPositionMinutes(sfList, rMap, sfMinutes, "SF", ost)
+	}
+
+	// For testing purposes
+	teamMidRangeProportion := 0.0
+	teamMidrangeLimit := 40.0
+	teamInsideProportion := 0.0
+	teamInsideLimit := 40.0
+	teamThreePointProportion := 0.0
+	teamThreePointLimit := 20.0
+
+	sort.Slice(roster, func(i, j int) bool {
+		return roster[i].Minutes > roster[j].Minutes && roster[i].Overall > roster[j].Overall
+	})
+
+	teamTotalSkill := 0
+	for i := 0; i < len(roster); i++ {
+		if roster[i].Minutes == 0 || roster[i].IsRedshirting || roster[i].IsInjured {
+			continue
+		}
+		teamTotalSkill += roster[i].Shooting2 + roster[i].Shooting3 + roster[i].Finishing
+	}
+
+	// Loop for team shot proportions
+	for i := 0; i < len(roster); i++ {
+		if roster[i].Minutes == 0 || roster[i].IsRedshirting || roster[i].IsInjured {
+			continue
+		}
+		totalSkill := roster[i].Shooting2 + roster[i].Shooting3 + roster[i].Finishing
+		twoPointPercentage := float64(roster[i].Shooting2*100) / float64(totalSkill) * float64(roster[i].Minutes) / float64(roster[i].Stamina)
+		threePointPercentage := float64(roster[i].Shooting3*100) / float64(totalSkill) * float64(roster[i].Minutes) / float64(roster[i].Stamina)
+		insidePercentage := float64(roster[i].Finishing*100) / float64(totalSkill) * float64(roster[i].Minutes) / float64(roster[i].Stamina)
+		teamInsideProportion += insidePercentage
+		roster[i].SetInsideProportion(insidePercentage)
+		teamMidRangeProportion += twoPointPercentage
+		roster[i].SetMidShotProportion(twoPointPercentage)
+		teamThreePointProportion += threePointPercentage
+		roster[i].SetThreePointProportion(threePointPercentage)
+	}
+
+	insideProp := 0.0
+	midProp := 0.0
+	tpProp := 0.0
+
+	// Motion
+	if float64(teamThreePointProportion/teamMidRangeProportion) > 1.3 && float64(teamInsideProportion/teamMidRangeProportion) > 1.3 {
+		off = "Motion"
+		teamInsideLimit = 20
+		teamMidrangeLimit = 10
+		teamThreePointLimit = 70
+		// Pick-And-Roll
+	} else if float64(teamInsideProportion/teamMidRangeProportion) > 1.3 && float64(teamInsideProportion/teamThreePointProportion) > 1.3 {
+		off = "Pick-and-Roll"
+		teamInsideLimit = 40
+		teamMidrangeLimit = 20
+		teamThreePointLimit = 40
+		// Post-Up
+	} else if float64(teamInsideProportion/teamMidRangeProportion) > 1.5 && float64(teamInsideProportion/teamThreePointProportion) > 1.5 {
+		off = "Post-Up"
+		teamInsideLimit = 80
+		teamMidrangeLimit = 15
+		teamThreePointLimit = 5
+		// Space-And-Post
+	} else if float64(teamMidRangeProportion/teamInsideProportion) > 1.3 && float64(teamThreePointProportion/teamInsideProportion) > 1.3 {
+		off = "Space-and-Post"
+		teamInsideLimit = 20
+		teamMidrangeLimit = 40
+		teamThreePointLimit = 40
+	}
+
+	for i := 0; i < len(roster); i++ {
+		if roster[i].Minutes == 0 || roster[i].IsRedshirting || roster[i].IsInjured {
+			continue
+		}
+		normalizedInsideProportion := (roster[i].InsideProportion * float64(teamInsideLimit)) / teamInsideProportion
+		insideProp += normalizedInsideProportion
+		if insideProp > teamInsideLimit {
+			diff := insideProp - teamInsideLimit
+			insideProp -= diff
+			normalizedInsideProportion -= diff
+		}
+		roster[i].SetInsideProportion(normalizedInsideProportion)
+
+		normalizedMidrangeProportion := (roster[i].MidRangeProportion * float64(teamMidrangeLimit)) / teamMidRangeProportion
+		midProp += normalizedMidrangeProportion
+		if midProp > teamMidrangeLimit {
+			diff := midProp - teamMidrangeLimit
+			midProp -= diff
+			normalizedMidrangeProportion -= diff
+		}
+		roster[i].SetMidShotProportion(normalizedMidrangeProportion)
+
+		normalized3ptProportion := (roster[i].ThreePointProportion * float64(teamThreePointLimit)) / teamThreePointProportion
+		tpProp += normalized3ptProportion
+		if tpProp > teamThreePointLimit {
+			diff := tpProp - teamThreePointLimit
+			tpProp -= diff
+			normalized3ptProportion -= diff
+		}
+		roster[i].SetThreePointProportion(normalized3ptProportion)
+	}
+
+	for _, r := range roster {
+		repository.SaveCollegePlayerRecord(r, db)
+	}
+
+	gameplan.UpdateGameplan(pace, off, def, ost, "")
+
+	db.Save(&gameplan)
 }
 
 func setPositionMinutes(list []structs.CollegePlayer, rMap map[string]*structs.CollegePlayer, limit int, pos, ost string) int {

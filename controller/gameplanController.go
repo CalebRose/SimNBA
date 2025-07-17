@@ -89,3 +89,8 @@ func SetAIGameplans(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode("AI Gameplans failed to set")
 	}
 }
+
+func CheckUserGameplans(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	managers.CheckAllUserGameplans()
+}
