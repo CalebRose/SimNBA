@@ -166,6 +166,13 @@ func SaveNBATeamRecord(team structs.NBATeam, db *gorm.DB) {
 	}
 }
 
+func SaveNBAGameplanRecord(team structs.NBAGameplan, db *gorm.DB) {
+	err := db.Save(&team).Error
+	if err != nil {
+		log.Panicln("Could not save gameplan record!")
+	}
+}
+
 func SaveCBBRecruit(recruit structs.Recruit, db *gorm.DB) {
 	recruit.RecruitProfiles = nil
 	err := db.Save(&recruit).Error

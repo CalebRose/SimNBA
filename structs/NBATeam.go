@@ -44,6 +44,8 @@ type NBATeam struct {
 	CoachDiscordID     string
 	AssistantDiscordID string
 	LastLogin          time.Time
+	PenaltyMark        uint8
+	NoLongerActiveUser bool
 	Gameplan           NBAGameplan        `gorm:"foreignKey:TeamID"`
 	TeamStats          []NBATeamStats     `gorm:"foreignKey:TeamID"`
 	TeamSeasonStats    NBATeamSeasonStats `gorm:"foreignKey:TeamID"`
@@ -119,6 +121,23 @@ func (t *NBATeam) AssignWaiverOrder(order uint) {
 
 func (t *NBATeam) ActivateTradeAbility() {
 	t.CanTrade = true
+}
+
+func (t *NBATeam) MarkTeamPenalty() {
+	t.PenaltyMark++
+}
+
+func (t *NBATeam) ResetPenaltyMark() {
+	t.PenaltyMark = 0
+}
+
+func (t *NBATeam) CheckUserActivity() {
+	if t.PenaltyMark >= 3 {
+		t.NoLongerActiveUser = true
+	}
+	if t.LastLogin.Add(4 * 7 * 24 * time.Hour).Before(time.Now()) {
+		t.NoLongerActiveUser = true
+	}
 }
 
 type ISLTeamNeeds struct {

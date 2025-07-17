@@ -160,3 +160,23 @@ func MakeCollegeTeamMap(teams []structs.Team) map[uint]structs.Team {
 
 	return gameplanMap
 }
+
+func MakeNBAGameplanMap(gamePlans []structs.NBAGameplan) map[uint]structs.NBAGameplan {
+	gameplanMap := make(map[uint]structs.NBAGameplan)
+
+	for _, gp := range gamePlans {
+		gameplanMap[gp.TeamID] = gp
+	}
+
+	return gameplanMap
+}
+
+func MakeNBATeamMap(teams []structs.NBATeam) map[uint]structs.NBATeam {
+	gameplanMap := make(map[uint]structs.NBATeam)
+
+	for _, team := range teams {
+		gameplanMap[team.ID] = team
+	}
+
+	return gameplanMap
+}
