@@ -687,6 +687,7 @@ func checkMarketCity(city string) bool {
 func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *gorm.DB) {
 	seasonID := strconv.Itoa(int(ts.SeasonID))
 	rosterMap := GetFullRosterNBAMap()
+	capsheetMap := GetCapsheetMap()
 	for _, FA := range freeAgents {
 		// Check if still accepting offers
 		if ts.IsNBAOffseason && !FA.IsAcceptingOffers {
@@ -738,9 +739,12 @@ func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *
 				}
 				minimumValue = minimumValue * minimumValueMultiplier
 				validOffer := validateOffer(Offer, contractStatus, minimumValue)
+				teamCapsheet := capsheetMap[Offer.TeamID]
+				// Check to make sure that
+				belowCap := Offer.Year1Total+teamCapsheet.Year1Total+teamCapsheet.Year1Cap+teamCapsheet.Year1CashTransferred-teamCapsheet.Year1CashReceived <= ts.Y1Capspace
 
 				// Get the Contract with the best value for the FA
-				if Offer.IsActive && WinningOffer.ID == 0 && validOffer {
+				if Offer.IsActive && WinningOffer.ID == 0 && validOffer && belowCap {
 					*WinningOffer = Offer
 				}
 
@@ -754,6 +758,13 @@ func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *
 			// If there is a winning offer, sign the player
 			if WinningOffer.ID > 0 {
 				SignFreeAgent(*WinningOffer, FA, ts)
+				teamCapsheet := capsheetMap[WinningOffer.TeamID]
+				newTotal1 := teamCapsheet.Year1Total + WinningOffer.Year1Total
+				newTotal2 := teamCapsheet.Year2Total + WinningOffer.Year2Total
+				newTotal3 := teamCapsheet.Year3Total + WinningOffer.Year3Total
+				newTotal4 := teamCapsheet.Year4Total + WinningOffer.Year4Total
+				newTotal5 := teamCapsheet.Year5Total + WinningOffer.Year5Total
+				teamCapsheet.SyncTotals(newTotal1, newTotal2, newTotal3, newTotal4, newTotal5)
 			}
 		}
 	}

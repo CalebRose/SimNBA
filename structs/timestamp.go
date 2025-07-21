@@ -51,9 +51,9 @@ func (t *Timestamp) MoveUpASeason() {
 	t.IsNBAOffseason = true
 	t.IsOffSeason = true
 	t.CollegeWeek = 0
-	t.CollegeWeekID += 1
+	t.CollegeWeekID = (((t.SeasonID + 2020) - 2000) * 100)
 	t.NBAWeek = 0
-	t.NBAWeekID += 1
+	t.NBAWeekID = (((t.SeasonID + 2020) - 2000) * 100)
 	t.TransferPortalPhase = 0
 	t.CrootsGenerated = false
 	t.Y1Capspace = t.Y2Capspace
