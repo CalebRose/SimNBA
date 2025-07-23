@@ -45,16 +45,25 @@ func SyncRecruiting() {
 		teamMap[strconv.Itoa(int(teamRecruitingProfiles[i].ID))] = &teamRecruitingProfiles[i]
 		recruitProfilePointsMap[teamRecruitingProfiles[i].TeamAbbr] = 0.0
 	}
-
-	var recruitProfiles []structs.PlayerRecruitProfile
+	allRecruitProfiles := GetAllRecruitPlayerProfiles()
+	recruitProfileMap := MakeRecruitProfileMapByRecruitID(allRecruitProfiles)
 	var signeesLog []string
 
 	// Get every recruit
 	recruits := GetAllUnsignedRecruits()
 
 	// Iterate through every recruit
+	skipOver := []int{1, 2}
+
+	sort.Ints(skipOver)
+
 	for _, recruit := range recruits {
-		recruitProfiles = GetRecruitPlayerProfilesByRecruitId(strconv.Itoa(int(recruit.ID)))
+		id := recruit.ID
+		i := sort.SearchInts(skipOver, int(id))
+		if i < len(skipOver) && skipOver[i] == int(id) {
+			continue
+		}
+		recruitProfiles := recruitProfileMap[id]
 
 		if len(recruitProfiles) == 0 {
 			continue
