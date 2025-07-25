@@ -687,7 +687,7 @@ func checkMarketCity(city string) bool {
 func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *gorm.DB) {
 	seasonID := strconv.Itoa(int(ts.SeasonID))
 	rosterMap := GetFullRosterNBAMap()
-	capsheetMap := GetCapsheetMap()
+	capsheetMap := GetPointedCapsheetMap()
 	nbaTeams := GetAllActiveNBATeams()
 	nbaTeamMap := MakeNBATeamMap(nbaTeams)
 	for _, FA := range freeAgents {

@@ -151,3 +151,15 @@ func GetCapsheetMap() map[uint]structs.NBACapsheet {
 
 	return capsheetMap
 }
+
+func GetPointedCapsheetMap() map[uint]*structs.NBACapsheet {
+
+	capsheetMap := make(map[uint]*structs.NBACapsheet)
+	capsheets := GetAllCapsheets()
+
+	for _, cs := range capsheets {
+		capsheetMap[cs.TeamID] = &cs
+	}
+
+	return capsheetMap
+}
