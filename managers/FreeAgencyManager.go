@@ -746,10 +746,14 @@ func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *
 				belowCap := Offer.Year1Total+teamCapsheet.Year1Total+teamCapsheet.Year1Cap+teamCapsheet.Year1CashTransferred-teamCapsheet.Year1CashReceived <= ts.Y1Capspace
 				nbaTeam := nbaTeamMap[Offer.TeamID]
 				isAi := nbaTeam.NBAOwnerName == "" || nbaTeam.NBAOwnerName == "AI"
-				withinRosterLimit := len(roster) < 18 && isAi
+				withinRosterLimit := len(roster) < 18
 				// Get the Contract with the best value for the FA
-				if Offer.IsActive && WinningOffer.ID == 0 && validOffer && belowCap && withinRosterLimit {
-					*WinningOffer = Offer
+				if Offer.IsActive && WinningOffer.ID == 0 && validOffer && belowCap {
+					if isAi && !withinRosterLimit {
+						Offer.CancelOffer()
+					} else {
+						*WinningOffer = Offer
+					}
 				}
 
 				// If the offer being iterated through ISN'T the winning offer, cancel the offer.
