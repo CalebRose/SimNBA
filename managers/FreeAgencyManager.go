@@ -688,6 +688,8 @@ func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *
 	seasonID := strconv.Itoa(int(ts.SeasonID))
 	rosterMap := GetFullRosterNBAMap()
 	capsheetMap := GetCapsheetMap()
+	nbaTeams := GetAllActiveNBATeams()
+	nbaTeamMap := MakeNBATeamMap(nbaTeams)
 	for _, FA := range freeAgents {
 		// Check if still accepting offers
 		if ts.IsNBAOffseason && !FA.IsAcceptingOffers {
@@ -742,9 +744,11 @@ func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *
 				teamCapsheet := capsheetMap[Offer.TeamID]
 				// Check to make sure that
 				belowCap := Offer.Year1Total+teamCapsheet.Year1Total+teamCapsheet.Year1Cap+teamCapsheet.Year1CashTransferred-teamCapsheet.Year1CashReceived <= ts.Y1Capspace
-
+				nbaTeam := nbaTeamMap[Offer.TeamID]
+				isAi := nbaTeam.NBAOwnerName == "" || nbaTeam.NBAOwnerName == "AI"
+				withinRosterLimit := len(roster) < 18 && isAi
 				// Get the Contract with the best value for the FA
-				if Offer.IsActive && WinningOffer.ID == 0 && validOffer && belowCap {
+				if Offer.IsActive && WinningOffer.ID == 0 && validOffer && belowCap && withinRosterLimit {
 					*WinningOffer = Offer
 				}
 
