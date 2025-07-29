@@ -83,13 +83,17 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 
 			livestreamChannel := 0
 			if (ht.IsUserCoached) || (at.IsUserCoached) {
-				livestreamChannel = 1
-			} else if ht.ConferenceID < 6 || ht.ConferenceID == 11 || at.ConferenceID < 6 || at.ConferenceID == 11 {
-				livestreamChannel = 2
-			} else if !(ht.ConferenceID < 6 || ht.ConferenceID == 11 || at.ConferenceID < 6 || at.ConferenceID == 11) && ((ht.ConferenceID > 5 && ht.ConferenceID < 14) || (at.ConferenceID > 5 && at.ConferenceID < 14)) {
-				livestreamChannel = 3
+				if ht.ConferenceID%2 == 1 {
+					livestreamChannel = 1
+				} else {
+					livestreamChannel = 2
+				}
 			} else {
-				livestreamChannel = 4
+				if ht.ConferenceID%2 == 1 {
+					livestreamChannel = 3
+				} else {
+					livestreamChannel = 4
+				}
 			}
 
 			if c.IsPlayoffGame {
