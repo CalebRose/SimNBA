@@ -47,7 +47,6 @@ func SyncRecruiting() {
 	}
 	allRecruitProfiles := GetAllRecruitPlayerProfiles()
 	recruitProfileMap := MakeRecruitProfileMapByRecruitID(allRecruitProfiles)
-	var signeesLog []string
 
 	// Get every recruit
 	recruits := GetAllUnsignedRecruits()
@@ -199,10 +198,6 @@ func SyncRecruiting() {
 	}
 
 	updateTeamRankings(teamRecruitingProfiles, teamMap, recruitProfilePointsMap, db)
-
-	for _, log := range signeesLog {
-		fmt.Println(log)
-	}
 
 	if timestamp.IsRecruitingLocked {
 		timestamp.ToggleLockRecruiting()
@@ -421,7 +416,6 @@ func AllocatePointsToAIBoards() {
 	ts := GetTimestamp()
 
 	AITeams := GetOnlyAITeamRecruitingProfiles()
-	coachMap := GetActiveCollegeCoachMap()
 
 	// Shuffles the list of AI teams so that it's not always iterating from A-Z. Gives the teams at the lower end of the list a chance to recruit other croots
 	rand.Shuffle(len(AITeams), func(i, j int) {
@@ -433,10 +427,6 @@ func AllocatePointsToAIBoards() {
 			continue
 		}
 		id := strconv.Itoa(int(team.ID))
-		coach := coachMap[team.ID]
-		if coach.ID == 0 {
-			continue
-		}
 		currentRoster := GetCollegePlayersByTeamId(id)
 		signedCroots := GetSignedRecruitsByTeamProfileID(id)
 		teamNeedsMap := make(map[string]bool)
@@ -552,8 +542,8 @@ func AllocatePointsToAIBoards() {
 						continue
 					}
 
-					min := coach.PointMin
-					max := coach.PointMax
+					min := team.AIMaxThreshold
+					max := team.AIMinThreshold
 
 					if team.AIBehavior == "Conservative" {
 						max -= 2
