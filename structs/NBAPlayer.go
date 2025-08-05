@@ -265,3 +265,7 @@ func (f *NBAPlayer) DeclineOffer(week int) {
 func (cp *NBAPlayer) AddSeasonStats(seasonStats NBAPlayerSeasonStats) {
 	cp.SeasonStats = seasonStats
 }
+
+func (np *NBAPlayer) ApplyCountry(country string) {
+	np.Country = country
+}

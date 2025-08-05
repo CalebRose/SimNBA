@@ -74,3 +74,7 @@ func ImportPlaytimeExpectations(w http.ResponseWriter, r *http.Request) {
 func ImportCustomCroots(w http.ResponseWriter, r *http.Request) {
 	managers.CreateCustomCroots()
 }
+
+func FixEmptyCountryValues(w http.ResponseWriter, r *http.Request) {
+	managers.FixEmptyCountryValues()
+}

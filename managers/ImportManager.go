@@ -1696,3 +1696,20 @@ func BlossomPartition(teams []structs.NBATeam, master []ScheduledGame, totalRoun
 
 	return rounds, nil
 }
+
+func FixEmptyCountryValues() {
+	db := dbprovider.GetInstance().GetDB()
+
+	nbaPlayers := GetAllNBAPlayers()
+
+	for _, p := range nbaPlayers {
+		if len(p.Country) > 0 {
+			continue
+		}
+
+		// Country == "" at this point
+		country := pickISLCountry()
+		p.ApplyCountry(country)
+		repository.SaveNBAPlayerRecord(p, db)
+	}
+}
