@@ -38,7 +38,8 @@ func GenerateCollegeWalkons(w http.ResponseWriter, r *http.Request) {
 }
 
 func GenerateInternationalPlayers(w http.ResponseWriter, r *http.Request) {
-	managers.GenerateInternationalPlayers()
+	// managers.GenerateInternationalPlayers()
+	managers.GenerateAdditionalWorldCupPlayers()
 	json.NewEncoder(w).Encode("GENERATION COMPLETE")
 }
 

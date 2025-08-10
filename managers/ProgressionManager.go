@@ -42,9 +42,6 @@ func ProgressionMain() {
 	forgottenPlayersID := "0"
 	roster := GetCollegePlayersByTeamIdForProgression(forgottenPlayersID, ts)
 	for _, player := range roster {
-		if player.PreviousTeamID == 368 {
-			continue
-		}
 		processCollegePlayer(player, ts, db)
 	}
 

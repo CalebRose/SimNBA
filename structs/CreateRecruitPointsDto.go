@@ -9,3 +9,13 @@ type CreateRecruitProfileDto struct {
 	HasRegionBonus bool
 	Team           string
 }
+
+type CreateRecruitProfileDtoV2 struct {
+	ProfileID      uint
+	PlayerID       uint
+	RecruitID      uint
+	SeasonID       uint
+	HasStateBonus  bool
+	HasRegionBonus bool
+	Team           string
+}

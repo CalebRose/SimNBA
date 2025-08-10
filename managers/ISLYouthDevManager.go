@@ -2,6 +2,7 @@ package managers
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"sort"
 	"strconv"
@@ -695,4 +696,45 @@ func PickUpISLPlayers() {
 	}
 
 	repository.CreateProContractRecordsBatch(db, contractUpload, 100)
+}
+
+func GenerateAdditionalWorldCupPlayers() {
+	db := dbprovider.GetInstance().GetDB()
+	var lastPlayerRecord structs.GlobalPlayer
+
+	err := db.Last(&lastPlayerRecord).Error
+	if err != nil {
+		log.Fatalln("Could not grab last player record from players table...")
+	}
+
+	// var playerList []structs.CollegePlayer
+
+	newID := lastPlayerRecord.ID + 1
+
+	nameMap := getInternationalNameMap()
+	countries := []string{"Costa Rica", "Thailand", "Bangladesh", "Malaysia", "Papua New Guinea", "Fiji", "Mongolia", "Kazakhstan", "Estonia", "Ireland", "Slovakia"}
+
+	for _, country := range countries {
+		limit := 20
+		for i := 1; i < limit; i++ {
+			pickedPosition := util.PickPositionFromList()
+			pickedEthnicity := pickLocale(country)
+			year := 1
+			countryNames := nameMap[pickedEthnicity]
+			player := createInternationalPlayer(0, "", country, pickedEthnicity, pickedPosition, year, countryNames["first_names"], countryNames["last_names"], newID)
+			repository.CreateProfessionalPlayerRecord(player, db)
+
+			globalPlayer := structs.GlobalPlayer{
+				CollegePlayerID: newID,
+				RecruitID:       newID,
+				NBAPlayerID:     newID,
+			}
+
+			globalPlayer.SetID(newID)
+
+			repository.CreateGlobalPlayerRecord(globalPlayer, db)
+			newID++
+		}
+
+	}
 }

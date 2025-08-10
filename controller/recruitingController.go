@@ -107,6 +107,22 @@ func AddRecruitToBoard(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "New Recruiting Profile Created")
 }
 
+func AddRecruitToBoardV2(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	var recruitPointsDto structs.CreateRecruitProfileDtoV2
+	err := json.NewDecoder(r.Body).Decode(&recruitPointsDto)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	recruitingProfile := managers.AddRecruitToTeamBoardV2(recruitPointsDto)
+
+	json.NewEncoder(w).Encode(recruitingProfile)
+
+	fmt.Fprintf(w, "New Recruiting Profile Created")
+}
+
 func AllocateRecruitingPointsForRecruit(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	var updateRecruitPointsDto structs.UpdateRecruitPointsDto

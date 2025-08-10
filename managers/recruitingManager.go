@@ -230,6 +230,38 @@ func AddRecruitToTeamBoard(recruitProfileDto structs.CreateRecruitProfileDto) st
 	return newProfileForRecruit
 }
 
+func AddRecruitToTeamBoardV2(recruitProfileDto structs.CreateRecruitProfileDtoV2) structs.PlayerRecruitProfile {
+	db := dbprovider.GetInstance().GetDB()
+
+	recruitProfile := GetPlayerRecruitProfileByPlayerId(strconv.Itoa(int(recruitProfileDto.PlayerID)), strconv.Itoa(int(recruitProfileDto.ProfileID)))
+
+	// If Recruit Already Exists
+	if recruitProfile.RecruitID != 0 && recruitProfile.ProfileID != 0 {
+		recruitProfile.ReplaceRecruitToBoard()
+		repository.SaveCBBRecruitProfile(recruitProfile, db)
+		return recruitProfile
+	}
+
+	newProfileForRecruit := structs.PlayerRecruitProfile{
+		SeasonID:           recruitProfileDto.SeasonID,
+		RecruitID:          recruitProfileDto.PlayerID,
+		ProfileID:          recruitProfileDto.ProfileID,
+		TeamAbbreviation:   recruitProfileDto.Team,
+		TotalPoints:        0,
+		CurrentWeeksPoints: 0,
+		Scholarship:        false,
+		InterestLevel:      "None",
+		IsSigned:           false,
+		RemovedFromBoard:   false,
+		HasStateBonus:      recruitProfileDto.HasStateBonus,
+		HasRegionBonus:     recruitProfileDto.HasRegionBonus,
+	}
+
+	db.Create(&newProfileForRecruit)
+
+	return newProfileForRecruit
+}
+
 func GetPlayerRecruitProfileByPlayerId(playerId string, profileId string) structs.PlayerRecruitProfile {
 	db := dbprovider.GetInstance().GetDB()
 

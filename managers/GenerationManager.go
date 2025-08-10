@@ -944,6 +944,7 @@ func createRecruit(fName, lName, state, country, position string, year int, id u
 	croot.SetID(id)
 	croot.AssignRecruitModifier(recruitModifier)
 	croot.SetAttributes(shooting2, shooting3, finishing, freeThrow, ballwork, rebounding, interiorDefense, perimeterDefense, overall, stars, expectations)
+	croot.AssignArchetype()
 	croot.SetID(id)
 
 	return croot
@@ -1030,6 +1031,7 @@ func createInternationalPlayer(teamID uint, team, country, ethnicity, position s
 	player.SetID(id)
 	player.SetAttributes(shooting2, shooting3, finishing, freeThrow, ballwork, rebounding, interiorDefense, perimeterDefense, overall, stars, expectations)
 	player.SetDisciplineAndIR(discipline, injuryRating)
+	player.AssignArchetype()
 	if age > 18 && age < 23 {
 		diff := age - 18
 		if diff > 3 {
@@ -1322,6 +1324,7 @@ func pickLocale(country string) string {
 		"Hungary":            {"sl_SI", "hu_HU"},
 		"Bosnia":             {"bs_BA", "ro_RO", "sl_SI"},
 		"Czech Republic":     {"cs_CZ", "bg_BG"},
+		"Slovakia":           {"cs_CZ", "bg_BG"},
 		"Estonia":            {"et_EE", "lt_LT"},
 		"Kosovo":             {"sl_SI", "ro_RO"},
 		"Montenegro":         {"sl_SI", "ro_RO"},
@@ -1474,7 +1477,7 @@ func pickISLCountry() string {
 			{Name: "Denmark", Weight: 2}, {Name: "Finland", Weight: 2}, {Name: "Iceland", Weight: 2}, {Name: "Norway", Weight: 2}, {Name: "Sweden", Weight: 2}, {Name: "Latvia", Weight: 1}, {Name: "Poland", Weight: 1}, {Name: "Australia", Weight: 5},
 			{Name: "New Zealand", Weight: 3}, {Name: "Vietnam", Weight: 3}, {Name: "Philippines", Weight: 2}, {Name: "Taiwan", Weight: 2}, {Name: "Indonesia", Weight: 2}, {Name: "Malaysia", Weight: 1}, {Name: "Singapore", Weight: 1},
 			{Name: "Thailand", Weight: 1}, {Name: "Egypt", Weight: 3}, {Name: "Bahrain", Weight: 2}, {Name: "Iran", Weight: 2}, {Name: "Kuwait", Weight: 2}, {Name: "Lebanon", Weight: 2}, {Name: "Saudi Arabia", Weight: 2},
-			{Name: "Syria", Weight: 2}, {Name: "Azerbaijan", Weight: 1}, {Name: "Palestine", Weight: 1}, {Name: "Iraq", Weight: 1}, {Name: "Qatar", Weight: 1}, {Name: "UAE", Weight: 1},
+			{Name: "Syria", Weight: 2}, {Name: "Azerbaijan", Weight: 1}, {Name: "Palestine", Weight: 1}, {Name: "Iraq", Weight: 1}, {Name: "Qatar", Weight: 1}, {Name: "UAE", Weight: 1}, {Name: "Slovakia", Weight: 1},
 		}
 		// Calculate the total weight
 		totalWeight := 0
@@ -2479,6 +2482,7 @@ func GenerateCollegeWalkons() {
 			}
 			pickedEthnicity := pickEthnicity()
 			player := createCollegePlayer(team, pickedEthnicity, position, year, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], newID, true)
+			player.AssignArchetype()
 			globalPlayer := structs.GlobalPlayer{
 				Model:           gorm.Model{ID: newID},
 				CollegePlayerID: newID,
