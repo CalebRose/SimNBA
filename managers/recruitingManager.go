@@ -391,6 +391,32 @@ func SendScholarshipToRecruit(updateRecruitPointsDto structs.UpdateRecruitPoints
 	return crootProfile, recruitingProfile
 }
 
+func SendScholarshipToRecruitV2(updateRecruitPointsDto structs.UpdateRecruitPointsDtoV2) (structs.PlayerRecruitProfile, structs.TeamRecruitingProfile) {
+	db := dbprovider.GetInstance().GetDB()
+
+	recruitingProfile := GetOnlyTeamRecruitingProfileByTeamID(strconv.Itoa(updateRecruitPointsDto.ProfileID))
+
+	if recruitingProfile.ScholarshipsAvailable == 0 {
+		log.Fatalf("%s", "\nTeamId: "+strconv.Itoa(updateRecruitPointsDto.ProfileID)+" does not have any availabe scholarships")
+	}
+
+	crootProfile := GetPlayerRecruitProfileByPlayerId(
+		strconv.Itoa(updateRecruitPointsDto.RecruitID),
+		strconv.Itoa(updateRecruitPointsDto.ProfileID),
+	)
+
+	crootProfile.ToggleScholarship(updateRecruitPointsDto.RewardScholarship, updateRecruitPointsDto.RevokeScholarship)
+	if crootProfile.Scholarship {
+		recruitingProfile.SubtractScholarshipsAvailable()
+	} else {
+		recruitingProfile.ReallocateScholarship()
+	}
+
+	repository.SaveCBBRecruitProfile(crootProfile, db)
+	repository.SaveCBBTeamRecruitingProfile(recruitingProfile, db)
+	return crootProfile, recruitingProfile
+}
+
 func RevokeScholarshipFromRecruit(updateRecruitPointsDto structs.UpdateRecruitPointsDto) (structs.PlayerRecruitProfile, structs.TeamRecruitingProfile) {
 	db := dbprovider.GetInstance().GetDB()
 

@@ -145,6 +145,19 @@ func SendScholarshipToRecruit(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func SendScholarshipToRecruitV2(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	var updateRecruitPointsDto structs.UpdateRecruitPointsDtoV2
+	err := json.NewDecoder(r.Body).Decode(&updateRecruitPointsDto)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	managers.SendScholarshipToRecruitV2(updateRecruitPointsDto)
+
+}
+
 func RemoveRecruitFromBoard(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	var updateRecruitPointsDto structs.UpdateRecruitPointsDto
