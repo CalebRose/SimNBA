@@ -170,6 +170,18 @@ func RemoveRecruitFromBoard(w http.ResponseWriter, r *http.Request) {
 	managers.RemoveRecruitFromBoard(updateRecruitPointsDto)
 }
 
+func RemoveRecruitFromBoardV2(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	var updateRecruitPointsDto structs.UpdateRecruitPointsDtoV2
+	err := json.NewDecoder(r.Body).Decode(&updateRecruitPointsDto)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	managers.RemoveRecruitFromBoardV2(updateRecruitPointsDto)
+}
+
 func SaveRecruitingBoard(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	var updateRecruitingBoardDto structs.UpdateRecruitingBoardDto

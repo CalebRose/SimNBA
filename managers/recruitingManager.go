@@ -459,6 +459,24 @@ func RemoveRecruitFromBoard(updateRecruitPointsDto structs.UpdateRecruitPointsDt
 	return recruitingPointsProfile
 }
 
+func RemoveRecruitFromBoardV2(updateRecruitPointsDto structs.UpdateRecruitPointsDtoV2) structs.PlayerRecruitProfile {
+	db := dbprovider.GetInstance().GetDB()
+
+	recruitingPointsProfile := GetPlayerRecruitProfileByPlayerId(
+		strconv.Itoa(updateRecruitPointsDto.RecruitID),
+		strconv.Itoa(updateRecruitPointsDto.ProfileID),
+	)
+
+	if recruitingPointsProfile.RemovedFromBoard {
+		panic("Recruit already removed from board")
+	}
+
+	recruitingPointsProfile.RemoveRecruitFromBoard()
+	repository.SaveCBBRecruitProfile(recruitingPointsProfile, db)
+
+	return recruitingPointsProfile
+}
+
 func UpdateRecruitingProfile(updateRecruitingBoardDto structs.UpdateRecruitingBoardDto) structs.TeamRecruitingProfile {
 	db := dbprovider.GetInstance().GetDB()
 

@@ -247,6 +247,7 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/recruit/toggle/Scholarship/v2", controller.SendScholarshipToRecruitV2).Methods("POST")
 	// apiRouter.HandleFunc("/recruit/revokeScholarshipFromRecruit", controller.RevokeScholarshipFromRecruit).Methods("PUT")
 	apiRouter.HandleFunc("/recruit/removeRecruit", controller.RemoveRecruitFromBoard).Methods("POST")
+	apiRouter.HandleFunc("/recruit/remove/recruit/v2", controller.RemoveRecruitFromBoardV2).Methods("POST")
 	apiRouter.HandleFunc("/recruit/saveRecruitingBoard", controller.SaveRecruitingBoard).Methods("POST")
 	apiRouter.HandleFunc("/croots/export/all", controller.ExportCroots).Methods("GET")
 
