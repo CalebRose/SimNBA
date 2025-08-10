@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/CalebRose/SimNBA/managers"
 	"github.com/CalebRose/SimNBA/structs"
@@ -119,8 +118,6 @@ func AddRecruitToBoardV2(w http.ResponseWriter, r *http.Request) {
 	recruitingProfile := managers.AddRecruitToTeamBoardV2(recruitPointsDto)
 
 	json.NewEncoder(w).Encode(recruitingProfile)
-
-	fmt.Fprintf(w, "New Recruiting Profile Created")
 }
 
 func AllocateRecruitingPointsForRecruit(w http.ResponseWriter, r *http.Request) {
@@ -133,8 +130,6 @@ func AllocateRecruitingPointsForRecruit(w http.ResponseWriter, r *http.Request) 
 	}
 
 	managers.AllocateRecruitingPointsForRecruit(updateRecruitPointsDto)
-
-	fmt.Printf("Updated Recruiting Points Profile")
 }
 
 func SendScholarshipToRecruit(w http.ResponseWriter, r *http.Request) {
@@ -146,9 +141,8 @@ func SendScholarshipToRecruit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	recruitingPointsProfile, recruitingProfile := managers.SendScholarshipToRecruit(updateRecruitPointsDto)
-	fmt.Printf("%s", "\nScholarship allocated to player "+strconv.Itoa(int(recruitingPointsProfile.RecruitID))+". Record saved")
-	fmt.Printf("%s", "\nProfile: "+strconv.Itoa(int(recruitingProfile.TeamID))+" Saved")
+	managers.SendScholarshipToRecruit(updateRecruitPointsDto)
+
 }
 
 func RemoveRecruitFromBoard(w http.ResponseWriter, r *http.Request) {
@@ -160,9 +154,7 @@ func RemoveRecruitFromBoard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	recruitingPointsProfile := managers.RemoveRecruitFromBoard(updateRecruitPointsDto)
-
-	fmt.Printf("%s", "\nPlayer "+strconv.Itoa(int(recruitingPointsProfile.RecruitID))+" removed from board.")
+	managers.RemoveRecruitFromBoard(updateRecruitPointsDto)
 }
 
 func SaveRecruitingBoard(w http.ResponseWriter, r *http.Request) {
@@ -174,9 +166,8 @@ func SaveRecruitingBoard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	recruitingProfile := managers.UpdateRecruitingProfile(updateRecruitingBoardDto)
+	managers.UpdateRecruitingProfile(updateRecruitingBoardDto)
 
-	fmt.Println("Updated Recruiting Profile " + strconv.Itoa(int(recruitingProfile.TeamID)) + " and all associated players")
 	w.WriteHeader(http.StatusOK)
 }
 
