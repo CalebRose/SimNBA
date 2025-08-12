@@ -341,7 +341,7 @@ func FillAIRecruitingBoards() {
 				if croot.State == team.State {
 					odds += 38
 				}
-				if regionMap[croot.State] != team.Region && croot.State != team.State && team.AIQuality == "Mid-Major" {
+				if regionMap[croot.State] != team.Region && croot.State != team.State && team.AIQuality == "Mid-Major" && !team.IsUserTeam {
 					odds -= 15
 				}
 			}
@@ -353,16 +353,16 @@ func FillAIRecruitingBoards() {
 			if team.AIValue == "Star" {
 				odds += getOddsIncrementByStar(5, croot.Stars)
 			} else if team.AIValue == "Potential" {
-				odds += getOddsIncrementByPotential(5, croot.Potential, team.AIQuality == "Mid-Major")
+				odds += getOddsIncrementByPotential(5, croot.Potential, team.AIQuality == "Mid-Major", team.IsUserTeam)
 			} else if team.AIValue == "Talent" {
-				odds += getOddsIncrementByTalent(croot.Shooting2, croot.Stars, croot.SpecShooting2, team.AIAttribute1 == "Shooting2" || team.AIAttribute2 == "Shooting2", team.AIQuality == "Mid-Major")
-				odds += getOddsIncrementByTalent(croot.Shooting3, croot.Stars, croot.SpecShooting3, team.AIAttribute1 == "Shooting3" || team.AIAttribute2 == "Shooting3", team.AIQuality == "Mid-Major")
-				odds += getOddsIncrementByTalent(croot.Finishing, croot.Stars, croot.SpecFinishing, team.AIAttribute1 == "Finishing" || team.AIAttribute2 == "Finishing", team.AIQuality == "Mid-Major")
-				odds += getOddsIncrementByTalent(croot.FreeThrow, croot.Stars, croot.SpecFreeThrow, team.AIAttribute1 == "FreeThrow" || team.AIAttribute2 == "FreeThrow", team.AIQuality == "Mid-Major")
-				odds += getOddsIncrementByTalent(croot.Ballwork, croot.Stars, croot.SpecBallwork, team.AIAttribute1 == "Ballwork" || team.AIAttribute2 == "Ballwork", team.AIQuality == "Mid-Major")
-				odds += getOddsIncrementByTalent(croot.Rebounding, croot.Stars, croot.SpecRebounding, team.AIAttribute1 == "Rebounding" || team.AIAttribute2 == "Rebounding", team.AIQuality == "Mid-Major")
-				odds += getOddsIncrementByTalent(croot.InteriorDefense, croot.Stars, croot.SpecInteriorDefense, team.AIAttribute1 == "InteriorDefense" || team.AIAttribute2 == "InteriorDefense", team.AIQuality == "Mid-Major")
-				odds += getOddsIncrementByTalent(croot.PerimeterDefense, croot.Stars, croot.SpecPerimeterDefense, team.AIAttribute1 == "PerimeterDefense" || team.AIAttribute2 == "PerimeterDefense", team.AIQuality == "Mid-Major")
+				odds += getOddsIncrementByTalent(croot.Shooting2, croot.Stars, croot.SpecShooting2, team.AIAttribute1 == "Shooting2" || team.AIAttribute2 == "Shooting2", team.AIQuality == "Mid-Major", team.IsUserTeam)
+				odds += getOddsIncrementByTalent(croot.Shooting3, croot.Stars, croot.SpecShooting3, team.AIAttribute1 == "Shooting3" || team.AIAttribute2 == "Shooting3", team.AIQuality == "Mid-Major", team.IsUserTeam)
+				odds += getOddsIncrementByTalent(croot.Finishing, croot.Stars, croot.SpecFinishing, team.AIAttribute1 == "Finishing" || team.AIAttribute2 == "Finishing", team.AIQuality == "Mid-Major", team.IsUserTeam)
+				odds += getOddsIncrementByTalent(croot.FreeThrow, croot.Stars, croot.SpecFreeThrow, team.AIAttribute1 == "FreeThrow" || team.AIAttribute2 == "FreeThrow", team.AIQuality == "Mid-Major", team.IsUserTeam)
+				odds += getOddsIncrementByTalent(croot.Ballwork, croot.Stars, croot.SpecBallwork, team.AIAttribute1 == "Ballwork" || team.AIAttribute2 == "Ballwork", team.AIQuality == "Mid-Major", team.IsUserTeam)
+				odds += getOddsIncrementByTalent(croot.Rebounding, croot.Stars, croot.SpecRebounding, team.AIAttribute1 == "Rebounding" || team.AIAttribute2 == "Rebounding", team.AIQuality == "Mid-Major", team.IsUserTeam)
+				odds += getOddsIncrementByTalent(croot.InteriorDefense, croot.Stars, croot.SpecInteriorDefense, team.AIAttribute1 == "InteriorDefense" || team.AIAttribute2 == "InteriorDefense", team.AIQuality == "Mid-Major", team.IsUserTeam)
+				odds += getOddsIncrementByTalent(croot.PerimeterDefense, croot.Stars, croot.SpecPerimeterDefense, team.AIAttribute1 == "PerimeterDefense" || team.AIAttribute2 == "PerimeterDefense", team.AIQuality == "Mid-Major", team.IsUserTeam)
 			}
 
 			chance := util.GenerateIntFromRange(1, 100)
@@ -545,9 +545,9 @@ func AllocatePointsToAIBoards() {
 					min := team.AIMaxThreshold
 					max := team.AIMinThreshold
 
-					if team.AIBehavior == "Conservative" {
+					if team.AIBehavior == "Conservative" && !team.IsUserTeam {
 						max -= 2
-					} else if team.AIBehavior == "Aggressive" {
+					} else if team.AIBehavior == "Aggressive" && !team.IsUserTeam {
 						min += 2
 						max += 2
 					}
@@ -652,19 +652,19 @@ func getOddsIncrementByStar(init int, stars int) int {
 	return init * stars
 }
 
-func getOddsIncrementByPotential(init int, potential int, isMidMajor bool) int {
+func getOddsIncrementByPotential(init int, potential int, isMidMajor, IsUserTeam bool) int {
 	divisor := 10
-	if isMidMajor {
+	if isMidMajor && !IsUserTeam {
 		divisor = 20
 	}
 	potentialFloor := potential / divisor
 	return init * potentialFloor
 }
 
-func getOddsIncrementByTalent(attr, stars int, attrspec, attrMatch bool, isMidMajor bool) int {
+func getOddsIncrementByTalent(attr, stars int, attrspec, attrMatch bool, isMidMajor, IsUserTeam bool) int {
 	attrRequirement := 14
 	if attrMatch && (attrspec || attr > attrRequirement) {
-		if stars > 3 && isMidMajor {
+		if stars > 3 && isMidMajor && !IsUserTeam {
 			return 10
 		}
 		return 25

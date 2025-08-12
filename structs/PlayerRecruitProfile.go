@@ -61,12 +61,16 @@ func (r *PlayerRecruitProfile) ToggleTotalMax() {
 func (r *PlayerRecruitProfile) ToggleScholarship(reward bool, revoke bool) {
 	if r.Scholarship {
 		r.RevokeScholarship()
+		return
 	}
-	r.Scholarship = !r.Scholarship
+	if !r.ScholarshipRevoked {
+		r.Scholarship = true
+	}
 }
 
 func (r *PlayerRecruitProfile) RevokeScholarship() {
 	r.Scholarship = false
+	r.ScholarshipRevoked = true
 }
 
 func (r *PlayerRecruitProfile) RemoveRecruitFromBoard() {

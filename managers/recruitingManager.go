@@ -518,6 +518,23 @@ func UpdateRecruitingProfile(updateRecruitingBoardDto structs.UpdateRecruitingBo
 	return profile
 }
 
+// ToggleAIBehavior -- Toggle whether a Team will use AI recruiting or not
+func ToggleAIBehavior(teamID string) {
+	db := dbprovider.GetInstance().GetDB()
+	recruitingProfile := GetOnlyTeamRecruitingProfileByTeamID(teamID)
+	recruitingProfile.ToggleAIBehavior()
+	repository.SaveCBBTeamRecruitingProfile(recruitingProfile, db)
+}
+
+// SaveAIBehavior -- Toggle whether a Team will use AI recruiting or not
+func SaveAIBehavior(profile structs.TeamRecruitingProfile) {
+	db := dbprovider.GetInstance().GetDB()
+	TeamID := strconv.Itoa(int(profile.TeamID))
+	recruitingProfile := GetOnlyTeamRecruitingProfileByTeamID(TeamID)
+	recruitingProfile.UpdateAIBehavior(profile.IsAI, profile.AIAutoOfferscholarships, profile.AIStarMax, profile.AIStarMin, profile.AIMinThreshold, profile.AIMaxThreshold, profile.AIValue, profile.OffensiveScheme, profile.DefensiveScheme)
+	repository.SaveCBBTeamRecruitingProfile(recruitingProfile, db)
+}
+
 func CreateRecruit(dto structs.CreateRecruitDTO) {
 	db := dbprovider.GetInstance().GetDB()
 

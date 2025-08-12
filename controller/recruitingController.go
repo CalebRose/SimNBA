@@ -168,7 +168,9 @@ func RemoveRecruitFromBoard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	managers.RemoveRecruitFromBoard(updateRecruitPointsDto)
+	profile := managers.RemoveRecruitFromBoard(updateRecruitPointsDto)
+	json.NewEncoder(w).Encode(profile)
+
 }
 
 func RemoveRecruitFromBoardV2(w http.ResponseWriter, r *http.Request) {
@@ -180,7 +182,9 @@ func RemoveRecruitFromBoardV2(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	managers.RemoveRecruitFromBoardV2(updateRecruitPointsDto)
+	profile := managers.RemoveRecruitFromBoardV2(updateRecruitPointsDto)
+
+	json.NewEncoder(w).Encode(profile)
 }
 
 func SaveRecruitingBoard(w http.ResponseWriter, r *http.Request) {
@@ -192,8 +196,37 @@ func SaveRecruitingBoard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	managers.UpdateRecruitingProfile(updateRecruitingBoardDto)
+	profile := managers.UpdateRecruitingProfile(updateRecruitingBoardDto)
 
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(profile)
+
+}
+
+func SaveAIBehavior(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	var updateRecruitingBoardDto structs.TeamRecruitingProfile
+	err := json.NewDecoder(r.Body).Decode(&updateRecruitingBoardDto)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	managers.SaveAIBehavior(updateRecruitingBoardDto)
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func ToggleAIBehavior(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	vars := mux.Vars(r)
+	teamID := vars["teamID"]
+
+	if len(teamID) == 0 {
+		panic("User did not provide teamID")
+	}
+
+	managers.ToggleAIBehavior(teamID)
 	w.WriteHeader(http.StatusOK)
 }
 

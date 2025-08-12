@@ -316,7 +316,7 @@ func GenerateCoachesForAITeams() {
 		coachList = append(coachList, coach)
 		collegeTeam := collegeTeamMap[team.TeamID]
 		collegeTeam.AssignCoach(coach.Name)
-		team.UpdateAIBehavior(true, true, coach.StarMax, coach.StarMin, coach.PointMin, coach.PointMax, coach.Scheme, coach.DefensiveScheme)
+		team.UpdateAIBehavior(true, true, coach.StarMax, coach.StarMin, coach.PointMin, coach.PointMax, "Talent", coach.Scheme, coach.DefensiveScheme)
 		team.AssignRecruiter(coach.Name)
 		db.Save(&collegeTeam)
 		db.Save(&team)

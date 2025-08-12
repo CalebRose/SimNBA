@@ -249,6 +249,8 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/recruit/removeRecruit", controller.RemoveRecruitFromBoard).Methods("POST")
 	apiRouter.HandleFunc("/recruit/remove/recruit/v2", controller.RemoveRecruitFromBoardV2).Methods("POST")
 	apiRouter.HandleFunc("/recruit/saveRecruitingBoard", controller.SaveRecruitingBoard).Methods("POST")
+	apiRouter.HandleFunc("/recruit/save/ai/settings", controller.SaveAIBehavior).Methods("POST")
+	apiRouter.HandleFunc("/recruit/save/ai/toggle/{teamID}", controller.SaveAIBehavior).Methods("GET")
 	apiRouter.HandleFunc("/croots/export/all", controller.ExportCroots).Methods("GET")
 
 	// Request Controls

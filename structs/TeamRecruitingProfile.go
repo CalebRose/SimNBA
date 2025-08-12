@@ -17,6 +17,7 @@ type TeamRecruitingProfile struct {
 	RecruitClassSize        int
 	PortalReputation        int // A value between 1-100 signifying the coach's reputation and behavior in the transfer portal.
 	IsAI                    bool
+	IsUserTeam              bool
 	AIBehavior              string // Aggressive, Normal, Conservative -- will be for determining how likely they'll generate a good coach
 	AIQuality               string // Blue Blood, P6, Cinderella, Mid-Major
 	AIValue                 string // Star, Talent, Potential
@@ -126,8 +127,18 @@ func (r *TeamRecruitingProfile) ApplyCaughtCheating() {
 	r.CaughtCheating = true
 }
 
-func (r *TeamRecruitingProfile) ToggleAIBehavior(val bool) {
-	r.IsAI = val
+func (r *TeamRecruitingProfile) ToggleAIBehavior() {
+	r.IsAI = !r.IsAI
+}
+
+func (r *TeamRecruitingProfile) ActivateUserTeam() {
+	r.IsUserTeam = true
+	r.IsAI = false
+}
+
+func (r *TeamRecruitingProfile) DeactivateUserTeam() {
+	r.IsUserTeam = false
+	r.IsAI = true
 }
 
 func (r *TeamRecruitingProfile) SetClassSize(size int) {
@@ -140,13 +151,14 @@ func (r *TeamRecruitingProfile) SetNewBehaviors(value, attr1, attr2 string) {
 	r.AIAttribute2 = attr2
 }
 
-func (r *TeamRecruitingProfile) UpdateAIBehavior(isAi, autoOffer bool, starMax, starMin, min, max int, offScheme, defScheme string) {
+func (r *TeamRecruitingProfile) UpdateAIBehavior(isAi, autoOffer bool, starMax, starMin, min, max int, value, offScheme, defScheme string) {
 	r.IsAI = isAi
 	r.AIAutoOfferscholarships = autoOffer
 	r.AIStarMax = starMax
 	r.AIStarMin = starMin
 	r.AIMinThreshold = min
 	r.AIMaxThreshold = max
+	r.AIValue = value
 	r.OffensiveScheme = offScheme
 	r.DefensiveScheme = defScheme
 }

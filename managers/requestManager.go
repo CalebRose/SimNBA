@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
 )
@@ -71,9 +72,9 @@ func ApproveTeamRequest(request structs.Request) {
 
 	recruitingProfile := GetOnlyTeamRecruitingProfileByTeamID(strconv.Itoa(int(request.TeamID)))
 
-	recruitingProfile.ToggleAIBehavior(false)
+	recruitingProfile.ActivateUserTeam()
 
-	db.Save(&recruitingProfile)
+	repository.SaveCBBTeamRecruitingProfile(recruitingProfile, db)
 
 	ts := GetTimestamp()
 
@@ -169,15 +170,20 @@ func RemoveUserFromTeam(teamId string) structs.Team {
 
 	standings.UpdateCoach("AI")
 
+	matches := GetMatchesByTeamIdAndSeasonId(teamId, strconv.Itoa(int(ts.SeasonID)))
+	for _, match := range matches {
+		match.UpdateCoach(int(team.ID), "AI")
+		db.Save(&match)
+	}
+
 	recruitingProfile := GetOnlyTeamRecruitingProfileByTeamID(teamId)
 
-	recruitingProfile.ToggleAIBehavior(true)
+	recruitingProfile.DeactivateUserTeam()
 
 	db.Save(&team)
+	repository.SaveCBBTeamRecruitingProfile(recruitingProfile, db)
 
 	db.Save(&standings)
-
-	db.Save(&recruitingProfile)
 
 	return team
 }
