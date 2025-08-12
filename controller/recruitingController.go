@@ -154,8 +154,9 @@ func SendScholarshipToRecruitV2(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	managers.SendScholarshipToRecruitV2(updateRecruitPointsDto)
+	profile, _ := managers.SendScholarshipToRecruitV2(updateRecruitPointsDto)
 
+	json.NewEncoder(w).Encode(profile)
 }
 
 func RemoveRecruitFromBoard(w http.ResponseWriter, r *http.Request) {
