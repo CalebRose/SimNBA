@@ -31,6 +31,7 @@ type BootstrapData struct {
 
 type BootstrapDataTwo struct {
 	CollegeNews          []structs.NewsLog
+	CollegePolls         []structs.CollegePollOfficial
 	TeamProfileMap       map[string]*structs.TeamRecruitingProfile
 	CollegeStandings     []structs.CollegeStandings
 	ProStandings         []structs.NBAStandings
@@ -215,6 +216,7 @@ func GetSecondBootstrapData(collegeID, proID string) BootstrapDataTwo {
 
 	var (
 		collegeNews          []structs.NewsLog
+		collegePolls         []structs.CollegePollOfficial
 		teamProfileMap       map[string]*structs.TeamRecruitingProfile
 		collegeStandings     []structs.CollegeStandings
 		proStandings         []structs.NBAStandings
@@ -234,11 +236,17 @@ func GetSecondBootstrapData(collegeID, proID string) BootstrapDataTwo {
 	seasonID := strconv.Itoa(int(ts.SeasonID))
 
 	if len(collegeID) > 0 && collegeID != "0" {
-		wg.Add(3)
+		wg.Add(4)
 		go func() {
 			defer wg.Done()
 			log.Println("Fetching College News Logs...")
 			collegeNews = GetAllCBBNewsLogs()
+			log.Println("Fetched College News Logs, count:", len(collegeNews))
+		}()
+		go func() {
+			defer wg.Done()
+			log.Println("Fetching College News Logs...")
+			collegePolls = GetAllCollegePolls()
 			log.Println("Fetched College News Logs, count:", len(collegeNews))
 		}()
 		go func() {
@@ -301,6 +309,7 @@ func GetSecondBootstrapData(collegeID, proID string) BootstrapDataTwo {
 		CollegeNews:          collegeNews,
 		TeamProfileMap:       teamProfileMap,
 		CollegeStandings:     collegeStandings,
+		CollegePolls:         collegePolls,
 		ProStandings:         proStandings,
 		CapsheetMap:          capsheetMap,
 		ProRosterMap:         proRosterMap,
