@@ -195,7 +195,7 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/nba/match/team/{teamId}/season/{seasonId}", controller.GetNBAMatchesByTeamIdAndSeasonId).Methods("GET")
 
 	// Migrations
-	apiRouter.HandleFunc("/migrate/faces", controller.MigrateFaceData).Methods("GET")
+	// apiRouter.HandleFunc("/migrate/faces", controller.MigrateFaceData).Methods("GET")
 
 	// News Controls
 	apiRouter.HandleFunc("/cbb/news/all/", controller.GetAllCBBNewsInASeason).Methods("GET")
