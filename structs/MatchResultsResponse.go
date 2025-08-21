@@ -19,6 +19,7 @@ type MatchResultsTeam struct {
 }
 
 type MatchResultsPlayer struct {
+	ID                 uint
 	TeamID             uint
 	FirstName          string
 	LastName           string

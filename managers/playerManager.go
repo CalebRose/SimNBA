@@ -174,6 +174,7 @@ func GetCollegePlayersWithMatchStatsByTeamId(homeTeamID, awayTeamID uint, matchI
 			teamId = awayTeamID
 		}
 		row := structs.MatchResultsPlayer{
+			ID:                 p.ID,
 			TeamID:             teamId,
 			FirstName:          p.FirstName,
 			LastName:           p.LastName,
@@ -222,6 +223,7 @@ func GetCollegePlayersWithMatchStatsByTeamId(homeTeamID, awayTeamID uint, matchI
 			teamId = awayTeamID
 		}
 		row := structs.MatchResultsPlayer{
+			ID:                 p.ID,
 			TeamID:             teamId,
 			FirstName:          p.FirstName,
 			LastName:           p.LastName,
@@ -294,6 +296,7 @@ func GetNBAPlayersWithMatchStatsByTeamId(homeTeamID, awayTeamID uint, matchID st
 			teamId = awayTeamID
 		}
 		row := structs.MatchResultsPlayer{
+			ID:                 p.ID,
 			TeamID:             teamId,
 			FirstName:          p.FirstName,
 			LastName:           p.LastName,
@@ -342,6 +345,7 @@ func GetNBAPlayersWithMatchStatsByTeamId(homeTeamID, awayTeamID uint, matchID st
 			teamId = awayTeamID
 		}
 		row := structs.MatchResultsPlayer{
+			ID:                 p.ID,
 			TeamID:             teamId,
 			FirstName:          p.FirstName,
 			LastName:           p.LastName,

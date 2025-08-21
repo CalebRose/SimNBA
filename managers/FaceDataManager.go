@@ -126,11 +126,16 @@ func MigrateFaceDataToRecruits() {
 	db := dbprovider.GetInstance().GetDB()
 	// Get Recruits
 	recruits := GetAllRecruitRecords()
+	faces := GetAllFaces()
 	// Get Full Name Lists
 	faceDataBlob := getFaceDataBlob()
 	faceDataList := []structs.FaceData{}
 	// Initialize List
 	for _, r := range recruits {
+		existingFace := faces[r.ID]
+		if existingFace.PlayerID > 0 {
+			continue
+		}
 		skinColor := getSkinColor(r.Country)
 		// Store data
 

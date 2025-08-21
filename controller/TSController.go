@@ -90,6 +90,7 @@ func CreateTSModelsFile(w http.ResponseWriter, r *http.Request) {
 		Add(structs.CollegeCoach{}).
 		Add(structs.AvailableTeamResponse{}).
 		Add(structs.CBBMatchDataResponse{}).
+		Add(structs.MatchResultsResponse{}).
 		Add(structs.CollegeTeamResponse{}).
 		Add(structs.CollegeTeamResponseData{}).
 		Add(structs.DashboardResponseData{}).
