@@ -555,6 +555,22 @@ func AllocatePointsToAIBoards() {
 						max = 20
 					}
 
+					if min > max {
+						temp := min
+						min = max
+						max = temp
+					}
+
+					if min == max && min == 0 {
+						min = 1
+						max = 10
+					} else if min == max {
+						min = max - 2
+						if min < 1 {
+							min = 1
+						}
+					}
+
 					num = util.GenerateIntFromRange(min, max)
 					if num > pointsRemaining {
 						num = pointsRemaining
