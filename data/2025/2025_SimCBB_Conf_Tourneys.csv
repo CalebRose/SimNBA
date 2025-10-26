@@ -1,0 +1,305 @@
+GameID,Season,Week,A or B,Match Type,HT Rank,Home Team,Away Team,AT Rank,Neutral Site,Invitational,Conference Tournament,cbi,NIT,Tournament,National Champ,Listed Coach,Other Coach,Arena,City,State,GameTitle,Info,NextGameID,NextGameHoA
+18996,2025,15,B,Conf. Tournament,12,DUQ,FOR,13,1,0,1,0,0,0,0,AI,AI,Barclays Center,Brooklyn,NY,A10 First Round,,18999,A
+18997,2025,15,B,Conf. Tournament,11,JOES,LAS,14,1,0,1,0,0,0,0,AI,AI,Barclays Center,Brooklyn,NY,A10 First Round,,19001,A
+18998,2025,15,C,Conf. Tournament,8,SLU,URI,9,1,0,1,0,0,0,0,AI,AI,Barclays Center,Brooklyn,NY,A10 Second Round,,19002,A
+18999,2025,15,C,Conf. Tournament,5,SBON,,,1,0,1,0,0,0,0,AI,#N/A,Barclays Center,Brooklyn,NY,A10 Second Round,,19003,H
+19000,2025,15,C,Conf. Tournament,7,GW,VCU,10,1,0,1,0,0,0,0,AI,AI,Barclays Center,Brooklyn,NY,A10 Second Round,,19004,A
+19001,2025,15,C,Conf. Tournament,6,GMU,,,1,0,1,0,0,0,0,AI,#N/A,Barclays Center,Brooklyn,NY,A10 Second Round,,19005,H
+19002,2025,16,A,Conf. Tournament,1,DAY,,,1,0,1,0,0,0,0,AI,#N/A,Barclays Center,Brooklyn,NY,A10 Quarter Finals,,19006,H
+19003,2025,16,A,Conf. Tournament,,,LUC,4,1,0,1,0,0,0,0,#N/A,TheRealJT,Barclays Center,Brooklyn,NY,A10 Quarter Finals,,19006,A
+19004,2025,16,A,Conf. Tournament,2,RICH,,,1,0,1,0,0,0,0,AI,#N/A,Barclays Center,Brooklyn,NY,A10 Quarter Finals,,19007,H
+19005,2025,16,A,Conf. Tournament,,,DAV,3,1,0,1,0,0,0,0,#N/A,AI,Barclays Center,Brooklyn,NY,A10 Quarter Finals,,19007,A
+19006,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Barclays Center,Brooklyn,NY,A10 Semifinals,,19008,H
+19007,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Barclays Center,Brooklyn,NY,A10 Semifinals,,19008,A
+19008,2025,16,C,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Barclays Center,Brooklyn,NY,A10 Finals,,0,
+19009,2025,15,B,Conf. Tournament,12,BC,FSU,13,1,0,1,0,0,0,0,AI,AI,Capitol One Arena,Washington,DC,ACC First Round,,19013,A
+19010,2025,15,B,Conf. Tournament,10,CUSE,GT,15,1,0,1,0,0,0,0,AI,AI,Capitol One Arena,Washington,DC,ACC First Round,,19014,A
+19011,2025,15,B,Conf. Tournament,11,MIAF,VT,14,1,0,1,0,0,0,0,AI,AI,Capitol One Arena,Washington,DC,ACC First Round,,19015,A
+19012,2025,15,C,Conf. Tournament,8,WAKE,NCST,9,1,0,1,0,0,0,0,Qupax,AI,Capitol One Arena,Washington,DC,ACC Second Round,,19016,A
+19013,2025,15,C,Conf. Tournament,5,CLEM,,,1,0,1,0,0,0,0,AI,#N/A,Capitol One Arena,Washington,DC,ACC Second Round,,19017,H
+19014,2025,15,C,Conf. Tournament,7,PITT,,,1,0,1,0,0,0,0,AI,#N/A,Capitol One Arena,Washington,DC,ACC Second Round,,19018,A
+19015,2025,15,C,Conf. Tournament,6,UNC,,,1,0,1,0,0,0,0,AI,#N/A,Capitol One Arena,Washington,DC,ACC Second Round,,19019,H
+19016,2025,16,A,Conf. Tournament,1,SMU,,,1,0,1,0,0,0,0,jw1952tx,#N/A,Capitol One Arena,Washington,DC,ACC Quarter Finals,,19020,H
+19017,2025,16,A,Conf. Tournament,,,UVA,4,1,0,1,0,0,0,0,#N/A,Wahoo,Capitol One Arena,Washington,DC,ACC Quarter Finals,,19020,A
+19018,2025,16,A,Conf. Tournament,2,DUKE,,,1,0,1,0,0,0,0,AI,#N/A,Capitol One Arena,Washington,DC,ACC Quarter Finals,,19021,H
+19019,2025,16,A,Conf. Tournament,,,LOU,3,1,0,1,0,0,0,0,#N/A,kmatt,Capitol One Arena,Washington,DC,ACC Quarter Finals,,19021,A
+19020,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Capitol One Arena,Washington,DC,ACC Semifinals,,19022,H
+19021,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Capitol One Arena,Washington,DC,ACC Semifinals,,19022,A
+19022,2025,16,C,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Capitol One Arena,Washington,DC,ACC Finals,,0,
+19023,2025,15,B,Conf. Tournament,1,UV,UML,8,0,0,1,0,0,0,0,iToxickiddy,AI,Patrick Gym,Burlington,VT,AEC Quarterfinals,Campus Sites,19027,H
+19024,2025,15,B,Conf. Tournament,4,BRY,NJIT,5,0,0,1,0,0,0,0,AI,AI,Chace Athletic Center,Smithfield,RI,AEC Quarterfinals,,19027,A
+19025,2025,15,B,Conf. Tournament,2,UMBC,ME,7,0,0,1,0,0,0,0,Rocketcan,AI,Chesapeake Employers Insurance Arena,Baltimore County,MD,AEC Quarterfinals,,19028,H
+19026,2025,15,B,Conf. Tournament,3,UNH,ALB,6,0,0,1,0,0,0,0,AI,AI,Lundholm Gym,Durham,NH,AEC Quarterfinals,,19028,A
+19027,2025,15,D,Conf. Tournament,,,,,0,0,1,0,0,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,AEC Semifinals,,19029,H
+19028,2025,15,D,Conf. Tournament,,,,,0,0,1,0,0,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,AEC Semifinals,,19029,A
+19029,2025,16,A,Conf. Tournament,,,,,0,0,1,0,0,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,AEC Finals,,0,
+19030,2025,15,B,Conf. Tournament,12,UTSA,FAU,13,1,0,1,0,0,0,0,AI,AI,Dickies Arena,Fort Worth,TX,AAC First Round,,19032,A
+19031,2025,15,C,Conf. Tournament,8,TULS,UAB,9,1,0,1,0,0,0,0,AI,AI,Dickies Arena,Fort Worth,TX,AAC Second Round,,19035,A
+19032,2025,15,C,Conf. Tournament,5,ECU,,,1,0,1,0,0,0,0,ObliviousLAX,#N/A,Dickies Arena,Fort Worth,TX,AAC Second Round,,19036,H
+19033,2025,15,C,Conf. Tournament,7,CHAR,RICE,10,1,0,1,0,0,0,0,AI,AI,Dickies Arena,Fort Worth,TX,AAC Second Round,,19037,A
+19034,2025,15,C,Conf. Tournament,6,WICH,UNT,11,1,0,1,0,0,0,0,AI,AI,Dickies Arena,Fort Worth,TX,AAC Second Round,,19038,H
+19035,2025,16,A,Conf. Tournament,1,TLNE,,,1,0,1,0,0,0,0,kgreene829,#N/A,Dickies Arena,Fort Worth,TX,AAC Quarter Finals,,19039,H
+19036,2025,16,A,Conf. Tournament,,,MEMP,4,1,0,1,0,0,0,0,#N/A,AI,Dickies Arena,Fort Worth,TX,AAC Quarter Finals,,19039,A
+19037,2025,16,A,Conf. Tournament,2,TEMP,,,1,0,1,0,0,0,0,SandyToez,#N/A,Dickies Arena,Fort Worth,TX,AAC Quarter Finals,,19040,H
+19038,2025,16,A,Conf. Tournament,,,USF,3,1,0,1,0,0,0,0,#N/A,AI,Dickies Arena,Fort Worth,TX,AAC Quarter Finals,,19040,A
+19039,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Dickies Arena,Fort Worth,TX,AAC Semifinals,,19041,H
+19040,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Dickies Arena,Fort Worth,TX,AAC Semifinals,,19041,A
+19041,2025,16,C,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Dickies Arena,Fort Worth,TX,AAC Finals,,0,
+19042,2025,15,B,Conf. Tournament,8,LIP,APSU,9,0,0,1,0,0,0,0,AI,AI,Allen Arena,Nashville,TN,ASUN First Round,Campus Sites,19044,A
+19043,2025,15,B,Conf. Tournament,7,UNF,UNA,10,0,0,1,0,0,0,0,AI,AI,UNF Arena,Jacksonville,FL,ASUN First Round,,19046,A
+19044,2025,15,C,Conf. Tournament,1,JU,,,0,0,1,0,0,0,0,Ricky Campbell,#N/A,Swisher Gymnasium,Jacksonville,FL,ASUN Quarter Finals,,19048,H
+19045,2025,15,C,Conf. Tournament,4,BELL,STET,5,0,0,1,0,0,0,0,AI,AI,Freedom Hall,Louisville,KY,ASUN Quarter Finals,,19048,A
+19046,2025,15,C,Conf. Tournament,2,FGCU,,,0,0,1,0,0,0,0,AI,#N/A,Alico Arena,Fort Myers,FL,ASUN Quarter Finals,,19049,H
+19047,2025,15,C,Conf. Tournament,3,UWG,EKU,6,0,0,1,0,0,0,0,AI,AI,The Coliseum,Carrollton,GA,ASUN Quarter Finals,,19049,A
+19048,2025,16,A,Conf. Tournament,,,,,0,0,1,0,0,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,ASUN Semifinals,,19050,H
+19049,2025,16,A,Conf. Tournament,,,,,0,0,1,0,0,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,ASUN Semifinals,,19050,A
+19050,2025,16,B,Conf. Tournament,,,,,0,0,1,0,0,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,ASUN Finals,,0,
+19051,2025,15,B,Conf. Tournament,8,VILL,PROV,9,1,0,1,0,0,0,0,AI,AI,Madison Square Garden,New York City,New York,Big East First Round,,19054,A
+19052,2025,15,B,Conf. Tournament,7,HALL,CREI,10,1,0,1,0,0,0,0,AI,AI,Madison Square Garden,New York City,New York,Big East First Round,,19056,A
+19053,2025,15,B,Conf. Tournament,6,DPU,XAV,11,1,0,1,0,0,0,0,AI,AI,Madison Square Garden,New York City,New York,Big East First Round,,19057,A
+19054,2025,15,C,Conf. Tournament,1,SJU,,,1,0,1,0,0,0,0,SyndaKyt,#N/A,Madison Square Garden,New York City,New York,Big East Quarter Finals,,19058,H
+19055,2025,15,C,Conf. Tournament,4,GEOT,BUT,5,1,0,1,0,0,0,0,AI,AI,Madison Square Garden,New York City,New York,Big East Quarter Finals,,19058,A
+19056,2025,15,D,Conf. Tournament,2,MARQ,,,1,0,1,0,0,0,0,AI,#N/A,Madison Square Garden,New York City,New York,Big East Quarter Finals,,19059,H
+19057,2025,15,D,Conf. Tournament,3,CONN,,,1,0,1,0,0,0,0,CoachCartier,#N/A,Madison Square Garden,New York City,New York,Big East Quarter Finals,,19059,A
+19058,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Madison Square Garden,New York City,New York,Big East Semifinals,,19060,H
+19059,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Madison Square Garden,New York City,New York,Big East Semifinals,,19060,A
+19060,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Madison Square Garden,New York City,New York,Big East Finals,,0,
+19061,2025,15,B,Conf. Tournament,8,MONT,WEB,9,1,0,1,0,0,0,0,AI,AI,Idaho Central Arena,Boise,ID,Big Sky First Round,,19063,A
+19062,2025,15,B,Conf. Tournament,7,NAU,PORT,10,1,0,1,0,0,0,0,AI,AI,Idaho Central Arena,Boise,ID,Big Sky First Round,,19065,A
+19063,2025,15,C,Conf. Tournament,1,IDST,,,1,0,1,0,0,0,0,AI,#N/A,Idaho Central Arena,Boise,ID,Big Sky Quarterfinals,,19067,H
+19064,2025,15,C,Conf. Tournament,4,MTST,UNCO,5,1,0,1,0,0,0,0,AI,AI,Idaho Central Arena,Boise,ID,Big Sky Quarterfinals,,19067,A
+19065,2025,15,C,Conf. Tournament,2,EWU,,,1,0,1,0,0,0,0,David VanHousen,#N/A,Idaho Central Arena,Boise,ID,Big Sky Quarterfinals,,19068,H
+19066,2025,15,C,Conf. Tournament,3,SSU,IDHO,6,1,0,1,0,0,0,0,AI,AI,Idaho Central Arena,Boise,ID,Big Sky Quarterfinals,,19068,A
+19067,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Idaho Central Arena,Boise,ID,Big Sky Semifinals,,19069,H
+19068,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Idaho Central Arena,Boise,ID,Big Sky Semifinals,,19069,A
+19069,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Idaho Central Arena,Boise,ID,Big Sky Finals,,0,
+19070,2025,15,B,Conf. Tournament,8,CHSO,LONG,9,1,0,1,0,0,0,0,AI,AI,Qubein Center,High Point,NC,Big South First Round,,19071,A
+19071,2025,15,C,Conf. Tournament,1,UNCA,,,1,0,1,0,0,0,0,AI,#N/A,Qubein Center,High Point,NC,Big South Quarterfinals,,19075,H
+19072,2025,15,C,Conf. Tournament,4,PRE,WIN,5,1,0,1,0,0,0,0,AI,AI,Qubein Center,High Point,NC,Big South Quarterfinals,,19075,A
+19073,2025,15,C,Conf. Tournament,2,HP,RAD,7,1,0,1,0,0,0,0,AI,AI,Qubein Center,High Point,NC,Big South Quarterfinals,,19076,H
+19074,2025,15,C,Conf. Tournament,3,UPST,WEBB,6,1,0,1,0,0,0,0,AI,AI,Qubein Center,High Point,NC,Big South Quarterfinals,,19076,A
+19075,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Qubein Center,High Point,NC,Big South Semifinals,,19077,H
+19076,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Qubein Center,High Point,NC,Big South Semifinals,,19077,A
+19077,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Qubein Center,High Point,NC,Big South Finals,,0,
+19078,2025,15,A,Conf. Tournament,16,OHST,RUTG,17,1,0,1,0,0,0,0,AI,AI,Target Center,Minneapolis,MN,B1G First Round,,19080,A
+19079,2025,15,A,Conf. Tournament,15,USC,IOWA,18,1,0,1,0,0,0,0,AI,AI,Target Center,Minneapolis,MN,B1G First Round,,19082,A
+19080,2025,15,B,Conf. Tournament,9,PNST,,,1,0,1,0,0,0,0,AI,#N/A,Target Center,Minneapolis,MN,B1G Second Round,,19084,A
+19081,2025,15,B,Conf. Tournament,12,NW,UMD,13,1,0,1,0,0,0,0,AI,AI,Target Center,Minneapolis,MN,B1G Second Round,,19085,A
+19082,2025,15,B,Conf. Tournament,10,OREG,,,1,0,1,0,0,0,0,AI,#N/A,Target Center,Minneapolis,MN,B1G Second Round,,19086,A
+19083,2025,15,B,Conf. Tournament,11,MICH,WASH,14,1,0,1,0,0,0,0,AI,AI,Target Center,Minneapolis,MN,B1G Second Round,,19087,A
+19084,2025,15,C,Conf. Tournament,8,MINN,,,1,0,1,0,0,0,0,AI,#N/A,Target Center,Minneapolis,MN,B1G Third Round,,19088,A
+19085,2025,15,C,Conf. Tournament,5,WISC,,,1,0,1,0,0,0,0,AI,#N/A,Target Center,Minneapolis,MN,B1G Third Round,,19089,H
+19086,2025,15,C,Conf. Tournament,7,IND,,,1,0,1,0,0,0,0,Piercewise1,#N/A,Target Center,Minneapolis,MN,B1G Third Round,,19090,A
+19087,2025,15,C,Conf. Tournament,6,NEB,,,1,0,1,0,0,0,0,huskersax,#N/A,Target Center,Minneapolis,MN,B1G Third Round,,19091,H
+19088,2025,15,D,Conf. Tournament,1,PURD,,,1,0,1,0,0,0,0,MasonAsher,#N/A,Target Center,Minneapolis,MN,B1G Quarter Finals,,19092,H
+19089,2025,15,D,Conf. Tournament,,,MIST,4,1,0,1,0,0,0,0,#N/A,AI,Target Center,Minneapolis,MN,B1G Quarter Finals,,19092,A
+19090,2025,15,D,Conf. Tournament,2,UCLA,,,1,0,1,0,0,0,0,jmjacobs,#N/A,Target Center,Minneapolis,MN,B1G Quarter Finals,,19093,H
+19091,2025,15,D,Conf. Tournament,,,ILLI,3,1,0,1,0,0,0,0,#N/A,nemolee.exe,Target Center,Minneapolis,MN,B1G Quarter Finals,,19093,A
+19092,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Target Center,Minneapolis,MN,B1G Semifinals,,19094,H
+19093,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Target Center,Minneapolis,MN,B1G Semifinals,,19094,A
+19094,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Target Center,Minneapolis,MN,B1G Finals,,0,
+19095,2025,15,B,Conf. Tournament,9,TCU,AZST,16,1,0,1,0,0,0,0,AI,AI,T-Mobile Center,Kansas City,MO,Big XII First Round,,19099,A
+19096,2025,15,B,Conf. Tournament,12,OKST,TTU,13,1,0,1,0,0,0,0,AI,AI,T-Mobile Center,Kansas City,MO,Big XII First Round,,19100,A
+19097,2025,15,B,Conf. Tournament,10,IAST,CINC,15,1,0,1,0,0,0,0,AI,AI,T-Mobile Center,Kansas City,MO,Big XII First Round,,19101,A
+19098,2025,15,B,Conf. Tournament,11,KSST,UCF,14,1,0,1,0,0,0,0,AI,AI,T-Mobile Center,Kansas City,MO,Big XII First Round,,19102,A
+19099,2025,15,C,Conf. Tournament,8,ZONA,,,1,0,1,0,0,0,0,AI,#N/A,T-Mobile Center,Kansas City,MO,Big XII Second Round,,19103,A
+19100,2025,15,C,Conf. Tournament,5,BYU,,,1,0,1,0,0,0,0,Bellwood,#N/A,T-Mobile Center,Kansas City,MO,Big XII Second Round,,19104,H
+19101,2025,15,C,Conf. Tournament,7,UHOU,,,1,0,1,0,0,0,0,Mahrowkeen,#N/A,T-Mobile Center,Kansas City,MO,Big XII Second Round,,19105,A
+19102,2025,15,C,Conf. Tournament,6,KANS,,,1,0,1,0,0,0,0,bundy,#N/A,T-Mobile Center,Kansas City,MO,Big XII Second Round,,19106,H
+19103,2025,15,D,Conf. Tournament,1,COLO,,,1,0,1,0,0,0,0,Bingo415,#N/A,T-Mobile Center,Kansas City,MO,Big XII Quarter Finals,,19107,H
+19104,2025,15,D,Conf. Tournament,,,UTAH,4,1,0,1,0,0,0,0,#N/A,SageBow,T-Mobile Center,Kansas City,MO,Big XII Quarter Finals,,19107,A
+19105,2025,15,D,Conf. Tournament,2,BAYL,,,1,0,1,0,0,0,0,Vivid,#N/A,T-Mobile Center,Kansas City,MO,Big XII Quarter Finals,,19108,H
+19106,2025,15,D,Conf. Tournament,,,WVU,3,1,0,1,0,0,0,0,#N/A,smackemz3,T-Mobile Center,Kansas City,MO,Big XII Quarter Finals,,19108,A
+19107,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,T-Mobile Center,Kansas City,MO,Big XII Semifinals,,19109,H
+19108,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,T-Mobile Center,Kansas City,MO,Big XII Semifinals,,19109,A
+19109,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,T-Mobile Center,Kansas City,MO,Big XII Finals,,0,
+19110,2025,15,B,Conf. Tournament,5,CHAM,CP,8,1,0,1,0,0,0,0,AI,AI,Dollar Loan Center,Henderson,NV,Big West First Round,,19112,A
+19111,2025,15,B,Conf. Tournament,6,UCD,UCSB,7,1,0,1,0,0,0,0,AI,AI,Dollar Loan Center,Henderson,NV,Big West First Round,,19113,A
+19112,2025,15,C,Conf. Tournament,4,CSUF,,,1,0,1,0,0,0,0,AI,#N/A,Dollar Loan Center,Henderson,NV,Big West Quarterfinals,,19114,A
+19113,2025,15,C,Conf. Tournament,3,UCR,,,1,0,1,0,0,0,0,AI,#N/A,Dollar Loan Center,Henderson,NV,Big West Quarterfinals,,19115,A
+19114,2025,16,A,Conf. Tournament,1,UCI,,,1,0,1,0,0,0,0,subsequent,#N/A,Dollar Loan Center,Henderson,NV,Big West Semifinals,,19116,H
+19115,2025,16,A,Conf. Tournament,2,UCSD,,,1,0,1,0,0,0,0,AI,#N/A,Dollar Loan Center,Henderson,NV,Big West Semifinals,,19116,A
+19116,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Dollar Loan Center,Henderson,NV,Big West Finals,,0,
+19117,2025,15,B,Conf. Tournament,12,STBK,ELON,13,1,0,1,0,0,0,0,AI,AI,Entertainment & Sports Arena,Washington,DC,CAA First Round,,19119,A
+19118,2025,15,C,Conf. Tournament,8,COFC,TOW,9,1,0,1,0,0,0,0,AI,AI,Entertainment & Sports Arena,Washington,DC,CAA Second Round,,19122,A
+19119,2025,15,C,Conf. Tournament,5,W&M,,,1,0,1,0,0,0,0,AI,#N/A,Entertainment & Sports Arena,Washington,DC,CAA Second Round,,19123,H
+19120,2025,15,C,Conf. Tournament,7,HAMP,NCAT,10,1,0,1,0,0,0,0,AI,AI,Entertainment & Sports Arena,Washington,DC,CAA Second Round,,19124,A
+19121,2025,15,C,Conf. Tournament,6,CAMP,UNCW,11,1,0,1,0,0,0,0,AI,AI,Entertainment & Sports Arena,Washington,DC,CAA Second Round,,19125,H
+19122,2025,15,D,Conf. Tournament,1,DREX,,,1,0,1,0,0,0,0,AI,#N/A,Entertainment & Sports Arena,Washington,DC,CAA Quarterfinals,,19126,H
+19123,2025,15,D,Conf. Tournament,,,MONM,4,1,0,1,0,0,0,0,#N/A,AI,Entertainment & Sports Arena,Washington,DC,CAA Quarterfinals,,19126,A
+19124,2025,15,D,Conf. Tournament,2,HOF,,,1,0,1,0,0,0,0,AI,#N/A,Entertainment & Sports Arena,Washington,DC,CAA Quarterfinals,,19127,H
+19125,2025,15,D,Conf. Tournament,,,NE,3,1,0,1,0,0,0,0,#N/A,AI,Entertainment & Sports Arena,Washington,DC,CAA Quarterfinals,,19127,A
+19126,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Entertainment & Sports Arena,Washington,DC,CAA Semifinals,,19128,H
+19127,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Entertainment & Sports Arena,Washington,DC,CAA Semifinals,,19128,A
+19128,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Entertainment & Sports Arena,Washington,DC,CAA Finals,,0,
+19129,2025,15,B,Conf. Tournament,8,DEL,KNSW,9,1,0,1,0,0,0,0,AI,AI,Von Braun Center,Huntsville,AL,C-USA First Round,,19133,A
+19130,2025,15,B,Conf. Tournament,5,FIU,MOST,12,1,0,1,0,0,0,0,AI,AI,Von Braun Center,Huntsville,AL,C-USA First Round,,19134,A
+19131,2025,15,B,,7,LU,MTSU,10,,,1,0,0,0,0,AI,AI,Von Braun Center,Huntsville,AL,C-USA First Round,,19135,A
+19132,2025,15,B,,6,LT,JST,11,,,1,0,0,0,0,AI,AI,Von Braun Center,Huntsville,AL,C-USA First Round,,19136,A
+19133,2025,15,C,Conf. Tournament,1,NMSU,,,1,0,1,0,0,0,0,AI,#N/A,Von Braun Center,Huntsville,AL,C-USA Quarter Finals,,19137,H
+19134,2025,15,C,Conf. Tournament,4,UTEP,,,1,0,1,0,0,0,0,AI,#N/A,Von Braun Center,Huntsville,AL,C-USA Quarter Finals,,19137,A
+19135,2025,15,C,Conf. Tournament,2,SHSU,,,1,0,1,0,0,0,0,AI,#N/A,Von Braun Center,Huntsville,AL,C-USA Quarter Finals,,19138,H
+19136,2025,15,C,Conf. Tournament,3,WKU,,,1,0,1,0,0,0,0,AI,#N/A,Von Braun Center,Huntsville,AL,C-USA Quarter Finals,,19138,A
+19137,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Von Braun Center,Huntsville,AL,C-USA Semifinals,,19139,H
+19138,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Von Braun Center,Huntsville,AL,C-USA Semifinals,,19139,A
+19139,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Von Braun Center,Huntsville,AL,C-USA Finals,,0,
+19140,2025,15,B,Conf. Tournament,8,CLEV,IUPU,9,0,0,1,0,0,0,0,AI,AI,Wolstein Center,Cleveland,OH,Horizon First Round,,19143,A
+19141,2025,15,B,Conf. Tournament,6,UWGB,MILW,11,0,0,1,0,0,0,0,AI,AI,Resch Center,Green Bay,WI,Horizon First Round,,19145,A
+19142,2025,15,B,Conf. Tournament,7,PFW,YSU,10,0,0,1,0,0,0,0,AI,AI,Hilliard Gates Sports Center,Fort Wayne,IN,Horizon First Round,,19146,A
+19143,2025,15,C,Conf. Tournament,1,OAK,,,0,0,1,0,0,0,0,AI,#N/A,Athletics Center O'rena,Rochester,MI,Horizon Quarter Finals,,19147,H
+19144,2025,15,C,Conf. Tournament,4,NKU,RMU,5,0,0,1,0,0,0,0,AI,AI,Truist Arena,Highland Heights,KY,Horizon Quarter Finals,,19147,A
+19145,2025,15,C,Conf. Tournament,3,DETM,,,0,0,1,0,0,0,0,AI,#N/A,Calihan Hall,Detroit,MI,Horizon Quarter Finals,,19148,H
+19146,2025,15,C,Conf. Tournament,2,WRST,,,0,0,1,0,0,0,0,AI,#N/A,Nutter Center,Fairborn,OH,Horizon Quarter Finals,,19148,A
+19147,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Campus Sites & Indiana Farmers Coliseum,Indianapolis,IN,Horizon Semifinals,,19149,H
+19148,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Campus Sites & Indiana Farmers Coliseum,Indianapolis,IN,Horizon Semifinals,,19149,A
+19149,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Campus Sites & Indiana Farmers Coliseum,Indianapolis,IN,Horizon Finals,,0,
+19150,2025,16,A,Conf. Tournament,1,COLU,BRWN,4,1,0,1,0,0,0,0,AI,AI,Levien Gymnasium,New York City,NY,Ivy Semifinals,,19152,H
+19151,2025,16,A,Conf. Tournament,2,PRIN,PENN,3,1,0,1,0,0,0,0,AI,AI,Levien Gymnasium,New York City,NY,Ivy Semifinals,,19152,A
+19152,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Levien Gymnasium,New York City,NY,Ivy League Finals,,0,
+19153,2025,15,B,Conf. Tournament,8,NIA,QUIN,9,0,0,1,0,0,0,0,AI,AI,Boardwalk Hall,Atlantic City,NJ,MAAC First Round,,19155,A
+19154,2025,15,B,Conf. Tournament,7,MRMK,SIE,10,0,0,1,0,0,0,0,AI,AI,Boardwalk Hall,Atlantic City,NJ,MAAC First Round,,19157,A
+19155,2025,15,C,Conf. Tournament,1,SPU,,,0,0,1,0,0,0,0,AI,#N/A,Boardwalk Hall,Atlantic City,NJ,MAAC Quarter Finals,,19159,H
+19156,2025,15,C,Conf. Tournament,4,SHU,MAN,5,0,0,1,0,0,0,0,AI,AI,Boardwalk Hall,Atlantic City,NJ,MAAC Quarter Finals,,19159,A
+19157,2025,15,C,Conf. Tournament,2,IONA,,,0,0,1,0,0,0,0,AI,#N/A,Boardwalk Hall,Atlantic City,NJ,MAAC Quarter Finals,,19160,H
+19158,2025,15,C,Conf. Tournament,3,MSM,CAN,6,0,0,1,0,0,0,0,AI,AI,Boardwalk Hall,Atlantic City,NJ,MAAC Quarter Finals,,19160,A
+19159,2025,16,A,Conf. Tournament,,,,,0,0,1,0,0,0,0,#N/A,#N/A,Boardwalk Hall,Atlantic City,NJ,MAAC Semifinals,,19161,H
+19160,2025,16,A,Conf. Tournament,,,,,0,0,1,0,0,0,0,#N/A,#N/A,Boardwalk Hall,Atlantic City,NJ,MAAC Semifinals,,19161,A
+19161,2025,16,B,Conf. Tournament,,,,,0,0,1,0,0,0,0,#N/A,#N/A,Boardwalk Hall,Atlantic City,NJ,MAAC Finals,,0,
+19162,2025,15,D,Conf. Tournament,1,WMU,EMU,8,1,0,1,0,0,0,0,Jieret,AI,Rocket Mortgage Fieldhouse,Cleveland,Ohio,MAC Quarter Finals,,19166,H
+19163,2025,15,D,Conf. Tournament,4,CMU,BGSU,5,1,0,1,0,0,0,0,AI,PoopyRhinoPickle,Rocket Mortgage Fieldhouse,Cleveland,Ohio,MAC Quarter Finals,,19166,A
+19164,2025,15,D,Conf. Tournament,2,BALL,MASS,7,1,0,1,0,0,0,0,AI,AI,Rocket Mortgage Fieldhouse,Cleveland,Ohio,MAC Quarter Finals,,19167,H
+19165,2025,15,D,Conf. Tournament,3,KENT,BUFF,6,1,0,1,0,0,0,0,AI,AI,Rocket Mortgage Fieldhouse,Cleveland,Ohio,MAC Quarter Finals,,19167,A
+19166,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Rocket Mortgage Fieldhouse,Cleveland,Ohio,MAC Semifinals,,19168,H
+19167,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Rocket Mortgage Fieldhouse,Cleveland,Ohio,MAC Semifinals,,19168,A
+19168,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Rocket Mortgage Fieldhouse,Cleveland,Ohio,MAC Finals,,0,
+19169,2025,15,B,Conf. Tournament,1,DSU,SCST,8,1,0,1,0,0,0,0,AI,AI,Norfolk Scope Arena,Norfolk,VA,MEAC Quarterfinals,,19173,H
+19170,2025,15,B,Conf. Tournament,4,MORG,UMES,5,1,0,1,0,0,0,0,AI,AI,Norfolk Scope Arena,Norfolk,VA,MEAC Quarterfinals,,19173,A
+19171,2025,15,B,Conf. Tournament,2,NCCU,HOW,7,1,0,1,0,0,0,0,AI,AI,Norfolk Scope Arena,Norfolk,VA,MEAC Quarterfinals,,19174,H
+19172,2025,15,B,Conf. Tournament,3,COPP,NORF,6,1,0,1,0,0,0,0,AI,AI,Norfolk Scope Arena,Norfolk,VA,MEAC Quarterfinals,,19174,A
+19173,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Norfolk Scope Arena,Norfolk,VA,MEAC Semifinals,,19175,H
+19174,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Norfolk Scope Arena,Norfolk,VA,MEAC Semifinals,,19175,A
+19175,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Norfolk Scope Arena,Norfolk,VA,MEAC Finals,,0,
+19176,2025,15,B,Conf. Tournament,8,VAL,INST,9,1,0,1,0,0,0,0,AI,AI,Enterprise Center,St. Louis,MO,MVC First Round,,19179,A
+19177,2025,15,B,Conf. Tournament,7,MUR,BEL,10,1,0,1,0,0,0,0,AI,AI,Enterprise Center,St. Louis,MO,MVC First Round,,19181,A
+19178,2025,15,B,Conf. Tournament,6,SIU,UIC,11,1,0,1,0,0,0,0,AI,AI,Enterprise Center,St. Louis,MO,MVC First Round,,19182,A
+19179,2025,15,C,Conf. Tournament,1,ILST,,,1,0,1,0,0,0,0,Ape,#N/A,Enterprise Center,St. Louis,MO,MVC Quarter Finals,,19183,H
+19180,2025,15,C,Conf. Tournament,4,DRKE,UNI,5,1,0,1,0,0,0,0,AI,AI,Enterprise Center,St. Louis,MO,MVC Quarter Finals,,19183,A
+19181,2025,15,C,Conf. Tournament,2,BRAD,,,1,0,1,0,0,0,0,AI,#N/A,Enterprise Center,St. Louis,MO,MVC Quarter Finals,,19184,H
+19182,2025,15,C,Conf. Tournament,3,EVAN,,,1,0,1,0,0,0,0,AI,#N/A,Enterprise Center,St. Louis,MO,MVC Quarter Finals,,19184,A
+19183,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Enterprise Center,St. Louis,MO,MVC Semifinals,,19185,H
+19184,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Enterprise Center,St. Louis,MO,MVC Semifinals,,19185,A
+19185,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Enterprise Center,St. Louis,MO,MVC Finals,,0,
+19186,2025,15,B,Conf. Tournament,8,GCU,CSU,9,1,0,1,0,0,0,0,AI,AI,Thomas & Mack Center,Paradise,NV,MWC First Round,,19190,A
+19187,2025,15,B,Conf. Tournament,5,WYOM,NEV,12,1,0,1,0,0,0,0,AI,AI,Thomas & Mack Center,Paradise,NV,MWC First Round,,19191,A
+19188,2025,15,B,Conf. Tournament,7,SJSU,UNLV,10,1,0,1,0,0,0,0,AI,AI,Thomas & Mack Center,Paradise,NV,MWC First Round,,19192,A
+19189,2025,15,B,Conf. Tournament,6,BOIS,UNM,11,1,0,1,0,0,0,0,AI,AI,Thomas & Mack Center,Paradise,NV,MWC First Round,,19193,A
+19190,2025,15,C,Conf. Tournament,1,FRES,,,1,0,1,0,0,0,0,AI,#N/A,Thomas & Mack Center,Paradise,NV,MWC Quarter Finals,,19194,H
+19191,2025,15,C,Conf. Tournament,4,UTST,,,1,0,1,0,0,0,0,Ewade,#N/A,Thomas & Mack Center,Paradise,NV,MWC Quarter Finals,,19194,A
+19192,2025,15,C,Conf. Tournament,2,USAF,,,1,0,1,0,0,0,0,AI,#N/A,Thomas & Mack Center,Paradise,NV,MWC Quarter Finals,,19195,H
+19193,2025,15,C,Conf. Tournament,3,SDSU,,,1,0,1,0,0,0,0,AI,#N/A,Thomas & Mack Center,Paradise,NV,MWC Quarter Finals,,19195,A
+19194,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Thomas & Mack Center,Paradise,NV,MWC Semifinals,,19196,H
+19195,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Thomas & Mack Center,Paradise,NV,MWC Semifinals,,19196,A
+19196,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Thomas & Mack Center,Paradise,NV,MWC Finals,,0,
+19197,2025,15,B,Conf. Tournament,1,HART,SFPA,8,0,0,1,0,0,0,0,AI,AI,Chase Arena,West Hartford,CT,NEC Quarterfinals,,19201,H
+19198,2025,15,B,Conf. Tournament,4,MRCY,LEM,5,0,0,1,0,0,0,0,AI,AI,Mercyhurst Athletic Center,Erie,PA,NEC Quarterfinals,,19201,A
+19199,2025,15,B,Conf. Tournament,2,STO,CHST,7,0,0,1,0,0,0,0,AI,AI,Merkert Gymnasium,Easton,MA,NEC Quarterfinals,,19202,H
+19200,2025,15,B,Conf. Tournament,3,CCSU,FDU,6,0,0,1,0,0,0,0,AI,AI,William H. Detrick Gymnasium,New Britain,CT,NEC Quarterfinals,,19202,A
+19201,2025,16,A,Conf. Tournament,,,,,0,0,1,0,0,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,NEC Semifinals,,19203,H
+19202,2025,16,A,Conf. Tournament,,,,,0,0,1,0,0,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,NEC Semifinals,,19203,A
+19203,2025,16,B,Conf. Tournament,,,,,0,0,1,0,0,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,NEC Finals,,0,
+19204,2025,15,B,Conf. Tournament,5,LIN,EIU,8,1,0,1,0,0,0,0,AI,AI,Ford Center,Evansville,IN,OVC First Round,,19206,A
+19205,2025,15,B,Conf. Tournament,6,WIU,TNTC,7,1,0,1,0,0,0,0,AI,AI,Ford Center,Evansville,IN,OVC First Round,,19207,A
+19206,2025,15,B,Conf. Tournament,4,TNST,,,1,0,1,0,0,0,0,AI,#N/A,Ford Center,Evansville,IN,OVC Quarterfinals,,19208,A
+19207,2025,15,B,Conf. Tournament,3,LR,,,1,0,1,0,0,0,0,AI,#N/A,Ford Center,Evansville,IN,OVC Quarterfinals,,19209,A
+19208,2025,16,C,Conf. Tournament,1,SIUE,,,1,0,1,0,0,0,0,AI,#N/A,Ford Center,Evansville,IN,OVC Semifinals,,19210,H
+19209,2025,16,C,Conf. Tournament,2,MORE,,,1,0,1,0,0,0,0,AI,#N/A,Ford Center,Evansville,IN,OVC Semifinals,,19210,A
+19210,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Ford Center,Evansville,IN,OVC Finals,,0,
+19211,2025,15,B,Conf. Tournament,8,L-MD,BU,9,0,0,1,0,0,0,0,AI,AI,Reitz Arena,Baltimore,MD,Patriot First Round,,19213,A
+19212,2025,15,B,Conf. Tournament,7,LEH,BUCK,10,0,0,1,0,0,0,0,AI,AI,Stabler Arena,Bethlehem,PA,Patriot First Round,,19215,A
+19213,2025,15,C,Conf. Tournament,1,ARMY,,,0,0,1,0,0,0,0,AI,#N/A,Christl Arena,West Point,NY,Patriot Quarter Finals,,19217,H
+19214,2025,15,C,Conf. Tournament,4,HC,COLG,5,0,0,1,0,0,0,0,AI,Coach123,Hart Center,Worcester,MA,Patriot Quarter Finals,,19217,A
+19215,2025,15,C,Conf. Tournament,2,AMER,,,0,0,1,0,0,0,0,AI,#N/A,Bender Arena,WA,DC,Patriot Quarter Finals,,19218,H
+19216,2025,15,C,Conf. Tournament,3,LAF,NAVY,6,0,0,1,0,0,0,0,AI,AI,Kirby Sports Center,Easton,PA,Patriot Quarter Finals,,19218,A
+19217,2025,16,A,Conf. Tournament,,,,,0,0,1,0,0,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,Patriot Semifinals,,19219,H
+19218,2025,16,A,Conf. Tournament,,,,,0,0,1,0,0,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,Patriot Semifinals,,19219,A
+19219,2025,16,B,Conf. Tournament,,,,,0,0,1,0,0,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,Patriot Finals,,0,
+19220,2025,15,B,Conf. Tournament,9,MIZZ,LSU,16,1,0,1,0,0,0,0,AI,AI,Bridgestone Arena,Nashville,TN,SEC First Round,,19224,A
+19221,2025,15,B,Conf. Tournament,12,AUB,SOCA,13,1,0,1,0,0,0,0,AI,AI,Bridgestone Arena,Nashville,TN,SEC First Round,,19225,A
+19222,2025,15,B,Conf. Tournament,10,BAMA,UGA,15,1,0,1,0,0,0,0,thatfunk,Sarge,Bridgestone Arena,Nashville,TN,SEC First Round,,19226,A
+19223,2025,15,B,Conf. Tournament,11,OKLA,MSST,14,1,0,1,0,0,0,0,AI,AI,Bridgestone Arena,Nashville,TN,SEC First Round,,19227,A
+19224,2025,15,C,Conf. Tournament,8,VAND,,,1,0,1,0,0,0,0,AI,#N/A,Bridgestone Arena,Nashville,TN,SEC Second Round,,19228,A
+19225,2025,15,C,Conf. Tournament,5,MISS,,,1,0,1,0,0,0,0,AI,#N/A,Bridgestone Arena,Nashville,TN,SEC Second Round,,19229,H
+19226,2025,15,C,Conf. Tournament,7,ARK,,,1,0,1,0,0,0,0,kwheeler,#N/A,Bridgestone Arena,Nashville,TN,SEC Second Round,,19230,A
+19227,2025,15,C,Conf. Tournament,6,TAMU,,,1,0,1,0,0,0,0,AI,#N/A,Bridgestone Arena,Nashville,TN,SEC Second Round,,19231,H
+19228,2025,15,D,Conf. Tournament,1,FLA,,,1,0,1,0,0,0,0,AI,#N/A,Bridgestone Arena,Nashville,TN,SEC Quarter Finals,,19232,H
+19229,2025,15,D,Conf. Tournament,,,TEX,4,1,0,1,0,0,0,0,#N/A,AI,Bridgestone Arena,Nashville,TN,SEC Quarter Finals,,19232,A
+19230,2025,15,D,Conf. Tournament,2,TENN,,,1,0,1,0,0,0,0,tsweezy,#N/A,Bridgestone Arena,Nashville,TN,SEC Quarter Finals,,19233,H
+19231,2025,15,D,Conf. Tournament,,,UKEN,3,1,0,1,0,0,0,0,#N/A,Ezaco,Bridgestone Arena,Nashville,TN,SEC Quarter Finals,,19233,A
+19232,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Bridgestone Arena,Nashville,TN,SEC Semifinals,,19234,H
+19233,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Bridgestone Arena,Nashville,TN,SEC Semifinals,,19234,A
+19234,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Bridgestone Arena,Nashville,TN,SEC Finals,,0,
+19235,2025,15,B,Conf. Tournament,8,MER,UNCG,9,1,0,1,0,0,0,0,AI,AI,Harrah's Cherokee Center,Asheville,NC,SoCon First Round,,19237,A
+19236,2025,15,B,Conf. Tournament,7,CIT,FUR,10,1,0,1,0,0,0,0,AI,AI,Harrah's Cherokee Center,Asheville,NC,SoCon First Round,,19239,A
+19237,2025,15,C,Conf. Tournament,1,UTC,,,1,0,1,0,0,0,0,AI,#N/A,Harrah's Cherokee Center,Asheville,NC,SoCon Quarter Finals,,19241,H
+19238,2025,15,C,Conf. Tournament,4,VMI,WOF,5,1,0,1,0,0,0,0,AI,AI,Harrah's Cherokee Center,Asheville,NC,SoCon Quarter Finals,,19241,A
+19239,2025,15,C,Conf. Tournament,2,ETSU,,,1,0,1,0,0,0,0,AI,#N/A,Harrah's Cherokee Center,Asheville,NC,SoCon Quarter Finals,,19242,H
+19240,2025,15,C,Conf. Tournament,3,WCU,SAM,6,1,0,1,0,0,0,0,AI,AI,Harrah's Cherokee Center,Asheville,NC,SoCon Quarter Finals,,19242,A
+19241,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Harrah's Cherokee Center,Asheville,NC,SoCon Semifinals,,19243,H
+19242,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Harrah's Cherokee Center,Asheville,NC,SoCon Semifinals,,19243,A
+19243,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Harrah's Cherokee Center,Asheville,NC,SoCon Finals,,0,
+19244,2025,15,B,Conf. Tournament,5,SELA,UNO,8,1,0,1,0,0,0,0,AI,AI,Legacy Center,Lake Charles,LA,Southland First Round,,19246,A
+19245,2025,15,B,Conf. Tournament,6,NWST,UIW,7,1,0,1,0,0,0,0,AI,AI,Legacy Center,Lake Charles,LA,Southland First Round,,19247,A
+19246,2025,15,C,Conf. Tournament,4,MCN,,,1,0,1,0,0,0,0,AI,#N/A,Legacy Center,Lake Charles,LA,Southland Quarterfinals,,19248,A
+19247,2025,15,C,Conf. Tournament,3,NICH,,,1,0,1,0,0,0,0,AI,#N/A,Legacy Center,Lake Charles,LA,Southland Quarterfinals,,13664,A
+19248,2025,15,C,,1,ETAM,,,1,0,1,0,0,0,0,AI,#N/A,Legacy Center,Lake Charles,LA,Southland Semifinals,,13665,H
+19249,2025,15,C,,2,SFA,,,1,0,1,0,0,0,0,AI,#N/A,Legacy Center,Lake Charles,LA,Southland Semifinals,,13665,A
+19250,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Legacy Center,Lake Charles,LA,Southland Finals,,0,
+19251,2025,15,B,Conf. Tournament,8,ALCN,PV,9,1,0,1,0,0,0,0,AI,AI,Bartow Arena,Birmingham,AL,SWAC First Round,,19253,A
+19252,2025,15,B,Conf. Tournament,7,JXST,SOU,10,1,0,1,0,0,0,0,AI,AI,Bartow Arena,Birmingham,AL,SWAC First Round,,19255,A
+19253,2025,15,C,Conf. Tournament,1,TXSO,,,1,0,1,0,0,0,0,AI,#N/A,Bartow Arena,Birmingham,AL,SWAC Quarter Finals,,19257,H
+19254,2025,15,C,Conf. Tournament,4,GRAM,MSVU,5,1,0,1,0,0,0,0,AI,AI,Bartow Arena,Birmingham,AL,SWAC Quarter Finals,,19257,A
+19255,2025,15,C,Conf. Tournament,2,UAPB,,,1,0,1,0,0,0,0,AI,#N/A,Bartow Arena,Birmingham,AL,SWAC Quarter Finals,,19258,H
+19256,2025,15,C,Conf. Tournament,3,FAMU,AAMU,6,1,0,1,0,0,0,0,AI,AI,Bartow Arena,Birmingham,AL,SWAC Quarter Finals,,19258,A
+19257,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Bartow Arena,Birmingham,AL,SWAC Semifinals,,19259,H
+19258,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Bartow Arena,Birmingham,AL,SWAC Semifinals,,19259,A
+19259,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Bartow Arena,Birmingham,AL,SWAC Finals,,0,
+19260,2025,15,B,Conf. Tournament,8,DU,STMN,9,1,0,1,0,0,0,0,AI,AI,Denny Sanford Premier Center,Sioux Falls,SD,Summit First Round,,19261,A
+19261,2025,15,C,Conf. Tournament,1,SDST,,,1,0,1,0,0,0,0,Minnow,#N/A,Denny Sanford Premier Center,Sioux Falls,SD,Summit Quarter Finals,,19265,H
+19262,2025,15,C,Conf. Tournament,4,ORU,UNOM,5,1,0,1,0,0,0,0,AI,AI,Denny Sanford Premier Center,Sioux Falls,SD,Summit Quarter Finals,,19265,A
+19263,2025,15,C,Conf. Tournament,2,SDAK,UND,7,1,0,1,0,0,0,0,AI,AI,Denny Sanford Premier Center,Sioux Falls,SD,Summit Quarter Finals,,19266,H
+19264,2025,15,C,Conf. Tournament,3,NDSU,KCU,6,1,0,1,0,0,0,0,AI,AI,Denny Sanford Premier Center,Sioux Falls,SD,Summit Quarter Finals,,19266,A
+19265,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Denny Sanford Premier Center,Sioux Falls,SD,Summit Semifinals,,19267,H
+19266,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Denny Sanford Premier Center,Sioux Falls,SD,Summit Semifinals,,19267,A
+19267,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Denny Sanford Premier Center,Sioux Falls,SD,Summit Finals,,0,
+19268,2025,15,B,Conf. Tournament,12,TXST,ULM,13,1,0,1,0,0,0,0,AI,AI,Pensacola Bay Center,Pensacola,FL,Sun Belt First Round,,19271,A
+19269,2025,15,B,Conf. Tournament,11,ARST,CCU,14,1,0,1,0,0,0,0,AI,AI,Pensacola Bay Center,Pensacola,FL,Sun Belt First Round,,19273,A
+19270,2025,15,C,Conf. Tournament,8,JMU,GASO,9,1,0,1,0,0,0,0,AI,AI,Pensacola Bay Center,Pensacola,FL,Sun Belt Second Round,,19274,A
+19271,2025,15,C,Conf. Tournament,5,ULL,,,1,0,1,0,0,0,0,AI,#N/A,Pensacola Bay Center,Pensacola,FL,Sun Belt Second Round,,19275,H
+19272,2025,15,C,Conf. Tournament,7,GAST,APST,10,1,0,1,0,0,0,0,AI,AI,Pensacola Bay Center,Pensacola,FL,Sun Belt Second Round,,19276,A
+19273,2025,15,C,Conf. Tournament,6,MRSH,,,1,0,1,0,0,0,0,AI,#N/A,Pensacola Bay Center,Pensacola,FL,Sun Belt Second Round,,19277,H
+19274,2025,15,D,Conf. Tournament,1,TROY,,,1,0,1,0,0,0,0,AI,#N/A,Pensacola Bay Center,Pensacola,FL,Sun Belt Quarter Finals,,19278,H
+19275,2025,15,D,Conf. Tournament,,,USA,4,1,0,1,0,0,0,0,#N/A,AI,Pensacola Bay Center,Pensacola,FL,Sun Belt Quarter Finals,,19278,A
+19276,2025,15,D,Conf. Tournament,2,ODU,,,1,0,1,0,0,0,0,AI,#N/A,Pensacola Bay Center,Pensacola,FL,Sun Belt Quarter Finals,,19279,H
+19277,2025,15,D,Conf. Tournament,,,USM,3,1,0,1,0,0,0,0,#N/A,AI,Pensacola Bay Center,Pensacola,FL,Sun Belt Quarter Finals,,19279,A
+19278,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Pensacola Bay Center,Pensacola,FL,Sun Belt Semifinals,,19280,H
+19279,2025,16,A,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Pensacola Bay Center,Pensacola,FL,Sun Belt Semifinals,,19280,A
+19280,2025,16,B,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Pensacola Bay Center,Pensacola,FL,Sun Belt Finals,,0,
+19281,2025,15,B,Conf. Tournament,9,LMU,PAC,12,1,0,1,0,0,0,0,AI,AI,Orleans Arena,Paradise,NV,WCC First Round,,19283,A
+19282,2025,15,B,Conf. Tournament,10,ORST,PEPP,11,1,0,1,0,0,0,0,AI,AI,Orleans Arena,Paradise,NV,WCC First Round,,19284,A
+19283,2025,15,C,Conf. Tournament,8,PORT,,,1,0,1,0,0,0,0,AI,#N/A,Orleans Arena,Paradise,NV,WCC Second Round,,19285,A
+19284,2025,15,C,Conf. Tournament,7,USD,,,1,0,1,0,0,0,0,AI,#N/A,Orleans Arena,Paradise,NV,WCC Second Round,,19286,A
+19285,2025,15,D,Conf. Tournament,5,SEAU,,,1,0,1,0,0,0,0,AI,#N/A,Orleans Arena,Paradise,NV,WCC Third Round,,19287,A
+19286,2025,15,D,Conf. Tournament,6,SF,,,1,0,1,0,0,0,0,AI,#N/A,Orleans Arena,Paradise,NV,WCC Third Round,,19288,A
+19287,2025,16,A,Conf. Tournament,4,SMC,,,1,0,1,0,0,0,0,believer,#N/A,Orleans Arena,Paradise,NV,WCC Quarter Finals,,19289,A
+19288,2025,16,A,Conf. Tournament,3,GONZ,,,1,0,1,0,0,0,0,Curby4,#N/A,Orleans Arena,Paradise,NV,WCC Quarter Finals,,19290,A
+19289,2025,16,B,Conf. Tournament,1,SCU,,,1,0,1,0,0,0,0,AI,#N/A,Orleans Arena,Paradise,NV,WCC Semifinals,,19291,H
+19290,2025,16,B,Conf. Tournament,2,WAST,,,1,0,1,0,0,0,0,TuscanSota,#N/A,Orleans Arena,Paradise,NV,WCC Semifinals,,19291,A
+19291,2025,16,C,Conf. Tournament,,,,,1,0,1,0,0,0,0,#N/A,#N/A,Orleans Arena,Paradise,NV,WCC Finals,,0,
+19292,2025,15,B,Conf. Tournament,8,SUU,TAR,9,0,0,1,0,0,0,0,AI,AI,Michelob ULTRA Arena,Las Vegas,NV,WAC First Round,,19293,A
+19293,2025,15,C,Conf. Tournament,1,ACU,,,0,0,1,0,0,0,0,AI,#N/A,Michelob ULTRA Arena,Las Vegas,NV,WAC Quarter Finals,,19297,H
+19294,2025,15,C,Conf. Tournament,4,UTA,CBU,5,0,0,1,0,0,0,0,AI,AI,Michelob ULTRA Arena,Las Vegas,NV,WAC Quarter Finals,,19297,A
+19295,2025,15,C,Conf. Tournament,2,UOG,UTU,7,0,0,1,0,0,0,0,AI,AI,Michelob ULTRA Arena,Las Vegas,NV,WAC Quarter Finals,,19298,H
+19296,2025,15,C,Conf. Tournament,3,SAMO,UVU,6,0,0,1,0,0,0,0,AI,AI,Michelob ULTRA Arena,Las Vegas,NV,WAC Quarter Finals,,19298,A
+19297,2025,16,A,Conf. Tournament,,,,,0,0,1,0,0,0,0,#N/A,#N/A,Michelob ULTRA Arena,Las Vegas,NV,WAC Semifinals,,19299,H
+19298,2025,16,A,Conf. Tournament,,,,,0,0,1,0,0,0,0,#N/A,#N/A,Michelob ULTRA Arena,Las Vegas,NV,WAC Semifinals,,19299,A
+19299,2025,16,B,Conf. Tournament,,,,,0,0,1,0,0,0,0,#N/A,#N/A,Michelob ULTRA Arena,Las Vegas,NV,WAC Finals,,0,

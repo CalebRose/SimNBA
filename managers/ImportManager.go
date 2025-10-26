@@ -407,7 +407,14 @@ func ImportPersonalities() {
 
 func ImportCBBGames() {
 	db := dbprovider.GetInstance().GetDB()
-	path := secrets.GetPath()["cbbmatches"]
+	ts := GetTimestamp()
+	key := "cbbmatches"
+	if ts.CollegeWeek >= 14 && ts.CollegeWeek < 17 {
+		key = "cbbconftournamentmatches"
+	} else if ts.CollegeWeek >= 16 {
+		key = "cbbpostseasonmatches"
+	}
+	path := secrets.GetPath()[key]
 	collegeMatches := util.ReadCSV(path)
 
 	collegeTeams := GetAllActiveCollegeTeams()
@@ -448,22 +455,23 @@ func ImportCBBGames() {
 		homeTeam := collegeMap[homeTeamAbbr]
 		awayTeam := collegeMap[awayTeamAbbr]
 		isConf := false
-		neutralSite := util.ConvertStringToBool(row[10])
-		invitational := util.ConvertStringToBool(row[11])
-		if homeTeam.ConferenceID == awayTeam.ConferenceID && !invitational {
+		neutralSite := util.ConvertStringToBool(row[9])
+		invitational := util.ConvertStringToBool(row[10])
+		conferenceTournament := util.ConvertStringToBool(row[11])
+		cbi := util.ConvertStringToBool(row[12])
+		nit := util.ConvertStringToBool(row[13])
+		tournament := util.ConvertStringToBool(row[14])
+		nationalChamp := util.ConvertStringToBool(row[15])
+		if homeTeam.ConferenceID == awayTeam.ConferenceID && !invitational && !conferenceTournament && !cbi && !nit && !tournament {
 			isConf = true
 		}
-		gameTitle := row[22]
-		nextGameID := util.ConvertStringToInt(row[24])
-		hoA := row[25]
-		conferenceTournament := util.ConvertStringToBool(row[12])
-		cbi := util.ConvertStringToBool(row[13])
-		nit := util.ConvertStringToBool(row[14])
-		tournament := util.ConvertStringToBool(row[15])
-		nationalChamp := util.ConvertStringToBool(row[16])
-		arena := row[19]
-		city := row[20]
-		state := row[21]
+		gameTitle := row[21]
+		nextGameID := util.ConvertStringToInt(row[23])
+		hoA := row[24]
+
+		arena := row[18]
+		city := row[19]
+		state := row[20]
 		homeCoach := homeTeam.Coach
 		if homeCoach == "" {
 			homeCoach = "AI"

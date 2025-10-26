@@ -189,7 +189,7 @@ func AssignDiscordIDtoNBATeam(w http.ResponseWriter, r *http.Request) {
 		panic("User did not provide conference name")
 	}
 
-	managers.AssignDiscordIDToNFLTeam(teamID, discordID, username)
+	managers.AssignDiscordIDToNBATeam(teamID, discordID, username)
 }
 
 func CompareCFBTeams(w http.ResponseWriter, r *http.Request) {

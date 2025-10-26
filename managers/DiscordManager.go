@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
 )
@@ -378,17 +379,17 @@ func AssignDiscordIDToCollegeTeam(tID, dID string) {
 
 	team.AssignDiscordID(dID)
 
-	db.Save(&team)
+	repository.SaveCollegeTeamRecord(team, db)
 }
 
-func AssignDiscordIDToNFLTeam(tID, dID, un string) {
+func AssignDiscordIDToNBATeam(tID, dID, un string) {
 	db := dbprovider.GetInstance().GetDB()
 
 	team := GetNBATeamByTeamID(tID)
 
 	team.AssignDiscordID(dID, un)
 
-	db.Save(&team)
+	repository.SaveNBATeamRecord(team, db)
 }
 
 func CompareTwoCBBTeams(t1ID, t2ID string) structs.FlexComparisonModel {

@@ -541,9 +541,6 @@ func ExportMatchResults(w http.ResponseWriter, seasonID, weekID, nbaWeekID, matc
 		}
 	}
 	for _, m := range nbaMatches {
-		if !m.GameComplete {
-			continue
-		}
 
 		if m.Week == uint(ts.NBAWeek) && ((matchType == "A" && !ts.GamesARan) || (matchType == "B" && !ts.GamesBRan) || (matchType == "C" && !ts.GamesCRan) || (matchType == "D" && !ts.GamesDRan)) {
 			m.HideScore()
