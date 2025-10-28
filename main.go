@@ -381,7 +381,7 @@ func handleCron() *cron.Cron {
 	c := cron.New()
 	runJobs := os.Getenv("RUN_JOBS")
 	if runJobs != "FALSE" {
-		c.AddFunc("0 7 * * 3", controller.SyncRecruitingViaCron)
+		c.AddFunc("0 16 * * 3", controller.SyncRecruitingViaCron)
 		c.AddFunc("0 6 * * 4,6", controller.SyncAIBoardsViaCron)
 		c.AddFunc("0 10 * * 1,3,5,6", controller.CheckUserGameplansViaCron)
 		c.AddFunc("0 20 * * 1,3,5,6", controller.ShowGamesViaCron)
