@@ -57,6 +57,11 @@ type BootstrapDataThree struct {
 	ExtensionMap    map[uint]structs.NBAExtensionOffer
 }
 
+type BootstrapDataNews struct {
+	CollegeNews []structs.NewsLog
+	ProNews     []structs.NewsLog
+}
+
 func GetBootstrapTeams() BootstrapData {
 	var wg sync.WaitGroup
 	var (
@@ -236,13 +241,7 @@ func GetSecondBootstrapData(collegeID, proID string) BootstrapDataTwo {
 	seasonID := strconv.Itoa(int(ts.SeasonID))
 
 	if len(collegeID) > 0 && collegeID != "0" {
-		wg.Add(4)
-		go func() {
-			defer wg.Done()
-			log.Println("Fetching College News Logs...")
-			collegeNews = GetAllCBBNewsLogs()
-			log.Println("Fetched College News Logs, count:", len(collegeNews))
-		}()
+		wg.Add(3)
 		go func() {
 			defer wg.Done()
 			log.Println("Fetching College News Logs...")
@@ -357,15 +356,11 @@ func GetThirdBootstrapData(collegeID, proID string) BootstrapDataThree {
 		wg.Wait()
 	}
 	if len(proID) > 0 && proID != "0" {
-		wg.Add(6)
+		wg.Add(5)
 
 		go func() {
 			defer wg.Done()
 			allProGames = GetNBAMatchesBySeasonID(seasonID)
-		}()
-		go func() {
-			defer wg.Done()
-			proNews = GetAllNBANewsLogs()
 		}()
 
 		go func() {
@@ -400,5 +395,41 @@ func GetThirdBootstrapData(collegeID, proID string) BootstrapDataThree {
 		AllProGames:     allProGames,
 		ContractMap:     contractMap,
 		ExtensionMap:    extensionMap,
+	}
+}
+
+func GetNewsBootstrap(collegeID, proID string) BootstrapDataNews {
+	var wg sync.WaitGroup
+
+	var (
+		collegeNews []structs.NewsLog
+		proNews     []structs.NewsLog
+	)
+
+	if len(collegeID) > 0 && collegeID != "0" {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			log.Println("Fetching College News Logs...")
+			collegeNews = GetAllCBBNewsLogs()
+			log.Println("Fetched College News Logs, count:", len(collegeNews))
+		}()
+		log.Println("Initiated all College data queries.")
+	}
+
+	if len(proID) > 0 && proID != "0" {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			proNews = GetAllNBANewsLogs()
+		}()
+
+	}
+
+	wg.Wait()
+
+	return BootstrapDataNews{
+		CollegeNews: collegeNews,
+		ProNews:     proNews,
 	}
 }

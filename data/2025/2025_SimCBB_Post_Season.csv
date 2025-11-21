@@ -1,0 +1,111 @@
+GameID,Season,Week,A or B,Match Type,HT Rank,Home Team,Away Team,AT Rank,NeutralSite,Invitational,Conference Tournament,CBI,NIT,Tournament,National Champ,Listed Coach,Other Coach,Arena,City,State,GameTitle,Info,NextGameID,NextGameHoA
+19300,2025,17,C,OOC,1,COLO,BEL,16,1,0,0,0,0,1,0,Bingo415,AI,Moda Center,Portland,OR,Round of 64,1V16,19332,H
+19301,2025,17,C,OOC,8,TXSO,KENT,9,1,0,0,0,0,1,0,AI,AI,Moda Center,Portland,OR,Round of 64,8v9,19332,A
+19302,2025,17,D,OOC,5,WAST,SDSU,12,1,0,0,0,0,1,0,TuscanSota,AI,Moda Center,Portland,OR,Round of 64,5v12,19333,H
+19303,2025,17,D,OOC,4,SDST,SCU,13,1,0,0,0,0,1,0,Minnow,AI,Moda Center,Portland,OR,Round of 64,4v13,19333,A
+19304,2025,17,C,OOC,6,BALL,TEX,11,1,0,0,0,0,1,0,AI,AI,Viejas Arena,San Diego,CA,Round of 64,6v11,19334,H
+19305,2025,17,C,OOC,3,UCLA,SAMO,14,1,0,0,0,0,1,0,jmjacobs,AI,Viejas Arena,San Diego,CA,Round of 64,3v14,19334,A
+19306,2025,17,D,OOC,7,USAF,USA,10,1,0,0,0,0,1,0,AI,AI,Viejas Arena,San Diego,CA,Round of 64,7v10,19335,H
+19307,2025,17,D,OOC,2,UCI,SDAK,15,1,0,0,0,0,1,0,subsequent,AI,Viejas Arena,San Diego,CA,Round of 64,2v15,19335,A
+19308,2025,17,C,OOC,1,PURD,HAMP,16,1,0,0,0,0,1,0,MasonAsher,AI,KeyBank Center,Buffalo,NY,Round of 64,1V16,19336,H
+19309,2025,17,C,OOC,8,UV,SIUE,9,1,0,0,0,0,1,0,iToxickiddy,AI,KeyBank Center,Buffalo,NY,Round of 64,8v9,19336,A
+19310,2025,17,D,OOC,5,MARQ,ODU,12,1,0,0,0,0,1,0,AI,AI,KeyBank Center,Buffalo,NY,Round of 64,5v12,19337,H
+19311,2025,17,D,OOC,4,CONN,HART,13,1,0,0,0,0,1,0,CoachCartier,AI,KeyBank Center,Buffalo,NY,Round of 64,4v13,19337,A
+19312,2025,17,C,OOC,6,USF,UNCA,11,1,0,0,0,0,1,0,AI,AI,Xfinity Mobile Arena,Philadelphia,PA,Round of 64,6v11,19338,H
+19313,2025,17,C,OOC,3,TENN,BGSU,14,1,0,0,0,0,1,0,tsweezy,PoopyRhinoPickle,Xfinity Mobile Arena,Philadelphia,PA,Round of 64,3v14,19338,A
+19314,2025,17,D,OOC,7,FLA,COLU,10,1,0,0,0,0,1,0,AI,AI,Xfinity Mobile Arena,Philadelphia,PA,Round of 64,7v10,19339,H
+19315,2025,17,D,OOC,2,WVU,NAVY,15,1,0,0,0,0,1,0,smackemz3,AI,Xfinity Mobile Arena,Philadelphia,PA,Round of 64,2v15,19339,A
+19316,2025,17,C,OOC,1,JU,VMI,16,1,0,0,0,0,1,0,Ricky Campbell,AI,Bon Secours Wellness Arena,Greenville,SC,Round of 64,1V16,19340,H
+19317,2025,17,C,OOC,8,DUKE,DAY,9,1,0,0,0,0,1,0,AI,AI,Bon Secours Wellness Arena,Greenville,SC,Round of 64,8v9,19340,A
+19318,2025,17,D,OOC,5,FRES,DSU,12,1,0,0,0,0,1,0,AI,AI,Bon Secours Wellness Arena,Greenville,SC,Round of 64,5v12,19341,H
+19319,2025,17,D,OOC,4,TROY,KANS,13,1,0,0,0,0,1,0,AI,bundy,Bon Secours Wellness Arena,Greenville,SC,Round of 64,4v13,19341,A
+19320,2025,17,C,OOC,6,ILLI,USM,11,1,0,0,0,0,1,0,nemolee.exe,AI,Benchmark International Arena,Tampa,FL,Round of 64,6v11,19342,H
+19321,2025,17,C,OOC,3,TLNE,UTEP,14,1,0,0,0,0,1,0,kgreene829,AI,Benchmark International Arena,Tampa,FL,Round of 64,3v14,19342,A
+19322,2025,17,D,OOC,7,FGCU,SPU,10,1,0,0,0,0,1,0,AI,AI,Benchmark International Arena,Tampa,FL,Round of 64,7v10,19343,H
+19323,2025,17,D,OOC,2,UKEN,MORE,15,1,0,0,0,0,1,0,Ezaco,AI,Benchmark International Arena,Tampa,FL,Round of 64,2v15,19343,A
+19324,2025,17,C,OOC,1,SMU,NKU,16,1,0,0,0,0,1,0,jw1952tx,AI,Paycom Center,Oklahoma City,OK,Round of 64,1V16,19344,H
+19325,2025,17,C,OOC,8,GONZ,RICH,9,1,0,0,0,0,1,0,Curby4,AI,Paycom Center,Oklahoma City,OK,Round of 64,8v9,19344,A
+19326,2025,17,D,OOC,5,BYU,CMU,12,1,0,0,0,0,1,0,Bellwood,AI,Paycom Center,Oklahoma City,OK,Round of 64,5v12,19345,H
+19327,2025,17,D,OOC,4,UTAH,IDST,13,1,0,0,0,0,1,0,SageBow,AI,Paycom Center,Oklahoma City,OK,Round of 64,4v13,19345,A
+19328,2025,17,C,OOC,6,SJU,PRIN,11,1,0,0,0,0,1,0,SyndaKyt,AI,Enterprise Center,St. Louis,MO,Round of 64,6v11,19346,H
+19329,2025,17,C,OOC,3,TEMP,NEB,14,1,0,0,0,0,1,0,SandyToez,huskersax,Enterprise Center,St. Louis,MO,Round of 64,3v14,19346,A
+19330,2025,17,D,OOC,7,WMU,MEMP,10,1,0,0,0,0,1,0,Jieret,AI,Enterprise Center,St. Louis,MO,Round of 64,7v10,19347,H
+19331,2025,17,D,OOC,2,BAYL,ETAM,15,1,0,0,0,0,1,0,Vivid,AI,Enterprise Center,St. Louis,MO,Round of 64,2v15,19347,A
+19332,2025,18,A,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,Moda Center,Portland,OR,Round of 32,,19348,H
+19333,2025,18,B,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,Moda Center,Portland,OR,Round of 32,,19348,A
+19334,2025,18,A,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,Viejas Arena,San Diego,CA,Round of 32,,19349,H
+19335,2025,18,B,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,Viejas Arena,San Diego,CA,Round of 32,,19349,A
+19336,2025,18,A,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,KeyBank Center,Buffalo,NY,Round of 32,,19350,H
+19337,2025,18,B,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,KeyBank Center,Buffalo,NY,Round of 32,,19350,A
+19338,2025,18,A,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,Xfinity Mobile Arena,Philadelphia,PA,Round of 32,,19351,H
+19339,2025,18,B,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,Xfinity Mobile Arena,Philadelphia,PA,Round of 32,,19351,A
+19340,2025,18,A,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,Bon Secours Wellness Arena,Greenville,SC,Round of 32,,19352,H
+19341,2025,18,B,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,Bon Secours Wellness Arena,Greenville,SC,Round of 32,,19352,A
+19342,2025,18,A,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,Benchmark International Arena,Tampa,FL,Round of 32,,19353,H
+19343,2025,18,B,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,Benchmark International Arena,Tampa,FL,Round of 32,,19353,A
+19344,2025,18,A,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,Paycom Center,Oklahoma City,OK,Round of 32,,19354,H
+19345,2025,18,B,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,Paycom Center,Oklahoma City,OK,Round of 32,,19354,A
+19346,2025,18,A,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,Enterprise Center,St. Louis,MO,Round of 32,,19355,H
+19347,2025,18,B,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,Enterprise Center,St. Louis,MO,Round of 32,,19355,A
+19348,2025,18,C,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,SAP Center,San Jose,CA,Sweet 16,,19356,H
+19349,2025,18,D,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,SAP Center,San Jose,CA,Sweet 16,,19356,A
+19350,2025,18,C,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,Capital One Arena,Washington,DC,Sweet 16,,19357,H
+19351,2025,18,D,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,Capital One Arena,Washington,DC,Sweet 16,,19357,A
+19352,2025,18,C,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,Toyota Center,Houston,TX,Sweet 16,,19358,H
+19353,2025,18,D,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,Toyota Center,Houston,TX,Sweet 16,,19358,A
+19354,2025,18,C,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,United Center,Chicago,IL,Sweet 16,,19359,H
+19355,2025,18,D,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,United Center,Chicago,IL,Sweet 16,,19359,A
+19356,2025,19,A,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,SAP Center,San Jose,CA,Elite 8,,19360,H
+19357,2025,19,A,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,Capital One Arena,Washington,DC,Elite 8,,19361,H
+19358,2025,19,B,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,Toyota Center,Houston,TX,Elite 8,,19361,A
+19359,2025,19,B,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,United Center,Chicago,IL,Elite 8,,19360,A
+19360,2025,20,A,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,Lucas Oil Stadium,Indianapolis,IN,Final Four,,19362,H
+19361,2025,20,A,OOC,0,,,0,1,0,0,0,0,1,0,#N/A,#N/A,Lucas Oil Stadium,Indianapolis,IN,Final Four,,19362,A
+19362,2025,20,B,OOC,0,,,0,1,0,0,0,0,1,1,#N/A,#N/A,Lucas Oil Stadium,Indianapolis,IN,NCAA National Championship,,0,
+19363,2025,17,C,OOC,1,WISC,DREX,8,0,0,0,0,1,0,0,AI,AI,Kohl Center,Madison,WI,NIT First Round,1v8,13795,H
+19364,2025,17,C,OOC,4,NMSU,OHIO,5,0,0,0,0,1,0,0,AI,AI,Pan American Center,Las Cruces,NM,NIT First Round,4v5,13795,A
+19365,2025,17,D,OOC,3,VAND,UAPB,6,0,0,0,0,1,0,0,AI,AI,Memorial Gymnasium,Nashville,TN,NIT First Round,3v6,13796,H
+19366,2025,17,D,OOC,2,MIAF,OAK,7,0,0,0,0,1,0,0,AI,AI,Watsco Center,Coral Gables,FL,NIT First Round,2v7,13796,A
+19367,2025,17,C,OOC,1,DPU,ARMY,8,0,0,0,0,1,0,0,AI,AI,Wintrust Arena[c],Chicago,IL,NIT First Round,1v8,13797,H
+19368,2025,17,C,OOC,4,JMU,MISS,5,0,0,0,0,1,0,0,AI,AI,Atlantic Union Bank Center,Harrisonburg,VA,NIT First Round,4v5,13797,A
+19369,2025,17,D,OOC,3,GAST,MASS,6,0,0,0,0,1,0,0,AI,AI,GA State Convocation Center,Atlanta,GA,NIT First Round,3v6,13798,H
+19370,2025,17,D,OOC,2,WAKE,NCCU,7,0,0,0,0,1,0,0,Qupax,AI,Lawrence Joel Veterans Memorial Coliseum,Winston-Salem,NC,NIT First Round,2v7,13798,A
+19371,2025,17,C,OOC,1,MINN,SFA,8,0,0,0,0,1,0,0,AI,AI,Williams Arena,Minneapolis,MN,NIT First Round,1v8,13799,H
+19372,2025,17,C,OOC,4,UTST,ACU,5,0,0,0,0,1,0,0,Ewade,AI,Smith Spectrum,Logan,UT,NIT First Round,4v5,13799,A
+19373,2025,17,D,OOC,3,ILST,LOU,6,0,0,0,0,1,0,0,Ape,kmatt,CEFCU Arena,Normal,IL,NIT First Round,3v6,13800,H
+19374,2025,17,D,OOC,2,WICH,UCR,7,0,0,0,0,1,0,0,AI,AI,Charles Koch Arena[b],Wichita,KS,NIT First Round,2v7,13800,A
+19375,2025,17,C,OOC,1,UVA,UTC,8,0,0,0,0,1,0,0,Wahoo,AI,John Paul Jones Arena,Charlottesville,VA,NIT First Round,1v8,13801,H
+19376,2025,17,C,OOC,4,STO,LAF,5,0,0,0,0,1,0,0,AI,AI,Merkert Gymnasium,Easton,MA,NIT First Round,4v5,13801,A
+19377,2025,17,D,OOC,3,CLEM,HALL,6,0,0,0,0,1,0,0,AI,AI,Littlejohn Coliseum,Clemson,SC,NIT First Round,3v6,13802,H
+19378,2025,17,D,OOC,2,MRSH,SHSU,7,0,0,0,0,1,0,0,AI,AI,Cam Henderson Center,Huntington,WV,NIT First Round,2v7,13802,A
+19379,2025,18,A,OOC,0,,,0,0,0,0,0,1,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,NIT Second Round,,13803,H
+19380,2025,18,B,OOC,0,,,0,0,0,0,0,1,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,NIT Second Round,,13803,A
+19381,2025,18,A,OOC,0,,,0,0,0,0,0,1,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,NIT Second Round,,13804,H
+19382,2025,18,B,OOC,0,,,0,0,0,0,0,1,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,NIT Second Round,,13804,A
+19383,2025,18,A,OOC,0,,,0,0,0,0,0,1,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,NIT Second Round,,13805,H
+19384,2025,18,B,OOC,0,,,0,0,0,0,0,1,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,NIT Second Round,,13805,A
+19385,2025,18,A,OOC,0,,,0,0,0,0,0,1,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,NIT Second Round,,13806,H
+19386,2025,18,B,OOC,0,,,0,0,0,0,0,1,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,NIT Second Round,,13806,A
+19387,2025,18,C,OOC,0,,,0,0,0,0,0,1,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,NIT Quarterfinals,,13807,H
+19388,2025,18,D,OOC,0,,,0,0,0,0,0,1,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,NIT Quarterfinals,,13807,A
+19389,2025,18,C,OOC,0,,,0,0,0,0,0,1,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,NIT Quarterfinals,,13808,H
+19390,2025,18,D,OOC,0,,,0,0,0,0,0,1,0,0,#N/A,#N/A,#N/A,#N/A,#N/A,NIT Quarterfinals,,13808,A
+19391,2025,19,A,OOC,0,,,0,1,0,0,0,1,0,0,#N/A,#N/A,Orleans Arena,Las Vegas,NV,NIT Semifinals,,13809,H
+19392,2025,19,B,OOC,0,,,0,1,0,0,0,1,0,0,#N/A,#N/A,Orleans Arena,Las Vegas,NV,NIT Semifinals,,13809,A
+19393,2025,20,A,OOC,0,,,0,1,0,0,0,1,0,0,#N/A,#N/A,Orleans Arena,Las Vegas,NV,NIT Championship,,0,
+19394,2025,17,C,OOC,1,SMC,GMU,16,1,0,0,1,0,0,0,believer,AI,Ocean Center,Daytona Beach,FL,CBI First Round,,13818,H
+19395,2025,17,C,OOC,8,UMBC,ECU,9,1,0,0,1,0,0,0,Rocketcan,ObliviousLAX,Ocean Center,Daytona Beach,FL,CBI First Round,,13818,A
+19396,2025,17,D,OOC,4,MICH,BRAD,13,1,0,0,1,0,0,0,AI,AI,Ocean Center,Daytona Beach,FL,CBI First Round,,13819,H
+19397,2025,17,D,OOC,5,SEAU,UCSD,12,1,0,0,1,0,0,0,AI,AI,Ocean Center,Daytona Beach,FL,CBI First Round,,13819,A
+19398,2025,17,C,OOC,3,UNC,GEOT,14,1,0,0,1,0,0,0,AI,AI,Ocean Center,Daytona Beach,FL,CBI First Round,,13820,H
+19399,2025,17,C,OOC,6,OREG,SF,11,1,0,0,1,0,0,0,AI,AI,Ocean Center,Daytona Beach,FL,CBI First Round,,13820,A
+19400,2025,17,D,OOC,7,TAMU,MIST,10,1,0,0,1,0,0,0,AI,AI,Ocean Center,Daytona Beach,FL,CBI First Round,,13821,H
+19401,2025,17,D,OOC,2,ULL,EMU,15,1,0,0,1,0,0,0,AI,AI,Ocean Center,Daytona Beach,FL,CBI First Round,,13821,A
+19402,2025,18,A,OOC,0,,,0,1,0,0,1,0,0,0,#N/A,#N/A,Ocean Center,Daytona Beach,FL,CBI Quarterfinals,,13822,H
+19403,2025,18,A,OOC,0,,,0,1,0,0,1,0,0,0,#N/A,#N/A,Ocean Center,Daytona Beach,FL,CBI Quarterfinals,,13822,A
+19404,2025,18,B,OOC,0,,,0,1,0,0,1,0,0,0,#N/A,#N/A,Ocean Center,Daytona Beach,FL,CBI Quarterfinals,,13823,H
+19405,2025,18,B,OOC,0,,,0,1,0,0,1,0,0,0,#N/A,#N/A,Ocean Center,Daytona Beach,FL,CBI Quarterfinals,,13823,A
+19406,2025,19,A,OOC,0,,,0,1,0,0,1,0,0,0,#N/A,#N/A,Ocean Center,Daytona Beach,FL,CBI Semifinals,,13824,H
+19407,2025,19,B,OOC,0,,,0,1,0,0,1,0,0,0,#N/A,#N/A,Ocean Center,Daytona Beach,FL,CBI Semifinals,,13824,A
+19408,2025,20,A,OOC,0,,,0,1,0,0,1,0,0,0,#N/A,#N/A,Ocean Center,Daytona Beach,FL,CBI Championship,,0,
+19409,2025,20,A,OOC,0,ELON,HOW,0,1,0,0,0,0,0,0,AI,AI,G. B. Hodge Center,Spartanburg,SC,Toilet Bowl Game,,0,

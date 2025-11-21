@@ -98,6 +98,7 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/bootstrap/one/{collegeID}/{proID}", controller.BootstrapBasketballData).Methods("GET")
 	apiRouter.HandleFunc("/bootstrap/two/{collegeID}/{proID}", controller.SecondBootstrapBasketballData).Methods("GET")
 	apiRouter.HandleFunc("/bootstrap/three/{collegeID}/{proID}", controller.ThirdBootstrapBasketballData).Methods("GET")
+	apiRouter.HandleFunc("/bootstrap/news/{collegeID}/{proID}", controller.BootstrapNewsData).Methods("GET")
 
 	// Capsheet Controls
 	apiRouter.HandleFunc("/nba/capsheet/generate", controller.GenerateCapsheets).Methods("GET")
@@ -157,6 +158,7 @@ func handleRequests() http.Handler {
 	// apiRouter.HandleFunc("/import/nba", controller.ImportNBATeamsAndArenas).Methods("GET")
 	// apiRouter.HandleFunc("/import/cbb/games", controller.ImportCBBMatches).Methods("GET")
 	// apiRouter.HandleFunc("/import/nba/games", controller.ImportNBAMatches).Methods("GET")
+	// apiRouter.HandleFunc("/import/nba/playin/games", controller.ImportNBAMatchesOLD).Methods("GET")
 	// apiRouter.HandleFunc("/import/isl/games", controller.ImportISLMatches).Methods("GET")
 	// apiRouter.HandleFunc("/import/nba/series", controller.ImportNBASeries).Methods("GET")
 	// apiRouter.HandleFunc("/rollback/nba/season", controller.RollbackNBASeason).Methods("GET")

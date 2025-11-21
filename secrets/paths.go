@@ -11,8 +11,8 @@ func GetPath() map[string]string {
 	cbbMatchPath := "./data/2025/2025_SimCBB_Regular_Season.csv"
 	cbbConfTournamentPath := "./data/2025/2025_SimCBB_Conf_Tourneys.csv"
 	cbbPostSeasonPath := "./data/2025/2025_SimCBB_Post_Season.csv"
-	nbaMatchPath := "./data/2024/2024_SimNBA_Play_In.csv"
-	nbaSeriesPath := "./data/2024/2024_SimNBA_Series.csv"
+	nbaMatchPath := "./data/2025/2025_SimNBA_Play_In.csv"
+	nbaSeriesPath := "./data/2025/2025_SimNBA_Series.csv"
 	draftPickPath := "./data/draft_picks.csv"
 	return map[string]string{
 		"teams":                    TeamsListPath,

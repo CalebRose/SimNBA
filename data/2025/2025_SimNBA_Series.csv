@@ -1,0 +1,31 @@
+ID,Season,Away Abbr,Home Abbr,Home Rank,Home Team,Away Team,Away Rank,Playoffs,International,The Finals,Home Coach,Away Coach,GameTitle,Next SeriesID,HOA
+61,2025,OKC,PHO,1,Phoenix Suns,Denver Nuggets,9,1,0,0,bundy,Mason Asher,First Round,39,H
+62,2025,SAC,DEN,2,San Antonio Spurs,Utah Jazz,7,1,0,0,SandyToez,defaperson01,First Round,39,A
+63,2025,VAN,SAS,3,Portland Trailblazers,San Diego Clippers,6,1,0,0,smackemz,Subsequent,First Round,40,H
+64,2025,POR,UTA,4,Houston Rockets,Vancouver Sea Lions,5,1,0,0,SandyToez,Sarge,First Round,40,A
+65,2025,ORL,MIA,1,Miami Heat,Orlando Magic,9,1,0,0,kgreene829,Matty460,First Round,41,H
+66,2025,CHA,ATL,2,Milwaukee Bucks,Indiana Pacers,8,1,0,0,Jieret,thatfunk,First Round,41,A
+67,2025,BKN,MIL,3,Charlotte Hornets,Detroit Pistons,6,1,0,0,Ape,migi,First Round,42,H
+68,2025,MEM,CHI,4,Atlanta Hawks,Boston Celtics,5,1,0,0,Ezaco,SageBow,First Round,42,A
+69,2025,,,0,#N/A,#N/A,0,1,0,0,#N/A,#N/A,Conference Semifinals,43,H
+70,2025,,,0,#N/A,#N/A,0,1,0,0,#N/A,#N/A,Conference Semifinals,43,A
+71,2025,,,0,#N/A,#N/A,0,1,0,0,#N/A,#N/A,Conference Semifinals,44,H
+72,2025,,,0,#N/A,#N/A,0,1,0,0,#N/A,#N/A,Conference Semifinals,44,A
+73,2025,,,0,#N/A,#N/A,0,1,0,0,#N/A,#N/A,Conference Finals,45,H
+74,2025,,,0,#N/A,#N/A,0,1,0,0,#N/A,#N/A,Conference Finals,45,A
+75,2025,,,0,#N/A,#N/A,0,1,0,1,#N/A,#N/A,The Finals,0,
+76,2025,,,1,Tasmania Jackjumpers,Norrkoping Dolphins,16,1,1,0,AI,AI,First Round,54,H
+77,2025,,,8,Obras Sanitarias,Manchester Giants,9,1,1,0,AI,AI,First Round,54,A
+78,2025,,,5,Shabab Al Ahli BC,City Oilers,12,1,1,0,AI,AI,First Round,55,H
+79,2025,,,4,Al Riyadi Beirut,South China AA,13,1,1,0,AI,AI,First Round,55,A
+80,2025,,,6,Zalgiris,BC Balcan,11,1,1,0,AI,AI,First Round,56,H
+81,2025,,,3,Whai,Real Esteli,14,1,1,0,AI,AI,First Round,56,A
+82,2025,,,7,Hiroshima Dragonflies,LDLC Asvel,10,1,1,0,AI,AI,First Round,57,H
+83,2025,,,2,REG,Aquila Basket,15,1,1,0,AI,AI,First Round,57,A
+84,2025,,,0,#N/A,#N/A,0,1,1,0,#N/A,#N/A,Conference Semifinals,58,H
+85,2025,,,0,#N/A,#N/A,0,1,1,0,#N/A,#N/A,Conference Semifinals,58,A
+86,2025,,,0,#N/A,#N/A,0,1,1,0,#N/A,#N/A,Conference Semifinals,59,H
+87,2025,,,0,#N/A,#N/A,0,1,1,0,#N/A,#N/A,Conference Semifinals,59,A
+88,2025,,,0,#N/A,#N/A,0,1,1,0,#N/A,#N/A,Conference Finals,60,H
+89,2025,,,0,#N/A,#N/A,0,1,1,0,#N/A,#N/A,Conference Finals,60,A
+90,2025,,,0,#N/A,#N/A,0,1,1,0,#N/A,#N/A,ISL Finals,0,

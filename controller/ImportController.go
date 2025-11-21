@@ -34,6 +34,10 @@ func ImportCBBMatches(w http.ResponseWriter, r *http.Request) {
 	managers.ImportCBBGames()
 }
 
+func ImportNBAMatchesOLD(w http.ResponseWriter, r *http.Request) {
+	managers.ImportNBAGamesOLD()
+}
+
 func ImportNBAMatches(w http.ResponseWriter, r *http.Request) {
 	managers.ImportNBAGames()
 }

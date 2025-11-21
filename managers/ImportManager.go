@@ -840,10 +840,10 @@ func ImportNBAGamesOLD() {
 		conference := util.ConvertStringToBool(row[12])
 		divisional := util.ConvertStringToBool(row[13])
 		international := util.ConvertStringToBool(row[14])
-		arena := row[19]
-		city := row[20]
-		state := row[20]
-		country := row[22]
+		arena := homeTeam.Arena
+		city := homeTeam.City
+		state := homeTeam.State
+		country := homeTeam.Country
 		homeCoach := homeTeam.NBACoachName
 		if homeCoach == "" {
 			homeCoach = homeTeam.NBAOwnerName
@@ -877,7 +877,7 @@ func ImportNBAGamesOLD() {
 			NextGameID:      uint(nextGameID),
 			NextGameHOA:     hoA,
 			IsNeutralSite:   conference,
-			IsPlayoffGame:   false,
+			IsPlayoffGame:   true,
 			IsTheFinals:     false,
 			IsInternational: international,
 			Arena:           arena,
@@ -938,7 +938,7 @@ func ImportNBASeries() {
 			}
 		}
 
-		match := structs.NBASeries{
+		series := structs.NBASeries{
 			Model:           gorm.Model{ID: uint(id)},
 			SeriesName:      seriesTitle,
 			SeasonID:        uint(seasonID),
@@ -963,7 +963,7 @@ func ImportNBASeries() {
 			SeriesComplete:  false,
 		}
 
-		db.Create(&match)
+		db.Create(&series)
 	}
 }
 
