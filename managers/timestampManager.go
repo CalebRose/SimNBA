@@ -59,7 +59,7 @@ func SyncToNextWeek() {
 		SyncCollegePollSubmissionForCurrentWeek(uint(ts.CollegeWeek), ts.CollegeWeekID, ts.SeasonID)
 		ts.TogglePollRan()
 	}
-	if ts.NBAWeek > 21 && !ts.IsNBAOffseason {
+	if ts.NBAWeek > 18 && !ts.IsNBAOffseason {
 		// Update bools so that teams can't trade in middle of next season's post season
 		db.Model(&structs.NBATeam{}).Where("id < ?", "33").Update("can_trade", false)
 		GenerateNBAPlayoffGames(db, ts)
