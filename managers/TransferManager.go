@@ -264,26 +264,28 @@ func AICoachPromisePhase() {
 				} else if bias == immediateStart && p.Overall > 48 {
 					promiseType = "Minutes"
 					promiseBenchmark = p.PlaytimeExpectations
-					if promiseLevel == 1 {
+					switch promiseLevel {
+					case 1:
 						promiseBenchmark += 5
 						if promiseBenchmark > p.Stamina {
 							promiseBenchmark = p.Stamina - 1
 						}
-					} else if promiseLevel == -1 {
+					case -1:
 						promiseBenchmark -= 1
 					}
 
-					promiseWeight = getPromiseWeightByMinutesOrWins(promiseBenchmark)
+					promiseWeight = getPromiseWeightByMinutesOrWins(promiseType, promiseBenchmark)
 				} else if bias == nationalChampionshipContender || bias == richHistory {
 					// Promise based on wins
 					promiseBenchmark = 20
 					promiseType = "Wins"
-					if promiseLevel == 1 {
+					switch promiseLevel {
+					case 1:
 						promiseBenchmark += 5
-					} else if promiseLevel == -1 {
+					case -1:
 						promiseBenchmark -= 5
 					}
-					promiseWeight = getPromiseWeightByMinutesOrWins(promiseBenchmark)
+					promiseWeight = getPromiseWeightByMinutesOrWins(promiseType, promiseBenchmark)
 				}
 
 				if promiseType == "" {
@@ -517,7 +519,7 @@ func RemovePlayerFromTransferPortalBoard(id string) {
 		repository.DeleteCollegePromise(promise, db)
 	}
 
-	db.Save(&profile)
+	repository.SaveTransferPortalProfile(profile, db)
 }
 
 func AllocatePointsToTransferPlayer(updateTransferPortalBoardDto structs.UpdateTransferPortalBoard) {
@@ -868,7 +870,7 @@ func AICoachAllocateAndPromisePhase() {
 				points := profile.CurrentWeeksPoints
 				teamProfile.AIAllocateSpentPoints(points * -1)
 				profile.Deactivate()
-				db.Save(&profile)
+				repository.SaveTransferPortalProfile(profile, db)
 				continue
 			}
 			profile.AllocatePoints(num)
@@ -890,29 +892,31 @@ func AICoachAllocateAndPromisePhase() {
 					if bias == closeToHome && (teamProfile.State == tp.State) || teamProfile.Region == regionMap[tp.State] {
 						promiseType = "Home State Game"
 						benchmarkStr = tp.State
-					} else if bias == immediateStart && tp.Overall > 48 {
+					} else if bias == immediateStart && tp.Overall > 55 {
 						promiseType = "Minutes"
 						promiseBenchmark = tp.PlaytimeExpectations
-						if promiseLevel == 1 {
+						switch promiseLevel {
+						case 1:
 							promiseBenchmark += 5
 							if promiseBenchmark > tp.Stamina {
 								promiseBenchmark = tp.Stamina - 1
 							}
-						} else if promiseLevel == -1 {
+						case -1:
 							promiseBenchmark -= 1
 						}
 
-						promiseWeight = getPromiseWeightByMinutesOrWins(promiseBenchmark)
+						promiseWeight = getPromiseWeightByMinutesOrWins(promiseType, promiseBenchmark)
 					} else if bias == nationalChampionshipContender || bias == richHistory {
 						// Promise based on wins
 						promiseBenchmark = 20
 						promiseType = "Wins"
-						if promiseLevel == 1 {
+						switch promiseLevel {
+						case 1:
 							promiseBenchmark += 5
-						} else if promiseLevel == -1 {
+						case -1:
 							promiseBenchmark -= 5
 						}
-						promiseWeight = getPromiseWeightByMinutesOrWins(promiseBenchmark)
+						promiseWeight = getPromiseWeightByMinutesOrWins(promiseType, promiseBenchmark)
 					} else if bias == legacy && tp.LegacyID == teamProfile.TeamID {
 						promiseType = "Legacy"
 					} else if bias == specificCoach && tp.LegacyID == coach.ID {
@@ -1238,27 +1242,28 @@ func SyncPromises() {
 }
 
 func getPromiseWeightValue(isPenalty bool, weight string) int {
-	if weight == "Low" {
+	switch weight {
+	case "Low":
 		if isPenalty {
 			return -5
 		}
 		return 3
-	} else if weight == "Very Low" {
+	case "Very Low":
 		if isPenalty {
 			return -3
 		}
 		return 1
-	} else if weight == "Medium" {
+	case "Medium":
 		if isPenalty {
 			return -10
 		}
 		return 8
-	} else if weight == "High" {
+	case "High":
 		if isPenalty {
 			return -20
 		}
 		return 15
-	} else if weight == "Very High" {
+	case "Very High":
 		if isPenalty {
 			return -30
 		}
@@ -1515,23 +1520,49 @@ func getPromiseFloor(weight string) int {
 	return util.GenerateIntFromRange(70, 80)
 }
 
-func getPromiseWeightByMinutesOrWins(benchmark int) string {
+func getPromiseWeightByMinutesOrWins(category string, benchmark int) string {
 	weight := "Medium"
-	if benchmark <= 40 {
-		weight = "Very High"
+	if category == "Minutes" {
+		if benchmark <= 40 {
+			weight = "Very High"
+		}
+		if benchmark <= 25 {
+			weight = "High"
+		}
+		if benchmark <= 20 {
+			weight = "Medium"
+		}
+		if benchmark <= 10 {
+			weight = "Low"
+		}
+		if benchmark <= 5 {
+			weight = "Very Low"
+		}
+	} else {
+		// Wins
+		if benchmark <= 40 {
+			weight = "Extremely High"
+		}
+		if benchmark <= 30 {
+			weight = "Very High"
+		}
+		if benchmark <= 25 {
+			weight = "High"
+		}
+		if benchmark <= 20 {
+			weight = "Medium"
+		}
+		if benchmark <= 15 {
+			weight = "Low"
+		}
+		if benchmark <= 10 {
+			weight = "Very Low"
+		}
+		if benchmark <= 5 {
+			weight = "Extremely Low"
+		}
 	}
-	if benchmark <= 25 {
-		weight = "High"
-	}
-	if benchmark <= 20 {
-		weight = "Medium"
-	}
-	if benchmark <= 10 {
-		weight = "Low"
-	}
-	if benchmark <= 5 {
-		weight = "Very Low"
-	}
+
 	return weight
 }
 
@@ -1588,9 +1619,10 @@ func getTransferStatus(weight int) string {
 
 func getPromiseLevel(pt string) int {
 	promiseLevel := 0
-	if pt == "Over-Promise" {
+	switch pt {
+	case "Over-Promise":
 		promiseLevel = 1
-	} else if pt == "Under-Promise" {
+	case "Under-Promise":
 		promiseLevel = -1
 	}
 	return promiseLevel
@@ -1601,13 +1633,14 @@ func getMultiplier(pr structs.CollegePromise) float64 {
 		return 1
 	}
 	weight := pr.PromiseWeight
-	if weight == "Very Low" {
+	switch weight {
+	case "Very Low":
 		return 1.05
-	} else if weight == "Low" {
+	case "Low":
 		return 1.1
-	} else if weight == "Medium" {
+	case "Medium":
 		return 1.3
-	} else if weight == "High" {
+	case "High":
 		return 1.5
 	}
 	// Very High

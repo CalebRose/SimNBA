@@ -98,6 +98,7 @@ type NBAPlayerResponse struct {
 }
 
 type TransferPlayerResponse struct {
+	ID                   uint
 	FirstName            string
 	LastName             string
 	Archetype            string
@@ -143,6 +144,7 @@ type TransferPlayerResponse struct {
 }
 
 func (c *TransferPlayerResponse) Map(r CollegePlayer, ovr string) {
+	c.ID = r.ID
 	c.PlayerID = r.PlayerID
 	c.TeamID = r.TeamID
 	c.FirstName = r.FirstName
