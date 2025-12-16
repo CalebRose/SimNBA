@@ -23,7 +23,7 @@ func GetAllAvailableNBAPlayers(TeamID string) structs.FreeAgencyResponse {
 	}
 	seasonIDStr := strconv.Itoa(int(seasonID))
 	FAs := GetAllFreeAgentsWithOffers(seasonIDStr)
-	waiverPlayers := GetAllWaiverWirePlayers(seasonIDStr)
+	waiverPlayers := GetAllWaiverWirePlayers()
 	gLeagePlayer := GetAllGLeaguePlayersForFA(seasonIDStr)
 	islPlayers := GetAllISLPlayersForFA(seasonIDStr)
 	Offers := GetFreeAgentOffersByTeamID(TeamID)
@@ -55,7 +55,7 @@ func GetAllAvailableNBAPlayersViaChan(TeamID string, ch chan<- structs.FreeAgenc
 	}
 	seasonIDStr := strconv.Itoa(int(seasonID))
 	FAs := GetAllFreeAgentsWithOffers(seasonIDStr)
-	waiverPlayers := GetAllWaiverWirePlayers(seasonIDStr)
+	waiverPlayers := GetAllWaiverWirePlayers()
 	gLeagePlayer := GetAllGLeaguePlayersForFA(seasonIDStr)
 	islPlayers := GetAllISLPlayersForFA(seasonIDStr)
 	Offers := GetFreeAgentOffersByTeamID(TeamID)
@@ -101,12 +101,12 @@ func GetAllFreeAgentsWithOffers(seasonID string) []structs.NBAPlayer {
 	return fas
 }
 
-func GetAllWaiverWirePlayers(seasonID string) []structs.NBAPlayer {
+func GetAllWaiverWirePlayers() []structs.NBAPlayer {
 	db := dbprovider.GetInstance().GetDB()
 
 	WaivedPlayers := []structs.NBAPlayer{}
 
-	db.Preload("WaiverOffers").Preload("Contract").Preload("SeasonStats", "season_id = ?", seasonID).Where("is_waived = ?", true).Find(&WaivedPlayers)
+	db.Preload("WaiverOffers").Preload("Contract").Where("is_waived = ?", true).Find(&WaivedPlayers)
 
 	return WaivedPlayers
 }
@@ -474,7 +474,7 @@ func SyncFreeAgencyOffers() {
 	faSyncFreeAgents(FreeAgents, ts, db)
 
 	// Iterate through WaiverWire players
-	waiverWirePlayers := GetAllWaiverWirePlayers(seasonIDStr)
+	waiverWirePlayers := GetAllWaiverWirePlayers()
 	faSyncWaiverWirePlayers(waiverWirePlayers, ts, db)
 
 	// Iterate through GLeague Players

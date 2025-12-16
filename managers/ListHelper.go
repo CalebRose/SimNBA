@@ -66,8 +66,6 @@ func MakeTransferPortalPlayerResponseList(players []structs.CollegePlayer, profi
 	responseList := []structs.TransferPlayerResponse{}
 
 	for _, p := range players {
-		profiles := profileMap[p.ID]
-		p.AssignTransferProfiles(profiles)
 		ovr := util.GetPlayerOverallGrade(p.Overall)
 
 		tp := structs.TransferPlayerResponse{}

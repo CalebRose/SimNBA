@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 
+	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/managers"
 )
 
@@ -81,4 +82,10 @@ func ImportCustomCroots(w http.ResponseWriter, r *http.Request) {
 
 func FixEmptyCountryValues(w http.ResponseWriter, r *http.Request) {
 	managers.FixEmptyCountryValues()
+}
+
+func AutoGenerateNBAGames(w http.ResponseWriter, r *http.Request) {
+	db := dbprovider.GetInstance().GetDB()
+	ts := managers.GetTimestamp()
+	managers.GenerateNBAPlayoffGames(db, ts)
 }

@@ -470,3 +470,13 @@ func deleteOptions(db *gorm.DB, options []structs.NBATradeOption) {
 		db.Delete(&option)
 	}
 }
+
+func GetTradePreferencesMap() map[uint]structs.NBATradePreferences {
+	db := dbprovider.GetInstance().GetDB()
+
+	preferences := []structs.NBATradePreferences{}
+
+	db.Find(&preferences)
+
+	return MakeNBATradePreferencesMap(preferences)
+}

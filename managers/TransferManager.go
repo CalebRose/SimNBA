@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
@@ -311,6 +312,22 @@ func GetAllCollegePromises() []structs.CollegePromise {
 	p := []structs.CollegePromise{}
 
 	err := db.Find(&p).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return []structs.CollegePromise{}
+		} else {
+			log.Fatal(err)
+		}
+	}
+	return p
+}
+
+func GetAllCollegePromisesByTeamID(teamID string) []structs.CollegePromise {
+	db := dbprovider.GetInstance().GetDB()
+
+	p := []structs.CollegePromise{}
+
+	err := db.Where("team_id = ?", teamID).Find(&p).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return []structs.CollegePromise{}
@@ -1101,7 +1118,7 @@ func SyncPromises() {
 	seasonStatsMap := GetCollegePlayerSeasonStatMap(seasonID)
 
 	for _, promise := range activePromises {
-		if !promise.IsActive {
+		if !promise.IsActive || !promise.PromiseMade {
 			continue
 		}
 		isHistoric := false
@@ -1114,6 +1131,12 @@ func SyncPromises() {
 				continue
 			}
 			isHistoric = true
+		}
+		// If player is already going to portal, carry on!
+		if player.TransferStatus == 2 {
+			// Remove promise since there was likely a preceding promise
+			repository.DeleteCollegePromise(promise, db)
+			continue
 		}
 		teamID := strconv.Itoa(int(promise.TeamID))
 		team := teamProfileMap[teamID]
@@ -1139,7 +1162,7 @@ func SyncPromises() {
 			games := GetMatchesByTeamIdAndSeasonId(teamID, seasonID)
 			for _, game := range games {
 				stateKey := util.GetStateKey(promise.BenchmarkStr)
-				if game.State == stateKey {
+				if game.State == stateKey || game.State == promise.BenchmarkStr {
 					result = ""
 					promise.FulfillPromise()
 					break
@@ -1168,6 +1191,38 @@ func SyncPromises() {
 		} else if promise.PromiseType == "Specific Coach" {
 			// Fulfill for now, will need to adjust value
 			promise.FulfillPromise()
+		} else if promise.PromiseType == "Playoffs" {
+			standings := standingsMap[promise.TeamID]
+			postSeasonStatus := standings.PostSeasonStatus
+			// postSeasonStatus has substring "Round of" or postSeasonStatus == "Sweet 16" or "Elite 8" or "Final 4" or contains "National Champion", fullfill
+			if strings.Contains(postSeasonStatus, "Round of") || postSeasonStatus == "Sweet 16" || postSeasonStatus == "Elite 8" || postSeasonStatus == "Final Four" || strings.Contains(postSeasonStatus, "National Champion") {
+				result = ""
+				promise.FulfillPromise()
+			}
+		} else if promise.PromiseType == "Elite 8" {
+			standings := standingsMap[promise.TeamID]
+			postSeasonStatus := standings.PostSeasonStatus
+			// postSeasonStatus has substring "Round of" or postSeasonStatus == "Sweet 16" or "Elite 8" or "Final 4" or contains "National Champion", fullfill
+			if postSeasonStatus == "Elite 8" || postSeasonStatus == "Final Four" || strings.Contains(postSeasonStatus, "National Champion") {
+				result = ""
+				promise.FulfillPromise()
+			}
+		} else if promise.PromiseType == "Sweet 16" {
+			standings := standingsMap[promise.TeamID]
+			postSeasonStatus := standings.PostSeasonStatus
+			// postSeasonStatus has substring "Round of" or postSeasonStatus == "Sweet 16" or "Elite 8" or "Final 4" or contains "National Champion", fullfill
+			if postSeasonStatus == "Sweet 16" || postSeasonStatus == "Elite 8" || postSeasonStatus == "Final Four" || strings.Contains(postSeasonStatus, "National Champion") {
+				result = ""
+				promise.FulfillPromise()
+			}
+		} else if promise.PromiseType == "Final Four" || promise.PromiseType == "Final 4" {
+			standings := standingsMap[promise.TeamID]
+			postSeasonStatus := standings.PostSeasonStatus
+			// postSeasonStatus has substring "Round of" or postSeasonStatus == "Sweet 16" or "Elite 8" or "Final 4" or contains "National Champion", fullfill
+			if postSeasonStatus == "Final Four" || strings.Contains(postSeasonStatus, "National Champion") {
+				result = ""
+				promise.FulfillPromise()
+			}
 		}
 		weightValue := getPromiseWeightValue(!promise.IsFullfilled, promise.PromiseWeight)
 		team.AdjustPortalReputation(weightValue)

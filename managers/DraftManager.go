@@ -226,6 +226,22 @@ func GetDraftPickMap() map[string]structs.DraftPick {
 	return draftMap
 }
 
+func GetAllRelevantDraftPicks() []structs.DraftPick {
+	db := dbprovider.GetInstance().GetDB()
+
+	ts := GetTimestamp()
+
+	seasonID := strconv.Itoa(int(ts.SeasonID))
+
+	seasonIDPlusFive := strconv.Itoa(int(ts.SeasonID + 5))
+
+	draftPicks := []structs.DraftPick{}
+
+	db.Order("season_id asc").Order("draft_number asc").Where("season_id >= ? AND season_id <= ?", seasonID, seasonIDPlusFive).Find(&draftPicks)
+
+	return draftPicks
+}
+
 func GetCurrentSeasonDraftPickList() []structs.DraftPick {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -286,6 +302,19 @@ func GetNBAWarRoomByTeamID(TeamID string) structs.NBAWarRoom {
 	return warRoom
 }
 
+func GetAllNBAWarRooms() []structs.NBAWarRoom {
+	db := dbprovider.GetInstance().GetDB()
+
+	warRoom := []structs.NBAWarRoom{}
+
+	err := db.Find(&warRoom).Error
+	if err != nil {
+		return warRoom
+	}
+
+	return warRoom
+}
+
 func GetNBADrafteesForDraftPage() []structs.NBADraftee {
 	db := dbprovider.GetInstance().GetDB()
 	draftees := []structs.NBADraftee{}
@@ -316,6 +345,19 @@ func RunDeclarationsAlgorithm() {
 			db.Save(&c)
 		}
 	}
+}
+
+func GetAllScoutingProfiles() []structs.ScoutingProfile {
+	db := dbprovider.GetInstance().GetDB()
+
+	profiles := []structs.ScoutingProfile{}
+	err := db.Where("removed_from_board = ?", false).
+		Find(&profiles).Error
+	if err != nil {
+		return profiles
+	}
+
+	return profiles
 }
 
 func GetScoutProfileByScoutProfileID(profileID string) structs.ScoutingProfile {

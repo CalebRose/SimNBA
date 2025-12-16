@@ -96,8 +96,13 @@ func handleRequests() http.Handler {
 	// Bootstrap
 	apiRouter.HandleFunc("/bootstrap/teams/", controller.BootstrapTeamData).Methods("GET")
 	apiRouter.HandleFunc("/bootstrap/one/{collegeID}/{proID}", controller.BootstrapBasketballData).Methods("GET")
-	apiRouter.HandleFunc("/bootstrap/two/{collegeID}/{proID}", controller.SecondBootstrapBasketballData).Methods("GET")
-	apiRouter.HandleFunc("/bootstrap/three/{collegeID}/{proID}", controller.ThirdBootstrapBasketballData).Methods("GET")
+	apiRouter.HandleFunc("/bootstrap/roster/{collegeID}/{proID}", controller.BootstrapTeamRosterData).Methods("GET")
+	apiRouter.HandleFunc("/bootstrap/recruiting/{collegeID}", controller.BootstrapRecruitingData).Methods("GET")
+	apiRouter.HandleFunc("/bootstrap/freeagency/{proID}", controller.BootstrapFreeAgencyData).Methods("GET")
+	apiRouter.HandleFunc("/bootstrap/scheduling/{username}/{collegeID}/{seasonID}", controller.BootstrapSchedulingData).Methods("GET")
+	apiRouter.HandleFunc("/bootstrap/draft/{proID}", controller.BootstrapDraftData).Methods("GET")
+	apiRouter.HandleFunc("/bootstrap/portal/{collegeID}", controller.BootstrapPortalData).Methods("GET")
+	apiRouter.HandleFunc("/bootstrap/gameplan/{collegeID}/{proID}", controller.BootstrapGameplanData).Methods("GET")
 	apiRouter.HandleFunc("/bootstrap/news/{collegeID}/{proID}", controller.BootstrapNewsData).Methods("GET")
 
 	// Capsheet Controls
@@ -159,6 +164,7 @@ func handleRequests() http.Handler {
 	// apiRouter.HandleFunc("/import/cbb/games", controller.ImportCBBMatches).Methods("GET")
 	// apiRouter.HandleFunc("/import/nba/games", controller.ImportNBAMatches).Methods("GET")
 	// apiRouter.HandleFunc("/import/nba/playin/games", controller.ImportNBAMatchesOLD).Methods("GET")
+	// apiRouter.HandleFunc("/import/nba/series/games", controller.AutoGenerateNBAGames).Methods("GET")
 	// apiRouter.HandleFunc("/import/isl/games", controller.ImportISLMatches).Methods("GET")
 	// apiRouter.HandleFunc("/import/nba/series", controller.ImportNBASeries).Methods("GET")
 	// apiRouter.HandleFunc("/rollback/nba/season", controller.RollbackNBASeason).Methods("GET")
@@ -198,6 +204,7 @@ func handleRequests() http.Handler {
 
 	// Migrations
 	// apiRouter.HandleFunc("/migrate/faces", controller.MigrateFaceData).Methods("GET")
+	apiRouter.HandleFunc("/faces", controller.GetAllFaces).Methods("GET")
 
 	// News Controls
 	apiRouter.HandleFunc("/cbb/news/all/", controller.GetAllCBBNewsInASeason).Methods("GET")

@@ -1,9 +1,5 @@
 package structs
 
-import (
-	"sort"
-)
-
 type CollegePlayerResponse struct {
 	FirstName             string
 	LastName              string
@@ -177,44 +173,4 @@ func (c *TransferPlayerResponse) Map(r CollegePlayer, ovr string) {
 	c.Year = r.Year
 	c.IsRedshirt = r.IsRedshirt
 	c.IsRedshirting = r.IsRedshirting
-
-	var totalPoints float64 = 0
-	var runningThreshold float64 = 0
-
-	sortedProfiles := r.Profiles
-
-	sort.Slice(sortedProfiles, func(i, j int) bool {
-		return sortedProfiles[i].TotalPoints > sortedProfiles[j].TotalPoints
-	})
-	for _, profile := range sortedProfiles {
-		if profile.RemovedFromBoard {
-			continue
-		}
-		if runningThreshold == 0 {
-			runningThreshold = float64(profile.TotalPoints) * 0.66
-		}
-
-		if float64(profile.TotalPoints) >= runningThreshold {
-			totalPoints += float64(profile.TotalPoints)
-		}
-
-	}
-
-	for i := range sortedProfiles {
-		if sortedProfiles[i].RemovedFromBoard {
-			continue
-		}
-		var odds float64 = 0
-
-		if float64(sortedProfiles[i].TotalPoints) >= runningThreshold && runningThreshold > 0 {
-			odds = float64(sortedProfiles[i].TotalPoints) / totalPoints
-		}
-		leadingTeam := LeadingTeams{
-			TeamAbbr: r.Profiles[i].TeamAbbreviation,
-			TeamID:   r.Profiles[i].ProfileID,
-			Odds:     odds,
-		}
-		c.LeadingTeams = append(c.LeadingTeams, leadingTeam)
-	}
-	sort.Sort(ByLeadingPoints(c.LeadingTeams))
 }

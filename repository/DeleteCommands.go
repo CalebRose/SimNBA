@@ -8,6 +8,8 @@ import (
 )
 
 func DeleteCollegePlayerRecord(player structs.CollegePlayer, db *gorm.DB) {
+	player.Stats = nil
+	player.SeasonStats = structs.CollegePlayerSeasonStats{}
 	err := db.Delete(&player).Error
 	if err != nil {
 		log.Panicln("Could not delete old college player record.")

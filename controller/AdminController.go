@@ -33,9 +33,10 @@ func ProgressStandings(w http.ResponseWriter, r *http.Request) {
 // }
 
 func ProgressPlayers(w http.ResponseWriter, r *http.Request) {
-	managers.ProgressionMain()
+	// managers.ProcessEarlyDeclareeAnnouncements()
+	// managers.ProgressionMain()
 	// Sync Promises
-	// managers.SyncPromises()
+	managers.SyncPromises()
 	// Enter Transfer Portal
 	// managers.EnterTheTransferPortal()
 	json.NewEncoder(w).Encode("DONE!")

@@ -2,6 +2,7 @@ package managers
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"math/rand"
 	"strconv"
@@ -19,36 +20,51 @@ func ProgressionMain() {
 	fmt.Println(time.Now().UnixNano())
 	ts := GetTimestamp()
 
-	collegeTeams := GetAllActiveCollegeTeams()
+	// collegeTeams := GetAllActiveCollegeTeams()
 
-	for _, team := range collegeTeams {
-		// var graduatingPlayers []structs.NBADraftee
-		teamID := strconv.Itoa(int(team.ID))
-		// roster := GetAllCollegePlayersWithStatsByTeamID(teamID, SeasonID)
-		roster := GetCollegePlayersByTeamIdForProgression(teamID, ts)
-		croots := GetSignedRecruitsByTeamProfileID(teamID)
+	// for _, team := range collegeTeams {
+	// 	// var graduatingPlayers []structs.NBADraftee
+	// 	teamID := strconv.Itoa(int(team.ID))
+	// 	// roster := GetAllCollegePlayersWithStatsByTeamID(teamID, SeasonID)
+	// 	roster := GetCollegePlayersByTeamIdForProgression(teamID, ts)
+	// 	croots := GetSignedRecruitsByTeamProfileID(teamID)
 
-		for _, player := range roster {
-			processCollegePlayer(player, ts, db)
-		}
+	// 	for _, player := range roster {
+	// 		processCollegePlayer(player, ts, db)
+	// 	}
 
-		for _, croot := range croots {
-			// Convert to College Player Record
-			repository.CreateCollegePlayerRecord(croot, db, true)
-		}
-	}
+	// 	for _, croot := range croots {
+	// 		// It looks like there's an issue where some recruit IDs share different college player IDs
+	// 		// Check for ID conflicts and resolve them before creating college player records
+	// 		resolvedCroot := resolveRecruitIDConflict(croot, db)
+	// 		repository.CreateCollegePlayerRecord(resolvedCroot, db, true)
+	// 	}
+	// }
 
 	// Unsigned Players
 	forgottenPlayersID := "0"
 	roster := GetCollegePlayersByTeamIdForProgression(forgottenPlayersID, ts)
 	for _, player := range roster {
+		if player.ID == 0 {
+			continue
+		}
 		processCollegePlayer(player, ts, db)
 	}
 
 	croots := GetAllUnsignedRecruits()
 	for _, croot := range croots {
-		repository.CreateCollegePlayerRecord(croot, db, true)
+		// Check for ID conflicts and resolve them before creating college player records
+		resolvedCroot := resolveRecruitIDConflict(croot, db)
+		repository.CreateCollegePlayerRecord(resolvedCroot, db, true)
 	}
+
+	remainingCroots := GetAllRecruitRecords()
+	for _, croot := range remainingCroots {
+		// Check for ID conflicts and resolve them before creating college player records
+		resolvedCroot := resolveRecruitIDConflict(croot, db)
+		repository.CreateCollegePlayerRecord(resolvedCroot, db, true)
+	}
+
 	ts.ToggleCollegeProgression()
 	db.Save(&ts)
 }
@@ -366,6 +382,7 @@ func processCollegePlayer(player structs.CollegePlayer, ts structs.Timestamp, db
 func handlePlayerGraduation(player structs.CollegePlayer, ts structs.Timestamp, db *gorm.DB) {
 	// Graduate Player
 	player.GraduatePlayer()
+	playerID := strconv.Itoa(int(player.ID))
 
 	message := player.Position + " " + player.FirstName + " " + player.LastName + " has graduated from " + player.TeamAbbr + "!"
 
@@ -373,8 +390,14 @@ func handlePlayerGraduation(player structs.CollegePlayer, ts structs.Timestamp, 
 	CreateNewsLog("CBB", message, "Graduation", int(player.TeamID), ts)
 
 	// Make draftee record
-	repository.CreateDrafteeRecord(player, db)
-	repository.CreateHistoricPlayerRecord(player, db)
+	drafteeRecord := GetNBADrafteeByID(playerID)
+	if drafteeRecord.ID == 0 {
+		repository.CreateDrafteeRecord(player, db)
+	}
+	historicRecord := GetHistoricCollegePlayerByID(playerID)
+	if historicRecord.ID == 0 {
+		repository.CreateHistoricPlayerRecord(player, db)
+	}
 	repository.DeleteCollegePlayerRecord(player, db)
 }
 
@@ -472,49 +495,50 @@ func ProgressCollegePlayer(cp structs.CollegePlayer, mpg int, isGeneration bool)
 			break
 		}
 		allocation := 0
-		if attr == "Shooting2" {
+		switch attr {
+		case "Shooting2":
 			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecShooting2, cp.IsRedshirting)
 			if count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			shooting2 += allocation
-		} else if attr == "Shooting3" {
+		case "Shooting3":
 			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecShooting3, cp.IsRedshirting)
 			if count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			shooting3 += allocation
-		} else if attr == "FreeThrow" {
+		case "FreeThrow":
 			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecFreeThrow, cp.IsRedshirting)
 			if count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			freeThrow += allocation
-		} else if attr == "Finishing" {
+		case "Finishing":
 			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecFinishing, cp.IsRedshirting)
 			if count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			finishing += allocation
-		} else if attr == "Ballwork" {
+		case "Ballwork":
 			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecBallwork, cp.IsRedshirting)
 			if count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			ballwork += allocation
-		} else if attr == "Rebounding" {
+		case "Rebounding":
 			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecRebounding, cp.IsRedshirting)
 			if count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			rebounding += allocation
-		} else if attr == "InteriorDefense" {
+		case "InteriorDefense":
 			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecInteriorDefense, cp.IsRedshirting)
 			if count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			interiorDefense += allocation
-		} else if attr == "PerimeterDefense" {
+		case "PerimeterDefense":
 			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecPerimeterDefense, cp.IsRedshirting)
 			if count+allocation > pointLimit {
 				allocation = pointLimit - count
@@ -712,4 +736,53 @@ func adjustForPlaytime(minPerGame, minutesRequired, max int) int {
 		return max - regressionMax
 	}
 	return max
+}
+
+// resolveRecruitIDConflict checks if a recruit's ID conflicts with an existing college player
+// and assigns a new ID if there's a conflict
+func resolveRecruitIDConflict(croot structs.Recruit, db *gorm.DB) structs.Recruit {
+	// Check if a college player already exists with this ID
+	playerID := strconv.Itoa(int(croot.ID))
+	existingPlayer := GetCollegePlayerByPlayerID(playerID)
+
+	// If no existing player found (ID == 0), no conflict exists
+	if existingPlayer.ID == 0 {
+		return croot
+	}
+
+	// Check actual identity next
+	if existingPlayer.FirstName == croot.FirstName && existingPlayer.LastName == croot.LastName && existingPlayer.Position == croot.Position {
+		return croot
+	}
+
+	// Conflict detected - get a new ID from global_players table
+	var lastPlayerRecord structs.GlobalPlayer
+	err := db.Last(&lastPlayerRecord).Error
+	if err != nil {
+		log.Fatalln("Could not grab last player record from global_players table...")
+	}
+
+	newID := lastPlayerRecord.ID + 1
+
+	// Update the recruit's ID and save the recruit record with the new ID
+	croot.ID = newID
+
+	// Also need to create a new global player record for this new ID
+	globalPlayer := structs.GlobalPlayer{
+		CollegePlayerID: newID,
+		RecruitID:       newID,
+		NBAPlayerID:     newID,
+	}
+	globalPlayer.SetID(newID)
+
+	// Save the new global player record
+	repository.CreateGlobalPlayerRecord(globalPlayer, db)
+
+	// Update the recruit record in the database with the new ID
+	err = db.Save(&croot).Error
+	if err != nil {
+		log.Fatalln("Could not update recruit record with new ID")
+	}
+
+	return croot
 }

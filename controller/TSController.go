@@ -12,8 +12,6 @@ import (
 func CreateTSModelsFile(w http.ResponseWriter, r *http.Request) {
 	converter := typescriptify.New().
 		Add(managers.BootstrapData{}).
-		Add(managers.BootstrapDataTwo{}).
-		Add(managers.BootstrapDataThree{}).
 		Add(structs.BasePlayer{}).
 		Add(structs.CollegePlayer{}).
 		Add(structs.NBAPlayer{}).

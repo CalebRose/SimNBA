@@ -180,3 +180,33 @@ func MakeNBATeamMap(teams []structs.NBATeam) map[uint]structs.NBATeam {
 
 	return gameplanMap
 }
+
+func MakeNBATradePreferencesMap(tradePreferences []structs.NBATradePreferences) map[uint]structs.NBATradePreferences {
+	preferencesMap := make(map[uint]structs.NBATradePreferences)
+
+	for _, c := range tradePreferences {
+		preferencesMap[uint(c.NBATeamID)] = c
+	}
+
+	return preferencesMap
+}
+
+func MakeNBAWarRoomMap(warRooms []structs.NBAWarRoom) map[uint]structs.NBAWarRoom {
+	warRoomMap := make(map[uint]structs.NBAWarRoom)
+
+	for _, t := range warRooms {
+		warRoomMap[t.TeamID] = t
+	}
+
+	return warRoomMap
+}
+
+func MakeScoutingProfileMapByTeam(profiles []structs.ScoutingProfile) map[uint]structs.ScoutingProfile {
+	profileMap := make(map[uint]structs.ScoutingProfile)
+
+	for _, t := range profiles {
+		profileMap[t.TeamID] = t
+	}
+
+	return profileMap
+}

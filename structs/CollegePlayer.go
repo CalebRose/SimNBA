@@ -20,7 +20,6 @@ type CollegePlayer struct {
 	LegacyID           uint                     // Either a legacy school or a legacy coach
 	Stats              []CollegePlayerStats     `gorm:"foreignKey:CollegePlayerID"`
 	SeasonStats        CollegePlayerSeasonStats `gorm:"foreignKey:CollegePlayerID"`
-	Profiles           []TransferPortalProfile  `gorm:"foreignKey:CollegePlayerID"`
 }
 
 func (cp *CollegePlayer) AddSeasonStats(seasonStats CollegePlayerSeasonStats) {
@@ -42,10 +41,6 @@ func (c *CollegePlayer) SetID(id uint) {
 	c.ID = id
 }
 
-func (c *CollegePlayer) AssignTransferProfiles(profiles []TransferPortalProfile) {
-	c.Profiles = profiles
-}
-
 func (cp *CollegePlayer) Progress(attr CollegePlayerProgressions) {
 	cp.Age++
 	cp.Year++
@@ -61,6 +56,11 @@ func (cp *CollegePlayer) Progress(attr CollegePlayerProgressions) {
 	cp.Stamina = attr.Stamina
 	cp.Overall = (int((cp.Shooting2 + cp.Shooting3 + cp.FreeThrow) / 3)) + cp.Finishing + cp.Ballwork + cp.Rebounding + int((cp.InteriorDefense+cp.PerimeterDefense)/2)
 	cp.HasProgressed = true
+	cp.IsInjured = false
+	cp.WeeksOfRecovery = 0
+	cp.InjuryName = ""
+	cp.InjuryReserve = false
+	cp.InjuryType = ""
 }
 
 func (cp *CollegePlayer) MapFromRecruit(r Recruit) {

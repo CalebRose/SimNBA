@@ -2,6 +2,18 @@ package structs
 
 import "gorm.io/gorm"
 
+type ProfileAttributes struct {
+	ProgramPrestige      uint8
+	ProfessionalPrestige uint8
+	Traditions           uint8
+	Facilities           uint8
+	Atmosphere           uint8
+	Academics            uint8
+	ConferencePrestige   uint8
+	CoachRating          uint8
+	SeasonMomentum       uint8
+}
+
 // TeamRecruitingProfile - The profile for a team for recruiting
 type TeamRecruitingProfile struct {
 	gorm.Model
@@ -41,6 +53,7 @@ type TeamRecruitingProfile struct {
 	Recruiter               string
 	CaughtCheating          bool
 	Recruits                []PlayerRecruitProfile `gorm:"foreignKey:ProfileID"`
+	ProfileAttributes
 }
 
 func (r *TeamRecruitingProfile) ResetSpentPoints() {
