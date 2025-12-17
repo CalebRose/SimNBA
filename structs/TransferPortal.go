@@ -65,8 +65,6 @@ type TransferPortalProfile struct {
 	LockProfile           bool
 	IsSigned              bool
 	Recruiter             string
-	CollegePlayer         CollegePlayer  `gorm:"foreignKey:CollegePlayerID"`
-	Promise               CollegePromise `gorm:"foreignKey:PromiseID"`
 }
 
 func (p *TransferPortalProfile) Reactivate() {
@@ -140,7 +138,7 @@ type TransferPortalResponse struct {
 
 // UpdateTransferPortalBoard - Data Transfer Object from UI to API
 type UpdateTransferPortalBoard struct {
-	Profile SimTeamBoardResponse
-	Players []TransferPortalProfileResponse
+	Profile TeamRecruitingProfile
+	Players []TransferPortalProfile
 	TeamID  int
 }

@@ -341,7 +341,7 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/portal/ai/allocate/profiles", controller.AllocateAndPromisePlayersAI).Methods("GET")
 	apiRouter.HandleFunc("/portal/page/data/{teamID}", controller.GetTransferPortalPageData).Methods("GET")
 	apiRouter.HandleFunc("/portal/profile/create", controller.AddTransferPlayerToBoard).Methods("POST")
-	apiRouter.HandleFunc("/portal/profile/remove/{profileID}", controller.RemovePlayerFromTransferPortalBoard).Methods("GET")
+	apiRouter.HandleFunc("/portal/profile/remove", controller.RemovePlayerFromTransferPortalBoard).Methods("POST")
 	apiRouter.HandleFunc("/portal/saveboard", controller.SaveTransferBoard).Methods("POST")
 	apiRouter.HandleFunc("/portal/promise/create", controller.CreatePromise).Methods("POST")
 	apiRouter.HandleFunc("/portal/promise/cancel/{promiseID}", controller.CancelPromise).Methods("GET")

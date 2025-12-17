@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/CalebRose/SimNBA/structs"
@@ -35,11 +36,11 @@ func DeleteCollegeRecruitRecord(player structs.Recruit, db *gorm.DB) {
 	}
 }
 
-func DeleteCollegePromise(promise structs.CollegePromise, db *gorm.DB) {
-	err := db.Delete(&promise).Error
-	if err != nil {
-		log.Panicln("Could not delete old college player record.")
+func DeleteCollegePromise(promise structs.CollegePromise, db *gorm.DB) error {
+	if err := db.Unscoped().Delete(&promise).Error; err != nil {
+		return fmt.Errorf("failed to delete college promise (ID: %d): %w", promise.ID, err)
 	}
+	return nil
 }
 
 func DeleteContract(contract structs.NBAContract, db *gorm.DB) {

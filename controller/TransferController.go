@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -108,10 +107,14 @@ func AddTransferPlayerToBoard(w http.ResponseWriter, r *http.Request) {
 
 func RemovePlayerFromTransferPortalBoard(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
-	vars := mux.Vars(r)
-	id := vars["profileID"]
+	var transferPortalProfile structs.TransferPortalProfile
+	err := json.NewDecoder(r.Body).Decode(&transferPortalProfile)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
-	managers.RemovePlayerFromTransferPortalBoard(id)
+	managers.RemovePlayerFromTransferPortalBoard(transferPortalProfile)
 	json.NewEncoder(w).Encode(true)
 }
 
@@ -125,8 +128,6 @@ func SaveTransferBoard(w http.ResponseWriter, r *http.Request) {
 	}
 
 	managers.AllocatePointsToTransferPlayer(transferPortalProfile)
-
-	fmt.Fprintf(w, "Transfer Board Saved")
 }
 
 func GetScoutingDataByTransfer(w http.ResponseWriter, r *http.Request) {

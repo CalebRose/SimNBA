@@ -506,16 +506,20 @@ func AddTransferPlayerToBoard(transferPortalProfileDto structs.TransferPortalPro
 	return newProfileForRecruit
 }
 
-func RemovePlayerFromTransferPortalBoard(id string) {
+func RemovePlayerFromTransferPortalBoard(dto structs.TransferPortalProfile) {
 	db := dbprovider.GetInstance().GetDB()
 
-	profile := GetOnlyTransferPortalProfileByID(id)
+	playerID := strconv.Itoa(int(dto.CollegePlayerID))
+	profileID := strconv.Itoa(int(dto.ProfileID))
+	profile := GetOnlyTransferPortalProfileByPlayerID(playerID, profileID)
 
 	profile.Deactivate()
 
 	if profile.PromiseID.Int64 > 0 {
 		promiseID := strconv.Itoa(int(profile.PromiseID.Int64))
 		promise := GetCollegePromiseByID(promiseID)
+		promise.Deactivate()
+		profile.AssignPromise(0)
 		repository.DeleteCollegePromise(promise, db)
 	}
 
@@ -1317,7 +1321,9 @@ func GetTransferPortalProfilesForPage(teamID string) []structs.TransferPortalPro
 
 	var profiles []structs.TransferPortalProfile
 	var response []structs.TransferPortalProfileResponse
-	err := db.Preload("CollegePlayer.Profiles").Preload("Promise").Where("profile_id = ? AND removed_from_board = ?", teamID, false).Find(&profiles).Error
+	err := db.Where("profile_id = ? AND removed_from_board = ?", teamID, false).Find(&profiles).Error
+	collegePlayers := GetAllCollegePlayers()
+	collegePlayerMap := MakeCollegePlayerMap(collegePlayers)
 	if err != nil {
 		log.Fatalln("Error!: ", err)
 	}
@@ -1326,8 +1332,8 @@ func GetTransferPortalProfilesForPage(teamID string) []structs.TransferPortalPro
 		if p.RemovedFromBoard {
 			continue
 		}
-		cp := p.CollegePlayer
 		cpResponse := structs.TransferPlayerResponse{}
+		cp := collegePlayerMap[p.CollegePlayerID]
 		ovr := util.GetPlayerOverallGrade(cp.Overall)
 		cpResponse.Map(cp, ovr)
 
@@ -1348,7 +1354,6 @@ func GetTransferPortalProfilesForPage(teamID string) []structs.TransferPortalPro
 			IsSigned:              p.IsSigned,
 			Recruiter:             p.Recruiter,
 			CollegePlayer:         cpResponse,
-			Promise:               p.Promise,
 		}
 
 		response = append(response, pResponse)
@@ -1363,7 +1368,7 @@ func GetTransferPortalProfilesByTeamID(teamID string) []structs.TransferPortalPr
 
 	var profiles []structs.TransferPortalProfile
 
-	db.Preload("CollegePlayer.Profiles").Where("profile_id = ?", teamID).Find(&profiles)
+	db.Where("profile_id = ? AND removed_from_board = ?", teamID, false).Find(&profiles)
 
 	return profiles
 }
@@ -1491,12 +1496,13 @@ func getTransferPortalProfileMap(players []structs.CollegePlayer) map[uint][]str
 func getTransferFloor(likeliness string) int {
 	min := 25
 	max := 100
-	if likeliness == "Low" {
+	switch likeliness {
+	case "Low":
 		max = 40
-	} else if likeliness == "Medium" {
+	case "Medium":
 		min = 45
 		max = 70
-	} else {
+	default:
 		min = 75
 	}
 
@@ -1647,8 +1653,8 @@ func getMultiplier(pr structs.CollegePromise) float64 {
 	return 1.75
 }
 
-func GetPlayerFromTransferPortalList(id int, profiles []structs.TransferPortalProfileResponse) structs.TransferPortalProfileResponse {
-	var profile structs.TransferPortalProfileResponse
+func GetPlayerFromTransferPortalList(id int, profiles []structs.TransferPortalProfile) structs.TransferPortalProfile {
+	var profile structs.TransferPortalProfile
 
 	for i := 0; i < len(profiles); i++ {
 		if profiles[i].CollegePlayerID == uint(id) {
