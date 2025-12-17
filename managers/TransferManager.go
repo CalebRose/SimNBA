@@ -475,7 +475,7 @@ func EnterTheTransferPortal() {
 	}
 
 	ts.EnactPortalPhase()
-	db.Save(&ts)
+	repository.SaveTimeStamp(ts, db)
 }
 
 func AddTransferPlayerToBoard(transferPortalProfileDto structs.TransferPortalProfile) structs.TransferPortalProfile {

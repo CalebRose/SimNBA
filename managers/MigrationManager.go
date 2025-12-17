@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/secrets"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
@@ -244,5 +245,16 @@ func MigrateNewAIRecruitingValues() {
 		teamProfile.SetNewBehaviors(aiValue, attr1, attr2)
 
 		db.Save(&teamProfile)
+	}
+}
+
+func MigrateMissingRecruits() {
+	db := dbprovider.GetInstance().GetDB()
+	recruits := GetAllRecruitRecords()
+
+	for _, croot := range recruits {
+		// Check for ID conflicts and resolve them before creating college player records
+		resolvedCroot := resolveRecruitIDConflict(croot, db)
+		repository.CreateCollegePlayerRecord(resolvedCroot, db, true)
 	}
 }
