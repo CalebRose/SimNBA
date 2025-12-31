@@ -671,13 +671,14 @@ func AICoachFillBoardsPhase() {
 					biasMod += 20
 				}
 			} else if bias == nationalChampionshipContender {
-				if postSeasonStatus == "Sweet 16" || postSeasonStatus == "Elite 8" {
+				switch postSeasonStatus {
+				case "Sweet 16", "Elite 8":
 					biasMod += 10
-				} else if postSeasonStatus == "Final Four" {
+				case "Final Four":
 					biasMod += 15
-				} else if postSeasonStatus == "National Championship Participant" {
+				case "National Championship Participant":
 					biasMod += 20
-				} else if postSeasonStatus == "National Champions" {
+				case "National Champions":
 					biasMod += 25
 				}
 			} else if bias == upcomingTeam {
@@ -958,7 +959,7 @@ func SyncTransferPortal() {
 	// Use IsRecruitingLocked to lock the TP when not in use
 	teamProfileMap := GetTeamProfileMap()
 	transferPortalPlayers := GetTransferPortalPlayers()
-	transferPortalProfileMap := getTransferPortalProfileMap(transferPortalPlayers)
+	transferPortalProfileMap := MakeFullTransferPortalProfileMap(transferPortalPlayers)
 	rosterMap := GetFullTeamRosterWithCrootsMap()
 
 	if !ts.IsRecruitingLocked {
