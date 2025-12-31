@@ -1363,6 +1363,16 @@ func GetTransferPortalProfilesForPage(teamID string) []structs.TransferPortalPro
 	return response
 }
 
+func GetActiveTransferPortalProfiles() []structs.TransferPortalProfile {
+	db := dbprovider.GetInstance().GetDB()
+
+	var profiles []structs.TransferPortalProfile
+
+	db.Where("removed_from_board = ?", false).Find(&profiles)
+
+	return profiles
+}
+
 func GetTransferPortalProfilesByTeamID(teamID string) []structs.TransferPortalProfile {
 	db := dbprovider.GetInstance().GetDB()
 
