@@ -378,6 +378,55 @@ func GetNBAMatchByMatchId(matchId string) structs.NBAMatch {
 	return match
 }
 
+func AddNBAMatches() {
+	db := dbprovider.GetInstance().GetDB()
+	ts := GetTimestamp()
+	// Get team information for arena and team names
+	nbaTeamMap := GetProfessionalTeamMap()
+	firstMatch := CreateNBAMatch(ts, nbaTeamMap, 30, 27, "C", 62)
+	secondMatch := CreateNBAMatch(ts, nbaTeamMap, 128, 47, "C", 80)
+
+	db.Create(&firstMatch)
+	db.Create(&secondMatch)
+}
+
+// CreateNBAMatch creates a new NBAMatch struct with the provided team IDs and optional series ID
+func CreateNBAMatch(ts structs.Timestamp, nbaTeamMap map[uint]structs.NBATeam, homeTeamID, awayTeamID uint, gameDay string, seriesID uint) structs.NBAMatch {
+
+	// Convert team IDs to integers for the struct
+
+	homeTeam := nbaTeamMap[uint(homeTeamID)]
+	awayTeam := nbaTeamMap[uint(awayTeamID)]
+
+	// Create the match struct
+	match := structs.NBAMatch{
+		WeekID:        ts.NBAWeekID,
+		Week:          uint(ts.NBAWeek),
+		SeasonID:      ts.SeasonID,
+		HomeTeamID:    uint(homeTeamID),
+		HomeTeam:      homeTeam.Team,
+		AwayTeamID:    uint(awayTeamID),
+		AwayTeam:      awayTeam.Team,
+		HomeTeamCoach: homeTeam.NBAOwnerName,
+		AwayTeamCoach: awayTeam.NBAOwnerName,
+		Arena:         homeTeam.Arena,
+		City:          homeTeam.City,
+		State:         homeTeam.State,
+		MatchOfWeek:   gameDay,
+		GameComplete:  false,
+		HomeTeamWin:   false,
+		AwayTeamWin:   false,
+	}
+
+	// Set series ID if provided
+	if seriesID > 0 {
+		match.SeriesID = seriesID
+		match.IsPlayoffGame = true
+	}
+
+	return match
+}
+
 func GetMatchResultsByMatchID(matchId string) structs.MatchResultsResponse {
 	match := GetMatchByMatchId(matchId)
 	involvedPlayers := GetCollegePlayersWithMatchStatsByTeamId(match.HomeTeamID, match.AwayTeamID, matchId)

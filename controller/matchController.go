@@ -157,3 +157,11 @@ func FixISLMatchData(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode("Done.")
 }
+
+func AddNBAMatches(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+
+	managers.AddNBAMatches()
+
+	json.NewEncoder(w).Encode("Done.")
+}
