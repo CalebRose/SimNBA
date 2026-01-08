@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/CalebRose/SimNBA/structs"
@@ -36,11 +35,24 @@ func DeleteCollegeRecruitRecord(player structs.Recruit, db *gorm.DB) {
 	}
 }
 
-func DeleteCollegePromise(promise structs.CollegePromise, db *gorm.DB) error {
-	if err := db.Unscoped().Delete(&promise).Error; err != nil {
-		return fmt.Errorf("failed to delete college promise (ID: %d): %w", promise.ID, err)
+func DeleteCollegePromise(promise structs.CollegePromise, db *gorm.DB, hardDelete bool) {
+	var err error
+
+	if hardDelete {
+		// Hard delete - permanently remove from database
+		err = db.Unscoped().Delete(&promise).Error
+	} else {
+		// Soft delete - set DeletedAt timestamp (default GORM behavior)
+		err = db.Delete(&promise).Error
 	}
-	return nil
+
+	if err != nil {
+		if hardDelete {
+			log.Panicln("Could not permanently delete college promise record.")
+		} else {
+			log.Panicln("Could not soft delete college promise record.")
+		}
+	}
 }
 
 func DeleteContract(contract structs.NBAContract, db *gorm.DB) {

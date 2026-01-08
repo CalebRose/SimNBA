@@ -459,7 +459,7 @@ func EnterTheTransferPortal() {
 				CreateNewsLog("CBB", message, "Transfer Portal", int(p.PreviousTeamID), ts)
 
 				repository.SaveCollegePlayerRecord(p, db)
-				repository.DeleteCollegePromise(promise, db)
+				repository.DeleteCollegePromise(promise, db, false)
 				continue
 			}
 
@@ -520,7 +520,7 @@ func RemovePlayerFromTransferPortalBoard(dto structs.TransferPortalProfile) {
 		promise := GetCollegePromiseByID(promiseID)
 		promise.Deactivate()
 		profile.AssignPromise(0)
-		repository.DeleteCollegePromise(promise, db)
+		repository.DeleteCollegePromise(promise, db, true)
 	}
 
 	repository.SaveTransferPortalProfile(profile, db)
@@ -982,7 +982,7 @@ func SyncTransferPortal() {
 		// If no one has a profile on them during round 10
 		if len(portalProfiles) == 0 && ts.TransferPortalRound == 10 {
 			roster := rosterMap[portalPlayer.PreviousTeamID]
-			if len(roster) > 12 {
+			if len(roster) > 15 {
 				continue
 			}
 			rosterMap[portalPlayer.PreviousTeamID] = append(rosterMap[portalPlayer.PreviousTeamID], portalPlayer)
@@ -1001,6 +1001,9 @@ func SyncTransferPortal() {
 		eligibleTeams := []structs.TransferPortalProfile{}
 
 		for i := range portalProfiles {
+			if portalProfiles[i].UpdatedAt.String() >= "2026-01-07 00:00:00" {
+				continue
+			}
 			promiseID := strconv.Itoa(int(portalProfiles[i].PromiseID.Int64))
 
 			promise := GetCollegePromiseByID(promiseID)
@@ -1014,6 +1017,9 @@ func SyncTransferPortal() {
 		})
 
 		for i := range portalProfiles {
+			if portalProfiles[i].UpdatedAt.String() >= "2026-01-07 00:00:00" {
+				continue
+			}
 			roster := rosterMap[portalProfiles[i].ProfileID]
 			if len(roster) > 15 {
 				continue
@@ -1038,9 +1044,8 @@ func SyncTransferPortal() {
 			// threshold met
 			readyToSign = true
 		}
-
+		var winningTeamID uint = 0
 		if readyToSign {
-			var winningTeamID uint = 0
 			var odds float64 = 0
 
 			for winningTeamID == 0 {
@@ -1076,13 +1081,13 @@ func SyncTransferPortal() {
 						for i := range portalProfiles {
 							if portalProfiles[i].ProfileID == winningTeamID {
 								portalProfiles[i].SignPlayer()
-							} else {
-								promise := GetCollegePromiseByCollegePlayerID(strconv.Itoa(int(portalPlayer.ID)), strconv.Itoa(int(portalProfiles[i].ProfileID)))
+								promise := GetCollegePromiseByCollegePlayerID(strconv.Itoa(int(portalPlayer.ID)), strconv.Itoa(int(winningTeamID)))
 								if promise.ID > 0 {
-									repository.DeleteCollegePromise(promise, db)
+									promise.MakePromise()
+									repository.SaveCollegePromiseRecord(promise, db)
 								}
+								break
 							}
-							portalProfiles[i].Lock()
 						}
 
 					} else {
@@ -1103,11 +1108,25 @@ func SyncTransferPortal() {
 
 		}
 		for _, p := range portalProfiles {
-			repository.SaveTransferPortalProfile(p, db)
+			if winningTeamID > 0 && p.ID != winningTeamID {
+				p.RemovePromise()
+				p.Lock()
+			}
+			if winningTeamID > 0 || p.SpendingCount > 0 {
+				repository.SaveTransferPortalProfile(p, db)
+			}
 			fmt.Println("Save transfer portal profile from " + portalPlayer.TeamAbbr + " towards " + portalPlayer.FirstName + " " + portalPlayer.LastName)
+			if winningTeamID > 0 && p.ProfileID != winningTeamID {
+				promise := GetCollegePromiseByCollegePlayerID(strconv.Itoa(int(portalPlayer.ID)), strconv.Itoa(int(p.ProfileID)))
+				if promise.ID > 0 {
+					repository.DeleteCollegePromise(promise, db, false)
+				}
+			}
 		}
 		// Save Recruit
-		repository.SaveCollegePlayerRecord(portalPlayer, db)
+		if portalPlayer.TeamID > 0 {
+			repository.SaveCollegePlayerRecord(portalPlayer, db)
+		}
 	}
 
 	ts.IncrementTransferPortalRound()
@@ -1144,7 +1163,7 @@ func SyncPromises() {
 		// If player is already going to portal, carry on!
 		if player.TransferStatus == 2 {
 			// Remove promise since there was likely a preceding promise
-			repository.DeleteCollegePromise(promise, db)
+			repository.DeleteCollegePromise(promise, db, false)
 			continue
 		}
 		teamID := strconv.Itoa(int(promise.TeamID))
@@ -1242,7 +1261,7 @@ func SyncPromises() {
 			repository.SaveCollegePlayerRecord(player, db)
 			CreateNewsLog("CBB", message, "Portal", int(team.TeamID), ts)
 		}
-		repository.DeleteCollegePromise(promise, db)
+		repository.DeleteCollegePromise(promise, db, false)
 	}
 }
 
@@ -1651,6 +1670,10 @@ func getMultiplier(pr structs.CollegePromise) float64 {
 	}
 	weight := pr.PromiseWeight
 	switch weight {
+	case "Why even try?":
+		return 0.5
+	case "Extremely Low":
+		return 1.01
 	case "Very Low":
 		return 1.05
 	case "Low":
@@ -1659,9 +1682,15 @@ func getMultiplier(pr structs.CollegePromise) float64 {
 		return 1.3
 	case "High":
 		return 1.5
+	case "Very High":
+		return 1.75
+	case "Extremely High":
+		return 2
+	case "If you make this promise then you better win it!":
+		return 2.25
 	}
-	// Very High
-	return 1.75
+	// Default
+	return 1
 }
 
 func GetPlayerFromTransferPortalList(id int, profiles []structs.TransferPortalProfile) structs.TransferPortalProfile {

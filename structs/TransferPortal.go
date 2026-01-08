@@ -103,6 +103,11 @@ func (p *TransferPortalProfile) AddPointsToTotal(multiplier float64) {
 func (p *TransferPortalProfile) AssignPromise(id uint) {
 	p.PromiseID = sql.NullInt64{Valid: true, Int64: int64(id)}
 }
+
+func (p *TransferPortalProfile) RemovePromise() {
+	p.PromiseID = sql.NullInt64{Valid: false, Int64: 0}
+}
+
 func (p *TransferPortalProfile) ToggleRolledOnPromise() {
 	p.RolledOnPromise = true
 }

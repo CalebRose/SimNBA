@@ -2,7 +2,6 @@ package managers
 
 import (
 	"strconv"
-	"sync"
 
 	"github.com/CalebRose/SimNBA/structs"
 )
@@ -69,27 +68,11 @@ func MakeFullTransferPortalProfileMap(players []structs.CollegePlayer) map[uint]
 	}
 	portalProfiles := GetTransferPortalProfilesByPlayerIDs(playerIDs)
 	portalMap := make(map[uint][]structs.TransferPortalProfile)
-	var mu sync.Mutex     // to safely update the map
-	var wg sync.WaitGroup // to wait for all goroutines to finish
-	semaphore := make(chan struct{}, 10)
-	for _, p := range portalProfiles {
-		semaphore <- struct{}{}
-		wg.Add(1)
-		go func(c structs.TransferPortalProfile) {
-			defer wg.Done()
-			mu.Lock()
-			if len(portalMap[c.ID]) == 0 {
-				portalMap[c.ID] = []structs.TransferPortalProfile{c}
-			} else {
-				portalMap[c.ID] = append(portalMap[c.ID], c)
-			}
-			mu.Unlock()
 
-			<-semaphore
-		}(p)
+	for _, p := range portalProfiles {
+		portalMap[p.CollegePlayerID] = append(portalMap[p.CollegePlayerID], p)
 	}
-	wg.Wait()
-	close(semaphore)
+
 	return portalMap
 }
 
