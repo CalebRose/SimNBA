@@ -1001,9 +1001,6 @@ func SyncTransferPortal() {
 		eligibleTeams := []structs.TransferPortalProfile{}
 
 		for i := range portalProfiles {
-			if portalProfiles[i].UpdatedAt.String() >= "2026-01-07 00:00:00" {
-				continue
-			}
 			promiseID := strconv.Itoa(int(portalProfiles[i].PromiseID.Int64))
 
 			promise := GetCollegePromiseByID(promiseID)
@@ -1017,9 +1014,6 @@ func SyncTransferPortal() {
 		})
 
 		for i := range portalProfiles {
-			if portalProfiles[i].UpdatedAt.String() >= "2026-01-07 00:00:00" {
-				continue
-			}
 			roster := rosterMap[portalProfiles[i].ProfileID]
 			if len(roster) > 15 {
 				continue
