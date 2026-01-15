@@ -580,9 +580,6 @@ func AICoachFillBoardsPhase() {
 		if !teamProfile.IsAI {
 			continue
 		}
-		if teamProfile.ID == 2 || teamProfile.ID == 8 || teamProfile.ID == 98 || teamProfile.ID == 106 {
-			fmt.Println(teamProfile.TeamAbbr)
-		}
 		team := teamMap[teamProfile.ID]
 		teamStandings := standingsMap[teamProfile.TeamID]
 		teamID := strconv.Itoa(int(teamProfile.ID))
@@ -591,8 +588,8 @@ func AICoachFillBoardsPhase() {
 
 		roster := GetCollegePlayersByTeamId(teamID)
 		rosterSize := len(roster)
-		// Roster sizes of 12 or higher should be ignored
-		if rosterSize > 12 {
+		// Roster sizes of 15 or higher should be ignored
+		if rosterSize > 14 {
 			continue
 		}
 		teamNeedsMap := make(map[string]bool)
@@ -698,9 +695,6 @@ func AICoachFillBoardsPhase() {
 			}
 
 			diceRoll := util.GenerateIntFromRange(1, 50)
-			if teamProfile.ID == 98 || teamProfile.ID == 106 {
-				diceRoll -= 20
-			}
 			if diceRoll < biasMod {
 				// Add Player to Board
 
@@ -752,7 +746,7 @@ func AICoachAllocateAndPromisePhase() {
 
 		teamID := strconv.Itoa(int(teamProfile.ID))
 		roster := GetCollegePlayersByTeamId(teamID)
-		if len(roster) > 12 {
+		if len(roster) > 14 {
 			continue
 		}
 
