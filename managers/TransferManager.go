@@ -657,7 +657,7 @@ func AICoachFillBoardsPhase() {
 			// 	continue
 			// }
 			bias := tp.RecruitingBias
-			biasMod := 0
+			biasMod := 2
 			postSeasonStatus := teamStandings.PostSeasonStatus
 			if bias == richHistory {
 				// Get multiple season standings

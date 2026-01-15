@@ -126,13 +126,13 @@ func MigrateFaceDataToRecruits() {
 	db := dbprovider.GetInstance().GetDB()
 	// Get Recruits
 	recruits := GetAllRecruitRecords()
-	faces := GetAllFaces()
+	existingFaces := GetAllFaces()
 	// Get Full Name Lists
 	faceDataBlob := getFaceDataBlob()
 	faceDataList := []structs.FaceData{}
 	// Initialize List
 	for _, r := range recruits {
-		existingFace := faces[r.ID]
+		existingFace := existingFaces[r.ID]
 		if existingFace.PlayerID > 0 {
 			continue
 		}
@@ -174,8 +174,15 @@ func MigrateFaceDataToCollegePlayers() {
 	// Get Full Name Lists
 	faceDataBlob := getFaceDataBlob()
 	faceDataList := []structs.FaceData{}
+
+	existingFaces := GetAllFaces()
+
 	// Initialize List
 	for _, p := range players {
+		existingFace := existingFaces[p.ID]
+		if existingFace.PlayerID > 0 {
+			continue
+		}
 		skinColor := getSkinColor(p.Country)
 		// Store data
 
@@ -194,8 +201,15 @@ func MigrateFaceDataToProPlayers() {
 	// Get Full Name Lists
 	faceDataBlob := getFaceDataBlob()
 	faceDataList := []structs.FaceData{}
+
+	existingFaces := GetAllFaces()
+
 	// Initialize List
 	for _, p := range players {
+		existingFace := existingFaces[p.ID]
+		if existingFace.PlayerID > 0 {
+			continue
+		}
 		skinColor := getSkinColor(p.Country)
 		// Store data
 
