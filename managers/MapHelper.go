@@ -1,8 +1,7 @@
 package managers
 
 import (
-	"strconv"
-
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 )
 
@@ -60,16 +59,15 @@ func MakeNBAPlayerMapByTeamID(players []structs.NBAPlayer, excludeFAs bool) map[
 	return playerMap
 }
 
-func MakeFullTransferPortalProfileMap(players []structs.CollegePlayer) map[uint][]structs.TransferPortalProfile {
-	playerIDs := []string{}
-	for _, p := range players {
-		playerID := strconv.Itoa(int(p.ID))
-		playerIDs = append(playerIDs, playerID)
-	}
-	portalProfiles := GetTransferPortalProfilesByPlayerIDs(playerIDs)
+func MakeFullTransferPortalProfileMap() map[uint][]structs.TransferPortalProfile {
+	// Gets all active transfer portal profiles
+	portalProfiles := repository.FindAllTransferPortalProfiles()
 	portalMap := make(map[uint][]structs.TransferPortalProfile)
 
 	for _, p := range portalProfiles {
+		if p.ProfileID == 0 {
+			continue
+		}
 		portalMap[p.CollegePlayerID] = append(portalMap[p.CollegePlayerID], p)
 	}
 

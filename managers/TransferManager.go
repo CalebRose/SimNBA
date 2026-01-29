@@ -953,7 +953,7 @@ func SyncTransferPortal() {
 	// Use IsRecruitingLocked to lock the TP when not in use
 	teamProfileMap := GetTeamProfileMap()
 	transferPortalPlayers := GetTransferPortalPlayers()
-	transferPortalProfileMap := MakeFullTransferPortalProfileMap(transferPortalPlayers)
+	transferPortalProfileMap := MakeFullTransferPortalProfileMap()
 	rosterMap := GetFullTeamRosterWithCrootsMap()
 
 	if !ts.IsRecruitingLocked {
@@ -964,7 +964,7 @@ func SyncTransferPortal() {
 	for _, portalPlayer := range transferPortalPlayers {
 
 		// Skip over players that have already transferred
-		if portalPlayer.TransferStatus != 2 || portalPlayer.TeamID > 0 {
+		if portalPlayer.TransferStatus != 2 {
 			continue
 		}
 
@@ -981,7 +981,7 @@ func SyncTransferPortal() {
 			}
 			rosterMap[portalPlayer.PreviousTeamID] = append(rosterMap[portalPlayer.PreviousTeamID], portalPlayer)
 			portalPlayer.WillReturn()
-			db.Save(&portalPlayer)
+			repository.SaveCollegePlayerRecord(portalPlayer, db)
 			continue
 		}
 
@@ -995,8 +995,10 @@ func SyncTransferPortal() {
 		eligibleTeams := []structs.TransferPortalProfile{}
 
 		for i := range portalProfiles {
+			if portalProfiles[i].RemovedFromBoard {
+				continue
+			}
 			promiseID := strconv.Itoa(int(portalProfiles[i].PromiseID.Int64))
-
 			promise := GetCollegePromiseByID(promiseID)
 
 			multiplier := getMultiplier(promise)
@@ -1028,14 +1030,13 @@ func SyncTransferPortal() {
 			}
 		}
 
-		if (teamCount >= 1 && minSpendingCount >= 2) || (teamCount >= 1 && ts.TransferPortalRound == 10) {
+		if (teamCount >= 1 && minSpendingCount >= 2) || (teamCount > 1 && minSpendingCount > 3) || (teamCount >= 1 && ts.TransferPortalRound == 10) {
 			// threshold met
 			readyToSign = true
 		}
 		var winningTeamID uint = 0
+		var odds float64 = 0
 		if readyToSign {
-			var odds float64 = 0
-
 			// Add safety counter to prevent infinite loops
 			maxAttempts := 100
 			attemptCount := 0

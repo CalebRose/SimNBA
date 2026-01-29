@@ -179,7 +179,7 @@ func GetBootstrapDataLanding(collegeID, proID string) BootstrapData {
 
 		wg.Wait()
 
-		portalProfileMap := MakeFullTransferPortalProfileMap(portalPrep)
+		portalProfileMap := MakeFullTransferPortalProfileMap()
 		portalPlayers = MakeTransferPortalPlayerResponseList(portalPrep, portalProfileMap)
 
 		wg.Add(3)
