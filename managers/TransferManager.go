@@ -958,7 +958,7 @@ func SyncTransferPortal() {
 
 	if !ts.IsRecruitingLocked {
 		ts.ToggleLockRecruiting()
-		db.Save(&ts)
+		repository.SaveTimeStamp(ts, db)
 	}
 
 	for _, portalPlayer := range transferPortalPlayers {
@@ -1036,7 +1036,18 @@ func SyncTransferPortal() {
 		if readyToSign {
 			var odds float64 = 0
 
-			for winningTeamID == 0 {
+			// Add safety counter to prevent infinite loops
+			maxAttempts := 100
+			attemptCount := 0
+
+			for winningTeamID == 0 && attemptCount < maxAttempts {
+				attemptCount++
+
+				// Safety check: if no eligible teams or zero total points, break
+				if len(eligibleTeams) == 0 || totalPointsOnPlayer <= 0 {
+					break
+				}
+
 				percentageOdds := rand.Float64() * (totalPointsOnPlayer)
 				currentProbability := 0.0
 				for _, profile := range eligibleTeams {
@@ -1054,7 +1065,7 @@ func SyncTransferPortal() {
 					promise := GetCollegePromiseByCollegePlayerID(strconv.Itoa(int(portalPlayer.ID)), winningTeamIDSTR)
 					if promise.ID > 0 {
 						promise.MakePromise()
-						db.Save(&promise)
+						repository.SaveCollegePromiseRecord(promise, db)
 					}
 
 					teamProfile := teamProfileMap[winningTeamIDSTR]
@@ -1090,7 +1101,17 @@ func SyncTransferPortal() {
 						for _, p := range eligibleTeams {
 							totalPointsOnPlayer += p.TotalPoints
 						}
+
+						// Additional safety check: if total points become 0 or negative, break
+						if totalPointsOnPlayer <= 0 {
+							break
+						}
 					}
+				}
+
+				// Log if we hit max attempts (for debugging)
+				if attemptCount >= maxAttempts {
+					fmt.Printf("Warning: Hit max attempts (%d) for player %s %s team selection\n", maxAttempts, portalPlayer.FirstName, portalPlayer.LastName)
 				}
 			}
 
