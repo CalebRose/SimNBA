@@ -743,25 +743,26 @@ func GetCombineValue(grade string, value int, isOverall bool) int {
 }
 
 func GetValueFromGrade(grade string) int {
-	if grade == "A+" {
+	switch grade {
+	case "A+":
 		return 24
-	} else if grade == "A" {
+	case "A":
 		return 22
-	} else if grade == "A-" {
+	case "A-":
 		return 20
-	} else if grade == "B+" {
+	case "B+":
 		return 18
-	} else if grade == "B" {
+	case "B":
 		return 16
-	} else if grade == "B-" {
+	case "B-":
 		return 14
-	} else if grade == "C+" {
+	case "C+":
 		return 12
-	} else if grade == "C" {
+	case "C":
 		return 10
-	} else if grade == "C-" {
+	case "C-":
 		return 8
-	} else if grade == "D" {
+	case "D":
 		return 5
 	}
 	return 1

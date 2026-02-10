@@ -94,17 +94,18 @@ func ProcessTransferIntention() {
 		}
 
 		/// Higher star players are more likely to transfer
-		if p.Stars == 0 {
+		switch p.Stars {
+		case 0:
 			starMod = 1
-		} else if p.Stars == 1 {
+		case 1:
 			starMod = .66
-		} else if p.Stars == 2 {
+		case 2:
 			starMod = .75
-		} else if p.Stars == 3 {
+		case 3:
 			starMod = util.GenerateFloatFromRange(0.9, 1.1)
-		} else if p.Stars == 4 {
+		case 4:
 			starMod = util.GenerateFloatFromRange(1.11, 1.3)
-		} else if p.Stars == 5 {
+		case 5:
 			starMod = util.GenerateFloatFromRange(1.31, 1.75)
 		}
 

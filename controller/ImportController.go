@@ -87,5 +87,5 @@ func FixEmptyCountryValues(w http.ResponseWriter, r *http.Request) {
 func AutoGenerateNBAGames(w http.ResponseWriter, r *http.Request) {
 	db := dbprovider.GetInstance().GetDB()
 	ts := managers.GetTimestamp()
-	managers.GenerateNBAPlayoffGames(db, ts)
+	managers.GenerateNBAPlayoffGames(db, &ts)
 }

@@ -666,13 +666,14 @@ func validateContract(offer structs.NBAContract, status string, minimum float64)
 
 func validateOffer(offer structs.NBAContractOffer, status string, minimum float64) bool {
 	if status == "Max" || status == "SuperMax" {
-		if offer.TotalYears == 5 {
+		switch offer.TotalYears {
+		case 5:
 			return minimum < offer.Year1Total && minimum < offer.Year2Total && minimum < offer.Year3Total && minimum < offer.Year4Total && minimum < offer.Year5Total
-		} else if offer.TotalYears == 4 {
+		case 4:
 			return minimum < offer.Year1Total && minimum < offer.Year2Total && minimum < offer.Year3Total && minimum < offer.Year4Total
-		} else if offer.TotalYears == 3 {
+		case 3:
 			return minimum < offer.Year1Total && minimum < offer.Year2Total && minimum < offer.Year3Total
-		} else if offer.TotalYears == 2 {
+		case 2:
 			return minimum < offer.Year1Total && minimum < offer.Year2Total
 		}
 		return minimum <= offer.Year1Total
@@ -1028,15 +1029,16 @@ func SyncAIOffers() {
 		sgBids := 0
 		pgBids := 0
 		for _, p := range roster {
-			if p.Position == "C" {
+			switch p.Position {
+			case "C":
 				cCount++
-			} else if p.Position == "PF" {
+			case "PF":
 				pfCount++
-			} else if p.Position == "SF" {
+			case "SF":
 				sfCount++
-			} else if p.Position == "SG" {
+			case "SG":
 				sgCount++
-			} else {
+			default:
 				pgCount++
 			}
 		}
@@ -1045,15 +1047,16 @@ func SyncAIOffers() {
 		for _, fa := range freeAgents {
 			existingOffers := freeAgentOfferMap[fa.ID]
 			if len(existingOffers) > 0 {
-				if fa.Position == "C" {
+				switch fa.Position {
+				case "C":
 					cBids++
-				} else if fa.Position == "PF" {
+				case "PF":
 					pfBids++
-				} else if fa.Position == "SF" {
+				case "SF":
 					sfBids++
-				} else if fa.Position == "SG" {
+				case "SG":
 					sgBids++
-				} else {
+				default:
 					pgBids++
 				}
 			}
@@ -1123,15 +1126,16 @@ func SyncAIOffers() {
 			if yearsOnContract > 1 {
 				y2 = basePay
 			}
-			if fa.Position == "C" {
+			switch fa.Position {
+			case "C":
 				cBids++
-			} else if fa.Position == "PF" {
+			case "PF":
 				pfBids++
-			} else if fa.Position == "SF" {
+			case "SF":
 				sfBids++
-			} else if fa.Position == "SG" {
+			case "SG":
 				sgBids++
-			} else {
+			default:
 				pgBids++
 			}
 			offer := structs.NBAContractOffer{

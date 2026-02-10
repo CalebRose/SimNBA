@@ -80,15 +80,16 @@ func MakeTransferPortalPlayerResponseList(players []structs.CollegePlayer, profi
 func GetCBBOrderedListByStatType(statType string, teamID uint, CollegeStats []structs.CollegePlayerSeasonStats, collegePlayerMap map[uint]structs.CollegePlayer) []structs.CollegePlayer {
 	orderedStats := CollegeStats
 	resultList := []structs.CollegePlayer{}
-	if statType == "POINTS" {
+	switch statType {
+	case "POINTS":
 		sort.Slice(orderedStats[:], func(i, j int) bool {
 			return orderedStats[i].PPG > orderedStats[j].PPG
 		})
-	} else if statType == "ASSISTS" {
+	case "ASSISTS":
 		sort.Slice(orderedStats[:], func(i, j int) bool {
 			return orderedStats[i].AssistsPerGame > orderedStats[j].AssistsPerGame
 		})
-	} else if statType == "REBOUNDS" {
+	case "REBOUNDS":
 		sort.Slice(orderedStats[:], func(i, j int) bool {
 			return orderedStats[i].ReboundsPerGame > orderedStats[j].ReboundsPerGame
 		})
@@ -123,15 +124,16 @@ func GetCBBOrderedListByStatType(statType string, teamID uint, CollegeStats []st
 func getNBAOrderedListByStatType(statType string, teamID uint, CollegeStats []structs.NBAPlayerSeasonStats, proPlayerMap map[uint]structs.NBAPlayer) []structs.NBAPlayer {
 	orderedStats := CollegeStats
 	resultList := []structs.NBAPlayer{}
-	if statType == "POINTS" {
+	switch statType {
+	case "POINTS":
 		sort.Slice(orderedStats[:], func(i, j int) bool {
 			return orderedStats[i].PPG > orderedStats[j].PPG
 		})
-	} else if statType == "ASSISTS" {
+	case "ASSISTS":
 		sort.Slice(orderedStats[:], func(i, j int) bool {
 			return orderedStats[i].AssistsPerGame > orderedStats[j].AssistsPerGame
 		})
-	} else if statType == "REBOUNDS" {
+	case "REBOUNDS":
 		sort.Slice(orderedStats[:], func(i, j int) bool {
 			return orderedStats[i].ReboundsPerGame > orderedStats[j].ReboundsPerGame
 		})

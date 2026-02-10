@@ -101,7 +101,8 @@ func (pg *CrootGenerator) generatePlayer() (structs.Recruit, structs.GlobalPlaye
 	relativeIdx := 0
 	if relativeRoll == roof {
 		relativeType = getRelativeType()
-		if relativeType == 2 {
+		switch relativeType {
+		case 2:
 			// Brother of college player
 			fmt.Println("BROTHER")
 			relativeIdx = util.GenerateIntFromRange(0, cpLen)
@@ -114,7 +115,7 @@ func (pg *CrootGenerator) generatePlayer() (structs.Recruit, structs.GlobalPlaye
 			state = cp.State
 			country = cp.Country
 			notes = "Brother of " + cp.TeamAbbr + " " + cp.Position + " " + cp.FirstName + " " + cp.LastName
-		} else if relativeType == 3 {
+		case 3:
 			fmt.Println("COUSIN")
 			// Cousin
 			relativeIdx = util.GenerateIntFromRange(0, cpLen)
@@ -133,7 +134,7 @@ func (pg *CrootGenerator) generatePlayer() (structs.Recruit, structs.GlobalPlaye
 			state = cp.State
 			country = cp.Country
 			notes = "Cousin of " + cp.TeamAbbr + " " + cp.Position + " " + cp.FirstName + " " + cp.LastName
-		} else if relativeType == 4 {
+		case 4:
 			// Half Brother
 			fmt.Println("HALF BROTHER GENERATED")
 			relativeIdx = util.GenerateIntFromRange(0, cpLen)
@@ -152,7 +153,7 @@ func (pg *CrootGenerator) generatePlayer() (structs.Recruit, structs.GlobalPlaye
 			state = cp.State
 			country = cp.Country
 			notes = "Half-Brother of " + cp.TeamAbbr + " " + cp.Position + " " + cp.FirstName + " " + cp.LastName
-		} else if relativeType == 5 {
+		case 5:
 			// Twin
 			relativeType = 5
 			relativeID = int(pg.newID)
@@ -198,15 +199,16 @@ func (pg *CrootGenerator) generateTwin(player *structs.Recruit) (structs.Recruit
 	twinName := getName(firstNameList)
 	twinN := pg.caser.String(strings.ToLower(twinName))
 	twinPosition := ""
-	if player.Position == "PF" {
+	switch player.Position {
+	case "PF":
 		twinPosition = util.PickFromStringList([]string{"C", "SF"})
-	} else if player.Position == "C" {
+	case "C":
 		twinPosition = "PF"
-	} else if player.Position == "SF" {
+	case "SF":
 		twinPosition = util.PickFromStringList([]string{"PF", "SG"})
-	} else if player.Position == "SG" {
+	case "SG":
 		twinPosition = util.PickFromStringList([]string{"SF", "PG"})
-	} else {
+	default:
 		twinPosition = "SG"
 	}
 	twinNotes := "Twin Brother of " + strconv.Itoa(player.Stars) + " Star Recruit " + player.Position + " " + player.FirstName + " " + player.LastName
@@ -236,15 +238,16 @@ func (pg *CrootGenerator) generateTwin(player *structs.Recruit) (structs.Recruit
 }
 
 func (pg *CrootGenerator) updateStatistics(player structs.Recruit) {
-	if player.Stars == 5 {
+	switch player.Stars {
+	case 5:
 		pg.star5++
-	} else if player.Stars == 4 {
+	case 4:
 		pg.star4++
-	} else if player.Stars == 3 {
+	case 3:
 		pg.star3++
-	} else if player.Stars == 2 {
+	case 2:
 		pg.star2++
-	} else {
+	default:
 		pg.star1++
 	}
 
@@ -411,15 +414,16 @@ func GenerateNewTeams() {
 			} else {
 				freshmen--
 			}
-			if player.Position == "PF" {
+			switch player.Position {
+			case "PF":
 				pfCount++
-			} else if player.Position == "SF" {
+			case "SF":
 				sfCount++
-			} else if player.Position == "PG" {
+			case "PG":
 				pgCount++
-			} else if player.Position == "SG" {
+			case "SG":
 				sgCount++
-			} else {
+			default:
 				cCount++
 			}
 		}
@@ -456,15 +460,16 @@ func GenerateNewTeams() {
 				pickedPosition = util.PickFromStringList(quickList)
 			}
 
-			if pickedPosition == "SF" {
+			switch pickedPosition {
+			case "SF":
 				sfCount++
-			} else if pickedPosition == "PF" {
+			case "PF":
 				pfCount++
-			} else if pickedPosition == "PG" {
+			case "PG":
 				pgCount++
-			} else if pickedPosition == "SG" {
+			case "SG":
 				sgCount++
-			} else {
+			default:
 				cCount++
 			}
 
@@ -1098,15 +1103,16 @@ func createCollegeCoach(team structs.TeamRecruitingProfile, almaMaterID uint, al
 	}
 
 	for _, star := range starList {
-		if star == 1 {
+		switch star {
+		case 1:
 			odds1 = 10
-		} else if star == 2 {
+		case 2:
 			odds2 = 10
-		} else if star == 3 {
+		case 3:
 			odds3 = 8
-		} else if star == 4 {
+		case 4:
 			odds4 = 5
-		} else if star == 5 {
+		case 5:
 			odds5 = 5
 		}
 	}
@@ -1185,31 +1191,32 @@ func createCollegeCoach(team structs.TeamRecruitingProfile, almaMaterID uint, al
 func getNameList(ethnicity string, isFirstName bool) [][]string {
 	path := "C:\\Users\\ctros\\go\\src\\github.com\\CalebRose\\SimNBA\\data"
 	var fileName string
-	if ethnicity == "Caucasian" {
+	switch ethnicity {
+	case "Caucasian":
 		if isFirstName {
 			fileName = "FNameW.csv"
 		} else {
 			fileName = "LNameW.csv"
 		}
-	} else if ethnicity == "African" {
+	case "African":
 		if isFirstName {
 			fileName = "FNameB.csv"
 		} else {
 			fileName = "LNameB.csv"
 		}
-	} else if ethnicity == "Asian" {
+	case "Asian":
 		if isFirstName {
 			fileName = "FNameA.csv"
 		} else {
 			fileName = "LNameA.csv"
 		}
-	} else if ethnicity == "NativeAmerican" {
+	case "NativeAmerican":
 		if isFirstName {
 			fileName = "FNameN.csv"
 		} else {
 			fileName = "LNameN.csv"
 		}
-	} else {
+	default:
 		if isFirstName {
 			fileName = "FNameH.csv"
 		} else {
@@ -1513,387 +1520,419 @@ func pickCountry(ethnicity string) string {
 	if num < 8001 {
 		return "USA"
 	} else if num < 8251 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Dominican Republic"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Mexico"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "Canada"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "China"
-		} else {
+		default:
 			return "Canada"
 		}
 	} else if num < 8301 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "The Bahamas"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Guatemala"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "Russia"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "China"
-		} else {
+		default:
 			return "United Kingdom"
 		}
 	} else if num < 8351 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Jamaica"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Costa Rica"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "Canada"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "China"
-		} else {
+		default:
 			return "France"
 		}
 	} else if num < 8401 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Democratic Republic of Congo"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Colombia"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "USA"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "China"
-		} else {
+		default:
 			return "Spain"
 		}
 	} else if num < 8451 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "South Africa"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Belize"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "Canada"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "China"
-		} else {
+		default:
 			return "Ireland"
 		}
 	} else if num < 8501 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Haiti"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "El Salvador"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "Canada"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "China"
-		} else {
+		default:
 			return "Spain"
 		}
 	} else if num < 8551 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Ethiopia"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Cuba"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "Canada"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "Japan"
-		} else {
+		default:
 			return "Germany"
 		}
 	} else if num < 8601 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Chad"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Honduras"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "USA"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "Japan"
-		} else {
+		default:
 			return "Poland"
 		}
 	} else if num < 8651 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Ghana"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Nicaragua"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "Canada"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "Japan"
-		} else {
+		default:
 			return "Sweden"
 		}
 	} else if num < 8701 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Guinea"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Panama"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "USA"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "Vietnam"
-		} else {
+		default:
 			return "Norway"
 		}
 	} else if num < 8751 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Senegal"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Dominican Republic"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "Canada"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "Vietnam"
-		} else {
+		default:
 			return "Denmark"
 		}
 	} else if num < 8801 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Morocco"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Mexico"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "USA"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "Indonesia"
-		} else {
+		default:
 			return "Portugal"
 		}
 	} else if num < 8851 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Algeria"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Mexico"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "Canada"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "Indonesia"
-		} else {
+		default:
 			return "Austria"
 		}
 	} else if num < 8901 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Nigeria"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Venezuela"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "USA"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "Indonesia"
-		} else {
+		default:
 			return "Hungary"
 		}
 	} else if num < 8951 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Cameroon"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "French Guiana"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "Canada"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "Indonesia"
-		} else {
+		default:
 			return "Croatia"
 		}
 	} else if num < 9001 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Egypt"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Brazil"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "USA"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "Thailand"
-		} else {
+		default:
 			return "Greece"
 		}
 	} else if num < 9051 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Eritrea"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Brazil"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "Canada"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "Thailand"
-		} else {
+		default:
 			return "Israel"
 		}
 	} else if num < 9101 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Kenya"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Guyana"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "USA"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "South Korea"
-		} else {
+		default:
 			return "Bulgaria"
 		}
 	} else if num < 9151 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Liberia"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Ecuador"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "Canada"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "Malaysia"
-		} else {
+		default:
 			return "Romania"
 		}
 	} else if num < 9201 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Tanzania"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Chile"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "USA"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "India"
-		} else {
+		default:
 			return "Montenegro"
 		}
 	} else if num < 9251 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Zimbabwe"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Uruguay"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "Canada"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "India"
-		} else {
+		default:
 			return "Turkey"
 		}
 	} else if num < 9301 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Malawi"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Argentina"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "Canada"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "India"
-		} else {
+		default:
 			return "Serbia"
 		}
 	} else if num < 9351 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Senegal"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Argentina"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "USA"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "Israel"
-		} else {
+		default:
 			return "Belgium"
 		}
 	} else if num < 9401 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Senegal"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Argentina"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "Canada"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "Bangladesh"
-		} else {
+		default:
 			return "Ukraine"
 		}
 	} else if num < 9501 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "DCR"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Uruguay"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "Canada"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "Philippines"
-		} else {
+		default:
 			return "Ukraine"
 		}
 	} else if num < 9601 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Nigeria"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Uruguay"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "USA"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "Philippines"
-		} else {
+		default:
 			return "Russia"
 		}
 	} else if num < 9701 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "South Africa"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Chile"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "Canada"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "Philippines"
-		} else {
+		default:
 			return "Russia"
 		}
 	} else if num < 9801 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "South Africa"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Chile"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "USA"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "Singapore"
-		} else {
+		default:
 			return "Lithuania"
 		}
 	} else if num < 9901 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Uganda"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Peru"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "Canada"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "Cambodia"
-		} else {
+		default:
 			return "Estonia"
 		}
 	} else if num < 9951 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Zambia"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Grenada"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "USA"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "Taiwan"
-		} else {
+		default:
 			return "Finland"
 		}
 	} else if num < 9976 {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Tunisia"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Barbados"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "Canada"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "Myanmar"
-		} else {
+		default:
 			return "Iceland"
 		}
 	} else {
-		if ethnicity == "African" {
+		switch ethnicity {
+		case "African":
 			return "Algeria"
-		} else if ethnicity == "Hispanic" {
+		case "Hispanic":
 			return "Suriname"
-		} else if ethnicity == "NativeAmerican" {
+		case "NativeAmerican":
 			return "Antarctica"
-		} else if ethnicity == "Asian" {
+		case "Asian":
 			return "North Korea"
-		} else {
+		default:
 			return "Luxembourg"
 		}
 	}
@@ -1908,7 +1947,8 @@ func pickState() string {
 func getHeight(position string) string {
 	foot := 0
 	inches := 0
-	if position == "PG" || position == "SG" {
+	switch position {
+	case "PG", "SG":
 		footMin := 5
 		footMax := 6
 		foot = util.GenerateIntFromRange(footMin, footMax)
@@ -1922,12 +1962,12 @@ func getHeight(position string) string {
 			inchesMax := 5
 			inches = util.GenerateIntFromRange(inchesMin, inchesMax)
 		}
-	} else if position == "PF" || position == "SF" {
+	case "PF", "SF":
 		foot = 6
 		inchesMin := 5
 		inchesMax := 8
 		inches = util.GenerateIntFromRange(inchesMin, inchesMax)
-	} else {
+	default:
 		footMin := 6
 		footMax := 7
 		foot = util.GenerateIntFromRange(footMin, footMax)
@@ -1947,64 +1987,68 @@ func getHeight(position string) string {
 }
 
 func getAttribute(position string, attribute string, isGeneration bool) int {
-	if position == "PG" || position == "SG" {
-		if attribute == "Shooting2" {
+	switch position {
+	case "PG", "SG":
+		switch attribute {
+		case "Shooting2":
 			return util.GenerateIntFromRange(7, 17)
-		} else if attribute == "Shooting3" {
+		case "Shooting3":
 			return util.GenerateIntFromRange(7, 17)
-		} else if attribute == "Finishing" {
+		case "Finishing":
 			return util.GenerateIntFromRange(4, 14)
-		} else if attribute == "FreeThrow" {
+		case "FreeThrow":
 			return util.GenerateIntFromRange(4, 14)
-		} else if attribute == "Ballwork" {
+		case "Ballwork":
 			return util.GenerateIntFromRange(7, 17)
-		} else if attribute == "Rebounding" {
+		case "Rebounding":
 			return util.GenerateIntFromRange(1, 11)
-		} else if attribute == "Interior Defense" {
+		case "Interior Defense":
 			return util.GenerateIntFromRange(1, 11)
-		} else if attribute == "Perimeter Defense" {
+		case "Perimeter Defense":
 			return util.GenerateIntFromRange(1, 11)
-		} else {
+		default:
 			return 1
 		}
-	} else if position == "PF" || position == "SF" {
-		if attribute == "Shooting2" {
+	case "PF", "SF":
+		switch attribute {
+		case "Shooting2":
 			return util.GenerateIntFromRange(4, 14)
-		} else if attribute == "Shooting3" {
+		case "Shooting3":
 			return util.GenerateIntFromRange(1, 11)
-		} else if attribute == "FreeThrow" {
+		case "FreeThrow":
 			return util.GenerateIntFromRange(4, 14)
-		} else if attribute == "Finishing" {
+		case "Finishing":
 			return util.GenerateIntFromRange(6, 16)
-		} else if attribute == "Ballwork" {
+		case "Ballwork":
 			return util.GenerateIntFromRange(4, 14)
-		} else if attribute == "Rebounding" {
+		case "Rebounding":
 			return util.GenerateIntFromRange(4, 14)
-		} else if attribute == "Interior Defense" {
+		case "Interior Defense":
 			return util.GenerateIntFromRange(4, 14)
-		} else if attribute == "Perimeter Defense" {
+		case "Perimeter Defense":
 			return util.GenerateIntFromRange(4, 14)
-		} else {
+		default:
 			return 1
 		}
-	} else if position == "C" {
-		if attribute == "Shooting2" {
+	case "C":
+		switch attribute {
+		case "Shooting2":
 			return util.GenerateIntFromRange(1, 11)
-		} else if attribute == "Shooting3" {
+		case "Shooting3":
 			return util.GenerateIntFromRange(1, 11)
-		} else if attribute == "FreeThrow" {
+		case "FreeThrow":
 			return util.GenerateIntFromRange(1, 11)
-		} else if attribute == "Finishing" {
+		case "Finishing":
 			return util.GenerateIntFromRange(6, 16)
-		} else if attribute == "Ballwork" {
+		case "Ballwork":
 			return util.GenerateIntFromRange(1, 11)
-		} else if attribute == "Rebounding" {
+		case "Rebounding":
 			return util.GenerateIntFromRange(6, 16)
-		} else if attribute == "Interior Defense" {
+		case "Interior Defense":
 			return util.GenerateIntFromRange(6, 16)
-		} else if attribute == "Perimeter Defense" {
+		case "Perimeter Defense":
 			return util.GenerateIntFromRange(6, 16)
-		} else {
+		default:
 			return 1
 		}
 	}
@@ -2026,13 +2070,14 @@ func getStarRating(overall int) int {
 }
 
 func GetRecruitModifier(stars int) int {
-	if stars == 5 {
+	switch stars {
+	case 5:
 		return util.GenerateIntFromRange(80, 117)
-	} else if stars == 4 {
+	case 4:
 		return util.GenerateIntFromRange(100, 125)
-	} else if stars == 3 {
+	case 3:
 		return util.GenerateIntFromRange(117, 150)
-	} else if stars == 2 {
+	case 2:
 		return util.GenerateIntFromRange(125, 200)
 	}
 	return util.GenerateIntFromRange(150, 250)
@@ -2086,14 +2131,16 @@ func getCoachAge() int {
 func getGoodHire(schoolQuality, adminBehavior string) bool {
 	diceRoll := util.GenerateIntFromRange(1, 20)
 	mod := 0
-	if schoolQuality == "P6" || schoolQuality == "Cinderella" {
+	switch schoolQuality {
+	case "P6", "Cinderella":
 		mod += 1
-	} else if schoolQuality == "Blue Blood" {
+	case "Blue Blood":
 		mod += 3
 	}
-	if adminBehavior == "Aggressive" {
+	switch adminBehavior {
+	case "Aggressive":
 		mod += 3
-	} else if adminBehavior == "Conservative" {
+	case "Conservative":
 		mod -= 3
 	}
 
@@ -2104,25 +2151,26 @@ func getGoodHire(schoolQuality, adminBehavior string) bool {
 
 func getStarRange(schoolQuality string, goodHire bool) (int, int) {
 
-	if schoolQuality == "Blue Blood" {
+	switch schoolQuality {
+	case "Blue Blood":
 		if goodHire {
 			return 3, 5
 		} else {
 			return 3, 4
 		}
-	} else if schoolQuality == "Cinderella" {
+	case "Cinderella":
 		if goodHire {
 			return 2, 4
 		} else {
 			return 2, 3
 		}
-	} else if schoolQuality == "P6" {
+	case "P6":
 		if goodHire {
 			return 2, 4
 		} else {
 			return 2, 3
 		}
-	} else {
+	default:
 		if goodHire {
 			return 1, 3
 		} else {
@@ -2134,7 +2182,8 @@ func getStarRange(schoolQuality string, goodHire bool) (int, int) {
 func getPointRange(schoolQuality string, goodHire bool) (int, int) {
 	min := 0
 	max := 15
-	if schoolQuality == "Blue Blood" {
+	switch schoolQuality {
+	case "Blue Blood":
 		if goodHire {
 			min = util.GenerateIntFromRange(7, 8)
 			max = util.GenerateIntFromRange(12, 16)
@@ -2142,7 +2191,7 @@ func getPointRange(schoolQuality string, goodHire bool) (int, int) {
 			min = util.GenerateIntFromRange(6, 7)
 			max = util.GenerateIntFromRange(10, 13)
 		}
-	} else if schoolQuality == "Cinderella" {
+	case "Cinderella":
 		if goodHire {
 			min = util.GenerateIntFromRange(5, 7)
 			max = util.GenerateIntFromRange(10, 15)
@@ -2150,7 +2199,7 @@ func getPointRange(schoolQuality string, goodHire bool) (int, int) {
 			min = util.GenerateIntFromRange(4, 6)
 			max = util.GenerateIntFromRange(10, 12)
 		}
-	} else if schoolQuality == "P6" {
+	case "P6":
 		if goodHire {
 			min = util.GenerateIntFromRange(5, 8)
 			max = util.GenerateIntFromRange(10, 14)
@@ -2158,7 +2207,7 @@ func getPointRange(schoolQuality string, goodHire bool) (int, int) {
 			min = util.GenerateIntFromRange(4, 6)
 			max = util.GenerateIntFromRange(8, 12)
 		}
-	} else {
+	default:
 		if goodHire {
 			min = util.GenerateIntFromRange(3, 6)
 			max = util.GenerateIntFromRange(8, 12)

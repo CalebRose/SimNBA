@@ -59,10 +59,10 @@ func SyncToNextWeek() {
 		SyncCollegePollSubmissionForCurrentWeek(uint(ts.CollegeWeek), ts.CollegeWeekID, ts.SeasonID)
 		ts.TogglePollRan()
 	}
-	if ts.NBAWeek > 18 && !ts.IsNBAOffseason {
+	if ts.NBAWeek > 18 && !ts.NBASeasonOver {
 		// Update bools so that teams can't trade in middle of next season's post season
 		db.Model(&structs.NBATeam{}).Where("id < ?", "33").Update("can_trade", false)
-		GenerateNBAPlayoffGames(db, ts)
+		GenerateNBAPlayoffGames(db, &ts)
 		IndicateWhetherTeamCanTradeInPostSeason()
 	}
 	if ts.NBASeasonOver && ts.CollegeSeasonOver && ts.FreeAgencyRound > 2 {
@@ -71,7 +71,7 @@ func SyncToNextWeek() {
 	repository.SaveTimeStamp(ts, db)
 }
 
-func GenerateNBAPlayoffGames(db *gorm.DB, ts structs.Timestamp) {
+func GenerateNBAPlayoffGames(db *gorm.DB, ts *structs.Timestamp) {
 
 	nbaWeekID := strconv.Itoa(int(ts.NBAWeekID))
 	seasonID := strconv.Itoa(int(ts.SeasonID))
@@ -80,7 +80,7 @@ func GenerateNBAPlayoffGames(db *gorm.DB, ts structs.Timestamp) {
 	finalsTally := 0
 	if len(nbaGames) == 0 {
 		// Get active NBA Series
-		activeNBASeries := GetAllActiveNBASeries()
+		activeNBASeries := GetAllActiveNBASeries(*ts)
 		for _, s := range activeNBASeries {
 			// Skip series that are not ready
 			if s.HomeTeamID == 0 || s.AwayTeamID == 0 {
@@ -91,10 +91,12 @@ func GenerateNBAPlayoffGames(db *gorm.DB, ts structs.Timestamp) {
 				// Officially End the season
 				if finalsTally == 2 {
 					ts.EndTheProfessionalSeason()
-					repository.SaveTimeStamp(ts, db)
+					repository.SaveTimeStamp(*ts, db)
 					break
 				}
-
+			}
+			if s.SeriesComplete {
+				continue
 			}
 			gameCount := strconv.Itoa(int(s.GameCount))
 			homeTeam := ""
@@ -172,7 +174,8 @@ func IndicateWhetherTeamCanTradeInPostSeason() {
 	db := dbprovider.GetInstance().GetDB()
 	nbaTeamMap := GetProfessionalTeamMap()
 	nbaIsInPlayoffsMap := make(map[uint]bool)
-	activeNBASeries := GetAllActiveNBASeries()
+	ts := GetTimestamp()
+	activeNBASeries := GetAllActiveNBASeries(ts)
 
 	for i := 1; i < 33; i++ {
 		idx := uint(i)
@@ -222,7 +225,7 @@ func ShowGames() {
 	if matchType == "" {
 		log.Fatalln("Cannot sync results!")
 	}
-	UpdateStandings(&ts, matchType)
+	UpdateStandings(ts, matchType)
 	UpdateSeasonStats(ts, matchType)
 	ts.ToggleGames(matchType)
 	repository.SaveTimeStamp(ts, db)

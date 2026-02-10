@@ -262,50 +262,51 @@ func ProgressNBAPlayer(np structs.NBAPlayer, isISLGen bool) structs.NBAPlayer {
 			break
 		}
 		allocation := 0
-		if attr == "Shooting2" {
+		switch attr {
+		case "Shooting2":
 			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecShooting2, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			shooting2 += allocation
-		} else if attr == "Shooting3" {
+		case "Shooting3":
 			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecShooting3, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			shooting3 += allocation
-		} else if attr == "FreeThrow" {
+		case "FreeThrow":
 			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecFreeThrow, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			freeThrow += allocation
-		} else if attr == "Finishing" {
+		case "Finishing":
 			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecFinishing, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			finishing += allocation
-		} else if attr == "Ballwork" {
+		case "Ballwork":
 			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecBallwork, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			ballwork += allocation
-		} else if attr == "Rebounding" {
+		case "Rebounding":
 
 			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecRebounding, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			rebounding += allocation
-		} else if attr == "InteriorDefense" {
+		case "InteriorDefense":
 			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecInteriorDefense, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			interiorDefense += allocation
-		} else if attr == "PerimeterDefense" {
+		case "PerimeterDefense":
 			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecPerimeterDefense, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count

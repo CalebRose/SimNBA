@@ -1275,25 +1275,26 @@ func ImportISLScoutingDepts() {
 				if bonusPoints-num < 0 {
 					num += (bonusPoints - num)
 				}
-				if attr == "fn" {
+				switch attr {
+				case "fn":
 					fn += num
-				} else if attr == "sh2" {
+				case "sh2":
 					sh2 += num
-				} else if attr == "sh3" {
+				case "sh3":
 					sh3 += num
-				} else if attr == "ft" {
+				case "ft":
 					ft += num
-				} else if attr == "bw" {
+				case "bw":
 					bw += num
-				} else if attr == "rb" {
+				case "rb":
 					rb += num
-				} else if attr == "ind" {
+				case "ind":
 					ind += num
-				} else if attr == "prd" {
+				case "prd":
 					prd += num
-				} else if attr == "pot" {
+				case "pot":
 					pot += num
-				} else if attr == "idn" {
+				case "idn":
 					idn += num
 				}
 

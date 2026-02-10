@@ -586,12 +586,12 @@ func GetNBASeriesByTeamID(teamID string) []structs.NBASeries {
 	return nbaSeries
 }
 
-func GetAllActiveNBASeries() []structs.NBASeries {
+func GetAllActiveNBASeries(ts structs.Timestamp) []structs.NBASeries {
 	db := dbprovider.GetInstance().GetDB()
 
 	var nbaSeries []structs.NBASeries
 
-	db.Where("series_complete = ?", false).Find(&nbaSeries)
+	db.Where("season_id = ?", ts.SeasonID).Find(&nbaSeries)
 
 	return nbaSeries
 }

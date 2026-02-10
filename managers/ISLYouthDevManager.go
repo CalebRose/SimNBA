@@ -203,9 +203,10 @@ func ISLScoutingPhase() {
 			pointsRemaining = 0
 		}
 		pointsToSpend := 200
-		if d.BehaviorBias == 1 {
+		switch d.BehaviorBias {
+		case 1:
 			pointsToSpend += 10
-		} else if d.BehaviorBias == 3 {
+		case 3:
 			pointsToSpend -= 10
 		}
 		if pointsToSpend > pointsRemaining {

@@ -491,26 +491,27 @@ func SetCollegeMinutesAndShotProportions(db *gorm.DB, teamID uint, gameplanMap m
 			continue
 		}
 
-		if c.Position == "PG" {
+		switch c.Position {
+		case "PG":
 			pgCount++
 			pgList = append(pgList, c)
 			sgList = append(sgList, c)
-		} else if c.Position == "SG" {
+		case "SG":
 			sgCount++
 			sgList = append(sgList, c)
 			pgList = append(pgList, c)
 			sfList = append(sfList, c)
-		} else if c.Position == "SF" {
+		case "SF":
 			sfCount++
 			sfList = append(sfList, c)
 			sgList = append(sgList, c)
 			pfList = append(pfList, c)
-		} else if c.Position == "PF" {
+		case "PF":
 			pfCount++
 			pfList = append(pfList, c)
 			sfList = append(sfList, c)
 			cList = append(cList, c)
-		} else if c.Position == "C" {
+		case "C":
 			cCount++
 			cList = append(cList, c)
 			pfList = append(pfList, c)
@@ -525,25 +526,26 @@ func SetCollegeMinutesAndShotProportions(db *gorm.DB, teamID uint, gameplanMap m
 		ost = "Traditional"
 	}
 
-	if ost == "Traditional" {
+	switch ost {
+	case "Traditional":
 		pgMinutes = 40
 		sgMinutes = 40
 		pfMinutes = 40
 		sfMinutes = 40
 		cMinutes = 40
-	} else if ost == "Small Ball" {
+	case "Small Ball":
 		pgMinutes = 40
 		sgMinutes = 80
 		pfMinutes = 40
 		sfMinutes = 40
 		cMinutes = 0
-	} else if ost == "Microball" {
+	case "Microball":
 		pgMinutes = 80
 		sgMinutes = 80
 		pfMinutes = 00
 		sfMinutes = 40
 		cMinutes = 0
-	} else if ost == "Jumbo" {
+	case "Jumbo":
 		pgMinutes = 0
 		sgMinutes = 40
 		pfMinutes = 80
@@ -570,23 +572,24 @@ func SetCollegeMinutesAndShotProportions(db *gorm.DB, teamID uint, gameplanMap m
 		return cList[i].Overall > cList[j].Overall
 	})
 	totalMinutes := 0
-	if ost == "Traditional" {
+	switch ost {
+	case "Traditional":
 		totalMinutes += setPositionMinutes(pgList, rMap, pgMinutes, "PG", ost)
 		totalMinutes += setPositionMinutes(sgList, rMap, sgMinutes, "SG", ost)
 		totalMinutes += setPositionMinutes(sfList, rMap, sfMinutes, "SF", ost)
 		totalMinutes += setPositionMinutes(pfList, rMap, pfMinutes, "PF", ost)
 		totalMinutes += setPositionMinutes(cList, rMap, cMinutes, "C", ost)
-	} else if ost == "Jumbo" {
+	case "Jumbo":
 		totalMinutes += setPositionMinutes(cList, rMap, cMinutes, "C", ost)
 		totalMinutes += setPositionMinutes(pfList, rMap, pfMinutes, "PF", ost)
 		totalMinutes += setPositionMinutes(sfList, rMap, sfMinutes, "SF", ost)
 		totalMinutes += setPositionMinutes(sgList, rMap, sgMinutes, "SG", ost)
-	} else if ost == "Small Ball" {
+	case "Small Ball":
 		totalMinutes += setPositionMinutes(sgList, rMap, sgMinutes, "SG", ost)
 		totalMinutes += setPositionMinutes(pgList, rMap, pgMinutes, "PG", ost)
 		totalMinutes += setPositionMinutes(sfList, rMap, sfMinutes, "SF", ost)
 		totalMinutes += setPositionMinutes(pfList, rMap, pfMinutes, "PF", ost)
-	} else if ost == "Microball" {
+	case "Microball":
 		totalMinutes += setPositionMinutes(pgList, rMap, pgMinutes, "PG", ost)
 		totalMinutes += setPositionMinutes(sgList, rMap, sgMinutes, "SG", ost)
 		totalMinutes += setPositionMinutes(sfList, rMap, sfMinutes, "SF", ost)
@@ -738,26 +741,27 @@ func SetNBAMinutesAndShotProportions(db *gorm.DB, teamID uint, gameplanMap map[u
 			continue
 		}
 
-		if c.Position == "PG" {
+		switch c.Position {
+		case "PG":
 			pgCount++
 			pgList = append(pgList, c)
 			sgList = append(sgList, c)
-		} else if c.Position == "SG" {
+		case "SG":
 			sgCount++
 			sgList = append(sgList, c)
 			pgList = append(pgList, c)
 			sfList = append(sfList, c)
-		} else if c.Position == "SF" {
+		case "SF":
 			sfCount++
 			sfList = append(sfList, c)
 			sgList = append(sgList, c)
 			pfList = append(pfList, c)
-		} else if c.Position == "PF" {
+		case "PF":
 			pfCount++
 			pfList = append(pfList, c)
 			sfList = append(sfList, c)
 			cList = append(cList, c)
-		} else if c.Position == "C" {
+		case "C":
 			cCount++
 			cList = append(cList, c)
 			pfList = append(pfList, c)
@@ -772,25 +776,26 @@ func SetNBAMinutesAndShotProportions(db *gorm.DB, teamID uint, gameplanMap map[u
 		ost = "Traditional"
 	}
 
-	if ost == "Traditional" {
+	switch ost {
+	case "Traditional":
 		pgMinutes = 48
 		sgMinutes = 48
 		pfMinutes = 48
 		sfMinutes = 48
 		cMinutes = 48
-	} else if ost == "Small Ball" {
+	case "Small Ball":
 		pgMinutes = 48
 		sgMinutes = 96
 		pfMinutes = 48
 		sfMinutes = 48
 		cMinutes = 0
-	} else if ost == "Microball" {
+	case "Microball":
 		pgMinutes = 96
 		sgMinutes = 96
 		pfMinutes = 0
 		sfMinutes = 48
 		cMinutes = 0
-	} else if ost == "Jumbo" {
+	case "Jumbo":
 		pgMinutes = 0
 		sgMinutes = 48
 		pfMinutes = 96
@@ -817,23 +822,24 @@ func SetNBAMinutesAndShotProportions(db *gorm.DB, teamID uint, gameplanMap map[u
 		return cList[i].Overall > cList[j].Overall
 	})
 	totalMinutes := 0
-	if ost == "Traditional" {
+	switch ost {
+	case "Traditional":
 		totalMinutes += setNBAPositionMinutes(pgList, rMap, pgMinutes, "PG", ost)
 		totalMinutes += setNBAPositionMinutes(sgList, rMap, sgMinutes, "SG", ost)
 		totalMinutes += setNBAPositionMinutes(sfList, rMap, sfMinutes, "SF", ost)
 		totalMinutes += setNBAPositionMinutes(pfList, rMap, pfMinutes, "PF", ost)
 		totalMinutes += setNBAPositionMinutes(cList, rMap, cMinutes, "C", ost)
-	} else if ost == "Jumbo" {
+	case "Jumbo":
 		totalMinutes += setNBAPositionMinutes(cList, rMap, cMinutes, "C", ost)
 		totalMinutes += setNBAPositionMinutes(pfList, rMap, pfMinutes, "PF", ost)
 		totalMinutes += setNBAPositionMinutes(sfList, rMap, sfMinutes, "SF", ost)
 		totalMinutes += setNBAPositionMinutes(sgList, rMap, sgMinutes, "SG", ost)
-	} else if ost == "Small Ball" {
+	case "Small Ball":
 		totalMinutes += setNBAPositionMinutes(sgList, rMap, sgMinutes, "SG", ost)
 		totalMinutes += setNBAPositionMinutes(pgList, rMap, pgMinutes, "PG", ost)
 		totalMinutes += setNBAPositionMinutes(sfList, rMap, sfMinutes, "SF", ost)
 		totalMinutes += setNBAPositionMinutes(pfList, rMap, pfMinutes, "PF", ost)
-	} else if ost == "Microball" {
+	case "Microball":
 		totalMinutes += setNBAPositionMinutes(pgList, rMap, pgMinutes, "PG", ost)
 		totalMinutes += setNBAPositionMinutes(sgList, rMap, sgMinutes, "SG", ost)
 		totalMinutes += setNBAPositionMinutes(sfList, rMap, sfMinutes, "SF", ost)

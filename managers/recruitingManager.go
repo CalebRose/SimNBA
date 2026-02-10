@@ -161,9 +161,6 @@ func GetSignedRecruitsByTeamProfileID(ProfileID string) []structs.Recruit {
 			log.Fatal(err)
 		}
 	}
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	return croots
 }

@@ -110,94 +110,86 @@ func GetRivalsRanking(stars int, bonus int) float64 {
 }
 
 func GetESPNStarRank(star int) int {
-	if star == 5 {
+	switch star {
+	case 5:
 		return 95
-	} else if star == 4 {
+	case 4:
 		return 85
-	} else if star == 3 {
+	case 3:
 		return 75
-	} else if star == 2 {
+	case 2:
 		return 65
 	}
 	return 55
 }
 
 func GetArchetypeModifier(arch string) int {
-	if arch == "Coverage" ||
-		arch == "Run Stopper" ||
-		arch == "Ball Hawk" ||
-		arch == "Man Coverage" ||
-		arch == "Pass Rusher" ||
-		arch == "Rushing" {
+	switch arch {
+	case "Coverage", "Run Stopper", "Ball Hawk", "Man Coverage", "Pass Rusher", "Rushing":
 		return 1
-	} else if arch == "Possession" ||
-		arch == "Field General" ||
-		arch == "Nose Tackle" ||
-		arch == "Blocking" ||
-		arch == "Line Captain" {
+	case "Possession", "Field General", "Nose Tackle", "Blocking", "Line Captain":
 		return -1
-	} else if arch == "Speed Rusher" ||
-		arch == "Pass Rush" || arch == "Scrambler" ||
-		arch == "Vertical Threat" ||
-		arch == "Speed" {
+	case "Speed Rusher", "Pass Rush", "Scrambler", "Vertical Threat", "Speed":
 		return 2
 	}
 	return 0
 }
 
 func Get247PotentialModifier(pg string) float64 {
-	if pg == "A+" {
+	switch pg {
+	case "A+":
 		return 5.83
-	} else if pg == "A" {
+	case "A":
 		return 5.06
-	} else if pg == "A-" {
+	case "A-":
 		return 4.77
-	} else if pg == "B+" {
+	case "B+":
 		return 4.33
-	} else if pg == "B" {
+	case "B":
 		return 4.04
-	} else if pg == "B-" {
+	case "B-":
 		return 3.87
-	} else if pg == "C+" {
+	case "C+":
 		return 3.58
-	} else if pg == "C" {
+	case "C":
 		return 3.43
-	} else if pg == "C-" {
+	case "C-":
 		return 3.31
-	} else if pg == "D+" {
+	case "D+":
 		return 3.03
-	} else if pg == "D" {
+	case "D":
 		return 2.77
-	} else if pg == "D-" {
+	case "D-":
 		return 2.67
 	}
 	return 2.3
 }
 
 func GetESPNPotentialModifier(pg string) float64 {
-	if pg == "A+" {
+	switch pg {
+	case "A+":
 		return 1
-	} else if pg == "A" {
+	case "A":
 		return 0.9
-	} else if pg == "A-" {
+	case "A-":
 		return 0.8
-	} else if pg == "B+" {
+	case "B+":
 		return 0.6
-	} else if pg == "B" {
+	case "B":
 		return 0.4
-	} else if pg == "B-" {
+	case "B-":
 		return 0.2
-	} else if pg == "C+" {
+	case "C+":
 		return 0
-	} else if pg == "C" {
+	case "C":
 		return -0.15
-	} else if pg == "C-" {
+	case "C-":
 		return -0.3
-	} else if pg == "D+" {
+	case "D+":
 		return -0.6
-	} else if pg == "D" {
+	case "D":
 		return -0.75
-	} else if pg == "D-" {
+	case "D-":
 		return -0.9
 	}
 	return -1
@@ -208,16 +200,12 @@ func GetPredictiveOverall(r structs.Recruit) int {
 
 	var potentialProg int
 
-	if r.PotentialGrade == "B+" ||
-		r.PotentialGrade == "A-" ||
-		r.PotentialGrade == "A" ||
-		r.PotentialGrade == "A+" {
+	switch r.PotentialGrade {
+	case "B+", "A-", "A", "A+":
 		potentialProg = 7
-	} else if r.PotentialGrade == "B" ||
-		r.PotentialGrade == "B-" ||
-		r.PotentialGrade == "C+" {
+	case "B", "B-", "C+":
 		potentialProg = 5
-	} else {
+	default:
 		potentialProg = 4
 	}
 
@@ -225,15 +213,16 @@ func GetPredictiveOverall(r structs.Recruit) int {
 }
 
 func GetRivalsStarModifier(stars int) float64 {
-	if stars == 5 {
+	switch stars {
+	case 5:
 		return 6.1
-	} else if stars == 4 {
+	case 4:
 		return RoundToFixedDecimalPlace(rand.Float64()*((6.0-5.8)+5.8), 1)
-	} else if stars == 3 {
+	case 3:
 		return RoundToFixedDecimalPlace(rand.Float64()*((5.7-5.5)+5.5), 1)
-	} else if stars == 2 {
+	case 2:
 		return RoundToFixedDecimalPlace(rand.Float64()*((5.4-5.2)+5.2), 1)
-	} else {
+	default:
 		return 5
 	}
 }

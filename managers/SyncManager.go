@@ -350,11 +350,12 @@ func FillAIRecruitingBoards() {
 				odds += 5
 			}
 
-			if team.AIValue == "Star" {
+			switch team.AIValue {
+			case "Star":
 				odds += getOddsIncrementByStar(5, croot.Stars)
-			} else if team.AIValue == "Potential" {
+			case "Potential":
 				odds += getOddsIncrementByPotential(5, croot.Potential, team.AIQuality == "Mid-Major", team.IsUserTeam)
-			} else if team.AIValue == "Talent" {
+			case "Talent":
 				odds += getOddsIncrementByTalent(croot.Shooting2, croot.Stars, croot.SpecShooting2, team.AIAttribute1 == "Shooting2" || team.AIAttribute2 == "Shooting2", team.AIQuality == "Mid-Major", team.IsUserTeam)
 				odds += getOddsIncrementByTalent(croot.Shooting3, croot.Stars, croot.SpecShooting3, team.AIAttribute1 == "Shooting3" || team.AIAttribute2 == "Shooting3", team.AIQuality == "Mid-Major", team.IsUserTeam)
 				odds += getOddsIncrementByTalent(croot.Finishing, croot.Stars, croot.SpecFinishing, team.AIAttribute1 == "Finishing" || team.AIAttribute2 == "Finishing", team.AIQuality == "Mid-Major", team.IsUserTeam)
