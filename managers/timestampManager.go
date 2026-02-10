@@ -222,7 +222,7 @@ func ShowGames() {
 	if matchType == "" {
 		log.Fatalln("Cannot sync results!")
 	}
-	UpdateStandings(ts, matchType)
+	UpdateStandings(&ts, matchType)
 	UpdateSeasonStats(ts, matchType)
 	ts.ToggleGames(matchType)
 	repository.SaveTimeStamp(ts, db)

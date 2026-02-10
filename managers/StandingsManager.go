@@ -105,7 +105,7 @@ func GetNBAStandingsBySeasonID(seasonID string) []structs.NBAStandings {
 	return standings
 }
 
-func UpdateStandings(ts structs.Timestamp, MatchType string) {
+func UpdateStandings(ts *structs.Timestamp, MatchType string) {
 	db := dbprovider.GetInstance().GetDB()
 
 	if !ts.IsOffSeason {
@@ -347,6 +347,10 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 						}
 						nextSeries.AddTeam(nextSeriesHoa == "H", teamID, uint(teamRank), teamLabel, teamCoach)
 						db.Save(&nextSeries)
+					} else {
+						// End of Season, Update Championship Status
+						ts.EndTheProfessionalSeason()
+						repository.SaveTimeStamp(*ts, db)
 					}
 				}
 				db.Save(&series)
