@@ -606,6 +606,16 @@ func GetLatestNBAMatchID() uint {
 	return nbaMatch.ID
 }
 
+func GetLatestCollegeMatchID() uint {
+	db := dbprovider.GetInstance().GetDB()
+
+	var collegeMatch structs.Match
+
+	db.Order("id desc").First(&collegeMatch)
+
+	return collegeMatch.ID
+}
+
 func GetAllActiveNBASeries(ts structs.Timestamp) []structs.NBASeries {
 	db := dbprovider.GetInstance().GetDB()
 
