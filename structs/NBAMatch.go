@@ -24,7 +24,10 @@ type NBAMatch struct {
 	HomeTeamScore          int
 	AwayTeamScore          int
 	NextGameID             uint
+	NextGameLossID         uint
 	NextGameHOA            string
+	NextSeriesID           uint
+	NextSeriesHOA          string
 	TimeSlot               string
 	Arena                  string
 	City                   string
@@ -36,6 +39,7 @@ type NBAMatch struct {
 	IsConferenceTournament bool
 	IsInternational        bool
 	IsPlayoffGame          bool
+	IsPlayInGame           bool
 	IsTheFinals            bool
 	IsRivalryGame          bool
 	GameComplete           bool
@@ -148,6 +152,7 @@ type NBASeries struct {
 	AwayTeamWin     bool
 	AwayTeamRank    uint
 	GameCount       uint
+	BestOfCount     uint8 // 3,5, or 7
 	NextSeriesID    uint
 	NextSeriesHOA   string
 	IsInternational bool

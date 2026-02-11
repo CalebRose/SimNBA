@@ -586,6 +586,26 @@ func GetNBASeriesByTeamID(teamID string) []structs.NBASeries {
 	return nbaSeries
 }
 
+func GetLatestNBASeriesID() uint {
+	db := dbprovider.GetInstance().GetDB()
+
+	var nbaSeries structs.NBASeries
+
+	db.Order("id desc").First(&nbaSeries)
+
+	return nbaSeries.ID
+}
+
+func GetLatestNBAMatchID() uint {
+	db := dbprovider.GetInstance().GetDB()
+
+	var nbaMatch structs.NBAMatch
+
+	db.Order("id desc").First(&nbaMatch)
+
+	return nbaMatch.ID
+}
+
 func GetAllActiveNBASeries(ts structs.Timestamp) []structs.NBASeries {
 	db := dbprovider.GetInstance().GetDB()
 

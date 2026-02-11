@@ -68,21 +68,22 @@ type BasePlayer struct {
 }
 
 func (b *BasePlayer) ToggleSpecialties(str string) {
-	if str == "SpecShooting2" {
+	switch str {
+	case "SpecShooting2":
 		b.SpecShooting2 = true
-	} else if str == "SpecShooting3" {
+	case "SpecShooting3":
 		b.SpecShooting3 = true
-	} else if str == "SpecFreeThrow" {
+	case "SpecFreeThrow":
 		b.SpecFreeThrow = true
-	} else if str == "SpecFinishing" {
+	case "SpecFinishing":
 		b.SpecFinishing = true
-	} else if str == "SpecBallwork" {
+	case "SpecBallwork":
 		b.SpecBallwork = true
-	} else if str == "SpecRebounding" {
+	case "SpecRebounding":
 		b.SpecRebounding = true
-	} else if str == "SpecInteriorDefense" {
+	case "SpecInteriorDefense":
 		b.SpecInteriorDefense = true
-	} else if str == "SpecPerimeterDefense" {
+	case "SpecPerimeterDefense":
 		b.SpecPerimeterDefense = true
 	}
 	b.SpecCount++
@@ -94,7 +95,8 @@ func (b *BasePlayer) AssignArchetype() {
 		b.Archetype = "All-Around"
 		return
 	}
-	if pos == "G" {
+	switch pos {
+	case "G":
 		if b.SpecBallwork && !b.SpecShooting2 && !b.SpecShooting3 || (b.Ballwork > b.Shooting2 && b.Ballwork > b.Shooting3) {
 			b.Archetype = "Floor General"
 		} else if (b.SpecShooting2 && b.SpecShooting3) && (!b.SpecBallwork || !b.SpecRebounding) {
@@ -110,7 +112,7 @@ func (b *BasePlayer) AssignArchetype() {
 		} else if b.SpecShooting2 && b.SpecShooting3 && b.SpecFinishing && (!b.SpecBallwork || !b.SpecInteriorDefense || !b.SpecPerimeterDefense) {
 			b.Archetype = "Microwave"
 		}
-	} else if pos == "F" {
+	case "F":
 		if b.SpecShooting3 && (b.SpecInteriorDefense || b.SpecPerimeterDefense) {
 			b.Archetype = "Two-Way Wing"
 		} else if (!b.SpecShooting2 || !b.SpecShooting3) && b.SpecFinishing && (b.SpecInteriorDefense || b.SpecPerimeterDefense) {
@@ -125,7 +127,7 @@ func (b *BasePlayer) AssignArchetype() {
 		} else if b.SpecBallwork && (b.SpecInteriorDefense || b.SpecPerimeterDefense) && (!b.SpecShooting2 || !b.SpecShooting3 || !b.SpecFinishing) {
 			b.Archetype = "Point Forward"
 		}
-	} else if pos == "C" {
+	case "C":
 		if b.SpecRebounding && !b.SpecFinishing {
 			b.Archetype = "Rim Protector"
 		} else if b.SpecShooting3 || (b.Shooting3 > b.Shooting2 && (b.InteriorDefense > b.Shooting2 || b.PerimeterDefense > b.Shooting2)) {

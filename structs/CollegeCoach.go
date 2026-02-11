@@ -38,15 +38,16 @@ type CollegeCoach struct {
 }
 
 func (c *CollegeCoach) IncrementOdds(star int) {
-	if star == 1 {
+	switch star {
+	case 1:
 		c.Odds1 += 1
-	} else if star == 2 {
+	case 2:
 		c.Odds2 += 1
-	} else if star == 3 {
+	case 3:
 		c.Odds3 += 1
-	} else if star == 4 {
+	case 4:
 		c.Odds4 += 1
-	} else if star == 5 {
+	case 5:
 		c.Odds5 += 1
 	}
 }

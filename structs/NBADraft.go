@@ -47,23 +47,24 @@ type ScoutingProfile struct {
 }
 
 func (sp *ScoutingProfile) RevealAttribute(attr string) {
-	if attr == "Shooting2" {
+	switch attr {
+	case "Shooting2":
 		sp.ShowShooting2 = true
-	} else if attr == "Shooting3" {
+	case "Shooting3":
 		sp.ShowShooting3 = true
-	} else if attr == "FreeThrow" {
+	case "FreeThrow":
 		sp.ShowFreeThrow = true
-	} else if attr == "Finishing" {
+	case "Finishing":
 		sp.ShowFinishing = true
-	} else if attr == "Ballwork" {
+	case "Ballwork":
 		sp.ShowBallwork = true
-	} else if attr == "Rebounding" {
+	case "Rebounding":
 		sp.ShowRebounding = true
-	} else if attr == "InteriorDefense" {
+	case "InteriorDefense":
 		sp.ShowInteriorDefense = true
-	} else if attr == "PerimeterDefense" {
+	case "PerimeterDefense":
 		sp.ShowPerimeterDefense = true
-	} else if attr == "Potential" {
+	case "Potential":
 		sp.ShowPotential = true
 	}
 	sp.ShowCount++

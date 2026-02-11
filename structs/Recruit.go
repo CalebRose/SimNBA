@@ -120,49 +120,50 @@ func (r *Recruit) FixHeight(h string) {
 }
 
 func (r *Recruit) SetCustomAttribute(attr string) {
-	if attr == "Finishing" {
+	switch attr {
+	case "Finishing":
 		if !r.SpecFinishing {
 			r.SpecFinishing = true
 			r.SpecCount++
 		}
 		r.Finishing = rand.Intn(18-14+1) + 14
-	} else if attr == "Shooting2" {
+	case "Shooting2":
 		if !r.SpecShooting2 {
 			r.SpecShooting2 = true
 			r.SpecCount++
 		}
 		r.Shooting2 = rand.Intn(18-14+1) + 14
-	} else if attr == "Shooting3" {
+	case "Shooting3":
 		if !r.SpecShooting3 {
 			r.SpecShooting3 = true
 			r.SpecCount++
 		}
 		r.Shooting3 = rand.Intn(18-14+1) + 14
-	} else if attr == "FreeThrow" {
+	case "FreeThrow":
 		if !r.SpecFreeThrow {
 			r.SpecFreeThrow = true
 			r.SpecCount++
 		}
 		r.FreeThrow = rand.Intn(18-14+1) + 14
-	} else if attr == "Ballwork" {
+	case "Ballwork":
 		if !r.SpecBallwork {
 			r.SpecBallwork = true
 			r.SpecCount++
 		}
 		r.Ballwork = rand.Intn(18-14+1) + 14
-	} else if attr == "Rebounding" {
+	case "Rebounding":
 		if !r.SpecRebounding {
 			r.SpecRebounding = true
 			r.SpecCount++
 		}
 		r.Rebounding = rand.Intn(18-14+1) + 14
-	} else if attr == "InteriorDefense" {
+	case "InteriorDefense":
 		if !r.SpecInteriorDefense {
 			r.SpecInteriorDefense = true
 			r.SpecCount++
 		}
 		r.InteriorDefense = rand.Intn(18-14+1) + 14
-	} else if attr == "PerimeterDefense" {
+	case "PerimeterDefense":
 		if !r.SpecPerimeterDefense {
 			r.SpecPerimeterDefense = true
 			r.SpecCount++

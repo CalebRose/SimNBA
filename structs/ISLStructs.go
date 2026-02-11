@@ -35,11 +35,12 @@ func (d *ISLScoutingDept) ResetPoints() {
 }
 
 func (d *ISLScoutingDept) IncrementPool(pool, points uint8) {
-	if pool == 1 {
+	switch pool {
+	case 1:
 		d.IdentityPool += points
-	} else if pool == 2 {
+	case 2:
 		d.ScoutingPool += points
-	} else {
+	default:
 		d.InvestingPool += points
 	}
 	d.Resources -= points
@@ -100,23 +101,24 @@ func (r *ISLScoutingReport) LockBoard(isSigned bool) {
 }
 
 func (r *ISLScoutingReport) RevealAttribute(attr string) {
-	if attr == "fn" {
+	switch attr {
+	case "fn":
 		r.Finishing = true
-	} else if attr == "sh2" {
+	case "sh2":
 		r.Shooting2 = true
-	} else if attr == "sh3" {
+	case "sh3":
 		r.Shooting3 = true
-	} else if attr == "ft" {
+	case "ft":
 		r.FreeThrow = true
-	} else if attr == "bw" {
+	case "bw":
 		r.Ballwork = true
-	} else if attr == "rb" {
+	case "rb":
 		r.Rebounding = true
-	} else if attr == "ind" {
+	case "ind":
 		r.IntDefense = true
-	} else if attr == "prd" {
+	case "prd":
 		r.PerDefense = true
-	} else if attr == "pot" {
+	case "pot":
 		r.Potential = true
 	}
 	r.Count += 1

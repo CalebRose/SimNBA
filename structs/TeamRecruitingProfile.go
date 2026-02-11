@@ -119,11 +119,12 @@ func (r *TeamRecruitingProfile) AssignCompositeRank(score float64) {
 }
 
 func (r *TeamRecruitingProfile) AddStarPlayer(stars int) {
-	if stars == 5 {
+	switch stars {
+	case 5:
 		r.FiveStars += 1
-	} else if stars == 4 {
+	case 4:
 		r.FourStars += 1
-	} else if stars == 3 {
+	case 3:
 		r.ThreeStars += 1
 	}
 }
