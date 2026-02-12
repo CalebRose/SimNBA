@@ -1138,7 +1138,6 @@ func ImportNewPositions() {
 func ImportNewTeams() {
 	db := dbprovider.GetInstance().GetDB()
 
-	ts := GetTimestamp()
 	path := secrets.GetPath()["teams"]
 	teams := util.ReadCSV(path)
 
@@ -1155,8 +1154,13 @@ func ImportNewTeams() {
 		country := row[6]
 		conferenceID := util.ConvertStringToInt(row[7])
 		conference := row[8]
-		season := row[10]
-		isActive := util.ConvertStringToBool(row[13])
+		season := row[9]
+		coach := row[10]
+		arenaName := row[11]
+		capacity := util.ConvertStringToInt(row[12])
+		colorOne := row[13]
+		colorTwo := row[14]
+		colorThree := row[15]
 
 		t := structs.Team{
 			Team:         team,
@@ -1167,7 +1171,12 @@ func ImportNewTeams() {
 			Country:      country,
 			ConferenceID: uint(conferenceID),
 			Conference:   conference,
-			IsActive:     isActive,
+			Coach:        coach,
+			Arena:        arenaName,
+			ColorOne:     colorOne,
+			ColorTwo:     colorTwo,
+			ColorThree:   colorThree,
+			IsActive:     true,
 			IsNBA:        false,
 			FirstSeason:  season,
 			Model:        gorm.Model{ID: uint(teamID)},
@@ -1175,17 +1184,50 @@ func ImportNewTeams() {
 
 		db.Create(&t)
 
-		standings := structs.CollegeStandings{
-			TeamID:         uint(teamID),
-			TeamName:       team,
-			TeamAbbr:       abbr,
-			SeasonID:       ts.SeasonID,
-			Season:         ts.Season,
-			ConferenceID:   uint(conferenceID),
-			ConferenceName: conference,
+		region := "Pacific"
+		switch teamID {
+		case 370:
+			region = "Northeast"
+		case 378:
+			region = "Southeast"
 		}
 
-		db.Create(&standings)
+		teamRecruitingProfile := structs.TeamRecruitingProfile{
+			TeamID:                uint(teamID),
+			TeamAbbr:              abbr,
+			State:                 state,
+			Region:                region,
+			ScholarshipsAvailable: 25,
+			WeeklyPoints:          50,
+			BonusPoints:           0,
+			SpentPoints:           0,
+			TotalCommitments:      0,
+			RecruitClassSize:      10,
+			PortalReputation:      100,
+			IsAI:                  true,
+			AIBehavior:            "Normal",
+			AIQuality:             "Mid-Major",
+			AIPrestige:            "Average",
+			AIValue:               "Talent",
+			AIAttribute1:          "Ballwork",
+			AIAttribute2:          "Finishing",
+			AIMinThreshold:        2,
+			AIMaxThreshold:        8,
+			AIStarMin:             1,
+			AIStarMax:             3,
+		}
+
+		db.Create(&teamRecruitingProfile)
+
+		arena := structs.Arena{
+			HomeTeam:  team,
+			ArenaName: arenaName,
+			City:      city,
+			State:     state,
+			Country:   country,
+			Capacity:  uint(capacity),
+		}
+		db.Create(&arena)
 	}
 }
 

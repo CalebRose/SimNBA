@@ -48,7 +48,10 @@ func (n *NBAContract) ProgressContract() {
 	n.Year4Opt = n.Year5Opt
 	n.Year5Opt = false
 	n.TotalRemaining = n.Year1Total + n.Year2Total + n.Year3Total + n.Year4Total + n.Year5Total
-	if n.YearsRemaining == 0 {
+	// If the option is still true, it means it wasn't picked up.
+	if n.Year1Opt {
+		n.RetireContract()
+	} else if n.YearsRemaining == 0 {
 		n.RetireContract()
 	}
 }

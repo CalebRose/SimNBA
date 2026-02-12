@@ -29,6 +29,7 @@ type NBAPlayer struct {
 	IsMVP               bool
 	IsInternational     bool
 	IsIntGenerated      bool
+	IsIntDeclared       bool
 	IsRetiring          bool
 	IsAcceptingOffers   bool
 	IsNegotiating       bool
@@ -102,6 +103,7 @@ func (n *NBAPlayer) BecomeInternationalDraftee() {
 	n.IsGLeague = false
 	n.IsTwoWay = false
 	n.IsAcceptingOffers = false
+	n.IsIntDeclared = true
 	n.ResetMinutes()
 }
 

@@ -29,6 +29,7 @@ type RetiredPlayer struct {
 	IsMVP               bool
 	IsInternational     bool
 	IsIntGenerated      bool
+	IsIntDeclared       bool
 	IsRetiring          bool
 	IsAcceptingOffers   bool
 	IsNegotiating       bool

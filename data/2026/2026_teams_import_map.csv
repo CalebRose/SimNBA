@@ -1,0 +1,10 @@
+id,team,nickname,abbr,city,state,country,conference_id,conference,first_season,coach,arena,capacity,color_one,color_two,color_three
+370,New Haven,Chargers,NH,West Haven,CT,USA,33,NEC,2026,AI,The Jeffrey P. Hazell Center,1000,#004B8D,#FFC423,#FFFFFF
+371,Guam State,Railers,GSU,Oka,GM,USA,34,South Seas,2026,AI,Hurao Arena,5000,#002850,#f02020,#f8f8f8
+372,Hawaii-Hilo,Vulcans,HILO,Hilo,HI,USA,34,South Seas,2026,AI,Afook-Chinen Civic Auditorium,3568,#000000,#ED2D23,#FFFFFF
+373,JRU,Heavy Bombers,JRU,Mandaluyong City,Manila,PHI,34,South Seas,2026,AI,Mall of Asia Arena,15000,#002870,#f8e810,#000818
+374,San Beda,Red Lions,SBU,San Miguel,Manila,PHI,34,South Seas,2026,AI,San Juan Arena,6000,#900000,#f8f8f8,
+375,Tuvalu,Fighting TVs,TUV,Fakaifou,TU,TUV,34,South Seas,2026,AI,Magnavox Arena,1400,#000828,#6C3BD1,#204080
+376,Hawaii Pacific,Sharks,HPU,Honolulu,HI,USA,34,South Seas,2026,AI,Neal S. Blaisdell Center,7700,#007299,#FFFFFF,
+377,USP Fiji,Sharks,USPF,Suva,FI,FIJI,34,South Seas,2026,AI,Vodafone Arena,4000,#003840,#007078,#FFFFFF
+378,West Florida,Argonauts,UWF,Pensacola,FL,USA,15,ASUN,2026,AI,UWF Field House,1180,#007DC3,#00B085,
