@@ -55,7 +55,7 @@ func MakeInternationalList(players []structs.NBAPlayer) []structs.NBAPlayer {
 	playerList := []structs.NBAPlayer{}
 
 	for _, p := range players {
-		if p.IsInternational {
+		if p.IsInternational || p.TeamID > 32 {
 			playerList = append(playerList, p)
 		}
 	}

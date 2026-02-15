@@ -97,6 +97,9 @@ func (n *NBAContract) MapFromExtension(e NBAExtensionOffer) {
 	n.OriginalTeamID = e.TeamID
 	n.YearsRemaining = e.TotalYears
 	n.ContractType = e.ContractType
+	if n.ContractType == "Rookie" {
+		n.ContractType = "Extension"
+	}
 	n.TotalRemaining = e.TotalCost
 	n.Year1Opt = e.Year1Opt
 	n.Year1Total = e.Year1Total

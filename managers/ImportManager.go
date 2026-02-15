@@ -306,30 +306,6 @@ func SyncContractValues() {
 			} else {
 				val = SalaryCap * 0.2
 			}
-		} else {
-			if player.Year > 9 {
-				val = 2.5
-			} else if player.Year > 8 {
-				val = 2.4
-			} else if player.Year > 7 {
-				val = 2.3
-			} else if player.Year > 6 {
-				val = 2.2
-			} else if player.Year > 5 {
-				val = 2.0
-			} else if player.Year > 4 {
-				val = 1.9
-			} else if player.Year > 3 {
-				val = 1.8
-			} else if player.Year > 2 {
-				val = 1.7
-			} else if player.Year > 1 {
-				val = 1.6
-			} else if player.Year > 0 {
-				val = 1.5
-			} else {
-				val = 0.9
-			}
 		}
 		player.AssignMinimumContractValue(val)
 

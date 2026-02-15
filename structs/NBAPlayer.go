@@ -243,7 +243,29 @@ func (np *NBAPlayer) AssignMinimumContractValue(val float64) {
 		} else if np.Overall >= 80 && np.Overall <= 89 {
 			np.MinimumValue = 10
 		} else {
-			np.MinimumValue = 0.7
+			if np.Year > 9 {
+				np.MinimumValue = 2.5
+			} else if np.Year > 8 {
+				np.MinimumValue = 2.4
+			} else if np.Year > 7 {
+				np.MinimumValue = 2.3
+			} else if np.Year > 6 {
+				np.MinimumValue = 2.2
+			} else if np.Year > 5 {
+				np.MinimumValue = 2.0
+			} else if np.Year > 4 {
+				np.MinimumValue = 1.9
+			} else if np.Year > 3 {
+				np.MinimumValue = 1.8
+			} else if np.Year > 2 {
+				np.MinimumValue = 1.7
+			} else if np.Year > 1 {
+				np.MinimumValue = 1.6
+			} else if np.Year > 0 {
+				np.MinimumValue = 1.5
+			} else {
+				np.MinimumValue = 0.7
+			}
 		}
 	}
 }
