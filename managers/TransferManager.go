@@ -204,11 +204,11 @@ func ProcessTransferIntention() {
 		p.DeclareTransferIntention(status)
 		transferCount++
 		if p.Stars > 2 {
-			message := "Breaking News! " + strconv.Itoa(p.Stars) + " star " + p.Position + " " + p.FirstName + " " + p.LastName + " has announced their intention to transfer from " + p.TeamAbbr + "!"
+			message := "Breaking News! " + strconv.Itoa(int(p.Stars)) + " star " + p.Position + " " + p.FirstName + " " + p.LastName + " has announced their intention to transfer from " + p.Team + "!"
 			CreateNewsLog("CBB", message, "Transfer Portal", int(p.TeamID), ts)
 		}
 		repository.SaveCollegePlayerRecord(p, db)
-		fmt.Println(strconv.Itoa(p.Year)+" YEAR "+p.TeamAbbr+" "+p.Position+" "+p.FirstName+" "+p.LastName+" HAS ANNOUNCED THEIR INTENTION TO TRANSFER | Weight: ", int(transferWeight))
+		fmt.Println(strconv.Itoa(int(p.Year)) + " YEAR " + p.Team + " " + p.Position + " " + p.FirstName + " " + p.LastName + " HAS ANNOUNCED THEIR INTENTION TO TRANSFER | Weight: " + strconv.Itoa(int(transferWeight)))
 	}
 	transferPortalMessage := "Breaking News! About " + strconv.Itoa(transferCount) + " players intend to transfer from their current schools. Teams have one week to commit promises to retain players."
 	CreateNewsLog("CBB", transferPortalMessage, "Transfer Portal", 0, ts)
@@ -264,12 +264,12 @@ func AICoachPromisePhase() {
 					benchmarkStr = p.State
 				} else if bias == immediateStart && p.Overall > 48 {
 					promiseType = "Minutes"
-					promiseBenchmark = p.PlaytimeExpectations
+					promiseBenchmark = int(p.PlaytimeExpectations)
 					switch promiseLevel {
 					case 1:
 						promiseBenchmark += 5
-						if promiseBenchmark > p.Stamina {
-							promiseBenchmark = p.Stamina - 1
+						if promiseBenchmark > int(p.Stamina) {
+							promiseBenchmark = int(p.Stamina) - 1
 						}
 					case -1:
 						promiseBenchmark -= 1
@@ -456,7 +456,7 @@ func EnterTheTransferPortal() {
 				p.WillTransfer()
 
 				// Create News Log
-				message := "Breaking News! " + p.TeamAbbr + " " + strconv.Itoa(p.Stars) + " Star " + p.Position + " " + p.FirstName + " " + p.LastName + " has officially entered the transfer portal!"
+				message := "Breaking News! " + p.Team + " " + strconv.Itoa(int(p.Stars)) + " Star " + p.Position + " " + p.FirstName + " " + p.LastName + " has officially entered the transfer portal!"
 				CreateNewsLog("CBB", message, "Transfer Portal", int(p.PreviousTeamID), ts)
 
 				repository.SaveCollegePlayerRecord(p, db)
@@ -465,7 +465,7 @@ func EnterTheTransferPortal() {
 			}
 
 			// Create News Log
-			message := "Breaking News! " + p.TeamAbbr + " " + strconv.Itoa(p.Stars) + " Star " + p.Position + " " + p.FirstName + " " + p.LastName + " has withdrawn their name from the transfer portal!"
+			message := "Breaking News! " + p.Team + " " + strconv.Itoa(int(p.Stars)) + " Star " + p.Position + " " + p.FirstName + " " + p.LastName + " has withdrawn their name from the transfer portal!"
 			CreateNewsLog("CBB", message, "Transfer Portal", int(p.PreviousTeamID), ts)
 
 			promise.MakePromise()
@@ -894,12 +894,12 @@ func AICoachAllocateAndPromisePhase() {
 						benchmarkStr = tp.State
 					} else if bias == immediateStart && tp.Overall > 55 {
 						promiseType = "Minutes"
-						promiseBenchmark = tp.PlaytimeExpectations
+						promiseBenchmark = int(tp.PlaytimeExpectations)
 						switch promiseLevel {
 						case 1:
 							promiseBenchmark += 5
-							if promiseBenchmark > tp.Stamina {
-								promiseBenchmark = tp.Stamina - 1
+							if promiseBenchmark > int(tp.Stamina) {
+								promiseBenchmark = int(tp.Stamina) - 1
 							}
 						case -1:
 							promiseBenchmark -= 1
@@ -1074,7 +1074,7 @@ func SyncTransferPortal() {
 					currentRoster := rosterMap[teamProfile.ID]
 					if len(currentRoster) < 15 {
 						portalPlayer.SignWithNewTeam(teamProfile.ID, teamProfile.TeamAbbr)
-						message := portalPlayer.FirstName + " " + portalPlayer.LastName + ", " + strconv.Itoa(portalPlayer.Stars) + " star " + portalPlayer.Position + " from " + portalPlayer.PreviousTeam + " has signed with " + portalPlayer.TeamAbbr + " with " + strconv.Itoa(int(odds)) + " percent odds."
+						message := portalPlayer.FirstName + " " + portalPlayer.LastName + ", " + strconv.Itoa(int(portalPlayer.Stars)) + " star " + portalPlayer.Position + " from " + portalPlayer.PreviousTeam + " has signed with " + portalPlayer.Team + " with " + strconv.Itoa(int(odds)) + " percent odds."
 						CreateNewsLog("CBB", message, "Transfer Portal", int(winningTeamID), ts)
 						fmt.Println("Created new log!")
 						// Add player to existing roster map
@@ -1126,7 +1126,7 @@ func SyncTransferPortal() {
 			if winningTeamID > 0 || p.SpendingCount > 0 {
 				repository.SaveTransferPortalProfile(p, db)
 			}
-			fmt.Println("Save transfer portal profile from " + portalPlayer.TeamAbbr + " towards " + portalPlayer.FirstName + " " + portalPlayer.LastName)
+			fmt.Println("Save transfer portal profile from " + portalPlayer.Team + " towards " + portalPlayer.FirstName + " " + portalPlayer.LastName)
 			if winningTeamID > 0 && p.ProfileID != winningTeamID {
 				promise := GetCollegePromiseByCollegePlayerID(strconv.Itoa(int(portalPlayer.ID)), strconv.Itoa(int(p.ProfileID)))
 				if promise.ID > 0 {
@@ -1267,7 +1267,7 @@ func SyncPromises() {
 		team.AdjustPortalReputation(weightValue)
 		repository.SaveCBBTeamRecruitingProfile(*team, db)
 		if !promise.IsFullfilled && !isHistoric {
-			message := "Breaking News! " + player.TeamAbbr + " " + player.FirstName + " " + player.LastName + " will be re-entering the portal after a promise was broken! Promise: " + promise.PromiseType + " | Expected: " + benchMarkStr + " | Result: " + result
+			message := "Breaking News! " + player.Team + " " + player.FirstName + " " + player.LastName + " will be re-entering the portal after a promise was broken! Promise: " + promise.PromiseType + " | Expected: " + benchMarkStr + " | Result: " + result
 			player.WillTransfer()
 			repository.SaveCollegePlayerRecord(player, db)
 			CreateNewsLog("CBB", message, "Portal", int(team.TeamID), ts)

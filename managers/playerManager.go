@@ -36,10 +36,10 @@ func GetTeamRosterForRosterPage(teamId string) []structs.CollegePlayerResponse {
 	}
 
 	for _, p := range players {
-		shooting2Grade := util.GetAttributeGrade(p.Shooting2)
-		shooting3Grade := util.GetAttributeGrade(p.Shooting3)
+		shooting2Grade := util.GetAttributeGrade(p.MidRangeShooting)
+		shooting3Grade := util.GetAttributeGrade(p.ThreePointShooting)
 		freeThrowGrade := util.GetAttributeGrade(p.FreeThrow)
-		finishingGrade := util.GetAttributeGrade(p.Finishing)
+		finishingGrade := util.GetAttributeGrade(p.InsideShooting)
 		reboundingGrade := util.GetAttributeGrade(p.Rebounding)
 		ballworkGrade := util.GetAttributeGrade(p.Ballwork)
 		interiorDefenseGrade := util.GetAttributeGrade(p.InteriorDefense)
@@ -71,7 +71,6 @@ func GetTeamRosterForRosterPage(teamId string) []structs.CollegePlayerResponse {
 			OverallGrade:          overallGrade,
 			Stamina:               p.Stamina,
 			PlaytimeExpectations:  p.PlaytimeExpectations,
-			Minutes:               p.Minutes,
 			Potential:             p.Potential,
 			Personality:           p.Personality,
 			RecruitingBias:        p.RecruitingBias,
@@ -79,18 +78,9 @@ func GetTeamRosterForRosterPage(teamId string) []structs.CollegePlayerResponse {
 			AcademicBias:          p.AcademicBias,
 			PlayerID:              p.PlayerID,
 			TeamID:                p.TeamID,
-			TeamAbbr:              p.TeamAbbr,
+			Team:                  p.Team,
 			IsRedshirting:         p.IsRedshirting,
 			IsRedshirt:            p.IsRedshirt,
-			PositionOne:           p.PositionOne,
-			PositionTwo:           p.PositionTwo,
-			PositionThree:         p.PositionThree,
-			P1Minutes:             p.P1Minutes,
-			P2Minutes:             p.P2Minutes,
-			P3Minutes:             p.P3Minutes,
-			InsideProportion:      p.InsideProportion,
-			MidRangeProportion:    p.MidRangeProportion,
-			ThreePointProportion:  p.ThreePointProportion,
 			TransferStatus:        p.TransferStatus,
 			TransferLikeliness:    p.TransferLikeliness,
 			IsInjured:             p.IsInjured,
@@ -503,10 +493,10 @@ func GetAllCollegePlayersWithSeasonStats(seasonID, weekID, matchType, viewType s
 		if viewType == "WEEK" {
 			stat = p.Stats[0]
 		}
-		shooting2Grade := util.GetAttributeGrade(p.Shooting2)
-		shooting3Grade := util.GetAttributeGrade(p.Shooting3)
+		shooting2Grade := util.GetAttributeGrade(p.MidRangeShooting)
+		shooting3Grade := util.GetAttributeGrade(p.ThreePointShooting)
 		freeThrowGrade := util.GetAttributeGrade(p.FreeThrow)
-		finishingGrade := util.GetAttributeGrade(p.Finishing)
+		finishingGrade := util.GetAttributeGrade(p.InsideShooting)
 		reboundingGrade := util.GetAttributeGrade(p.Rebounding)
 		ballworkGrade := util.GetAttributeGrade(p.Ballwork)
 		interiorDefenseGrade := util.GetAttributeGrade(p.InteriorDefense)
@@ -535,7 +525,6 @@ func GetAllCollegePlayersWithSeasonStats(seasonID, weekID, matchType, viewType s
 			OverallGrade:          overallGrade,
 			Stamina:               p.Stamina,
 			PlaytimeExpectations:  p.PlaytimeExpectations,
-			Minutes:               p.Minutes,
 			Potential:             p.Potential,
 			Personality:           p.Personality,
 			RecruitingBias:        p.RecruitingBias,
@@ -543,7 +532,7 @@ func GetAllCollegePlayersWithSeasonStats(seasonID, weekID, matchType, viewType s
 			AcademicBias:          p.AcademicBias,
 			PlayerID:              p.PlayerID,
 			TeamID:                p.TeamID,
-			TeamAbbr:              p.TeamAbbr,
+			Team:                  p.Team,
 			IsRedshirting:         p.IsRedshirting,
 			IsRedshirt:            p.IsRedshirt,
 			SeasonStats:           p.SeasonStats,
@@ -573,10 +562,10 @@ func GetAllCollegePlayersWithSeasonStats(seasonID, weekID, matchType, viewType s
 			if viewType == "WEEK" {
 				stat = p.Stats[0]
 			}
-			shooting2Grade := util.GetAttributeGrade(p.Shooting2)
-			shooting3Grade := util.GetAttributeGrade(p.Shooting3)
+			shooting2Grade := util.GetAttributeGrade(p.MidRangeShooting)
+			shooting3Grade := util.GetAttributeGrade(p.ThreePointShooting)
 			freeThrowGrade := util.GetAttributeGrade(p.FreeThrow)
-			finishingGrade := util.GetAttributeGrade(p.Finishing)
+			finishingGrade := util.GetAttributeGrade(p.InsideShooting)
 			reboundingGrade := util.GetAttributeGrade(p.Rebounding)
 			ballworkGrade := util.GetAttributeGrade(p.Ballwork)
 			interiorDefenseGrade := util.GetAttributeGrade(p.InteriorDefense)
@@ -605,7 +594,6 @@ func GetAllCollegePlayersWithSeasonStats(seasonID, weekID, matchType, viewType s
 				OverallGrade:          overallGrade,
 				Stamina:               p.Stamina,
 				PlaytimeExpectations:  p.PlaytimeExpectations,
-				Minutes:               p.Minutes,
 				Potential:             p.Potential,
 				Personality:           p.Personality,
 				RecruitingBias:        p.RecruitingBias,
@@ -613,7 +601,7 @@ func GetAllCollegePlayersWithSeasonStats(seasonID, weekID, matchType, viewType s
 				AcademicBias:          p.AcademicBias,
 				PlayerID:              p.PlayerID,
 				TeamID:                p.TeamID,
-				TeamAbbr:              p.TeamAbbr,
+				Team:                  p.Team,
 				IsRedshirting:         p.IsRedshirting,
 				IsRedshirt:            p.IsRedshirt,
 				SeasonStats:           p.SeasonStats,
@@ -657,10 +645,10 @@ func GetAllNBAPlayersWithSeasonStats(seasonID, weekID, matchType, viewType strin
 		if viewType == "WEEK" {
 			stat = p.Stats[0]
 		}
-		shooting2Grade := util.GetAttributeGrade(p.Shooting2)
-		shooting3Grade := util.GetAttributeGrade(p.Shooting3)
+		shooting2Grade := util.GetAttributeGrade(p.MidRangeShooting)
+		shooting3Grade := util.GetAttributeGrade(p.ThreePointShooting)
 		freeThrowGrade := util.GetAttributeGrade(p.FreeThrow)
-		finishingGrade := util.GetAttributeGrade(p.Finishing)
+		finishingGrade := util.GetAttributeGrade(p.InsideShooting)
 		reboundingGrade := util.GetAttributeGrade(p.Rebounding)
 		ballworkGrade := util.GetAttributeGrade(p.Ballwork)
 		interiorDefenseGrade := util.GetAttributeGrade(p.InteriorDefense)
@@ -689,7 +677,6 @@ func GetAllNBAPlayersWithSeasonStats(seasonID, weekID, matchType, viewType strin
 			OverallGrade:          overallGrade,
 			Stamina:               p.Stamina,
 			PlaytimeExpectations:  p.PlaytimeExpectations,
-			Minutes:               p.Minutes,
 			Potential:             p.Potential,
 			Personality:           p.Personality,
 			RecruitingBias:        p.RecruitingBias,
@@ -697,7 +684,7 @@ func GetAllNBAPlayersWithSeasonStats(seasonID, weekID, matchType, viewType strin
 			AcademicBias:          p.AcademicBias,
 			PlayerID:              p.PlayerID,
 			TeamID:                p.TeamID,
-			TeamAbbr:              p.TeamAbbr,
+			Team:                  p.Team,
 			SeasonStats:           p.SeasonStats,
 			Stats:                 stat,
 		}
@@ -725,10 +712,10 @@ func GetAllNBAPlayersWithSeasonStats(seasonID, weekID, matchType, viewType strin
 			if viewType == "WEEK" {
 				stat = p.Stats[0]
 			}
-			shooting2Grade := util.GetAttributeGrade(p.Shooting2)
-			shooting3Grade := util.GetAttributeGrade(p.Shooting3)
+			shooting2Grade := util.GetAttributeGrade(p.MidRangeShooting)
+			shooting3Grade := util.GetAttributeGrade(p.ThreePointShooting)
 			freeThrowGrade := util.GetAttributeGrade(p.FreeThrow)
-			finishingGrade := util.GetAttributeGrade(p.Finishing)
+			finishingGrade := util.GetAttributeGrade(p.InsideShooting)
 			reboundingGrade := util.GetAttributeGrade(p.Rebounding)
 			ballworkGrade := util.GetAttributeGrade(p.Ballwork)
 			interiorDefenseGrade := util.GetAttributeGrade(p.InteriorDefense)
@@ -757,7 +744,6 @@ func GetAllNBAPlayersWithSeasonStats(seasonID, weekID, matchType, viewType strin
 				OverallGrade:          overallGrade,
 				Stamina:               p.Stamina,
 				PlaytimeExpectations:  p.PlaytimeExpectations,
-				Minutes:               p.Minutes,
 				Potential:             p.Potential,
 				Personality:           p.Personality,
 				RecruitingBias:        p.RecruitingBias,
@@ -765,7 +751,7 @@ func GetAllNBAPlayersWithSeasonStats(seasonID, weekID, matchType, viewType strin
 				AcademicBias:          p.AcademicBias,
 				PlayerID:              p.PlayerID,
 				TeamID:                p.TeamID,
-				TeamAbbr:              p.TeamAbbr,
+				Team:                  p.Team,
 				SeasonStats:           p.SeasonStats,
 				Stats:                 stat,
 			}
@@ -1082,7 +1068,7 @@ func CutCBBPlayer(playerID string) {
 		db.Save(&teamProfile)
 	}
 
-	message := "Breaking News! " + strconv.Itoa(player.Stars) + " star " + player.Position + " " + player.FirstName + " " + player.LastName + " has been dismissed from the " + player.PreviousTeam + " basketball team. They will immediately enter the transfer portal."
+	message := "Breaking News! " + strconv.Itoa(int(player.Stars)) + " star " + player.Position + " " + player.FirstName + " " + player.LastName + " has been dismissed from the " + player.PreviousTeam + " basketball team. They will immediately enter the transfer portal."
 	CreateNewsLog("CBB", message, "Transfer Portal", int(player.PreviousTeamID), ts)
 
 	db.Save(&player)
@@ -1167,7 +1153,7 @@ func ProcessEarlyDeclareeAnnouncements() {
 			(c.WillDeclare && c.Year == 5 && c.IsRedshirt) {
 			continue
 		}
-		playerLabel := c.TeamAbbr + " " + strconv.Itoa(c.Stars) + " star " + c.Position + " " + c.FirstName + " " + c.LastName
+		playerLabel := c.Team + " " + strconv.Itoa(int(c.Stars)) + " star " + c.Position + " " + c.FirstName + " " + c.LastName
 		message := "Breaking News! " + playerLabel + " has announced their early declaration for the upcoming SimNBA Draft!"
 		CreateNewsLog("CBB", message, "Graduation", int(c.TeamID), ts)
 	}

@@ -145,7 +145,7 @@ func SyncRecruiting() {
 						recruitTeamProfile.AddStarPlayer(recruit.Stars)
 						teamAbbreviation := recruitTeamProfile.TeamAbbr
 						recruit.AssignCollege(teamAbbreviation)
-						message := recruit.FirstName + " " + recruit.LastName + ", " + strconv.Itoa(recruit.Stars) + " star " + recruit.Position + " from " + recruit.State + ", " + recruit.Country + " has signed with " + recruit.TeamAbbr + " with " + strconv.Itoa(int(odds)) + " percent odds."
+						message := recruit.FirstName + " " + recruit.LastName + ", " + strconv.Itoa(int(recruit.Stars)) + " star " + recruit.Position + " from " + recruit.State + ", " + recruit.Country + " has signed with " + recruit.TeamAbbr + " with " + strconv.Itoa(int(odds)) + " percent odds."
 						CreateNewsLog("CBB", message, "Commitment", int(winningTeamID), timestamp)
 						fmt.Println("Created new log!")
 
@@ -304,7 +304,7 @@ func FillAIRecruitingBoards() {
 			recruitingNeed := teamNeedsMap[croot.Position]
 			willPursue := true
 			if croot.IsCustomCroot || (!recruitingNeed && ts.CollegeWeek < 12) ||
-				(croot.Stars > team.AIStarMax || croot.Stars < team.AIStarMin) {
+				(int(croot.Stars) > team.AIStarMax || int(croot.Stars) < team.AIStarMin) {
 				willPursue = false
 			}
 
@@ -352,13 +352,13 @@ func FillAIRecruitingBoards() {
 
 			switch team.AIValue {
 			case "Star":
-				odds += getOddsIncrementByStar(5, croot.Stars)
+				odds += getOddsIncrementByStar(5, int(croot.Stars))
 			case "Potential":
 				odds += getOddsIncrementByPotential(5, croot.Potential, team.AIQuality == "Mid-Major", team.IsUserTeam)
 			case "Talent":
-				odds += getOddsIncrementByTalent(croot.Shooting2, croot.Stars, croot.SpecShooting2, team.AIAttribute1 == "Shooting2" || team.AIAttribute2 == "Shooting2", team.AIQuality == "Mid-Major", team.IsUserTeam)
-				odds += getOddsIncrementByTalent(croot.Shooting3, croot.Stars, croot.SpecShooting3, team.AIAttribute1 == "Shooting3" || team.AIAttribute2 == "Shooting3", team.AIQuality == "Mid-Major", team.IsUserTeam)
-				odds += getOddsIncrementByTalent(croot.Finishing, croot.Stars, croot.SpecFinishing, team.AIAttribute1 == "Finishing" || team.AIAttribute2 == "Finishing", team.AIQuality == "Mid-Major", team.IsUserTeam)
+				odds += getOddsIncrementByTalent(croot.MidRangeShooting, croot.Stars, croot.SpecMidRangeShooting, team.AIAttribute1 == "Shooting2" || team.AIAttribute2 == "Shooting2", team.AIQuality == "Mid-Major", team.IsUserTeam)
+				odds += getOddsIncrementByTalent(croot.ThreePointShooting, croot.Stars, croot.SpecThreePointShooting, team.AIAttribute1 == "Shooting3" || team.AIAttribute2 == "Shooting3", team.AIQuality == "Mid-Major", team.IsUserTeam)
+				odds += getOddsIncrementByTalent(croot.InsideShooting, croot.Stars, croot.SpecInsideShooting, team.AIAttribute1 == "Finishing" || team.AIAttribute2 == "Finishing", team.AIQuality == "Mid-Major", team.IsUserTeam)
 				odds += getOddsIncrementByTalent(croot.FreeThrow, croot.Stars, croot.SpecFreeThrow, team.AIAttribute1 == "FreeThrow" || team.AIAttribute2 == "FreeThrow", team.AIQuality == "Mid-Major", team.IsUserTeam)
 				odds += getOddsIncrementByTalent(croot.Ballwork, croot.Stars, croot.SpecBallwork, team.AIAttribute1 == "Ballwork" || team.AIAttribute2 == "Ballwork", team.AIQuality == "Mid-Major", team.IsUserTeam)
 				odds += getOddsIncrementByTalent(croot.Rebounding, croot.Stars, croot.SpecRebounding, team.AIAttribute1 == "Rebounding" || team.AIAttribute2 == "Rebounding", team.AIQuality == "Mid-Major", team.IsUserTeam)
@@ -669,18 +669,18 @@ func getOddsIncrementByStar(init int, stars int) int {
 	return init * stars
 }
 
-func getOddsIncrementByPotential(init int, potential int, isMidMajor, IsUserTeam bool) int {
+func getOddsIncrementByPotential(init int, potential uint8, isMidMajor, IsUserTeam bool) int {
 	divisor := 10
 	if isMidMajor && !IsUserTeam {
 		divisor = 20
 	}
-	potentialFloor := potential / divisor
+	potentialFloor := int(potential) / divisor
 	return init * potentialFloor
 }
 
-func getOddsIncrementByTalent(attr, stars int, attrspec, attrMatch bool, isMidMajor, IsUserTeam bool) int {
+func getOddsIncrementByTalent(attr, stars uint8, attrspec, attrMatch bool, isMidMajor, IsUserTeam bool) int {
 	attrRequirement := 14
-	if attrMatch && (attrspec || attr > attrRequirement) {
+	if attrMatch && (attrspec || int(attr) > attrRequirement) {
 		if stars > 3 && isMidMajor && !IsUserTeam {
 			return 10
 		}

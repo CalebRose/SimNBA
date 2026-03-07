@@ -407,7 +407,7 @@ func ISLScoutingPhase() {
 				if d.Prestige > 3 && player.Overall <= 40 && coinFlip == 2 {
 					s.RemovePlayerFromBoard()
 				} else if player.Overall > 65 {
-					pointRequirement = player.Overall
+					pointRequirement = int(player.Overall)
 				}
 				s.SetPointRequirement(uint(pointRequirement))
 			}
@@ -476,7 +476,7 @@ func SyncISLYouthDevelopment() {
 	teamMap := GetProfessionalTeamMap()
 
 	for _, p := range players {
-		if p.ID == 0 || p.TeamID > 0 || p.TeamAbbr == "DRAFT" {
+		if p.ID == 0 || p.TeamID > 0 || p.Team == "DRAFT" {
 			continue
 		}
 		playerID := strconv.Itoa(int(p.ID))
@@ -517,14 +517,14 @@ func SyncISLYouthDevelopment() {
 				team := teamMap[uint(winningTeamID)]
 				label := strings.TrimSpace(team.Team + " " + team.Nickname)
 				p.SignWithTeam(team.ID, label, false, 0)
-				playerLabel := strconv.Itoa(p.Age) + " year old " + p.Position + " " + p.FirstName + " " + p.LastName
+				playerLabel := strconv.Itoa(int(p.Age)) + " year old " + p.Position + " " + p.FirstName + " " + p.LastName
 				message := "Breaking News! " + playerLabel + " has signed with ISL Team " + label + " in " + team.Country + "!"
 				CreateNewsLog("NBA", message, "FreeAgency", 0, ts)
 
 				repository.SaveProfessionalPlayerRecord(p, db)
 				yearsRemaining := 2
 				if p.Age < 22 {
-					yearsRemaining = 22 - p.Age
+					yearsRemaining = 22 - int(p.Age)
 					if yearsRemaining > 5 {
 						yearsRemaining = 5
 					}
@@ -710,6 +710,7 @@ func GenerateAdditionalWorldCupPlayers() {
 
 	// var playerList []structs.CollegePlayer
 
+	blob := getAttributeBlob()
 	newID := lastPlayerRecord.ID + 1
 
 	nameMap := getInternationalNameMap()
@@ -722,7 +723,7 @@ func GenerateAdditionalWorldCupPlayers() {
 			pickedEthnicity := pickLocale(country)
 			year := 1
 			countryNames := nameMap[pickedEthnicity]
-			player := createInternationalPlayer(0, "", country, pickedEthnicity, pickedPosition, year, countryNames["first_names"], countryNames["last_names"], newID)
+			player := createInternationalPlayer(0, "", country, pickedEthnicity, pickedPosition, year, countryNames["first_names"], countryNames["last_names"], newID, blob)
 			repository.CreateProfessionalPlayerRecord(player, db)
 
 			globalPlayer := structs.GlobalPlayer{
@@ -736,6 +737,5 @@ func GenerateAdditionalWorldCupPlayers() {
 			repository.CreateGlobalPlayerRecord(globalPlayer, db)
 			newID++
 		}
-
 	}
 }

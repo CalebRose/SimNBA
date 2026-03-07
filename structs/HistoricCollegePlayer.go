@@ -5,15 +5,12 @@ import "github.com/jinzhu/gorm"
 type HistoricCollegePlayer struct {
 	gorm.Model
 	BasePlayer
-	PlayerID           uint
-	TeamID             uint
-	TeamAbbr           string
 	IsRedshirt         bool
 	IsRedshirting      bool
 	HasGraduated       bool
 	HasProgressed      bool
 	WillDeclare        bool
-	TransferStatus     int    // 1 == Intends, 2 == Is Transferring
+	TransferStatus     uint8  // 1 == Intends, 2 == Is Transferring
 	TransferLikeliness string // Low, Medium, High
 	LegacyID           uint
 	Stats              []CollegePlayerStats     `gorm:"foreignKey:CollegePlayerID"`
@@ -25,7 +22,7 @@ func (h *HistoricCollegePlayer) Map(cp CollegePlayer) {
 	h.BasePlayer = cp.BasePlayer
 	h.PlayerID = cp.PlayerID
 	h.TeamID = cp.TeamID
-	h.TeamAbbr = cp.TeamAbbr
+	h.Team = cp.Team
 	h.State = cp.State
 	h.Country = cp.Country
 }
@@ -68,18 +65,18 @@ func (up *UnsignedPlayer) MapFromRecruit(r Recruit) {
 	up.Stars = r.Stars
 	up.Country = r.Country
 	up.Overall = r.Overall
-	up.Finishing = r.Finishing
-	up.Shooting2 = r.Shooting2
-	up.Shooting3 = r.Shooting3
+	up.InsideShooting = r.InsideShooting
+	up.MidRangeShooting = r.MidRangeShooting
+	up.ThreePointShooting = r.ThreePointShooting
 	up.FreeThrow = r.FreeThrow
 	up.Ballwork = r.Ballwork
 	up.Rebounding = r.Rebounding
 	up.InteriorDefense = r.InteriorDefense
 	up.PerimeterDefense = r.PerimeterDefense
 	up.SpecCount = r.SpecCount
-	up.SpecFinishing = r.SpecFinishing
-	up.SpecShooting2 = r.SpecShooting2
-	up.SpecShooting3 = r.SpecShooting3
+	up.SpecInsideShooting = r.SpecInsideShooting
+	up.SpecMidRangeShooting = r.SpecMidRangeShooting
+	up.SpecThreePointShooting = r.SpecThreePointShooting
 	up.SpecFreeThrow = r.SpecFreeThrow
 	up.SpecBallwork = r.SpecBallwork
 	up.SpecRebounding = r.SpecRebounding

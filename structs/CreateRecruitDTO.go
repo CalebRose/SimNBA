@@ -6,22 +6,23 @@ type CreateRecruitDTO struct {
 	State                string
 	Country              string
 	CreatedFor           string
-	Height               string
+	Height               uint8
+	Weight               uint8
 	Position             string
-	Stars                int
-	Ballwork             int
-	InteriorDefense      int
-	PerimeterDefense     int
-	Finishing            int
-	Rebounding           int
-	Shooting2            int
-	Shooting3            int
-	FreeThrow            int
-	Stamina              int
-	Potential            int
+	Stars                uint8
+	Ballwork             uint8
+	InteriorDefense      uint8
+	PerimeterDefense     uint8
+	Finishing            uint8
+	Rebounding           uint8
+	Shooting2            uint8
+	Shooting3            uint8
+	FreeThrow            uint8
+	Stamina              uint8
+	Potential            uint8
 	PotentialGrade       string
-	PlaytimeExpectations int
-	Overall              int
+	PlaytimeExpectations uint8
+	Overall              uint8
 	AcademicBias         string
 	FreeAgency           string
 	Personality          string

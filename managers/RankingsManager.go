@@ -70,8 +70,7 @@ func GetESPNRanking(r structs.Recruit) float64 {
 
 	espnPositionMap := util.ESPNModifiers()
 	espnHeight := getInches(espnPositionMap[r.Position]["Height"])
-	playerHeight := getInches(r.Height)
-	var heightMod float64 = float64(playerHeight / espnHeight)
+	var heightMod float64 = float64(r.Height) / float64(espnHeight)
 	espnRanking := math.Round(float64(starRank) + potentialMod + heightMod)
 
 	return espnRanking
@@ -105,11 +104,11 @@ func getInches(height string) int {
 	return (feet * 12) + inches
 }
 
-func GetRivalsRanking(stars int, bonus int) float64 {
+func GetRivalsRanking(stars uint8, bonus int) float64 {
 	return GetRivalsStarModifier(stars) + float64(bonus)
 }
 
-func GetESPNStarRank(star int) int {
+func GetESPNStarRank(star uint8) int {
 	switch star {
 	case 5:
 		return 95
@@ -195,10 +194,10 @@ func GetESPNPotentialModifier(pg string) float64 {
 	return -1
 }
 
-func GetPredictiveOverall(r structs.Recruit) int {
+func GetPredictiveOverall(r structs.Recruit) uint8 {
 	currentOverall := r.Overall
 
-	var potentialProg int
+	var potentialProg uint8
 
 	switch r.PotentialGrade {
 	case "B+", "A-", "A", "A+":
@@ -212,7 +211,7 @@ func GetPredictiveOverall(r structs.Recruit) int {
 	return currentOverall + (potentialProg * 3)
 }
 
-func GetRivalsStarModifier(stars int) float64 {
+func GetRivalsStarModifier(stars uint8) float64 {
 	switch stars {
 	case 5:
 		return 6.1

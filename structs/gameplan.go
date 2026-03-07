@@ -71,3 +71,24 @@ func (g *Gameplan) UpdateJumperProportion(ratio int) {
 func (g *Gameplan) UpdatePaintProportion(ratio int) {
 	g.PaintProportion = ratio
 }
+
+type GameplanLineup struct {
+	gorm.Model         // Just ignore this, it's for GORM (primary ID).
+	TeamID             uint
+	Position           string // G, F, or C
+	FirstStringID      uint   // PlayerID at first string
+	FSMinutes          uint8
+	FSInsideProportion uint8 // Proportion towards shooting inside shots
+	FSMidProportion    uint8 // Proportion towards shooting midrange shots
+	FSThreeProportion  uint8 // Proportion towards shooting three point shots
+	SecondStringID     uint  // PlayerID at second string
+	SSMinutes          uint8
+	SSInsideProportion uint8
+	SSMidProportion    uint8
+	SSThreeProportion  uint8
+	ThirdStringID      uint // PlayerID at third string
+	TSMinutes          uint8
+	TSInsideProportion uint8
+	TSMidProportion    uint8
+	TSThreeProportion  uint8
+}

@@ -43,7 +43,7 @@ type TopPlayer struct {
 	Position     string
 	Archetype    string
 	OverallGrade string
-	Overall      int
+	Overall      uint8
 }
 
 func (t *TopPlayer) MapCollegePlayer(player CollegePlayer, grade string) {

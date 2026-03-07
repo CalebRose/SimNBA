@@ -158,6 +158,7 @@ func handleRequests() http.Handler {
 	// apiRouter.HandleFunc("/admin/fix/nba/records", controller.FixNBASeasonTables).Methods("GET")
 	// apiRouter.HandleFunc("/generate/new/attributes", controller.GenerateNewAttributes).Methods("GET")
 	// apiRouter.HandleFunc("/fix/nba/matches", controller.SwapNBATeamsTEMP).Methods("GET")
+	// apiRouter.HandleFunc("/admin/generate/ooc/schedule", controller.GenerateOOCScheduleForSimCBB).Methods("GET")
 
 	// Import
 	// apiRouter.HandleFunc("/import/nba", controller.ImportNBATeamsAndArenas).Methods("GET")
@@ -180,6 +181,7 @@ func handleRequests() http.Handler {
 	// apiRouter.HandleFunc("/import/nba/picks", controller.ImportDraftPicks).Methods("GET")
 	// apiRouter.HandleFunc("/migrate/remaining/croots", controller.MigrateRecruits).Methods("GET")
 	// apiRouter.HandleFunc("/migrate/missing/croots", controller.MigrateMissingRecruits).Methods("GET")
+	apiRouter.HandleFunc("/import/team/profile/attributes", controller.UpdateTeamProfileAffinities).Methods("GET")
 
 	// International Super League
 	// apiRouter.HandleFunc("/import/isl/scoutingdept", controller.ImportISLScouting).Methods("GET")

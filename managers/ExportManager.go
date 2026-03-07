@@ -43,9 +43,9 @@ func ExportCroots(w http.ResponseWriter) {
 		}
 
 		crootRow := []string{
-			croot.FirstName, croot.LastName, croot.Position, strconv.Itoa(croot.Stars),
-			croot.College, croot.State, croot.Country, croot.Height,
-			croot.OverallGrade, croot.Shooting2, croot.Shooting3, croot.Finishing,
+			croot.FirstName, croot.LastName, croot.Position, strconv.Itoa(int(croot.Stars)),
+			croot.College, croot.State, croot.Country, strconv.Itoa(int(croot.Height)),
+			strconv.Itoa(int(croot.Weight)), croot.OverallGrade, croot.Shooting2, croot.Shooting3, croot.Finishing,
 			croot.Ballwork, croot.Rebounding, croot.InteriorDefense, croot.PerimeterDefense, croot.PotentialGrade,
 			croot.Personality, croot.RecruitingBias, croot.AcademicBias, croot.WorkEthic,
 			strconv.Itoa(int(croot.ESPNRank)), strconv.Itoa(int(croot.RivalsRank)), strconv.Itoa(int(croot.Rank247)), strings.Join(leadingAbbr, ", "),
@@ -94,21 +94,21 @@ func ExportCollegePlayers(w http.ResponseWriter) {
 
 	for _, player := range players {
 
-		shooting2Grade := util.GetAttributeGrade(player.Shooting2)
-		shooting3Grade := util.GetAttributeGrade(player.Shooting3)
+		shooting2Grade := util.GetAttributeGrade(player.MidRangeShooting)
+		shooting3Grade := util.GetAttributeGrade(player.ThreePointShooting)
 		freeThrowGrade := util.GetAttributeGrade(player.FreeThrow)
-		finishingGrade := util.GetAttributeGrade(player.Finishing)
+		finishingGrade := util.GetAttributeGrade(player.InsideShooting)
 		reboundingGrade := util.GetAttributeGrade(player.Rebounding)
 		ballworkGrade := util.GetAttributeGrade(player.Ballwork)
 		interiorDefenseGrade := util.GetAttributeGrade(player.InteriorDefense)
 		perimeterDefenseGrade := util.GetAttributeGrade(player.PerimeterDefense)
 		potentialGrade := util.GetPotentialGrade(player.Potential)
 		overallGrade := util.GetPlayerOverallGrade(player.Overall)
-		sta := strconv.Itoa(player.Stamina)
+		sta := strconv.Itoa(int(player.Stamina))
 
 		playerRow := []string{
-			player.TeamAbbr, player.FirstName, player.LastName, player.Position, strconv.Itoa(player.Year), strconv.FormatBool(player.IsRedshirt), strconv.Itoa(player.Age),
-			strconv.Itoa(player.Stars), player.State, player.Country, player.Height,
+			player.Team, player.FirstName, player.LastName, player.Position, strconv.Itoa(int(player.Year)), strconv.FormatBool(player.IsRedshirt), strconv.Itoa(int(player.Age)),
+			strconv.Itoa(int(player.Stars)), player.State, player.Country, strconv.Itoa(int(player.Height)),
 			overallGrade, shooting2Grade, shooting3Grade, freeThrowGrade, finishingGrade,
 			ballworkGrade, reboundingGrade, interiorDefenseGrade, perimeterDefenseGrade, sta, potentialGrade,
 			player.Personality, player.RecruitingBias, player.WorkEthic, player.PreviousTeam,
@@ -151,21 +151,21 @@ func ExportTransferPortalToCSV(w http.ResponseWriter) {
 	}
 
 	for _, player := range players {
-		shooting2Grade := util.GetAttributeGrade(player.Shooting2)
-		shooting3Grade := util.GetAttributeGrade(player.Shooting3)
+		shooting2Grade := util.GetAttributeGrade(player.MidRangeShooting)
+		shooting3Grade := util.GetAttributeGrade(player.ThreePointShooting)
 		freeThrowGrade := util.GetAttributeGrade(player.FreeThrow)
-		finishingGrade := util.GetAttributeGrade(player.Finishing)
+		finishingGrade := util.GetAttributeGrade(player.InsideShooting)
 		reboundingGrade := util.GetAttributeGrade(player.Rebounding)
 		ballworkGrade := util.GetAttributeGrade(player.Ballwork)
 		interiorDefenseGrade := util.GetAttributeGrade(player.InteriorDefense)
 		perimeterDefenseGrade := util.GetAttributeGrade(player.PerimeterDefense)
 		potentialGrade := util.GetPotentialGrade(player.Potential)
 		overallGrade := util.GetPlayerOverallGrade(player.Overall)
-		sta := strconv.Itoa(player.Stamina)
+		sta := strconv.Itoa(int(player.Stamina))
 
 		playerRow := []string{
-			player.TeamAbbr, player.FirstName, player.LastName, player.Position, strconv.Itoa(player.Year), strconv.FormatBool(player.IsRedshirt), strconv.Itoa(player.Age),
-			strconv.Itoa(player.Stars), player.State, player.Country, player.Height,
+			player.Team, player.FirstName, player.LastName, player.Position, strconv.Itoa(int(player.Year)), strconv.FormatBool(player.IsRedshirt), strconv.Itoa(int(player.Age)),
+			strconv.Itoa(int(player.Stars)), player.State, player.Country, strconv.Itoa(int(player.Height)),
 			overallGrade, shooting2Grade, shooting3Grade, freeThrowGrade, finishingGrade,
 			ballworkGrade, reboundingGrade, interiorDefenseGrade, perimeterDefenseGrade, sta, potentialGrade,
 			player.Personality, player.RecruitingBias, player.WorkEthic, player.PreviousTeam,
@@ -218,7 +218,7 @@ func ExportCBBPreseasonRanks(w http.ResponseWriter) {
 			if idx > 9 {
 				break
 			}
-			o := ((float64(player.Shooting2) + float64(player.Shooting3) + float64(player.Finishing) + float64(player.FreeThrow)) / 4)
+			o := ((float64(player.MidRangeShooting) + float64(player.ThreePointShooting) + float64(player.InsideShooting) + float64(player.FreeThrow)) / 4)
 			d := ((float64(player.Ballwork) + float64(player.Rebounding) + float64(player.InteriorDefense) + float64(player.PerimeterDefense)) / 4)
 			offenseRank += o
 			defenseRank += d
@@ -264,10 +264,10 @@ func ExportCBBRosterToCSV(TeamID string, w http.ResponseWriter) {
 	csvRoster := []structs.CollegePlayerResponse{}
 
 	for _, player := range players {
-		shooting2Grade := util.GetAttributeGrade(player.Shooting2)
-		shooting3Grade := util.GetAttributeGrade(player.Shooting3)
+		shooting2Grade := util.GetAttributeGrade(player.MidRangeShooting)
+		shooting3Grade := util.GetAttributeGrade(player.ThreePointShooting)
 		freeThrowGrade := util.GetAttributeGrade(player.FreeThrow)
-		finishingGrade := util.GetAttributeGrade(player.Finishing)
+		finishingGrade := util.GetAttributeGrade(player.InsideShooting)
 		reboundingGrade := util.GetAttributeGrade(player.Rebounding)
 		ballworkGrade := util.GetAttributeGrade(player.Ballwork)
 		interiorDefenseGrade := util.GetAttributeGrade(player.InteriorDefense)
@@ -298,7 +298,6 @@ func ExportCBBRosterToCSV(TeamID string, w http.ResponseWriter) {
 			OverallGrade:          overallGrade,
 			Stamina:               player.Stamina,
 			PlaytimeExpectations:  player.PlaytimeExpectations,
-			Minutes:               player.Minutes,
 			Potential:             player.Potential,
 			Personality:           player.Personality,
 			RecruitingBias:        player.RecruitingBias,
@@ -306,18 +305,9 @@ func ExportCBBRosterToCSV(TeamID string, w http.ResponseWriter) {
 			AcademicBias:          player.AcademicBias,
 			PlayerID:              player.PlayerID,
 			TeamID:                player.TeamID,
-			TeamAbbr:              player.TeamAbbr,
+			Team:                  player.Team,
 			IsRedshirting:         player.IsRedshirting,
 			IsRedshirt:            player.IsRedshirt,
-			PositionOne:           player.PositionOne,
-			PositionTwo:           player.PositionTwo,
-			PositionThree:         player.PositionThree,
-			P1Minutes:             player.P1Minutes,
-			P2Minutes:             player.P2Minutes,
-			P3Minutes:             player.P3Minutes,
-			InsideProportion:      player.InsideProportion,
-			MidRangeProportion:    player.MidRangeProportion,
-			ThreePointProportion:  player.ThreePointProportion,
 		}
 
 		csvRoster = append(csvRoster, res)
@@ -346,14 +336,13 @@ func ExportCBBRosterToCSV(TeamID string, w http.ResponseWriter) {
 		} else if csvModel.IsRedshirting {
 			redshirtStatus = "Currently Redshirting"
 		}
-		height := util.FormatHeight(csvModel.Height)
 		playerRow := []string{
 			team.Team, csvModel.FirstName, csvModel.LastName, csvModel.Position,
-			csvModel.Archetype, strconv.Itoa(csvModel.Year), strconv.Itoa(csvModel.Age), strconv.Itoa(csvModel.Stars),
-			csvModel.State, csvModel.Country, height, csvModel.OverallGrade, csvModel.FinishingGrade,
+			csvModel.Archetype, strconv.Itoa(int(csvModel.Year)), strconv.Itoa(int(csvModel.Age)), strconv.Itoa(int(csvModel.Stars)),
+			csvModel.State, csvModel.Country, strconv.Itoa(int(csvModel.Height)), csvModel.OverallGrade, csvModel.FinishingGrade,
 			csvModel.Shooting2Grade, csvModel.Shooting3Grade, csvModel.FreeThrowGrade,
 			csvModel.BallworkGrade, csvModel.ReboundingGrade, csvModel.InteriorDefenseGrade, csvModel.PerimeterDefenseGrade,
-			strconv.Itoa(csvModel.PlaytimeExpectations), strconv.Itoa(csvModel.Stamina), csvModel.PotentialGrade, csvModel.Personality,
+			strconv.Itoa(int(csvModel.PlaytimeExpectations)), strconv.Itoa(int(csvModel.Stamina)), csvModel.PotentialGrade, csvModel.Personality,
 			csvModel.RecruitingBias, csvModel.WorkEthic, csvModel.AcademicBias, redshirtStatus,
 		}
 
@@ -409,14 +398,13 @@ func ExportNBARosterToCSV(TeamID string, w http.ResponseWriter) {
 		} else if csvModel.IsInternational {
 			nbaStatus = "International"
 		}
-		height := util.FormatHeight(csvModel.Height)
 		playerRow := []string{
 			team.Team, csvModel.FirstName, csvModel.LastName, csvModel.Position,
-			csvModel.Archetype, strconv.Itoa(csvModel.Year), strconv.Itoa(csvModel.Age), strconv.Itoa(csvModel.Stars),
-			csvModel.State, csvModel.Country, height, strconv.Itoa(csvModel.Overall), strconv.Itoa(csvModel.Finishing),
-			strconv.Itoa(csvModel.Shooting2), strconv.Itoa(csvModel.Shooting3), strconv.Itoa(csvModel.FreeThrow),
-			strconv.Itoa(csvModel.Ballwork), strconv.Itoa(csvModel.Rebounding), strconv.Itoa(csvModel.InteriorDefense), strconv.Itoa(csvModel.PerimeterDefense),
-			strconv.Itoa(csvModel.PlaytimeExpectations), strconv.Itoa(csvModel.Stamina), csvModel.PotentialGrade, csvModel.Personality,
+			csvModel.Archetype, strconv.Itoa(int(csvModel.Year)), strconv.Itoa(int(csvModel.Age)), strconv.Itoa(int(csvModel.Stars)),
+			csvModel.State, csvModel.Country, strconv.Itoa(int(csvModel.Height)), strconv.Itoa(int(csvModel.Overall)), strconv.Itoa(int(csvModel.InsideShooting)),
+			strconv.Itoa(int(csvModel.MidRangeShooting)), strconv.Itoa(int(csvModel.ThreePointShooting)), strconv.Itoa(int(csvModel.FreeThrow)),
+			strconv.Itoa(int(csvModel.Ballwork)), strconv.Itoa(int(csvModel.Rebounding)), strconv.Itoa(int(csvModel.InteriorDefense)), strconv.Itoa(int(csvModel.PerimeterDefense)),
+			strconv.Itoa(int(csvModel.PlaytimeExpectations)), strconv.Itoa(int(csvModel.Stamina)), csvModel.PotentialGrade, csvModel.Personality,
 			csvModel.FreeAgency, csvModel.WorkEthic, nbaStatus,
 			util.ConvertFloatToString(csvModel.Contract.Year1Total), strconv.FormatBool(csvModel.Contract.Year1Opt),
 			util.ConvertFloatToString(csvModel.Contract.Year2Total), strconv.FormatBool(csvModel.Contract.Year2Opt),
@@ -1103,9 +1091,9 @@ func getCollegePlayerSeasonRow(player structs.CollegePlayerResponse, stats struc
 		player.FirstName,
 		player.LastName,
 		player.Position,
-		strconv.Itoa(player.Age),
-		strconv.Itoa(player.Year),
-		player.TeamAbbr,
+		strconv.Itoa(int(player.Age)),
+		strconv.Itoa(int(player.Year)),
+		player.Team,
 		strconv.Itoa(int(stats.GamesPlayed)),
 		strconv.Itoa(stats.Minutes),
 		strconv.Itoa(stats.Possessions),
@@ -1149,30 +1137,30 @@ func getCollegePlayerWeeklyRow(matchType string, player structs.CollegePlayerRes
 		player.FirstName,
 		player.LastName,
 		player.Position,
-		strconv.Itoa(player.Age),
-		strconv.Itoa(player.Year),
-		player.TeamAbbr,
+		strconv.Itoa(int(player.Age)),
+		strconv.Itoa(int(player.Year)),
+		player.Team,
 		strconv.Itoa(int(stats.Week)),
 		matchType,
-		strconv.Itoa(stats.Minutes),
-		strconv.Itoa(stats.Possessions),
-		strconv.Itoa(stats.Points),
-		strconv.Itoa(stats.FGM),
-		strconv.Itoa(stats.FGA),
+		strconv.Itoa(int(stats.Minutes)),
+		strconv.Itoa(int(stats.Possessions)),
+		strconv.Itoa(int(stats.Points)),
+		strconv.Itoa(int(stats.FGM)),
+		strconv.Itoa(int(stats.FGA)),
 		strconv.FormatFloat(stats.FGPercent, 'f', 2, 64),
-		strconv.Itoa(stats.ThreePointsMade),
-		strconv.Itoa(stats.ThreePointAttempts),
+		strconv.Itoa(int(stats.ThreePointsMade)),
+		strconv.Itoa(int(stats.ThreePointAttempts)),
 		strconv.FormatFloat(stats.ThreePointPercent, 'f', 2, 64),
-		strconv.Itoa(stats.FTM),
-		strconv.Itoa(stats.FTA),
+		strconv.Itoa(int(stats.FTM)),
+		strconv.Itoa(int(stats.FTA)),
 		strconv.FormatFloat(stats.FTPercent, 'f', 2, 64),
-		strconv.Itoa(stats.OffRebounds),
-		strconv.Itoa(stats.DefRebounds),
-		strconv.Itoa(stats.Assists),
-		strconv.Itoa(stats.Steals),
-		strconv.Itoa(stats.Blocks),
-		strconv.Itoa(stats.Turnovers),
-		strconv.Itoa(stats.Fouls),
+		strconv.Itoa(int(stats.OffRebounds)),
+		strconv.Itoa(int(stats.DefRebounds)),
+		strconv.Itoa(int(stats.Assists)),
+		strconv.Itoa(int(stats.Steals)),
+		strconv.Itoa(int(stats.Blocks)),
+		strconv.Itoa(int(stats.Turnovers)),
+		strconv.Itoa(int(stats.Fouls)),
 	}
 }
 
@@ -1182,28 +1170,28 @@ func getNBAPlayerSeasonRow(player structs.NBAPlayerResponse, stats structs.NBAPl
 		player.FirstName,
 		player.LastName,
 		player.Position,
-		strconv.Itoa(player.Age),
-		strconv.Itoa(player.Year),
-		player.TeamAbbr,
+		strconv.Itoa(int(player.Age)),
+		strconv.Itoa(int(player.Year)),
+		player.Team,
 		strconv.Itoa(int(stats.GamesPlayed)),
-		strconv.Itoa(stats.Minutes),
-		strconv.Itoa(stats.Possessions),
-		strconv.Itoa(stats.Points),
-		strconv.Itoa(stats.FGM),
-		strconv.Itoa(stats.FGA),
+		strconv.Itoa(int(stats.Minutes)),
+		strconv.Itoa(int(stats.Possessions)),
+		strconv.Itoa(int(stats.Points)),
+		strconv.Itoa(int(stats.FGM)),
+		strconv.Itoa(int(stats.FGA)),
 		strconv.FormatFloat(stats.FGPercent, 'f', 2, 64),
-		strconv.Itoa(stats.ThreePointsMade),
-		strconv.Itoa(stats.ThreePointAttempts),
+		strconv.Itoa(int(stats.ThreePointsMade)),
+		strconv.Itoa(int(stats.ThreePointAttempts)),
 		strconv.FormatFloat(stats.ThreePointPercent, 'f', 2, 64),
-		strconv.Itoa(stats.FTM),
-		strconv.Itoa(stats.FTA),
+		strconv.Itoa(int(stats.FTM)),
+		strconv.Itoa(int(stats.FTA)),
 		strconv.FormatFloat(stats.FTPercent, 'f', 2, 64),
-		strconv.Itoa(stats.OffRebounds),
-		strconv.Itoa(stats.DefRebounds),
-		strconv.Itoa(stats.Assists),
-		strconv.Itoa(stats.Steals),
-		strconv.Itoa(stats.Blocks),
-		strconv.Itoa(stats.Turnovers),
+		strconv.Itoa(int(stats.OffRebounds)),
+		strconv.Itoa(int(stats.DefRebounds)),
+		strconv.Itoa(int(stats.Assists)),
+		strconv.Itoa(int(stats.Steals)),
+		strconv.Itoa(int(stats.Blocks)),
+		strconv.Itoa(int(stats.Turnovers)),
 		strconv.FormatFloat(stats.MinutesPerGame, 'f', 2, 64),
 		strconv.FormatFloat(stats.PossessionsPerGame, 'f', 2, 64),
 		strconv.FormatFloat(stats.PPG, 'f', 2, 64),
@@ -1228,29 +1216,29 @@ func getNBAPlayerWeeklyRow(matchType string, player structs.NBAPlayerResponse, s
 		player.FirstName,
 		player.LastName,
 		player.Position,
-		strconv.Itoa(player.Age),
-		strconv.Itoa(player.Year),
-		player.TeamAbbr,
+		strconv.Itoa(int(player.Age)),
+		strconv.Itoa(int(player.Year)),
+		player.Team,
 		strconv.Itoa(int(stats.Week)),
 		matchType,
-		strconv.Itoa(stats.Minutes),
-		strconv.Itoa(stats.Possessions),
-		strconv.Itoa(stats.Points),
-		strconv.Itoa(stats.FGM),
-		strconv.Itoa(stats.FGA),
+		strconv.Itoa(int(stats.Minutes)),
+		strconv.Itoa(int(stats.Possessions)),
+		strconv.Itoa(int(stats.Points)),
+		strconv.Itoa(int(stats.FGM)),
+		strconv.Itoa(int(stats.FGA)),
 		strconv.FormatFloat(stats.FGPercent, 'f', 2, 64),
-		strconv.Itoa(stats.ThreePointsMade),
-		strconv.Itoa(stats.ThreePointAttempts),
+		strconv.Itoa(int(stats.ThreePointsMade)),
+		strconv.Itoa(int(stats.ThreePointAttempts)),
 		strconv.FormatFloat(stats.ThreePointPercent, 'f', 2, 64),
-		strconv.Itoa(stats.FTM),
-		strconv.Itoa(stats.FTA),
+		strconv.Itoa(int(stats.FTM)),
+		strconv.Itoa(int(stats.FTA)),
 		strconv.FormatFloat(stats.FTPercent, 'f', 2, 64),
-		strconv.Itoa(stats.OffRebounds),
-		strconv.Itoa(stats.DefRebounds),
-		strconv.Itoa(stats.Assists),
-		strconv.Itoa(stats.Steals),
-		strconv.Itoa(stats.Blocks),
-		strconv.Itoa(stats.Turnovers),
-		strconv.Itoa(stats.Fouls),
+		strconv.Itoa(int(stats.OffRebounds)),
+		strconv.Itoa(int(stats.DefRebounds)),
+		strconv.Itoa(int(stats.Assists)),
+		strconv.Itoa(int(stats.Steals)),
+		strconv.Itoa(int(stats.Blocks)),
+		strconv.Itoa(int(stats.Turnovers)),
+		strconv.Itoa(int(stats.Fouls)),
 	}
 }

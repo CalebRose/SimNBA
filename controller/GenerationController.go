@@ -7,16 +7,6 @@ import (
 	"github.com/CalebRose/SimNBA/managers"
 )
 
-func GenerateCoaches(w http.ResponseWriter, r *http.Request) {
-	managers.GenerateCoachesForAITeams()
-	json.NewEncoder(w).Encode("GENERATION COMPLETE")
-}
-
-func GenerateTestPlayers(w http.ResponseWriter, r *http.Request) {
-	managers.GenerateTestPlayersForTP()
-	json.NewEncoder(w).Encode("GENERATION COMPLETE")
-}
-
 func GeneratePlayers(w http.ResponseWriter, r *http.Request) {
 	managers.GenerateNewTeams()
 	json.NewEncoder(w).Encode("GENERATION COMPLETE")
@@ -55,11 +45,6 @@ func GenerateInternationalRoster(w http.ResponseWriter, r *http.Request) {
 
 func GenerateGlobalPlayerRecords(w http.ResponseWriter, r *http.Request) {
 	managers.GenerateGlobalPlayerRecords()
-	json.NewEncoder(w).Encode("GENERATION COMPLETE")
-}
-
-func GenerateAttributeSpecsForCollegeAndRecruits(w http.ResponseWriter, r *http.Request) {
-	managers.GenerateAttributeSpecs()
 	json.NewEncoder(w).Encode("GENERATION COMPLETE")
 }
 

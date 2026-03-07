@@ -191,3 +191,13 @@ func MakeScoutingProfileMapByTeam(profiles []structs.ScoutingProfile) map[uint]s
 
 	return profileMap
 }
+
+func MakeTeamRecruitingProfileMapByTeamID(profiles []structs.TeamRecruitingProfile) map[uint]structs.TeamRecruitingProfile {
+	teamProfileMap := make(map[uint]structs.TeamRecruitingProfile)
+
+	for _, t := range profiles {
+		teamProfileMap[t.TeamID] = t
+	}
+
+	return teamProfileMap
+}

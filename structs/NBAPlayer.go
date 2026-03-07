@@ -5,17 +5,13 @@ import "github.com/jinzhu/gorm"
 type NBAPlayer struct {
 	gorm.Model
 	BasePlayer
-	PlayerID            uint
-	TeamID              uint
-	TeamAbbr            string
 	CollegeID           uint
 	College             string
 	DraftPickID         uint
 	DraftedRound        uint
 	DraftPick           uint
 	DraftedTeamID       uint
-	DraftedTeamAbbr     string
-	PrimeAge            uint
+	DraftedTeam         string
 	IsNBA               bool
 	MaxRequested        bool
 	IsSuperMaxQualified bool
@@ -67,7 +63,7 @@ func (n *NBAPlayer) SetRetiringStatus() {
 }
 
 func (n *NBAPlayer) BecomeUDFA() {
-	n.TeamAbbr = "FA"
+	n.Team = "FA"
 	n.TeamID = 0
 	n.IsFreeAgent = true
 	n.IsOnTradeBlock = false
@@ -78,25 +74,23 @@ func (n *NBAPlayer) BecomeUDFA() {
 	n.IsNegotiating = false
 	n.IsAcceptingOffers = true
 	n.MinimumValue = 0.7
-	n.ResetMinutes()
 }
 
 func (n *NBAPlayer) BecomeFreeAgent() {
-	n.TeamAbbr = "FA"
+	n.Team = "FA"
 	n.TeamID = 0
 	n.IsFreeAgent = true
 	n.IsOnTradeBlock = false
 	n.IsGLeague = false
 	n.IsTwoWay = false
 	n.IsAcceptingOffers = true
-	n.ResetMinutes()
 	n.AssignMinimumContractValue(0)
 }
 
 func (n *NBAPlayer) BecomeInternationalDraftee() {
 	n.CollegeID = n.TeamID
-	n.College = n.TeamAbbr
-	n.TeamAbbr = "DRAFT"
+	n.College = n.Team
+	n.Team = "DRAFT"
 	n.TeamID = 0
 	n.IsFreeAgent = false
 	n.IsOnTradeBlock = false
@@ -104,17 +98,16 @@ func (n *NBAPlayer) BecomeInternationalDraftee() {
 	n.IsTwoWay = false
 	n.IsAcceptingOffers = false
 	n.IsIntDeclared = true
-	n.ResetMinutes()
 }
 
 func (n *NBAPlayer) DraftInternationalPlayer(pickID, round, number, teamID uint, team string) {
 	n.DraftPickID = pickID
 	n.DraftedRound = round
 	n.DraftPick = number
-	n.DraftedTeamAbbr = team
+	n.DraftedTeam = team
 	n.DraftedTeamID = teamID
 	n.IsNBA = true
-	n.TeamAbbr = team
+	n.Team = team
 	n.TeamID = teamID
 	n.IsFreeAgent = false
 	n.IsWaived = false
@@ -122,11 +115,10 @@ func (n *NBAPlayer) DraftInternationalPlayer(pickID, round, number, teamID uint,
 	n.IsTwoWay = false
 	n.IsAcceptingOffers = false
 	n.IsNegotiating = false
-	n.ResetMinutes()
 }
 
 func (n *NBAPlayer) SignWithTeam(teamID uint, team string, isFAorExt bool, minValue float64) {
-	n.TeamAbbr = team
+	n.Team = team
 	n.TeamID = teamID
 	n.IsFreeAgent = false
 	n.IsWaived = false
@@ -135,27 +127,25 @@ func (n *NBAPlayer) SignWithTeam(teamID uint, team string, isFAorExt bool, minVa
 	n.IsAcceptingOffers = false
 	n.IsNegotiating = false
 	n.IsInternational = teamID < 33
-	n.ResetMinutes()
 }
 
 func (n *NBAPlayer) Progress(p NBAPlayerProgressions) {
 	n.HasProgressed = true
-	n.Shooting2 += p.Shooting2
-	n.Shooting3 += p.Shooting3
+	n.MidRangeShooting += p.Shooting2
+	n.ThreePointShooting += p.Shooting3
 	n.FreeThrow += p.FreeThrow
 	n.Ballwork += p.Ballwork
-	n.Finishing += p.Finishing
+	n.InsideShooting += p.Finishing
 	n.Rebounding += p.Rebounding
 	n.InteriorDefense += p.InteriorDefense
 	n.PerimeterDefense += p.PerimeterDefense
-	n.Overall = (int((n.Shooting2 + n.Shooting3 + n.FreeThrow) / 3)) + n.Finishing + n.Ballwork + n.Rebounding + int((n.InteriorDefense+n.PerimeterDefense)/2)
+	n.Overall = (uint8((n.MidRangeShooting + n.ThreePointShooting + n.FreeThrow) / 3)) + n.InsideShooting + n.Ballwork + n.Rebounding + uint8((n.InteriorDefense+n.PerimeterDefense)/2)
 	n.Age = p.Age
 	n.Stamina = p.Stamina
 	if n.Stamina < 1 {
 		n.Stamina = 1
 	}
 	n.Year++
-	n.ResetMinutes()
 }
 func (n *NBAPlayer) QualifyForSuperMax() {
 	n.IsSuperMaxQualified = true
@@ -198,15 +188,14 @@ func (np *NBAPlayer) RemoveFromTradeBlock() {
 
 func (np *NBAPlayer) WaivePlayer() {
 	np.PreviousTeamID = np.TeamID
-	np.PreviousTeam = np.TeamAbbr
+	np.PreviousTeam = np.Team
 	np.TeamID = 0
-	np.TeamAbbr = ""
+	np.Team = ""
 	np.IsWaived = true
 	np.IsOnTradeBlock = false
 	np.IsGLeague = false
 	np.IsTwoWay = false
 	np.IsAcceptingOffers = true
-	np.ResetMinutes()
 }
 
 func (np *NBAPlayer) ConvertWaivedPlayerToFA() {
@@ -221,12 +210,11 @@ func (np *NBAPlayer) AssignFAPreferences(negotiation uint, signing uint) {
 }
 
 func (np *NBAPlayer) TradePlayer(id uint, team string) {
-	np.PreviousTeam = np.TeamAbbr
+	np.PreviousTeam = np.Team
 	np.PreviousTeamID = uint(np.TeamID)
 	np.TeamID = id
-	np.TeamAbbr = team
+	np.Team = team
 	np.IsOnTradeBlock = false
-	np.ResetMinutes()
 }
 
 func (np *NBAPlayer) AssignMinimumContractValue(val float64) {

@@ -544,7 +544,7 @@ func CreateRecruit(dto structs.CreateRecruitDTO) {
 
 	newID := lastPlayerRecord.ID + 1
 	threshold := GetRecruitModifier(dto.Stars)
-	expectations := util.GetPlaytimeExpectations(dto.Stars, 1, 0)
+	expectations := util.GetPlaytimeExpectations(int(dto.Stars), 1, 0)
 	rankMod := 0.95 + rand.Float64()*(1.05-0.95)
 
 	collegeRecruit := &structs.Recruit{
@@ -559,11 +559,6 @@ func CreateRecruit(dto structs.CreateRecruitDTO) {
 		CollegePlayerID: newID,
 		NBAPlayerID:     newID,
 	}
-	specs := util.GetSpecialties(collegeRecruit.Position)
-	for _, spec := range specs {
-		collegeRecruit.ToggleSpecialties(spec)
-	}
-
 	playerRecord.SetID(newID)
 	// Create Player Record
 	db.Create(&playerRecord)

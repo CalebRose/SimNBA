@@ -6,6 +6,11 @@ import (
 	"gorm.io/gorm"
 )
 
+type CrootLocation struct {
+	City       string
+	HighSchool string
+}
+
 type Recruit struct {
 	gorm.Model
 	PlayerID uint
@@ -46,15 +51,15 @@ func (r *Recruit) Map(createRecruitDTO CreateRecruitDTO, lastPlayerID uint, expe
 	r.Ballwork = createRecruitDTO.Ballwork
 	r.InteriorDefense = createRecruitDTO.InteriorDefense
 	r.PerimeterDefense = createRecruitDTO.PerimeterDefense
-	r.Finishing = createRecruitDTO.Finishing
+	r.InsideShooting = createRecruitDTO.Finishing
 	r.FreeThrow = createRecruitDTO.FreeThrow
 	r.Rebounding = createRecruitDTO.Rebounding
-	r.Shooting2 = createRecruitDTO.Shooting2
-	r.Shooting3 = createRecruitDTO.Shooting3
+	r.MidRangeShooting = createRecruitDTO.Shooting2
+	r.ThreePointShooting = createRecruitDTO.Shooting3
 	r.Potential = createRecruitDTO.Potential
 	r.ProPotentialGrade = createRecruitDTO.Potential
 	r.PotentialGrade = createRecruitDTO.PotentialGrade
-	r.PlaytimeExpectations = expectations
+	r.PlaytimeExpectations = uint8(expectations)
 	r.WorkEthic = createRecruitDTO.WorkEthic
 	r.FreeAgency = createRecruitDTO.FreeAgency
 	r.Personality = createRecruitDTO.Personality
@@ -71,8 +76,8 @@ func (r *Recruit) SetID(id uint) {
 }
 
 func (r *Recruit) AssignRelativeData(rID, rType, teamID uint, team, notes string) {
-	r.RelativeID = rID
-	r.RelativeType = rType
+	r.RelativeID = uint8(rID)
+	r.RelativeType = uint8(rType)
 	r.Notes = notes
 	if teamID > 0 {
 		r.UpdateTeamID(teamID)
@@ -99,76 +104,72 @@ func (r *Recruit) UpdateSigningStatus() {
 
 func (r *Recruit) ProgressUnsignedRecruit(attr CollegePlayerProgressions) {
 	r.Age++
-	r.Shooting2 = attr.Shooting2
-	r.Shooting3 = attr.Shooting3
+	r.MidRangeShooting = attr.Shooting2
+	r.ThreePointShooting = attr.Shooting3
 	r.FreeThrow = attr.FreeThrow
 	r.Rebounding = attr.Rebounding
 	r.Ballwork = attr.Ballwork
 	r.InteriorDefense = attr.InteriorDefense
 	r.PerimeterDefense = attr.PerimeterDefense
-	r.Finishing = attr.Finishing
+	r.InsideShooting = attr.Finishing
 }
 
 func (r *Recruit) FixRecruit(grade string, pro int, mod int) {
 	r.PotentialGrade = grade
-	r.ProPotentialGrade = pro
+	r.ProPotentialGrade = uint8(pro)
 	r.RecruitModifier = mod
-}
-
-func (r *Recruit) FixHeight(h string) {
-	r.Height = h
 }
 
 func (r *Recruit) SetCustomAttribute(attr string) {
 	switch attr {
 	case "Finishing":
-		if !r.SpecFinishing {
-			r.SpecFinishing = true
+		if !r.SpecInsideShooting {
+			r.SpecInsideShooting = true
 			r.SpecCount++
 		}
-		r.Finishing = rand.Intn(18-14+1) + 14
+		r.InsideShooting = uint8(rand.Intn(18-14+1) + 14)
 	case "Shooting2":
-		if !r.SpecShooting2 {
-			r.SpecShooting2 = true
+		if !r.SpecMidRangeShooting {
+			r.SpecMidRangeShooting = true
 			r.SpecCount++
 		}
-		r.Shooting2 = rand.Intn(18-14+1) + 14
+		r.MidRangeShooting = uint8(rand.Intn(18-14+1) + 14)
 	case "Shooting3":
-		if !r.SpecShooting3 {
-			r.SpecShooting3 = true
+		if !r.SpecThreePointShooting {
+			r.SpecThreePointShooting = true
 			r.SpecCount++
 		}
-		r.Shooting3 = rand.Intn(18-14+1) + 14
+		r.ThreePointShooting = uint8(rand.Intn(18-14+1) + 14)
 	case "FreeThrow":
 		if !r.SpecFreeThrow {
 			r.SpecFreeThrow = true
 			r.SpecCount++
 		}
-		r.FreeThrow = rand.Intn(18-14+1) + 14
+		r.FreeThrow = uint8(rand.Intn(18-14+1) + 14)
 	case "Ballwork":
 		if !r.SpecBallwork {
 			r.SpecBallwork = true
 			r.SpecCount++
 		}
-		r.Ballwork = rand.Intn(18-14+1) + 14
+		r.Ballwork = uint8(rand.Intn(18-14+1) + 14)
 	case "Rebounding":
 		if !r.SpecRebounding {
 			r.SpecRebounding = true
 			r.SpecCount++
 		}
-		r.Rebounding = rand.Intn(18-14+1) + 14
+		r.Rebounding = uint8(rand.Intn(18-14+1) + 14)
 	case "InteriorDefense":
 		if !r.SpecInteriorDefense {
 			r.SpecInteriorDefense = true
 			r.SpecCount++
 		}
-		r.InteriorDefense = rand.Intn(18-14+1) + 14
+		r.InteriorDefense = uint8(rand.Intn(18-14+1) + 14)
 	case "PerimeterDefense":
 		if !r.SpecPerimeterDefense {
 			r.SpecPerimeterDefense = true
 			r.SpecCount++
 		}
-		r.PerimeterDefense = rand.Intn(18-14+1) + 14
+		r.PerimeterDefense = uint8(rand.Intn(18-14+1) + 14)
 	}
 }
 
@@ -178,9 +179,9 @@ func (r *Recruit) SetCustomCroot(crootFor string) {
 }
 
 func (r *Recruit) SetNewAttributes(ft int, id int, pd int) {
-	r.FreeThrow = ft
-	r.InteriorDefense = id
-	r.PerimeterDefense = pd
+	r.FreeThrow = uint8(ft)
+	r.InteriorDefense = uint8(id)
+	r.PerimeterDefense = uint8(pd)
 }
 
 func (r *Recruit) AssignRankValues(rank247 float64, espnRank float64, rivalsRank float64, modifier float64) {

@@ -9,9 +9,11 @@ type ProfileAttributes struct {
 	Facilities           uint8
 	Atmosphere           uint8
 	Academics            uint8
+	CampusLife           uint8
 	ConferencePrestige   uint8
 	CoachRating          uint8
 	SeasonMomentum       uint8
+	MediaSpotlight       uint8
 }
 
 // TeamRecruitingProfile - The profile for a team for recruiting
@@ -118,7 +120,7 @@ func (r *TeamRecruitingProfile) AssignCompositeRank(score float64) {
 	r.CompositeScore = score
 }
 
-func (r *TeamRecruitingProfile) AddStarPlayer(stars int) {
+func (r *TeamRecruitingProfile) AddStarPlayer(stars uint8) {
 	switch stars {
 	case 5:
 		r.FiveStars += 1
@@ -201,4 +203,8 @@ func (r *TeamRecruitingProfile) AdjustPortalReputation(points int) {
 	if r.PortalReputation < 1 {
 		r.PortalReputation = 1
 	}
+}
+
+func (r *TeamRecruitingProfile) UpdateTeamProfileAffinities(profile ProfileAttributes) {
+	r.ProfileAttributes = profile
 }

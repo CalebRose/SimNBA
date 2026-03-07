@@ -20,10 +20,10 @@ func GetCollegePlayerByID(id string) structs.CollegePlayerResponse {
 	if err != nil {
 		log.Fatal(err)
 	}
-	shooting2Grade := util.GetAttributeGrade(player.Shooting2)
-	shooting3Grade := util.GetAttributeGrade(player.Shooting3)
+	shooting2Grade := util.GetAttributeGrade(player.MidRangeShooting)
+	shooting3Grade := util.GetAttributeGrade(player.ThreePointShooting)
 	freeThrowGrade := util.GetAttributeGrade(player.FreeThrow)
-	finishingGrade := util.GetAttributeGrade(player.Finishing)
+	finishingGrade := util.GetAttributeGrade(player.InsideShooting)
 	reboundingGrade := util.GetAttributeGrade(player.Rebounding)
 	ballworkGrade := util.GetAttributeGrade(player.Ballwork)
 	interiorDefenseGrade := util.GetAttributeGrade(player.InteriorDefense)
@@ -54,7 +54,6 @@ func GetCollegePlayerByID(id string) structs.CollegePlayerResponse {
 		OverallGrade:          overallGrade,
 		Stamina:               player.Stamina,
 		PlaytimeExpectations:  player.PlaytimeExpectations,
-		Minutes:               player.Minutes,
 		Potential:             player.Potential,
 		Personality:           player.Personality,
 		RecruitingBias:        player.RecruitingBias,
@@ -62,18 +61,9 @@ func GetCollegePlayerByID(id string) structs.CollegePlayerResponse {
 		AcademicBias:          player.AcademicBias,
 		PlayerID:              player.PlayerID,
 		TeamID:                player.TeamID,
-		TeamAbbr:              player.TeamAbbr,
+		Team:                  player.Team,
 		IsRedshirting:         player.IsRedshirting,
 		IsRedshirt:            player.IsRedshirt,
-		PositionOne:           player.PositionOne,
-		PositionTwo:           player.PositionTwo,
-		PositionThree:         player.PositionThree,
-		P1Minutes:             player.P1Minutes,
-		P2Minutes:             player.P2Minutes,
-		P3Minutes:             player.P3Minutes,
-		InsideProportion:      player.InsideProportion,
-		MidRangeProportion:    player.MidRangeProportion,
-		ThreePointProportion:  player.ThreePointProportion,
 	}
 }
 
@@ -86,10 +76,10 @@ func GetCollegePlayerByNameAndAbbr(firstName, lastName, abbr string) structs.Col
 	if err != nil {
 		log.Fatal(err)
 	}
-	shooting2Grade := util.GetAttributeGrade(player.Shooting2)
-	shooting3Grade := util.GetAttributeGrade(player.Shooting3)
+	shooting2Grade := util.GetAttributeGrade(player.MidRangeShooting)
+	shooting3Grade := util.GetAttributeGrade(player.ThreePointShooting)
 	freeThrowGrade := util.GetAttributeGrade(player.FreeThrow)
-	finishingGrade := util.GetAttributeGrade(player.Finishing)
+	finishingGrade := util.GetAttributeGrade(player.InsideShooting)
 	reboundingGrade := util.GetAttributeGrade(player.Rebounding)
 	ballworkGrade := util.GetAttributeGrade(player.Ballwork)
 	interiorDefenseGrade := util.GetAttributeGrade(player.InteriorDefense)
@@ -120,7 +110,6 @@ func GetCollegePlayerByNameAndAbbr(firstName, lastName, abbr string) structs.Col
 		OverallGrade:          overallGrade,
 		Stamina:               player.Stamina,
 		PlaytimeExpectations:  player.PlaytimeExpectations,
-		Minutes:               player.Minutes,
 		Potential:             player.Potential,
 		Personality:           player.Personality,
 		RecruitingBias:        player.RecruitingBias,
@@ -128,18 +117,9 @@ func GetCollegePlayerByNameAndAbbr(firstName, lastName, abbr string) structs.Col
 		AcademicBias:          player.AcademicBias,
 		PlayerID:              player.PlayerID,
 		TeamID:                player.TeamID,
-		TeamAbbr:              player.TeamAbbr,
+		Team:                  player.Team,
 		IsRedshirting:         player.IsRedshirting,
 		IsRedshirt:            player.IsRedshirt,
-		PositionOne:           player.PositionOne,
-		PositionTwo:           player.PositionTwo,
-		PositionThree:         player.PositionThree,
-		P1Minutes:             player.P1Minutes,
-		P2Minutes:             player.P2Minutes,
-		P3Minutes:             player.P3Minutes,
-		InsideProportion:      player.InsideProportion,
-		MidRangeProportion:    player.MidRangeProportion,
-		ThreePointProportion:  player.ThreePointProportion,
 	}
 }
 
