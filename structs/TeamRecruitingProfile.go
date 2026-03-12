@@ -25,6 +25,7 @@ type TeamRecruitingProfile struct {
 	Region                  string
 	ScholarshipsAvailable   int
 	WeeklyPoints            int
+	WeeklyScoutingPoints    uint8
 	BonusPoints             int
 	SpentPoints             int
 	TotalCommitments        int
@@ -54,12 +55,13 @@ type TeamRecruitingProfile struct {
 	DefensiveScheme         string
 	Recruiter               string
 	CaughtCheating          bool
-	Recruits                []PlayerRecruitProfile `gorm:"foreignKey:ProfileID"`
+	Recruits                []RecruitPlayerProfile `gorm:"foreignKey:ProfileID"`
 	ProfileAttributes
 }
 
 func (r *TeamRecruitingProfile) ResetSpentPoints() {
 	r.SpentPoints = 0
+	r.WeeklyScoutingPoints = 50
 }
 
 func (r *TeamRecruitingProfile) SubtractScholarshipsAvailable() {
@@ -96,11 +98,17 @@ func (r *TeamRecruitingProfile) AIResetPoints() {
 	r.SpentPoints = 0
 }
 
+func (r *TeamRecruitingProfile) SubtractScoutingPoints() {
+	if r.WeeklyScoutingPoints > 0 {
+		r.WeeklyScoutingPoints--
+	}
+}
+
 func (r *TeamRecruitingProfile) ResetWeeklyPoints(points int) {
 	r.WeeklyPoints = points
 }
 
-func (r *TeamRecruitingProfile) AddRecruitsToProfile(croots []PlayerRecruitProfile) {
+func (r *TeamRecruitingProfile) AddRecruitsToProfile(croots []RecruitPlayerProfile) {
 	r.Recruits = croots
 }
 

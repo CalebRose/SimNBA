@@ -342,7 +342,7 @@ func RunDeclarationsAlgorithm() {
 		willDeclare := DetermineIfDeclaring(c)
 		if willDeclare {
 			c.SetDeclarationStatus()
-			db.Save(&c)
+			repository.SaveCollegePlayerRecord(c, db)
 		}
 	}
 }
@@ -471,27 +471,31 @@ func DetermineIfDeclaring(player structs.CollegePlayer) bool {
 		return true
 	}
 	ovr := player.Overall
-	if ovr < 64 || player.IsRedshirting {
+	if ovr < 20 || player.IsRedshirting {
 		return false
 	}
 	odds := util.GenerateIntFromRange(1, 100)
-	if ovr > 64 && odds <= 20 {
+	if ovr > 19 && odds <= 2 {
 		return true
-	} else if ovr > 68 && odds <= 35 {
+	} else if ovr > 21 && odds <= 5 {
 		return true
-	} else if ovr > 70 && odds <= 40 {
+	} else if ovr > 22 && odds <= 8 {
 		return true
-	} else if ovr > 74 && odds <= 50 {
+	} else if ovr > 23 && odds <= 15 {
 		return true
-	} else if ovr > 76 && odds <= 75 {
+	} else if ovr > 24 && odds <= 20 {
 		return true
-	} else if ovr > 80 && odds <= 80 {
+	} else if ovr > 25 && odds <= 50 {
 		return true
-	} else if ovr > 82 && odds <= 85 {
+	} else if ovr > 26 && odds <= 75 {
 		return true
-	} else if ovr > 84 && odds <= 95 {
+	} else if ovr > 27 && odds <= 80 {
 		return true
-	} else if ovr > 89 {
+	} else if ovr > 28 && odds <= 85 {
+		return true
+	} else if ovr > 29 && odds <= 95 {
+		return true
+	} else if ovr > 30 {
 		return true
 	}
 	return false
@@ -652,8 +656,8 @@ func NBACombineForDraft() {
 		}
 		strength := GetCombineValue(draftee.OverallGrade, draftee.Overall, true)
 		agility := GetCombineValue(draftee.OverallGrade, draftee.Overall, true)
-		shooting2 := GetCombineValue(draftee.Shooting2Grade, draftee.MidRangeShooting, false)
-		shooting3 := GetCombineValue(draftee.Shooting3Grade, draftee.ThreePointShooting, false)
+		shooting2 := GetCombineValue(draftee.MidrangeShootingGrade, draftee.MidRangeShooting, false)
+		shooting3 := GetCombineValue(draftee.ThreePointShootingGrade, draftee.ThreePointShooting, false)
 		passing := GetCombineValue(draftee.BallworkGrade, draftee.Ballwork, false)
 		blocking := GetCombineValue(draftee.InteriorDefenseGrade, draftee.PerimeterDefense, false)
 		stealing := GetCombineValue(draftee.BallworkGrade, draftee.Ballwork, false)

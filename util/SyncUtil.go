@@ -8,8 +8,8 @@ import (
 	"github.com/CalebRose/SimNBA/structs"
 )
 
-func FilterOutRecruitingProfile(profiles []structs.PlayerRecruitProfile, ID int) []structs.PlayerRecruitProfile {
-	var rp []structs.PlayerRecruitProfile
+func FilterOutRecruitingProfile(profiles []structs.RecruitPlayerProfile, ID int) []structs.RecruitPlayerProfile {
+	var rp []structs.RecruitPlayerProfile
 
 	for _, profile := range profiles {
 		if int(profile.ID) != ID {
@@ -279,7 +279,7 @@ func IsAITeamContendingForPortalPlayer(profiles []structs.TransferPortalProfile)
 	return leadingVal
 }
 
-func IsAITeamContendingForCroot(profiles []structs.PlayerRecruitProfile) int {
+func IsAITeamContendingForCroot(profiles []structs.RecruitPlayerProfile) int {
 	if len(profiles) == 0 {
 		return 0
 	}

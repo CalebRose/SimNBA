@@ -264,6 +264,6 @@ func UpdateTeamProfileAffinities() {
 		}
 		affinities.ConferencePrestige = uint8(conferencePrestige)
 		teamProfile.UpdateTeamProfileAffinities(affinities)
-		repository.SaveCBBTeamRecruitingProfile(teamProfile, db)
+		repository.SaveTeamRecruitingProfileRecord(teamProfile, db)
 	}
 }

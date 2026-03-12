@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/CalebRose/SimNBA/managers"
@@ -8,4 +9,11 @@ import (
 
 func MigrateMissingRecruits(w http.ResponseWriter, r *http.Request) {
 	managers.MigrateMissingRecruits()
+}
+
+func Migrate2026Data(w http.ResponseWriter, r *http.Request) {
+	managers.Migration2026Main()
+
+	fmt.Println("Migration Complete.")
+	w.WriteHeader(http.StatusOK)
 }

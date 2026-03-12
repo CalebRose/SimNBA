@@ -43,7 +43,7 @@ type BootstrapData struct {
 	GLeaguePlayers         []structs.NBAPlayer
 	InternationalPlayers   []structs.NBAPlayer
 	Recruits               []structs.Croot
-	RecruitProfiles        []structs.PlayerRecruitProfile
+	RecruitProfiles        []structs.RecruitPlayerProfile
 	FreeAgentOffers        []structs.NBAContractOffer
 	WaiverOffers           []structs.NBAWaiverOffer
 	ProNews                []structs.NewsLog
@@ -374,7 +374,7 @@ func GetBootstrapDataRecruiting(collegeID string) BootstrapData {
 	var (
 		teamProfileMap  map[string]*structs.TeamRecruitingProfile
 		recruits        []structs.Croot
-		recruitProfiles []structs.PlayerRecruitProfile
+		recruitProfiles []structs.RecruitPlayerProfile
 	)
 
 	if len(collegeID) > 0 && collegeID != "0" {
@@ -386,7 +386,7 @@ func GetBootstrapDataRecruiting(collegeID string) BootstrapData {
 
 		go func() {
 			defer wg.Done()
-			recruitProfiles = repository.FindRecruitPlayerProfileRecords(collegeID, "", false, false, true)
+			recruitProfiles = repository.FindRecruitPlayerProfileRecords(repository.RecruitProfileClauses{ProfileID: collegeID, RemoveFromBoard: true})
 		}()
 
 		go func() {

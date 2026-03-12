@@ -11,11 +11,22 @@ type CrootLocation struct {
 	HighSchool string
 }
 
+type PlayerPreferences struct {
+	ProgramPref        uint8
+	ProfDevPref        uint8
+	TraditionsPref     uint8
+	FacilitiesPref     uint8
+	AtmospherePref     uint8
+	AcademicsPref      uint8
+	ConferencePref     uint8
+	CoachPref          uint8
+	SeasonMomentumPref uint8
+	CampusLifePref     uint8
+}
+
 type Recruit struct {
 	gorm.Model
 	PlayerID uint
-	TeamID   uint
-	TeamAbbr string
 	BasePlayer
 	UninterestedThreshold int
 	LowInterestThreshold  int
@@ -32,7 +43,8 @@ type Recruit struct {
 	IsTransfer            bool
 	IsCustomCroot         bool
 	CreatedFor            string
-	RecruitProfiles       []PlayerRecruitProfile `gorm:"foreignKey:RecruitID"`
+	PlayerPreferences
+	RecruitProfiles []RecruitPlayerProfile `gorm:"foreignKey:RecruitID"`
 	// RecruitPoints         []RecruitPointAllocation `gorm:"foreignKey:RecruitID"`
 }
 
@@ -91,7 +103,7 @@ func (r *Recruit) UpdateTeamID(id uint) {
 }
 
 func (r *Recruit) AssignCollege(abbr string) {
-	r.TeamAbbr = abbr
+	r.Team = abbr
 }
 
 func (r *Recruit) AssignRecruitModifier(mod int) {

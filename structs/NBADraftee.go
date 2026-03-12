@@ -5,32 +5,35 @@ import "github.com/jinzhu/gorm"
 type NBADraftee struct {
 	gorm.Model
 	BasePlayer
-	PlayerID              uint
-	CollegeID             uint
-	College               string
-	DraftPickID           uint
-	DraftPick             string
-	DraftedTeamID         uint
-	DraftedTeam           string
-	PrimeAge              int
-	StandingReach         string
-	VerticalLeap          float64
-	LaneAgility           float64
-	MaxVerticalLeap       float64
-	ThreeQuarterSprint    float64
-	ShuttleRun            float64
-	WingSpan              string
-	Shooting2Grade        string
-	Shooting3Grade        string
-	FreeThrowGrade        string
-	FinishingGrade        string
-	BallworkGrade         string
-	ReboundingGrade       string
-	InteriorDefenseGrade  string
-	PerimeterDefenseGrade string
-	OverallGrade          string
-	Prediction            int
-	IsInternational       bool
+	PlayerID                uint
+	CollegeID               uint
+	College                 string
+	DraftPickID             uint
+	DraftPick               string
+	DraftedTeamID           uint
+	DraftedTeam             string
+	PrimeAge                int
+	StandingReach           string
+	VerticalLeap            float64
+	LaneAgility             float64
+	MaxVerticalLeap         float64
+	ThreeQuarterSprint      float64
+	ShuttleRun              float64
+	WingSpan                string
+	MidrangeShootingGrade   string
+	ThreePointShootingGrade string
+	FreeThrowGrade          string
+	InsideShootingGrade     string
+	BallworkGrade           string
+	AgilityGrade            string
+	StealingGrade           string
+	BlockingGrade           string
+	ReboundingGrade         string
+	InteriorDefenseGrade    string
+	PerimeterDefenseGrade   string
+	OverallGrade            string
+	Prediction              int
+	IsInternational         bool
 }
 
 func (n *NBADraftee) Map(cp CollegePlayer) {
@@ -53,6 +56,9 @@ func (n *NBADraftee) Map(cp CollegePlayer) {
 	n.FreeThrow = cp.FreeThrow
 	n.InsideShooting = cp.InsideShooting
 	n.Ballwork = cp.Ballwork
+	n.Agility = cp.Agility
+	n.Stealing = cp.Stealing
+	n.Blocking = cp.Blocking
 	n.Rebounding = cp.Rebounding
 	n.InteriorDefense = cp.InteriorDefense
 	n.PerimeterDefense = cp.PerimeterDefense
@@ -73,6 +79,9 @@ func (n *NBADraftee) Map(cp CollegePlayer) {
 	n.SpecRebounding = cp.SpecRebounding
 	n.SpecMidRangeShooting = cp.SpecMidRangeShooting
 	n.SpecThreePointShooting = cp.SpecThreePointShooting
+	n.SpecAgility = cp.SpecAgility
+	n.SpecStealing = cp.SpecStealing
+	n.SpecBlocking = cp.SpecBlocking
 }
 
 func (n *NBADraftee) MapInternational(cp NBAPlayer) {
@@ -127,10 +136,10 @@ func (n *NBADraftee) AssignProPotentialGrade(potential uint8) {
 }
 
 func (n *NBADraftee) ApplyGrades(s2, s3, ft, fn, bw, rb, id, pd, ov string) {
-	n.Shooting2Grade = s2
-	n.Shooting3Grade = s3
+	n.MidrangeShootingGrade = s2
+	n.ThreePointShootingGrade = s3
 	n.FreeThrowGrade = ft
-	n.FinishingGrade = fn
+	n.InsideShootingGrade = fn
 	n.BallworkGrade = bw
 	n.ReboundingGrade = rb
 	n.InteriorDefenseGrade = id

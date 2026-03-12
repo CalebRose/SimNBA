@@ -18,4 +18,5 @@ type CreateRecruitProfileDtoV2 struct {
 	HasStateBonus  bool
 	HasRegionBonus bool
 	Team           string
+	Recruit        Recruit
 }

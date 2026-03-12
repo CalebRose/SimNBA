@@ -86,7 +86,7 @@ func (c *Croot) Map(r Recruit) {
 	c.WorkEthic = r.WorkEthic
 	c.State = r.State
 	c.Country = r.Country
-	c.College = r.TeamAbbr
+	c.College = r.Team
 	c.IsSigned = r.IsSigned
 	c.SigningStatus = r.SigningStatus
 	c.ESPNRank = r.ESPNRank

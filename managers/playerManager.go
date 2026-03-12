@@ -36,18 +36,21 @@ func GetTeamRosterForRosterPage(teamId string) []structs.CollegePlayerResponse {
 	}
 
 	for _, p := range players {
-		shooting2Grade := util.GetAttributeGrade(p.MidRangeShooting)
-		shooting3Grade := util.GetAttributeGrade(p.ThreePointShooting)
-		freeThrowGrade := util.GetAttributeGrade(p.FreeThrow)
-		finishingGrade := util.GetAttributeGrade(p.InsideShooting)
-		reboundingGrade := util.GetAttributeGrade(p.Rebounding)
-		ballworkGrade := util.GetAttributeGrade(p.Ballwork)
-		interiorDefenseGrade := util.GetAttributeGrade(p.InteriorDefense)
-		perimeterDefenseGrade := util.GetAttributeGrade(p.PerimeterDefense)
+		shooting2Grade := util.GetAttributeGrade(p.MidRangeShooting, int(p.Year))
+		shooting3Grade := util.GetAttributeGrade(p.ThreePointShooting, int(p.Year))
+		freeThrowGrade := util.GetAttributeGrade(p.FreeThrow, int(p.Year))
+		finishingGrade := util.GetAttributeGrade(p.InsideShooting, int(p.Year))
+		reboundingGrade := util.GetAttributeGrade(p.Rebounding, int(p.Year))
+		ballworkGrade := util.GetAttributeGrade(p.Ballwork, int(p.Year))
+		interiorDefenseGrade := util.GetAttributeGrade(p.InteriorDefense, int(p.Year))
+		perimeterDefenseGrade := util.GetAttributeGrade(p.PerimeterDefense, int(p.Year))
+		agilityGrade := util.GetAttributeGrade(p.Agility, int(p.Year))
+		stealingGrade := util.GetAttributeGrade(p.Stealing, int(p.Year))
+		blockingGrade := util.GetAttributeGrade(p.Blocking, int(p.Year))
 		potentialGrade := util.GetPotentialGrade(p.Potential)
-		overallGrade := util.GetPlayerOverallGrade(p.Overall)
-		discGrade := util.GetAttributeGrade(p.Discipline)
-		injGrade := util.GetAttributeGrade(p.InjuryRating)
+		overallGrade := util.GetAttributeGrade(p.Overall, int(p.Year))
+		discGrade := util.GetAttributeGrade(p.Discipline, int(p.Year))
+		injGrade := util.GetAttributeGrade(p.InjuryRating, int(p.Year))
 
 		res := structs.CollegePlayerResponse{
 			FirstName:             p.FirstName,
@@ -65,6 +68,9 @@ func GetTeamRosterForRosterPage(teamId string) []structs.CollegePlayerResponse {
 			FreeThrowGrade:        freeThrowGrade,
 			FinishingGrade:        finishingGrade,
 			BallworkGrade:         ballworkGrade,
+			AgilityGrade:          agilityGrade,
+			StealingGrade:         stealingGrade,
+			BlockingGrade:         blockingGrade,
 			ReboundingGrade:       reboundingGrade,
 			InteriorDefenseGrade:  interiorDefenseGrade,
 			PerimeterDefenseGrade: perimeterDefenseGrade,
@@ -427,7 +433,7 @@ func GetTransferPortalPlayersForPage() []structs.TransferPlayerResponse {
 
 	for _, p := range players {
 		res := structs.TransferPlayerResponse{}
-		ovr := util.GetPlayerOverallGrade(p.Overall)
+		ovr := util.GetAttributeGrade(p.Overall, int(p.Year))
 		res.Map(p, ovr)
 
 		playerList = append(playerList, res)
@@ -493,16 +499,19 @@ func GetAllCollegePlayersWithSeasonStats(seasonID, weekID, matchType, viewType s
 		if viewType == "WEEK" {
 			stat = p.Stats[0]
 		}
-		shooting2Grade := util.GetAttributeGrade(p.MidRangeShooting)
-		shooting3Grade := util.GetAttributeGrade(p.ThreePointShooting)
-		freeThrowGrade := util.GetAttributeGrade(p.FreeThrow)
-		finishingGrade := util.GetAttributeGrade(p.InsideShooting)
-		reboundingGrade := util.GetAttributeGrade(p.Rebounding)
-		ballworkGrade := util.GetAttributeGrade(p.Ballwork)
-		interiorDefenseGrade := util.GetAttributeGrade(p.InteriorDefense)
-		perimeterDefenseGrade := util.GetAttributeGrade(p.PerimeterDefense)
+		shooting2Grade := util.GetAttributeGrade(p.MidRangeShooting, int(p.Year))
+		shooting3Grade := util.GetAttributeGrade(p.ThreePointShooting, int(p.Year))
+		freeThrowGrade := util.GetAttributeGrade(p.FreeThrow, int(p.Year))
+		finishingGrade := util.GetAttributeGrade(p.InsideShooting, int(p.Year))
+		reboundingGrade := util.GetAttributeGrade(p.Rebounding, int(p.Year))
+		ballworkGrade := util.GetAttributeGrade(p.Ballwork, int(p.Year))
+		interiorDefenseGrade := util.GetAttributeGrade(p.InteriorDefense, int(p.Year))
+		perimeterDefenseGrade := util.GetAttributeGrade(p.PerimeterDefense, int(p.Year))
+		agilityGrade := util.GetAttributeGrade(p.Agility, int(p.Year))
+		stealingGrade := util.GetAttributeGrade(p.Stealing, int(p.Year))
+		blockingGrade := util.GetAttributeGrade(p.Blocking, int(p.Year))
 		potentialGrade := util.GetPotentialGrade(p.Potential)
-		overallGrade := util.GetPlayerOverallGrade(p.Overall)
+		overallGrade := util.GetAttributeGrade(p.Overall, int(p.Year))
 		var playerRes = structs.CollegePlayerResponse{
 			FirstName:             p.FirstName,
 			LastName:              p.LastName,
@@ -518,6 +527,9 @@ func GetAllCollegePlayersWithSeasonStats(seasonID, weekID, matchType, viewType s
 			Shooting3Grade:        shooting3Grade,
 			FreeThrowGrade:        freeThrowGrade,
 			FinishingGrade:        finishingGrade,
+			AgilityGrade:          agilityGrade,
+			StealingGrade:         stealingGrade,
+			BlockingGrade:         blockingGrade,
 			BallworkGrade:         ballworkGrade,
 			ReboundingGrade:       reboundingGrade,
 			InteriorDefenseGrade:  interiorDefenseGrade,
@@ -562,16 +574,19 @@ func GetAllCollegePlayersWithSeasonStats(seasonID, weekID, matchType, viewType s
 			if viewType == "WEEK" {
 				stat = p.Stats[0]
 			}
-			shooting2Grade := util.GetAttributeGrade(p.MidRangeShooting)
-			shooting3Grade := util.GetAttributeGrade(p.ThreePointShooting)
-			freeThrowGrade := util.GetAttributeGrade(p.FreeThrow)
-			finishingGrade := util.GetAttributeGrade(p.InsideShooting)
-			reboundingGrade := util.GetAttributeGrade(p.Rebounding)
-			ballworkGrade := util.GetAttributeGrade(p.Ballwork)
-			interiorDefenseGrade := util.GetAttributeGrade(p.InteriorDefense)
-			perimeterDefenseGrade := util.GetAttributeGrade(p.PerimeterDefense)
+			shooting2Grade := util.GetAttributeGrade(p.MidRangeShooting, int(p.Year))
+			shooting3Grade := util.GetAttributeGrade(p.ThreePointShooting, int(p.Year))
+			freeThrowGrade := util.GetAttributeGrade(p.FreeThrow, int(p.Year))
+			finishingGrade := util.GetAttributeGrade(p.InsideShooting, int(p.Year))
+			reboundingGrade := util.GetAttributeGrade(p.Rebounding, int(p.Year))
+			ballworkGrade := util.GetAttributeGrade(p.Ballwork, int(p.Year))
+			interiorDefenseGrade := util.GetAttributeGrade(p.InteriorDefense, int(p.Year))
+			perimeterDefenseGrade := util.GetAttributeGrade(p.PerimeterDefense, int(p.Year))
+			agilityGrade := util.GetAttributeGrade(p.Agility, int(p.Year))
+			stealingGrade := util.GetAttributeGrade(p.Stealing, int(p.Year))
+			blockingGrade := util.GetAttributeGrade(p.Blocking, int(p.Year))
 			potentialGrade := util.GetPotentialGrade(p.Potential)
-			overallGrade := util.GetPlayerOverallGrade(p.Overall)
+			overallGrade := util.GetAttributeGrade(p.Overall, int(p.Year))
 			var playerRes = structs.CollegePlayerResponse{
 				FirstName:             p.FirstName,
 				LastName:              p.LastName,
@@ -587,6 +602,9 @@ func GetAllCollegePlayersWithSeasonStats(seasonID, weekID, matchType, viewType s
 				Shooting3Grade:        shooting3Grade,
 				FreeThrowGrade:        freeThrowGrade,
 				FinishingGrade:        finishingGrade,
+				AgilityGrade:          agilityGrade,
+				StealingGrade:         stealingGrade,
+				BlockingGrade:         blockingGrade,
 				BallworkGrade:         ballworkGrade,
 				ReboundingGrade:       reboundingGrade,
 				InteriorDefenseGrade:  interiorDefenseGrade,
@@ -645,16 +663,19 @@ func GetAllNBAPlayersWithSeasonStats(seasonID, weekID, matchType, viewType strin
 		if viewType == "WEEK" {
 			stat = p.Stats[0]
 		}
-		shooting2Grade := util.GetAttributeGrade(p.MidRangeShooting)
-		shooting3Grade := util.GetAttributeGrade(p.ThreePointShooting)
-		freeThrowGrade := util.GetAttributeGrade(p.FreeThrow)
-		finishingGrade := util.GetAttributeGrade(p.InsideShooting)
-		reboundingGrade := util.GetAttributeGrade(p.Rebounding)
-		ballworkGrade := util.GetAttributeGrade(p.Ballwork)
-		interiorDefenseGrade := util.GetAttributeGrade(p.InteriorDefense)
-		perimeterDefenseGrade := util.GetAttributeGrade(p.PerimeterDefense)
+		shooting2Grade := util.GetAttributeGrade(p.MidRangeShooting, int(p.Year))
+		shooting3Grade := util.GetAttributeGrade(p.ThreePointShooting, int(p.Year))
+		freeThrowGrade := util.GetAttributeGrade(p.FreeThrow, int(p.Year))
+		finishingGrade := util.GetAttributeGrade(p.InsideShooting, int(p.Year))
+		reboundingGrade := util.GetAttributeGrade(p.Rebounding, int(p.Year))
+		ballworkGrade := util.GetAttributeGrade(p.Ballwork, int(p.Year))
+		interiorDefenseGrade := util.GetAttributeGrade(p.InteriorDefense, int(p.Year))
+		perimeterDefenseGrade := util.GetAttributeGrade(p.PerimeterDefense, int(p.Year))
+		agilityGrade := util.GetAttributeGrade(p.Agility, int(p.Year))
+		stealingGrade := util.GetAttributeGrade(p.Stealing, int(p.Year))
+		blockingGrade := util.GetAttributeGrade(p.Blocking, int(p.Year))
 		potentialGrade := util.GetPotentialGrade(p.Potential)
-		overallGrade := util.GetPlayerOverallGrade(p.Overall)
+		overallGrade := util.GetAttributeGrade(p.Overall, int(p.Year))
 		var playerRes = structs.NBAPlayerResponse{
 			FirstName:             p.FirstName,
 			LastName:              p.LastName,
@@ -670,6 +691,9 @@ func GetAllNBAPlayersWithSeasonStats(seasonID, weekID, matchType, viewType strin
 			Shooting3Grade:        shooting3Grade,
 			FreeThrowGrade:        freeThrowGrade,
 			FinishingGrade:        finishingGrade,
+			AgilityGrade:          agilityGrade,
+			StealingGrade:         stealingGrade,
+			BlockingGrade:         blockingGrade,
 			BallworkGrade:         ballworkGrade,
 			ReboundingGrade:       reboundingGrade,
 			InteriorDefenseGrade:  interiorDefenseGrade,
@@ -712,16 +736,19 @@ func GetAllNBAPlayersWithSeasonStats(seasonID, weekID, matchType, viewType strin
 			if viewType == "WEEK" {
 				stat = p.Stats[0]
 			}
-			shooting2Grade := util.GetAttributeGrade(p.MidRangeShooting)
-			shooting3Grade := util.GetAttributeGrade(p.ThreePointShooting)
-			freeThrowGrade := util.GetAttributeGrade(p.FreeThrow)
-			finishingGrade := util.GetAttributeGrade(p.InsideShooting)
-			reboundingGrade := util.GetAttributeGrade(p.Rebounding)
-			ballworkGrade := util.GetAttributeGrade(p.Ballwork)
-			interiorDefenseGrade := util.GetAttributeGrade(p.InteriorDefense)
-			perimeterDefenseGrade := util.GetAttributeGrade(p.PerimeterDefense)
+			shooting2Grade := util.GetAttributeGrade(p.MidRangeShooting, int(p.Year))
+			shooting3Grade := util.GetAttributeGrade(p.ThreePointShooting, int(p.Year))
+			freeThrowGrade := util.GetAttributeGrade(p.FreeThrow, int(p.Year))
+			finishingGrade := util.GetAttributeGrade(p.InsideShooting, int(p.Year))
+			reboundingGrade := util.GetAttributeGrade(p.Rebounding, int(p.Year))
+			ballworkGrade := util.GetAttributeGrade(p.Ballwork, int(p.Year))
+			interiorDefenseGrade := util.GetAttributeGrade(p.InteriorDefense, int(p.Year))
+			perimeterDefenseGrade := util.GetAttributeGrade(p.PerimeterDefense, int(p.Year))
+			agilityGrade := util.GetAttributeGrade(p.Agility, int(p.Year))
+			stealingGrade := util.GetAttributeGrade(p.Stealing, int(p.Year))
+			blockingGrade := util.GetAttributeGrade(p.Blocking, int(p.Year))
 			potentialGrade := util.GetPotentialGrade(p.Potential)
-			overallGrade := util.GetPlayerOverallGrade(p.Overall)
+			overallGrade := util.GetAttributeGrade(p.Overall, int(p.Year))
 			var playerRes = structs.NBAPlayerResponse{
 				FirstName:             p.FirstName,
 				LastName:              p.LastName,
@@ -737,6 +764,9 @@ func GetAllNBAPlayersWithSeasonStats(seasonID, weekID, matchType, viewType strin
 				Shooting3Grade:        shooting3Grade,
 				FreeThrowGrade:        freeThrowGrade,
 				FinishingGrade:        finishingGrade,
+				AgilityGrade:          agilityGrade,
+				StealingGrade:         stealingGrade,
+				BlockingGrade:         blockingGrade,
 				BallworkGrade:         ballworkGrade,
 				ReboundingGrade:       reboundingGrade,
 				InteriorDefenseGrade:  interiorDefenseGrade,

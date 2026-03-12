@@ -18,6 +18,9 @@ type CollegePlayerResponse struct {
 	FreeThrowGrade        string
 	FinishingGrade        string
 	BallworkGrade         string
+	AgilityGrade          string
+	StealingGrade         string
+	BlockingGrade         string
 	ReboundingGrade       string
 	InteriorDefenseGrade  string
 	PerimeterDefenseGrade string
@@ -78,6 +81,9 @@ type NBAPlayerResponse struct {
 	FreeThrowGrade        string
 	FinishingGrade        string
 	BallworkGrade         string
+	AgilityGrade          string
+	StealingGrade         string
+	BlockingGrade         string
 	ReboundingGrade       string
 	InteriorDefenseGrade  string
 	PerimeterDefenseGrade string

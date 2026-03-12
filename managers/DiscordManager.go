@@ -20,16 +20,19 @@ func GetCollegePlayerByID(id string) structs.CollegePlayerResponse {
 	if err != nil {
 		log.Fatal(err)
 	}
-	shooting2Grade := util.GetAttributeGrade(player.MidRangeShooting)
-	shooting3Grade := util.GetAttributeGrade(player.ThreePointShooting)
-	freeThrowGrade := util.GetAttributeGrade(player.FreeThrow)
-	finishingGrade := util.GetAttributeGrade(player.InsideShooting)
-	reboundingGrade := util.GetAttributeGrade(player.Rebounding)
-	ballworkGrade := util.GetAttributeGrade(player.Ballwork)
-	interiorDefenseGrade := util.GetAttributeGrade(player.InteriorDefense)
-	perimeterDefenseGrade := util.GetAttributeGrade(player.PerimeterDefense)
+	shooting2Grade := util.GetAttributeGrade(player.MidRangeShooting, int(player.Year))
+	shooting3Grade := util.GetAttributeGrade(player.ThreePointShooting, int(player.Year))
+	freeThrowGrade := util.GetAttributeGrade(player.FreeThrow, int(player.Year))
+	finishingGrade := util.GetAttributeGrade(player.InsideShooting, int(player.Year))
+	reboundingGrade := util.GetAttributeGrade(player.Rebounding, int(player.Year))
+	ballworkGrade := util.GetAttributeGrade(player.Ballwork, int(player.Year))
+	interiorDefenseGrade := util.GetAttributeGrade(player.InteriorDefense, int(player.Year))
+	perimeterDefenseGrade := util.GetAttributeGrade(player.PerimeterDefense, int(player.Year))
+	agilityGrade := util.GetAttributeGrade(player.Agility, int(player.Year))
+	stealingGrade := util.GetAttributeGrade(player.Stealing, int(player.Year))
+	blockingGrade := util.GetAttributeGrade(player.Blocking, int(player.Year))
 	potentialGrade := util.GetPotentialGrade(player.Potential)
-	overallGrade := util.GetPlayerOverallGrade(player.Overall)
+	overallGrade := util.GetAttributeGrade(player.Overall, int(player.Year))
 
 	return structs.CollegePlayerResponse{
 		FirstName:             player.FirstName,
@@ -47,6 +50,9 @@ func GetCollegePlayerByID(id string) structs.CollegePlayerResponse {
 		Shooting3Grade:        shooting3Grade,
 		FreeThrowGrade:        freeThrowGrade,
 		FinishingGrade:        finishingGrade,
+		AgilityGrade:          agilityGrade,
+		StealingGrade:         stealingGrade,
+		BlockingGrade:         blockingGrade,
 		BallworkGrade:         ballworkGrade,
 		ReboundingGrade:       reboundingGrade,
 		InteriorDefenseGrade:  interiorDefenseGrade,
@@ -76,16 +82,19 @@ func GetCollegePlayerByNameAndAbbr(firstName, lastName, abbr string) structs.Col
 	if err != nil {
 		log.Fatal(err)
 	}
-	shooting2Grade := util.GetAttributeGrade(player.MidRangeShooting)
-	shooting3Grade := util.GetAttributeGrade(player.ThreePointShooting)
-	freeThrowGrade := util.GetAttributeGrade(player.FreeThrow)
-	finishingGrade := util.GetAttributeGrade(player.InsideShooting)
-	reboundingGrade := util.GetAttributeGrade(player.Rebounding)
-	ballworkGrade := util.GetAttributeGrade(player.Ballwork)
-	interiorDefenseGrade := util.GetAttributeGrade(player.InteriorDefense)
-	perimeterDefenseGrade := util.GetAttributeGrade(player.PerimeterDefense)
+	shooting2Grade := util.GetAttributeGrade(player.MidRangeShooting, int(player.Year))
+	shooting3Grade := util.GetAttributeGrade(player.ThreePointShooting, int(player.Year))
+	freeThrowGrade := util.GetAttributeGrade(player.FreeThrow, int(player.Year))
+	finishingGrade := util.GetAttributeGrade(player.InsideShooting, int(player.Year))
+	reboundingGrade := util.GetAttributeGrade(player.Rebounding, int(player.Year))
+	ballworkGrade := util.GetAttributeGrade(player.Ballwork, int(player.Year))
+	interiorDefenseGrade := util.GetAttributeGrade(player.InteriorDefense, int(player.Year))
+	perimeterDefenseGrade := util.GetAttributeGrade(player.PerimeterDefense, int(player.Year))
+	agilityGrade := util.GetAttributeGrade(player.Agility, int(player.Year))
+	stealingGrade := util.GetAttributeGrade(player.Stealing, int(player.Year))
+	blockingGrade := util.GetAttributeGrade(player.Blocking, int(player.Year))
 	potentialGrade := util.GetPotentialGrade(player.Potential)
-	overallGrade := util.GetPlayerOverallGrade(player.Overall)
+	overallGrade := util.GetAttributeGrade(player.Overall, int(player.Year))
 
 	return structs.CollegePlayerResponse{
 		FirstName:             player.FirstName,
@@ -107,6 +116,9 @@ func GetCollegePlayerByNameAndAbbr(firstName, lastName, abbr string) structs.Col
 		ReboundingGrade:       reboundingGrade,
 		InteriorDefenseGrade:  interiorDefenseGrade,
 		PerimeterDefenseGrade: perimeterDefenseGrade,
+		AgilityGrade:          agilityGrade,
+		StealingGrade:         stealingGrade,
+		BlockingGrade:         blockingGrade,
 		OverallGrade:          overallGrade,
 		Stamina:               player.Stamina,
 		PlaytimeExpectations:  player.PlaytimeExpectations,

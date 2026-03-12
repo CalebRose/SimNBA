@@ -678,7 +678,7 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 		State:             state,
 		Country:           country,
 		Height:            uint8(height),
-		Weight:            uint8(weight),
+		Weight:            uint16(weight),
 		Potential:         potential,
 		PotentialGrade:    potentialGrade,
 		ProPotentialGrade: proPotential,
@@ -768,7 +768,7 @@ func createRecruit(position, fName, lName, state, country, cit, hs string, year 
 		State:              state,
 		Country:            country,
 		Height:             uint8(height),
-		Weight:             uint8(weight),
+		Weight:             uint16(weight),
 		Agility:            uint8(agility),
 		InsideShooting:     uint8(insideShooting),
 		MidRangeShooting:   uint8(midRangeShooting),
@@ -796,8 +796,6 @@ func createRecruit(position, fName, lName, state, country, cit, hs string, year 
 	var croot = structs.Recruit{
 		BasePlayer: basePlayer,
 		PlayerID:   id,
-		TeamID:     0,
-		TeamAbbr:   "",
 		IsSigned:   false,
 		IsTransfer: false,
 	}
@@ -863,7 +861,7 @@ func createInternationalPlayer(teamID uint, team, country, ethnicity, position s
 		State:              "",
 		Country:            country,
 		Height:             uint8(height),
-		Weight:             uint8(weight),
+		Weight:             uint16(weight),
 		Agility:            uint8(agility),
 		InsideShooting:     uint8(insideShooting),
 		MidRangeShooting:   uint8(midRangeShooting),
@@ -2287,7 +2285,7 @@ func GenerateCollegeWalkons() {
 	teams := GetAllActiveCollegeTeams()
 	collegePlayers := GetAllCollegePlayers()
 	collegePlayerMapByTeamID := MakeCollegePlayerMapByTeamID(collegePlayers, true)
-	positions := []string{"PG", "SG", "SF", "PF", "C"}
+	positions := []string{"G", "F", "C"}
 	facesBlob := getFaceDataBlob()
 	faces := []structs.FaceData{}
 	globalPlayers := []structs.GlobalPlayer{}
@@ -2310,33 +2308,21 @@ func GenerateCollegeWalkons() {
 		teamNeedsMap := make(map[string]bool)
 		positionCount := make(map[string]int)
 
-		if _, ok := teamNeedsMap["PG"]; !ok {
-			teamNeedsMap["PG"] = true
+		if _, ok := teamNeedsMap["G"]; !ok {
+			teamNeedsMap["G"] = true
 		}
-		if _, ok := teamNeedsMap["SG"]; !ok {
-			teamNeedsMap["SG"] = true
-		}
-		if _, ok := teamNeedsMap["SF"]; !ok {
-			teamNeedsMap["SF"] = true
-		}
-		if _, ok := teamNeedsMap["PF"]; !ok {
-			teamNeedsMap["PF"] = true
+		if _, ok := teamNeedsMap["F"]; !ok {
+			teamNeedsMap["F"] = true
 		}
 		if _, ok := teamNeedsMap["C"]; !ok {
 			teamNeedsMap["C"] = true
 		}
 
-		if _, ok := positionCount["PG"]; !ok {
+		if _, ok := positionCount["G"]; !ok {
 			positionCount["PG"] = 0
 		}
-		if _, ok := positionCount["SG"]; !ok {
-			positionCount["SG"] = 0
-		}
-		if _, ok := positionCount["SF"]; !ok {
+		if _, ok := positionCount["F"]; !ok {
 			positionCount["SF"] = 0
-		}
-		if _, ok := positionCount["PF"]; !ok {
-			positionCount["PF"] = 0
 		}
 		if _, ok := positionCount["C"]; !ok {
 			positionCount["C"] = 0
@@ -2346,14 +2332,10 @@ func GenerateCollegeWalkons() {
 			positionCount[r.Position] += 1
 		}
 
-		if positionCount["PG"] >= 3 {
-			teamNeedsMap["PG"] = false
-		} else if positionCount["SG"] >= 4 {
-			teamNeedsMap["SG"] = false
-		} else if positionCount["SF"] >= 4 {
-			teamNeedsMap["SF"] = false
-		} else if positionCount["PF"] >= 4 {
-			teamNeedsMap["PF"] = false
+		if positionCount["G"] >= 5 {
+			teamNeedsMap["G"] = false
+		} else if positionCount["F"] >= 5 {
+			teamNeedsMap["F"] = false
 		} else if positionCount["C"] >= 3 {
 			teamNeedsMap["C"] = false
 		}
@@ -2366,7 +2348,7 @@ func GenerateCollegeWalkons() {
 			}
 			maxCount := 4
 			posCount := positionCount[p]
-			if p == "PG" || p == "C" {
+			if p == "C" {
 				maxCount = 3
 			}
 
@@ -2374,7 +2356,7 @@ func GenerateCollegeWalkons() {
 			for i := 1; i <= diff; i++ {
 				positionList = append(positionList, p)
 				positionCount[p] += 1
-				if p == "PG" || p == "C" {
+				if p == "C" {
 					teamNeedsMap[p] = positionCount[p] < 3
 				} else {
 					teamNeedsMap[p] = positionCount[p] < 4
@@ -2454,8 +2436,8 @@ func CreateCustomCroots() {
 		croot.SetCustomCroot(crootFor)
 		croot.SetCustomAttribute(attr1)
 		croot.SetCustomAttribute(attr2)
-		croot.AssignOverall()
-		croot.AssignStar()
+		croot.GetOverall()
+		croot.Stars = uint8(star)
 		latestID++
 		crootList = append(crootList, croot)
 	}

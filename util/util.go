@@ -555,14 +555,50 @@ func GetNBATeamGrade(rating int) string {
 	return "F"
 }
 
-func GetAttributeGrade(rating uint8) string {
-	if rating > 16 {
+func GetAttributeGrade(attr uint8, year int) string {
+	if year < 3 {
+		if attr > 23 {
+			return "A"
+		}
+		if attr > 18 {
+			return "B"
+		}
+		if attr > 10 {
+			return "C"
+		}
+		if attr > 5 {
+			return "D"
+		}
+		return "F"
+	}
+	if attr > 29 {
+		return "A+"
+	}
+	if attr > 26 {
 		return "A"
-	} else if rating > 13 {
+	}
+	if attr > 23 {
+		return "A-"
+	}
+	if attr > 20 {
+		return "B+"
+	}
+	if attr > 17 {
 		return "B"
-	} else if rating > 10 {
+	}
+	if attr > 14 {
+		return "B-"
+	}
+	if attr > 11 {
+		return "C+"
+	}
+	if attr > 8 {
 		return "C"
-	} else if rating > 7 {
+	}
+	if attr > 5 {
+		return "C-"
+	}
+	if attr > 2 {
 		return "D"
 	}
 	return "F"
@@ -597,22 +633,6 @@ func GetDrafteeGrade(rating uint8) string {
 		return "C-"
 	}
 	if rating > 5 {
-		return "D"
-	}
-	return "F"
-}
-
-func GetPlayerOverallGrade(rating uint8) string {
-	if rating > 69 {
-		return "A"
-	}
-	if rating > 56 {
-		return "B"
-	}
-	if rating > 48 {
-		return "C"
-	}
-	if rating > 36 {
 		return "D"
 	}
 	return "F"
@@ -812,7 +832,7 @@ func ConvertStringToBool(str string) bool {
 }
 
 func ConvertStringToInt(num string) int {
-	if num == "" {
+	if num == "" || num == "NULL" {
 		return 0
 	}
 	val, err := strconv.Atoi(num)
@@ -824,6 +844,9 @@ func ConvertStringToInt(num string) int {
 }
 
 func ConvertStringToFloat(num string) float64 {
+	if num == "" || num == "NULL" {
+		return 0
+	}
 	floatNum, error := strconv.ParseFloat(num, 64)
 	if error != nil {
 		fmt.Println("Could not convert string to float 64, resetting as 0.")
@@ -1104,4 +1127,233 @@ func GetArchetype(pos string) string {
 		return PickFromStringList([]string{"Point Guard", "Shooting Guard", "Combo Guard", "Slasher", "3-and-D"})
 	}
 	return ""
+}
+
+func RescaleAttribute(attr int) uint8 {
+	// Rescale attribute from 1-40 range to 1-50 range
+	newAttr := 1 + (attr-1)*49/39
+	if newAttr < 1 {
+		return 1
+	}
+	return uint8(newAttr)
+}
+
+func RescaleDisciplineAndInjury(attr int) uint8 {
+	// Rescale attribute from 1-20 range to 1-100 range
+	newAttr := 1 + (attr-1)*99/19
+	if newAttr < 1 {
+		return 1
+	}
+	return uint8(newAttr)
+}
+
+func GenerateSpecialty(pos, arch, attr string) bool {
+	chance := GenerateIntFromRange(0, 9)
+	if chance < 1 {
+		return false
+	}
+
+	mod := 0
+	diceRoll := GenerateIntFromRange(1, 20)
+	if diceRoll == 20 {
+		return true
+	}
+
+	switch pos {
+	case "G":
+		switch arch {
+		case "Point Guard":
+			switch attr {
+			case "Ballwork":
+				mod += 3
+			case "Agility", "PerimeterDefense":
+				mod += 2
+			case "MidRangeShooting", "ThreePointShooting", "FreeThrow", "Stealing":
+				mod += 1
+			case "InteriorDefense":
+				mod -= 2
+			case "InsideShooting", "Rebounding", "Blocking":
+				mod -= 3
+			}
+		case "Shooting Guard":
+			switch attr {
+			case "MidRangeShooting", "ThreePointShooting":
+				mod += 3
+			case "InsideShooting":
+				mod += 2
+			case "FreeThrow", "Stealing", "Agility":
+				mod += 1
+			case "Ballwork":
+				mod -= 2
+			case "InteriorDefense", "PerimeterDefense":
+				mod -= 1
+			case "Rebounding":
+				mod -= 2
+			case "Blocking":
+				mod -= 3
+			}
+		case "Combo Guard":
+			switch attr {
+			case "MidRangeShooting", "ThreePointShooting", "Ballwork":
+				mod += 2
+			case "Agility", "FreeThrow", "Stealing", "PerimeterDefense":
+				mod += 1
+			case "InteriorDefense":
+				mod -= 1
+			case "Rebounding", "Blocking":
+				mod -= 2
+			case "InsideShooting":
+				mod -= 1
+			}
+		case "Slasher":
+			switch attr {
+			case "InsideShooting", "Agility", "Stealing":
+				mod += 3
+			case "Blocking":
+				mod += 2
+			case "FreeThrow", "InteriorDefense", "PerimeterDefense":
+				mod += 1
+			case "Ballwork":
+				mod -= 1
+			case "MidRangeShooting", "Rebounding":
+				mod -= 2
+			case "ThreePointShooting":
+				mod -= 3
+			}
+		case "3-and-D":
+			switch attr {
+			case "ThreePointShooting", "Agility", "PerimeterDefense":
+				mod += 3
+			case "Stealing", "InteriorDefense":
+				mod += 2
+			case "FreeThrow":
+				mod += 1
+			case "MidRangeShooting":
+				mod -= 1
+			case "Rebounding", "Blocking":
+				mod -= 2
+			case "InsideShooting":
+				mod -= 3
+			}
+		case "All-Around":
+			mod += 2 // It's a very rare archetype, give them an edge.
+		}
+	case "F":
+		switch arch {
+		case "Power Forward":
+			switch attr {
+			case "InsideShooting", "MidRangeShooting", "Rebounding", "Blocking", "InteriorDefense":
+				mod += 2
+			case "Stealing":
+				mod += 1
+			case "Agility", "ThreePointShooting":
+				mod -= 1
+			case "Ballwork", "FreeThrow", "PerimeterDefense":
+				mod -= 2
+			}
+		case "Small Forward":
+			switch attr {
+			case "Stealing":
+				mod += 3
+			case "Agility":
+				mod += 2
+			case "FreeThrow", "Rebounding", "Ballwork", "PerimeterDefense":
+				mod += 1
+			case "Blocking":
+				mod -= 1
+			case "InteriorDefense":
+				mod -= 1
+			case "InsideShooting":
+				mod -= 1
+			}
+		case "Point Forward":
+			switch attr {
+			case "Ballwork":
+				mod += 3
+			case "InsideShooting", "FreeThrow":
+				mod += 2
+			case "Agility", "Rebounding", "Stealing", "PerimeterDefense":
+				mod += 1
+			case "ThreePointShooting", "Blocking", "InteriorDefense":
+				mod -= 2
+			}
+		case "Swingman":
+			switch attr {
+			case "Agility":
+				mod += 3
+			case "Stealing", "PerimeterDefense":
+				mod += 2
+			case "MidRangeShooting", "ThreePointShooting", "Ballwork", "FreeThrow":
+				mod += 1
+			case "InsideShooting", "InteriorDefense":
+				mod -= 1
+			case "Rebounding", "Blocking":
+				mod -= 2
+			}
+		case "Two-Way":
+			switch attr {
+			case "Stealing", "Blocking", "InteriorDefense", "PerimeterDefense":
+				mod += 2
+			case "Agility", "Rebounding":
+				mod += 1
+			case "InsideShooting", "MidRangeShooting", "ThreePointShooting", "Ballwork":
+				mod -= 1
+			case "FreeThrow":
+				mod -= 1
+			}
+		case "All-Around":
+			mod += 2 // It's a very rare archetype, give them an edge.
+		}
+	case "C":
+		switch arch {
+		case "Rim Protector":
+			switch attr {
+			case "Blocking", "InteriorDefense":
+				mod += 3
+			case "Rebounding":
+				mod += 2
+			case "InsideShooting":
+				mod += 1
+			case "FreeThrow", "Agility", "Ballwork":
+				mod -= 1
+			case "MidRangeShooting", "PerimeterDefense", "Stealing":
+				mod -= 2
+			case "ThreePointShooting":
+				mod -= 3
+			}
+		case "Post Scorer":
+			switch attr {
+			case "InsideShooting":
+				mod += 3
+			case "MidRangeShooting", "Rebounding", "Blocking", "InteriorDefense":
+				mod += 2
+			case "FreeThrow", "Agility", "Ballwork":
+				mod += 1
+			case "Stealing":
+				mod -= 1
+			case "ThreePointShooting", "PerimeterDefense":
+				mod -= 2
+			}
+		case "Stretch Center":
+			switch attr {
+			case "ThreePointShooting":
+				mod += 3
+			case "MidRangeShooting", "InteriorDefense":
+				mod += 2
+			case "Agility", "Ballwork", "FreeThrow", "PerimeterDefense":
+				mod += 1
+			case "InsideShooting", "Blocking":
+				mod -= 1
+			case "Rebounding", "Stealing":
+				mod -= 2
+			}
+		case "All-Around":
+			mod += 2 // It's a very rare archetype, give them an edge.
+		}
+	}
+
+	if diceRoll+mod > 14 {
+		return true
+	}
+	return false
 }

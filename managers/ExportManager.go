@@ -80,10 +80,10 @@ func ExportCollegePlayers(w http.ResponseWriter) {
 	})
 
 	HeaderRow := []string{
-		"College", "First Name", "Last Name", "Position", "Year", "Is_Redshirt", "Age",
-		"Stars", "State", "Country", "Height",
-		"Overall", "Shooting 2s", "Shooting 3s", "Free Throwing", "Finishing",
-		"Ballwork", "Rebounding", "InteriorDefense", "PerimeterDefense", "Stamina", "Potential Grade",
+		"ID", "College", "First Name", "Last Name", "Position", "Year", "Is_Redshirt", "Age",
+		"Stars", "High School", "City", "State", "Country", "Height", "Weight",
+		"Overall", "Inside Shooting", "MidRange Shooting", "Three Point Shooting", "Free Throwing", "Agility",
+		"Ballwork", "Stealing", "Blocking", "Rebounding", "InteriorDefense", "PerimeterDefense", "Stamina", "Potential Grade",
 		"Personality", "RecruitingBias", "Work Ethic", "Previous Team",
 	}
 
@@ -94,23 +94,26 @@ func ExportCollegePlayers(w http.ResponseWriter) {
 
 	for _, player := range players {
 
-		shooting2Grade := util.GetAttributeGrade(player.MidRangeShooting)
-		shooting3Grade := util.GetAttributeGrade(player.ThreePointShooting)
-		freeThrowGrade := util.GetAttributeGrade(player.FreeThrow)
-		finishingGrade := util.GetAttributeGrade(player.InsideShooting)
-		reboundingGrade := util.GetAttributeGrade(player.Rebounding)
-		ballworkGrade := util.GetAttributeGrade(player.Ballwork)
-		interiorDefenseGrade := util.GetAttributeGrade(player.InteriorDefense)
-		perimeterDefenseGrade := util.GetAttributeGrade(player.PerimeterDefense)
+		shooting2Grade := util.GetAttributeGrade(player.MidRangeShooting, int(player.Year))
+		shooting3Grade := util.GetAttributeGrade(player.ThreePointShooting, int(player.Year))
+		freeThrowGrade := util.GetAttributeGrade(player.FreeThrow, int(player.Year))
+		finishingGrade := util.GetAttributeGrade(player.InsideShooting, int(player.Year))
+		reboundingGrade := util.GetAttributeGrade(player.Rebounding, int(player.Year))
+		ballworkGrade := util.GetAttributeGrade(player.Ballwork, int(player.Year))
+		interiorDefenseGrade := util.GetAttributeGrade(player.InteriorDefense, int(player.Year))
+		perimeterDefenseGrade := util.GetAttributeGrade(player.PerimeterDefense, int(player.Year))
+		agilityGrade := util.GetAttributeGrade(player.Agility, int(player.Year))
+		stealingGrade := util.GetAttributeGrade(player.Stealing, int(player.Year))
+		blockingGrade := util.GetAttributeGrade(player.Blocking, int(player.Year))
 		potentialGrade := util.GetPotentialGrade(player.Potential)
-		overallGrade := util.GetPlayerOverallGrade(player.Overall)
+		overallGrade := util.GetAttributeGrade(player.Overall, int(player.Year))
 		sta := strconv.Itoa(int(player.Stamina))
 
 		playerRow := []string{
-			player.Team, player.FirstName, player.LastName, player.Position, strconv.Itoa(int(player.Year)), strconv.FormatBool(player.IsRedshirt), strconv.Itoa(int(player.Age)),
-			strconv.Itoa(int(player.Stars)), player.State, player.Country, strconv.Itoa(int(player.Height)),
-			overallGrade, shooting2Grade, shooting3Grade, freeThrowGrade, finishingGrade,
-			ballworkGrade, reboundingGrade, interiorDefenseGrade, perimeterDefenseGrade, sta, potentialGrade,
+			strconv.Itoa(int(player.ID)), player.Team, player.FirstName, player.LastName, player.Position, strconv.Itoa(int(player.Year)), strconv.FormatBool(player.IsRedshirt), strconv.Itoa(int(player.Age)),
+			strconv.Itoa(int(player.Stars)), player.HighSchool, player.City, player.State, player.Country, strconv.Itoa(int(player.Height)), strconv.Itoa(int(player.Weight)),
+			overallGrade, finishingGrade, shooting2Grade, shooting3Grade, freeThrowGrade, agilityGrade,
+			ballworkGrade, stealingGrade, blockingGrade, reboundingGrade, interiorDefenseGrade, perimeterDefenseGrade, sta, potentialGrade,
 			player.Personality, player.RecruitingBias, player.WorkEthic, player.PreviousTeam,
 		}
 
@@ -140,8 +143,8 @@ func ExportTransferPortalToCSV(w http.ResponseWriter) {
 	HeaderRow := []string{
 		"College", "First Name", "Last Name", "Position", "Year", "Is_Redshirt", "Age",
 		"Stars", "State", "Country", "Height",
-		"Overall", "Shooting 2s", "Shooting 3s", "Free Throwing", "Finishing",
-		"Ballwork", "Rebounding", "InteriorDefense", "PerimeterDefense", "Stamina", "Potential Grade",
+		"Overall", "Shooting 2s", "Shooting 3s", "Free Throwing", "Finishing", "Agility",
+		"Ballwork", "Rebounding", "Stealing", "Blocking", "InteriorDefense", "PerimeterDefense", "Stamina", "Potential Grade",
 		"Personality", "RecruitingBias", "Work Ethic", "Previous Team",
 	}
 
@@ -151,23 +154,26 @@ func ExportTransferPortalToCSV(w http.ResponseWriter) {
 	}
 
 	for _, player := range players {
-		shooting2Grade := util.GetAttributeGrade(player.MidRangeShooting)
-		shooting3Grade := util.GetAttributeGrade(player.ThreePointShooting)
-		freeThrowGrade := util.GetAttributeGrade(player.FreeThrow)
-		finishingGrade := util.GetAttributeGrade(player.InsideShooting)
-		reboundingGrade := util.GetAttributeGrade(player.Rebounding)
-		ballworkGrade := util.GetAttributeGrade(player.Ballwork)
-		interiorDefenseGrade := util.GetAttributeGrade(player.InteriorDefense)
-		perimeterDefenseGrade := util.GetAttributeGrade(player.PerimeterDefense)
+		shooting2Grade := util.GetAttributeGrade(player.MidRangeShooting, int(player.Year))
+		shooting3Grade := util.GetAttributeGrade(player.ThreePointShooting, int(player.Year))
+		freeThrowGrade := util.GetAttributeGrade(player.FreeThrow, int(player.Year))
+		finishingGrade := util.GetAttributeGrade(player.InsideShooting, int(player.Year))
+		reboundingGrade := util.GetAttributeGrade(player.Rebounding, int(player.Year))
+		ballworkGrade := util.GetAttributeGrade(player.Ballwork, int(player.Year))
+		interiorDefenseGrade := util.GetAttributeGrade(player.InteriorDefense, int(player.Year))
+		perimeterDefenseGrade := util.GetAttributeGrade(player.PerimeterDefense, int(player.Year))
+		agilityGrade := util.GetAttributeGrade(player.Agility, int(player.Year))
+		stealingGrade := util.GetAttributeGrade(player.Stealing, int(player.Year))
+		blockingGrade := util.GetAttributeGrade(player.Blocking, int(player.Year))
 		potentialGrade := util.GetPotentialGrade(player.Potential)
-		overallGrade := util.GetPlayerOverallGrade(player.Overall)
+		overallGrade := util.GetAttributeGrade(player.Overall, int(player.Year))
 		sta := strconv.Itoa(int(player.Stamina))
 
 		playerRow := []string{
 			player.Team, player.FirstName, player.LastName, player.Position, strconv.Itoa(int(player.Year)), strconv.FormatBool(player.IsRedshirt), strconv.Itoa(int(player.Age)),
 			strconv.Itoa(int(player.Stars)), player.State, player.Country, strconv.Itoa(int(player.Height)),
-			overallGrade, shooting2Grade, shooting3Grade, freeThrowGrade, finishingGrade,
-			ballworkGrade, reboundingGrade, interiorDefenseGrade, perimeterDefenseGrade, sta, potentialGrade,
+			overallGrade, shooting2Grade, shooting3Grade, freeThrowGrade, finishingGrade, agilityGrade,
+			ballworkGrade, reboundingGrade, stealingGrade, blockingGrade, interiorDefenseGrade, perimeterDefenseGrade, sta, potentialGrade,
 			player.Personality, player.RecruitingBias, player.WorkEthic, player.PreviousTeam,
 		}
 
@@ -264,16 +270,19 @@ func ExportCBBRosterToCSV(TeamID string, w http.ResponseWriter) {
 	csvRoster := []structs.CollegePlayerResponse{}
 
 	for _, player := range players {
-		shooting2Grade := util.GetAttributeGrade(player.MidRangeShooting)
-		shooting3Grade := util.GetAttributeGrade(player.ThreePointShooting)
-		freeThrowGrade := util.GetAttributeGrade(player.FreeThrow)
-		finishingGrade := util.GetAttributeGrade(player.InsideShooting)
-		reboundingGrade := util.GetAttributeGrade(player.Rebounding)
-		ballworkGrade := util.GetAttributeGrade(player.Ballwork)
-		interiorDefenseGrade := util.GetAttributeGrade(player.InteriorDefense)
-		perimeterDefenseGrade := util.GetAttributeGrade(player.PerimeterDefense)
+		shooting2Grade := util.GetAttributeGrade(player.MidRangeShooting, int(player.Year))
+		shooting3Grade := util.GetAttributeGrade(player.ThreePointShooting, int(player.Year))
+		freeThrowGrade := util.GetAttributeGrade(player.FreeThrow, int(player.Year))
+		finishingGrade := util.GetAttributeGrade(player.InsideShooting, int(player.Year))
+		reboundingGrade := util.GetAttributeGrade(player.Rebounding, int(player.Year))
+		ballworkGrade := util.GetAttributeGrade(player.Ballwork, int(player.Year))
+		interiorDefenseGrade := util.GetAttributeGrade(player.InteriorDefense, int(player.Year))
+		perimeterDefenseGrade := util.GetAttributeGrade(player.PerimeterDefense, int(player.Year))
+		agilityGrade := util.GetAttributeGrade(player.Agility, int(player.Year))
+		stealingGrade := util.GetAttributeGrade(player.Stealing, int(player.Year))
+		blockingGrade := util.GetAttributeGrade(player.Blocking, int(player.Year))
 		potentialGrade := util.GetPotentialGrade(player.Potential)
-		overallGrade := util.GetPlayerOverallGrade(player.Overall)
+		overallGrade := util.GetAttributeGrade(player.Overall, int(player.Year))
 
 		res := structs.CollegePlayerResponse{
 			FirstName:             player.FirstName,
@@ -295,6 +304,9 @@ func ExportCBBRosterToCSV(TeamID string, w http.ResponseWriter) {
 			ReboundingGrade:       reboundingGrade,
 			InteriorDefenseGrade:  interiorDefenseGrade,
 			PerimeterDefenseGrade: perimeterDefenseGrade,
+			AgilityGrade:          agilityGrade,
+			StealingGrade:         stealingGrade,
+			BlockingGrade:         blockingGrade,
 			OverallGrade:          overallGrade,
 			Stamina:               player.Stamina,
 			PlaytimeExpectations:  player.PlaytimeExpectations,

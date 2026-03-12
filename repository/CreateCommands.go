@@ -108,38 +108,6 @@ func CreateHistoricPlayerRecord(player structs.CollegePlayer, db *gorm.DB) {
 	}
 }
 
-func CreateRecruitRecord(croot structs.Recruit, db *gorm.DB) {
-	// Save College Player Record
-	err := db.Create(&croot).Error
-	if err != nil {
-		log.Panicln("Could not save new college recruit record")
-	}
-}
-
-func CreateRecruitRecordsBatch(db *gorm.DB, fds []structs.Recruit, batchSize int) error {
-	total := len(fds)
-	for i := 0; i < total; i += batchSize {
-		end := min(i+batchSize, total)
-
-		if err := db.CreateInBatches(fds[i:end], batchSize).Error; err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func CreateGlobalRecordsBatch(db *gorm.DB, fds []structs.GlobalPlayer, batchSize int) error {
-	total := len(fds)
-	for i := 0; i < total; i += batchSize {
-		end := min(i+batchSize, total)
-
-		if err := db.CreateInBatches(fds[i:end], batchSize).Error; err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func CreateRetireeRecord(retiree structs.RetiredPlayer, db *gorm.DB) {
 	// Save College Player Record
 	retiree.Offers = nil
@@ -154,17 +122,9 @@ func CreateRetireeRecord(retiree structs.RetiredPlayer, db *gorm.DB) {
 	}
 }
 
-func CreatePlayerRecruitProfileRecord(cp structs.PlayerRecruitProfile, db *gorm.DB) {
+func CreatePlayerRecruitProfileRecord(cp structs.RecruitPlayerProfile, db *gorm.DB) {
 	// Save College Player Record
 	err := db.Create(&cp).Error
-	if err != nil {
-		log.Panicln("Could not save new college recruit record")
-	}
-}
-
-func CreateProfessionalPlayerRecord(player structs.NBAPlayer, db *gorm.DB) {
-	// Save NBA Player Record
-	err := db.Create(&player).Error
 	if err != nil {
 		log.Panicln("Could not save new college recruit record")
 	}
@@ -175,14 +135,6 @@ func CreateProfessionalContractRecord(contract structs.NBAContract, db *gorm.DB)
 	err := db.Create(&contract).Error
 	if err != nil {
 		log.Panicln("Could not create contract record")
-	}
-}
-
-func CreateGlobalPlayerRecord(player structs.GlobalPlayer, db *gorm.DB) {
-	// Save College Player Record
-	err := db.Create(&player).Error
-	if err != nil {
-		log.Panicln("Could not save new college recruit record")
 	}
 }
 
@@ -221,7 +173,7 @@ func CreateNBARecordsBatch(db *gorm.DB, fds []structs.NBAMatch, batchSize int) e
 	return nil
 }
 
-func CreatePlayerRecruitProfileRecordsBatch(db *gorm.DB, cp []structs.PlayerRecruitProfile, batchSize int) error {
+func CreatePlayerRecruitProfileRecordsBatch(db *gorm.DB, cp []structs.RecruitPlayerProfile, batchSize int) error {
 	total := len(cp)
 	for i := 0; i < total; i += batchSize {
 		end := min(i+batchSize, total)
@@ -239,18 +191,6 @@ func CreateProContractRecordsBatch(db *gorm.DB, cp []structs.NBAContract, batchS
 		end := min(i+batchSize, total)
 
 		if err := db.CreateInBatches(cp[i:end], batchSize).Error; err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func CreateNBAPlayerRecordsBatch(db *gorm.DB, fds []structs.NBAPlayer, batchSize int) error {
-	total := len(fds)
-	for i := 0; i < total; i += batchSize {
-		end := min(i+batchSize, total)
-
-		if err := db.CreateInBatches(fds[i:end], batchSize).Error; err != nil {
 			return err
 		}
 	}

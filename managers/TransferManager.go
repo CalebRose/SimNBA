@@ -1265,7 +1265,7 @@ func SyncPromises() {
 		}
 		weightValue := getPromiseWeightValue(!promise.IsFullfilled, promise.PromiseWeight)
 		team.AdjustPortalReputation(weightValue)
-		repository.SaveCBBTeamRecruitingProfile(*team, db)
+		repository.SaveTeamRecruitingProfileRecord(*team, db)
 		if !promise.IsFullfilled && !isHistoric {
 			message := "Breaking News! " + player.Team + " " + player.FirstName + " " + player.LastName + " will be re-entering the portal after a promise was broken! Promise: " + promise.PromiseType + " | Expected: " + benchMarkStr + " | Result: " + result
 			player.WillTransfer()
@@ -1365,7 +1365,7 @@ func GetTransferPortalProfilesForPage(teamID string) []structs.TransferPortalPro
 		}
 		cpResponse := structs.TransferPlayerResponse{}
 		cp := collegePlayerMap[p.CollegePlayerID]
-		ovr := util.GetPlayerOverallGrade(cp.Overall)
+		ovr := util.GetAttributeGrade(cp.Overall, int(cp.Year))
 		cpResponse.Map(cp, ovr)
 
 		pResponse := structs.TransferPortalProfileResponse{

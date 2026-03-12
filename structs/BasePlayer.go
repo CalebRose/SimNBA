@@ -238,7 +238,7 @@ type BasePlayer struct {
 	Country                string
 	Stars                  uint8
 	Height                 uint8
-	Weight                 uint8
+	Weight                 uint16
 	InsideShooting         uint8
 	SpecInsideShooting     bool
 	MidRangeShooting       uint8
@@ -419,6 +419,44 @@ func (cp *BasePlayer) GetNBAPotentialGrade() {
 	}
 }
 
+func (cp *BasePlayer) GetSpecCount() {
+	count := 0
+	if cp.SpecInsideShooting {
+		count++
+	}
+	if cp.SpecMidRangeShooting {
+		count++
+	}
+	if cp.SpecThreePointShooting {
+		count++
+	}
+	if cp.SpecFreeThrow {
+		count++
+	}
+	if cp.SpecAgility {
+		count++
+	}
+	if cp.SpecBallwork {
+		count++
+	}
+	if cp.SpecRebounding {
+		count++
+	}
+	if cp.SpecStealing {
+		count++
+	}
+	if cp.SpecBlocking {
+		count++
+	}
+	if cp.SpecInteriorDefense {
+		count++
+	}
+	if cp.SpecPerimeterDefense {
+		count++
+	}
+	cp.SpecCount = uint8(count)
+}
+
 func (p *BasePlayer) SetDisciplineAndIR(val, val2 int) {
 	p.Discipline = uint8(val)
 	p.InjuryRating = uint8(val2)
@@ -468,24 +506,6 @@ func (np *BasePlayer) SetAttributes(s2, s3, fn, ft, bl, rb, id, pd, ovr, stars, 
 	np.WeeksOfRecovery = 0
 	np.InjuryName = ""
 	np.InjuryType = ""
-}
-
-func (np *BasePlayer) AssignOverall() {
-	np.Overall = ((np.MidRangeShooting + np.ThreePointShooting + np.FreeThrow) / 3) + np.InsideShooting + np.Ballwork + np.Rebounding + ((np.InteriorDefense + np.PerimeterDefense) / 2)
-}
-
-func (np *BasePlayer) AssignStar() {
-	if np.Overall > 67 {
-		np.Stars = 5
-	} else if np.Overall > 61 {
-		np.Stars = 4
-	} else if np.Overall > 52 {
-		np.Stars = 3
-	} else if np.Overall > 45 {
-		np.Stars = 2
-	} else {
-		np.Stars = 1
-	}
 }
 
 func (bp *BasePlayer) SetInjury(ijName, ijType string, wor uint8) {
