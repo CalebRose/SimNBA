@@ -45,7 +45,8 @@ type Croot struct {
 	CreatedFor         string
 	RelativeID         uint8
 	Notes              string
-	LeadingTeams       []LeadingTeams
+	PlayerPreferences
+	LeadingTeams []LeadingTeams
 }
 
 type LeadingTeams struct {
@@ -102,6 +103,7 @@ func (c *Croot) Map(r Recruit) {
 	c.CreatedFor = r.CreatedFor
 	c.RelativeID = r.RelativeID
 	c.Notes = r.Notes
+	c.PlayerPreferences = r.PlayerPreferences
 
 	mod := r.TopRankModifier
 	if mod == 0 {
