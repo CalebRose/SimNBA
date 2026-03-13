@@ -52,8 +52,10 @@ func BootstrapRecruitingData(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	collegeID := vars["collegeID"]
 	data := managers.GetBootstrapDataRecruiting(collegeID)
-	json.NewEncoder(w).Encode(data)
-
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		log.Printf("BootstrapRecruitingData encode error: %v", err)
+	}
 }
 
 func BootstrapFreeAgencyData(w http.ResponseWriter, r *http.Request) {

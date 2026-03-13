@@ -111,7 +111,7 @@ func (c *Croot) Map(r Recruit) {
 	if mod == 0 {
 		mod = 1
 	}
-	c.TotalRank = (r.RivalsRank + r.ESPNRank + r.Rank247) / r.TopRankModifier
+	c.TotalRank = (r.RivalsRank + r.ESPNRank + r.Rank247) / mod
 
 	var totalPoints float64 = 0
 	var runningThreshold float64 = 0
