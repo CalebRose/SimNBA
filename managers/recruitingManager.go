@@ -527,7 +527,7 @@ func ScoutAttribute(dto structs.ScoutAttributeDTO) structs.RecruitPlayerProfile 
 	}
 
 	if teamProfile.WeeklyScoutingPoints == 0 {
-		log.Panic("ERROR: User doesn't have enough scouting points")
+		return recruitProfile
 	}
 
 	recruitProfile.ApplyScoutingAttribute(dto.Attribute)

@@ -168,7 +168,8 @@ func ScoutAttributeOnRecruit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	managers.ScoutAttribute(updateRecruitPointsDto)
+	profile := managers.ScoutAttribute(updateRecruitPointsDto)
+	json.NewEncoder(w).Encode(profile)
 }
 
 func RemoveRecruitFromBoard(w http.ResponseWriter, r *http.Request) {
