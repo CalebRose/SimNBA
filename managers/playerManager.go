@@ -825,7 +825,7 @@ func GetAllCollegeRecruits() []structs.Croot {
 		var croot structs.Croot
 		croot.Map(recruit)
 
-		overallGrade := util.GetOverallGrade(recruit.Overall)
+		overallGrade := util.GetAttributeGrade(recruit.Overall, int(recruit.Year))
 
 		croot.SetOverallGrade(overallGrade)
 

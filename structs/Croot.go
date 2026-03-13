@@ -14,7 +14,7 @@ type Croot struct {
 	Position           string
 	Archetype          string
 	Height             uint8
-	Weight             uint8
+	Weight             uint16
 	Stars              uint8
 	MidRangeShooting   string
 	ThreePointShooting string
@@ -73,7 +73,9 @@ func (c *Croot) Map(r Recruit) {
 	c.FirstName = r.FirstName
 	c.LastName = r.LastName
 	c.Position = r.Position
+	c.Archetype = r.Archetype
 	c.Height = r.Height
+	c.Weight = r.Weight
 	c.Stars = r.Stars
 	c.MidRangeShooting = attributeMapper(r.MidRangeShooting, 1)
 	c.ThreePointShooting = attributeMapper(r.ThreePointShooting, 1)

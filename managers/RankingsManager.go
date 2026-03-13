@@ -1,12 +1,11 @@
 package managers
 
 import (
-	"log"
 	"math"
 	"math/rand"
-	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
 )
@@ -20,7 +19,7 @@ func AssignAllRecruitRanks() {
 
 	db.Order("overall desc").Find(&recruits)
 
-	rivalsModifiers := util.RivalsModifiers()
+	rivalsMod := 100.0
 
 	for idx, croot := range recruits {
 		// 247 Rankings
@@ -31,7 +30,7 @@ func AssignAllRecruitRanks() {
 		// Rivals Ranking
 		var rivalsRank float64 = 0
 		if idx <= 249 {
-			rivalsBonus := rivalsModifiers[idx]
+			rivalsBonus := rivalsMod
 
 			rivalsRank = GetRivalsRanking(croot.Stars, rivalsBonus)
 		}
@@ -44,8 +43,7 @@ func AssignAllRecruitRanks() {
 
 		croot.AssignRankValues(rank247, espnRank, rivalsRank, r)
 
-		db.Save(&croot)
-
+		repository.SaveRecruitRecord(croot, db)
 		// recruitsToSync = append(recruitsToSync, croot)
 	}
 
@@ -69,43 +67,15 @@ func GetESPNRanking(r structs.Recruit) float64 {
 	potentialMod := GetESPNPotentialModifier(r.PotentialGrade)
 
 	espnPositionMap := util.ESPNModifiers()
-	espnHeight := getInches(espnPositionMap[r.Position]["Height"])
-	var heightMod float64 = float64(r.Height) / float64(espnHeight)
+	espnHeight := espnPositionMap[r.Position]["Height"]
+	var heightMod float64 = float64(r.Height) / espnHeight
 	espnRanking := math.Round(float64(starRank) + potentialMod + heightMod)
 
 	return espnRanking
 }
 
-func getInches(height string) int {
-	feet := 0
-	inches := 0
-	pastDash := false
-	for idx, char := range height {
-		if string(char) != "-" {
-			if !pastDash {
-				str := string(char)
-				ft, err := strconv.Atoi(str)
-				if err != nil {
-					log.Panic("Could not convert height to inches")
-				}
-				feet = ft
-			} else {
-				str := height[idx:]
-				inc, err := strconv.Atoi(str)
-				if err != nil {
-					log.Panic("Could not convert height to inches")
-				}
-				inches = inc
-			}
-		} else {
-			pastDash = true
-		}
-	}
-	return (feet * 12) + inches
-}
-
-func GetRivalsRanking(stars uint8, bonus int) float64 {
-	return GetRivalsStarModifier(stars) + float64(bonus)
+func GetRivalsRanking(stars uint8, bonus float64) float64 {
+	return GetRivalsStarModifier(stars) + bonus
 }
 
 func GetESPNStarRank(star uint8) int {

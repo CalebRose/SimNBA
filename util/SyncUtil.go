@@ -347,22 +347,19 @@ func RivalsModifiers() []int {
 	}
 }
 
-func ESPNModifiers() map[string]map[string]string {
-	return map[string]map[string]string{
+func ESPNModifiers() map[string]map[string]float64 {
+	return map[string]map[string]float64{
 		"C": {
-			"Height": "7-0",
+			"Height": 84.0, // 7'0" in inches
+			"Weight": 250.0,
 		},
-		"PG": {
-			"Height": "6-3",
+		"G": {
+			"Height": 75.0, // 6'3" in inches
+			"Weight": 190.0,
 		},
-		"SG": {
-			"Height": "6-5",
-		},
-		"PF": {
-			"Height": "6-8",
-		},
-		"SF": {
-			"Height": "6-7",
+		"F": {
+			"Height": 79.0, // 6'7" in inches
+			"Weight": 220.0,
 		},
 	}
 }

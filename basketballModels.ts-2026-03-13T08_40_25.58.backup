@@ -1024,16 +1024,6 @@ export class Croot {
     CreatedFor: string;
     RelativeID: number;
     Notes: string;
-    ProgramPref: number;
-    ProfDevPref: number;
-    TraditionsPref: number;
-    FacilitiesPref: number;
-    AtmospherePref: number;
-    AcademicsPref: number;
-    ConferencePref: number;
-    CoachPref: number;
-    SeasonMomentumPref: number;
-    CampusLifePref: number;
     LeadingTeams: LeadingTeams[];
 
     constructor(source: any = {}) {
@@ -1078,16 +1068,6 @@ export class Croot {
         this.CreatedFor = source["CreatedFor"];
         this.RelativeID = source["RelativeID"];
         this.Notes = source["Notes"];
-        this.ProgramPref = source["ProgramPref"];
-        this.ProfDevPref = source["ProfDevPref"];
-        this.TraditionsPref = source["TraditionsPref"];
-        this.FacilitiesPref = source["FacilitiesPref"];
-        this.AtmospherePref = source["AtmospherePref"];
-        this.AcademicsPref = source["AcademicsPref"];
-        this.ConferencePref = source["ConferencePref"];
-        this.CoachPref = source["CoachPref"];
-        this.SeasonMomentumPref = source["SeasonMomentumPref"];
-        this.CampusLifePref = source["CampusLifePref"];
         this.LeadingTeams = this.convertValues(source["LeadingTeams"], LeadingTeams);
     }
 
