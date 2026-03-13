@@ -49,8 +49,8 @@ func GetTeamRosterForRosterPage(teamId string) []structs.CollegePlayerResponse {
 		blockingGrade := util.GetAttributeGrade(p.Blocking, int(p.Year))
 		potentialGrade := util.GetPotentialGrade(p.Potential)
 		overallGrade := util.GetAttributeGrade(p.Overall, int(p.Year))
-		discGrade := util.GetAttributeGrade(p.Discipline, int(p.Year))
-		injGrade := util.GetAttributeGrade(p.InjuryRating, int(p.Year))
+		discGrade := util.GetPotentialGrade(p.Discipline)
+		injGrade := util.GetPotentialGrade(p.InjuryRating)
 
 		res := structs.CollegePlayerResponse{
 			FirstName:             p.FirstName,

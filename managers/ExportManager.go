@@ -45,7 +45,7 @@ func ExportCroots(w http.ResponseWriter) {
 		crootRow := []string{
 			croot.FirstName, croot.LastName, croot.Position, strconv.Itoa(int(croot.Stars)),
 			croot.College, croot.State, croot.Country, strconv.Itoa(int(croot.Height)),
-			strconv.Itoa(int(croot.Weight)), croot.OverallGrade, croot.Shooting2, croot.Shooting3, croot.Finishing,
+			strconv.Itoa(int(croot.Weight)), croot.OverallGrade, croot.MidRangeShooting, croot.ThreePointShooting, croot.InsideShooting,
 			croot.Ballwork, croot.Rebounding, croot.InteriorDefense, croot.PerimeterDefense, croot.PotentialGrade,
 			croot.Personality, croot.RecruitingBias, croot.AcademicBias, croot.WorkEthic,
 			strconv.Itoa(int(croot.ESPNRank)), strconv.Itoa(int(croot.RivalsRank)), strconv.Itoa(int(croot.Rank247)), strings.Join(leadingAbbr, ", "),

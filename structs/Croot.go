@@ -5,44 +5,47 @@ import (
 )
 
 type Croot struct {
-	ID               uint
-	PlayerID         uint
-	TeamID           uint
-	College          string
-	FirstName        string
-	LastName         string
-	Position         string
-	Archetype        string
-	Height           uint8
-	Weight           uint8
-	Stars            uint8
-	Shooting2        string
-	Shooting3        string
-	FreeThrow        string
-	Finishing        string
-	Ballwork         string
-	Rebounding       string
-	InteriorDefense  string
-	PerimeterDefense string
-	PotentialGrade   string
-	Personality      string
-	RecruitingBias   string
-	AcademicBias     string
-	WorkEthic        string
-	State            string
-	Country          string
-	ESPNRank         float64
-	RivalsRank       float64
-	Rank247          float64
-	IsSigned         bool
-	OverallGrade     string
-	TotalRank        float64
-	SigningStatus    string
-	IsCustomCroot    bool
-	CreatedFor       string
-	RelativeID       uint8
-	Notes            string
-	LeadingTeams     []LeadingTeams
+	ID                 uint
+	PlayerID           uint
+	TeamID             uint
+	College            string
+	FirstName          string
+	LastName           string
+	Position           string
+	Archetype          string
+	Height             uint8
+	Weight             uint8
+	Stars              uint8
+	MidRangeShooting   string
+	ThreePointShooting string
+	FreeThrow          string
+	InsideShooting     string
+	Ballwork           string
+	Agility            string
+	Stealing           string
+	Blocking           string
+	Rebounding         string
+	InteriorDefense    string
+	PerimeterDefense   string
+	PotentialGrade     string
+	Personality        string
+	RecruitingBias     string
+	AcademicBias       string
+	WorkEthic          string
+	State              string
+	Country            string
+	ESPNRank           float64
+	RivalsRank         float64
+	Rank247            float64
+	IsSigned           bool
+	OverallGrade       string
+	TotalRank          float64
+	SigningStatus      string
+	IsCustomCroot      bool
+	CreatedFor         string
+	RelativeID         uint8
+	Notes              string
+	LeadingTeams       []LeadingTeams
 }
 
 type LeadingTeams struct {
@@ -71,14 +74,17 @@ func (c *Croot) Map(r Recruit) {
 	c.Position = r.Position
 	c.Height = r.Height
 	c.Stars = r.Stars
-	c.Shooting2 = attributeMapper(r.MidRangeShooting)
-	c.Shooting3 = attributeMapper(r.ThreePointShooting)
-	c.Finishing = attributeMapper(r.InsideShooting)
-	c.FreeThrow = attributeMapper(r.FreeThrow)
-	c.Ballwork = attributeMapper(r.Ballwork)
-	c.Rebounding = attributeMapper(r.Rebounding)
-	c.InteriorDefense = attributeMapper(r.InteriorDefense)
-	c.PerimeterDefense = attributeMapper(r.PerimeterDefense)
+	c.MidRangeShooting = attributeMapper(r.MidRangeShooting, 1)
+	c.ThreePointShooting = attributeMapper(r.ThreePointShooting, 1)
+	c.InsideShooting = attributeMapper(r.InsideShooting, 1)
+	c.FreeThrow = attributeMapper(r.FreeThrow, 1)
+	c.Ballwork = attributeMapper(r.Ballwork, 1)
+	c.Rebounding = attributeMapper(r.Rebounding, 1)
+	c.InteriorDefense = attributeMapper(r.InteriorDefense, 1)
+	c.PerimeterDefense = attributeMapper(r.PerimeterDefense, 1)
+	c.Agility = attributeMapper(r.Agility, 1)
+	c.Blocking = attributeMapper(r.Blocking, 1)
+	c.Stealing = attributeMapper(r.Stealing, 1)
 	c.PotentialGrade = r.PotentialGrade
 	c.Personality = r.Personality
 	c.RecruitingBias = r.RecruitingBias
@@ -156,14 +162,50 @@ func (c ByCrootRank) Less(i, j int) bool {
 	return c[i].Stars > c[j].Stars && c[i].TotalRank > c[j].TotalRank
 }
 
-func attributeMapper(val uint8) string {
-	if val > 16 {
+func attributeMapper(attr, year uint8) string {
+	if year < 3 {
+		if attr > 23 {
+			return "A"
+		}
+		if attr > 18 {
+			return "B"
+		}
+		if attr > 10 {
+			return "C"
+		}
+		if attr > 5 {
+			return "D"
+		}
+		return "F"
+	}
+	if attr > 29 {
+		return "A+"
+	}
+	if attr > 26 {
 		return "A"
-	} else if val > 13 {
+	}
+	if attr > 23 {
+		return "A-"
+	}
+	if attr > 20 {
+		return "B+"
+	}
+	if attr > 17 {
 		return "B"
-	} else if val > 10 {
+	}
+	if attr > 14 {
+		return "B-"
+	}
+	if attr > 11 {
+		return "C+"
+	}
+	if attr > 8 {
 		return "C"
-	} else if val > 7 {
+	}
+	if attr > 5 {
+		return "C-"
+	}
+	if attr > 2 {
 		return "D"
 	}
 	return "F"

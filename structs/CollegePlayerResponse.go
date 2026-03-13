@@ -120,11 +120,14 @@ type TransferPlayerResponse struct {
 	Weight               uint8
 	PotentialGrade       string
 	Overall              string
-	Shooting2            string
-	Shooting3            string
+	InsideShooting       string
+	MidRangeShooting     string
+	ThreePointShooting   string
 	FreeThrow            string
-	Finishing            string
 	Ballwork             string
+	Agility              string
+	Stealing             string
+	Blocking             string
 	Rebounding           string
 	InteriorDefense      string
 	PerimeterDefense     string
@@ -161,14 +164,17 @@ func (c *TransferPlayerResponse) Map(r CollegePlayer, ovr string) {
 	c.Position = r.Position
 	c.Height = r.Height
 	c.Stars = r.Stars
-	c.Shooting2 = attributeMapper(r.MidRangeShooting)
-	c.Shooting3 = attributeMapper(r.ThreePointShooting)
-	c.Finishing = attributeMapper(r.InsideShooting)
-	c.FreeThrow = attributeMapper(r.FreeThrow)
-	c.Ballwork = attributeMapper(r.Ballwork)
-	c.Rebounding = attributeMapper(r.Rebounding)
-	c.InteriorDefense = attributeMapper(r.InteriorDefense)
-	c.PerimeterDefense = attributeMapper(r.PerimeterDefense)
+	c.MidRangeShooting = attributeMapper(r.MidRangeShooting, r.Year)
+	c.ThreePointShooting = attributeMapper(r.ThreePointShooting, r.Year)
+	c.InsideShooting = attributeMapper(r.InsideShooting, r.Year)
+	c.FreeThrow = attributeMapper(r.FreeThrow, r.Year)
+	c.Ballwork = attributeMapper(r.Ballwork, r.Year)
+	c.Agility = attributeMapper(r.Agility, r.Year)
+	c.Stealing = attributeMapper(r.Stealing, r.Year)
+	c.Blocking = attributeMapper(r.Blocking, r.Year)
+	c.Rebounding = attributeMapper(r.Rebounding, r.Year)
+	c.InteriorDefense = attributeMapper(r.InteriorDefense, r.Year)
+	c.PerimeterDefense = attributeMapper(r.PerimeterDefense, r.Year)
 	c.Stamina = r.Stamina
 	c.OverallGrade = ovr
 	c.PotentialGrade = r.PotentialGrade
