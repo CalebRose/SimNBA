@@ -142,22 +142,22 @@ func GenerateDraftLetterGrades() {
 	draftees := GetAllNBADraftees()
 
 	for _, d := range draftees {
-		s2 := util.GenerateIntFromRange(d.Shooting2-3, d.Shooting2+3)
-		s2Grade := util.GetDrafteeGrade(s2)
-		s3 := util.GenerateIntFromRange(d.Shooting3-3, d.Shooting3+3)
-		s3Grade := util.GetDrafteeGrade(s3)
-		ft := util.GenerateIntFromRange(d.FreeThrow-3, d.FreeThrow+3)
-		ftGrade := util.GetDrafteeGrade(ft)
-		fn := util.GenerateIntFromRange(d.Finishing-3, d.Finishing+3)
-		fnGrade := util.GetDrafteeGrade(fn)
-		bw := util.GenerateIntFromRange(d.Ballwork-3, d.Ballwork+3)
-		bwGrade := util.GetDrafteeGrade(bw)
-		rb := util.GenerateIntFromRange(d.Rebounding-3, d.Rebounding+3)
-		rbGrade := util.GetDrafteeGrade(rb)
-		id := util.GenerateIntFromRange(d.InteriorDefense-3, d.InteriorDefense+3)
-		idGrade := util.GetDrafteeGrade(id)
-		pd := util.GenerateIntFromRange(d.PerimeterDefense-3, d.PerimeterDefense+3)
-		pdGrade := util.GetDrafteeGrade(pd)
+		s2 := util.GenerateIntFromRange(int(d.MidRangeShooting)-3, int(d.MidRangeShooting)+3)
+		s2Grade := util.GetDrafteeGrade(uint8(s2))
+		s3 := util.GenerateIntFromRange(int(d.ThreePointShooting)-3, int(d.ThreePointShooting)+3)
+		s3Grade := util.GetDrafteeGrade(uint8(s3))
+		ft := util.GenerateIntFromRange(int(d.FreeThrow)-3, int(d.FreeThrow)+3)
+		ftGrade := util.GetDrafteeGrade(uint8(ft))
+		fn := util.GenerateIntFromRange(int(d.InsideShooting)-3, int(d.InsideShooting)+3)
+		fnGrade := util.GetDrafteeGrade(uint8(fn))
+		bw := util.GenerateIntFromRange(int(d.Ballwork)-3, int(d.Ballwork)+3)
+		bwGrade := util.GetDrafteeGrade(uint8(bw))
+		rb := util.GenerateIntFromRange(int(d.Rebounding)-3, int(d.Rebounding)+3)
+		rbGrade := util.GetDrafteeGrade(uint8(rb))
+		id := util.GenerateIntFromRange(int(d.InteriorDefense)-3, int(d.InteriorDefense)+3)
+		idGrade := util.GetDrafteeGrade(uint8(id))
+		pd := util.GenerateIntFromRange(int(d.PerimeterDefense)-3, int(d.PerimeterDefense)+3)
+		pdGrade := util.GetDrafteeGrade(uint8(pd))
 		ovrVal := ((s2 + s3 + ft) / 3) + fn + bw + rb + ((id + pd) / 2)
 		ovr := util.GetOverallDraftGrade(ovrVal)
 
@@ -180,14 +180,14 @@ func DraftPredictionRound() {
 	draftees := GetAllNBADraftees()
 
 	for _, d := range draftees {
-		s2 := util.GenerateIntFromRange(d.Shooting2-3, d.Shooting2+3)
-		s3 := util.GenerateIntFromRange(d.Shooting3-3, d.Shooting3+3)
-		ft := util.GenerateIntFromRange(d.FreeThrow-3, d.FreeThrow+3)
-		fn := util.GenerateIntFromRange(d.Finishing-3, d.Finishing+3)
-		bw := util.GenerateIntFromRange(d.Ballwork-3, d.Ballwork+3)
-		rb := util.GenerateIntFromRange(d.Rebounding-3, d.Rebounding+3)
-		id := util.GenerateIntFromRange(d.InteriorDefense-3, d.InteriorDefense+3)
-		pd := util.GenerateIntFromRange(d.PerimeterDefense-3, d.PerimeterDefense+3)
+		s2 := util.GenerateIntFromRange(int(d.MidRangeShooting)-3, int(d.MidRangeShooting)+3)
+		s3 := util.GenerateIntFromRange(int(d.ThreePointShooting)-3, int(d.ThreePointShooting)+3)
+		ft := util.GenerateIntFromRange(int(d.FreeThrow)-3, int(d.FreeThrow)+3)
+		fn := util.GenerateIntFromRange(int(d.InsideShooting)-3, int(d.InsideShooting)+3)
+		bw := util.GenerateIntFromRange(int(d.Ballwork)-3, int(d.Ballwork)+3)
+		rb := util.GenerateIntFromRange(int(d.Rebounding)-3, int(d.Rebounding)+3)
+		id := util.GenerateIntFromRange(int(d.InteriorDefense)-3, int(d.InteriorDefense)+3)
+		pd := util.GenerateIntFromRange(int(d.PerimeterDefense)-3, int(d.PerimeterDefense)+3)
 		ovrVal := ((s2 + s3 + ft) / 3) + fn + bw + rb + ((id + pd) / 2)
 		round := 0
 		if ovrVal > 88 {
@@ -342,7 +342,7 @@ func RunDeclarationsAlgorithm() {
 		willDeclare := DetermineIfDeclaring(c)
 		if willDeclare {
 			c.SetDeclarationStatus()
-			db.Save(&c)
+			repository.SaveCollegePlayerRecord(c, db)
 		}
 	}
 }
@@ -471,27 +471,31 @@ func DetermineIfDeclaring(player structs.CollegePlayer) bool {
 		return true
 	}
 	ovr := player.Overall
-	if ovr < 64 || player.IsRedshirting {
+	if ovr < 20 || player.IsRedshirting {
 		return false
 	}
 	odds := util.GenerateIntFromRange(1, 100)
-	if ovr > 64 && odds <= 20 {
+	if ovr > 19 && odds <= 2 {
 		return true
-	} else if ovr > 68 && odds <= 35 {
+	} else if ovr > 21 && odds <= 5 {
 		return true
-	} else if ovr > 70 && odds <= 40 {
+	} else if ovr > 22 && odds <= 8 {
 		return true
-	} else if ovr > 74 && odds <= 50 {
+	} else if ovr > 23 && odds <= 15 {
 		return true
-	} else if ovr > 76 && odds <= 75 {
+	} else if ovr > 24 && odds <= 20 {
 		return true
-	} else if ovr > 80 && odds <= 80 {
+	} else if ovr > 25 && odds <= 50 {
 		return true
-	} else if ovr > 82 && odds <= 85 {
+	} else if ovr > 26 && odds <= 75 {
 		return true
-	} else if ovr > 84 && odds <= 95 {
+	} else if ovr > 27 && odds <= 80 {
 		return true
-	} else if ovr > 89 {
+	} else if ovr > 28 && odds <= 85 {
+		return true
+	} else if ovr > 29 && odds <= 95 {
+		return true
+	} else if ovr > 30 {
 		return true
 	}
 	return false
@@ -546,19 +550,15 @@ func ExportDraftedPlayers(picks []structs.DraftPick) bool {
 			repository.SaveProfessionalPlayerRecord(nbaPlayer, db)
 		} else {
 			nbaPlayer = structs.NBAPlayer{
-				BasePlayer:      draftee.BasePlayer, // Assuming BasePlayer fields are common
-				PlayerID:        draftee.PlayerID,
-				TeamID:          pick.TeamID,
-				TeamAbbr:        pick.Team,
-				CollegeID:       draftee.CollegeID,
-				College:         draftee.College,
-				DraftPickID:     draftee.DraftPickID,
-				DraftedTeamID:   pick.TeamID,
-				DraftedTeamAbbr: pick.Team,
-				DraftedRound:    pick.DraftRound,
-				DraftPick:       pick.DraftNumber,
-				PrimeAge:        uint(draftee.PrimeAge),
-				IsNBA:           true,
+				BasePlayer:    draftee.BasePlayer, // Assuming BasePlayer fields are common
+				CollegeID:     draftee.CollegeID,
+				College:       draftee.College,
+				DraftPickID:   draftee.DraftPickID,
+				DraftedTeamID: pick.TeamID,
+				DraftedTeam:   pick.Team,
+				DraftedRound:  pick.DraftRound,
+				DraftPick:     pick.DraftNumber,
+				IsNBA:         true,
 			}
 			nbaPlayer.SetID(draftee.PlayerID)
 			repository.CreateProfessionalPlayerRecord(nbaPlayer, db)
@@ -573,9 +573,9 @@ func ExportDraftedPlayers(picks []structs.DraftPick) bool {
 		contract := structs.NBAContract{
 			PlayerID:       nbaPlayer.PlayerID,
 			TeamID:         nbaPlayer.TeamID,
-			Team:           nbaPlayer.TeamAbbr,
+			Team:           nbaPlayer.Team,
 			OriginalTeamID: nbaPlayer.TeamID,
-			OriginalTeam:   nbaPlayer.TeamAbbr,
+			OriginalTeam:   nbaPlayer.Team,
 			YearsRemaining: yearsRemaining,
 			ContractType:   "Rookie",
 			TotalRemaining: year1Salary + year2Salary + year3Salary + year4Salary,
@@ -599,7 +599,7 @@ func ExportDraftedPlayers(picks []structs.DraftPick) bool {
 		}
 		playerID := strconv.Itoa(int(draftee.ID))
 		nbaPlayer := GetNBAPlayerByID(playerID)
-		if nbaPlayer.ID > 0 && nbaPlayer.TeamAbbr != "DRAFT" {
+		if nbaPlayer.ID > 0 && nbaPlayer.Team != "DRAFT" {
 			continue
 		}
 		if draftee.College == "DRAFT" {
@@ -607,21 +607,20 @@ func ExportDraftedPlayers(picks []structs.DraftPick) bool {
 		} else {
 			nbaPlayer = structs.NBAPlayer{
 				BasePlayer:        draftee.BasePlayer, // Assuming BasePlayer fields are common
-				PlayerID:          draftee.PlayerID,
-				TeamID:            0,
-				TeamAbbr:          "FA",
 				CollegeID:         draftee.CollegeID,
 				College:           draftee.College,
 				DraftPickID:       draftee.DraftPickID,
 				DraftedTeamID:     draftee.DraftedTeamID,
-				DraftedTeamAbbr:   draftee.DraftedTeamAbbr,
-				PrimeAge:          uint(draftee.PrimeAge),
+				DraftedTeam:       draftee.DraftedTeam,
 				IsNBA:             true,
 				IsNegotiating:     false,
 				IsAcceptingOffers: true,
 				IsFreeAgent:       true,
 				MinimumValue:      0.7,
 			}
+			nbaPlayer.PlayerID = draftee.PlayerID
+			nbaPlayer.TeamID = 0
+			nbaPlayer.Team = "FA"
 			nbaPlayer.SetID(draftee.PlayerID)
 		}
 
@@ -657,8 +656,8 @@ func NBACombineForDraft() {
 		}
 		strength := GetCombineValue(draftee.OverallGrade, draftee.Overall, true)
 		agility := GetCombineValue(draftee.OverallGrade, draftee.Overall, true)
-		shooting2 := GetCombineValue(draftee.Shooting2Grade, draftee.Shooting2, false)
-		shooting3 := GetCombineValue(draftee.Shooting3Grade, draftee.Shooting3, false)
+		shooting2 := GetCombineValue(draftee.MidrangeShootingGrade, draftee.MidRangeShooting, false)
+		shooting3 := GetCombineValue(draftee.ThreePointShootingGrade, draftee.ThreePointShooting, false)
 		passing := GetCombineValue(draftee.BallworkGrade, draftee.Ballwork, false)
 		blocking := GetCombineValue(draftee.InteriorDefenseGrade, draftee.PerimeterDefense, false)
 		stealing := GetCombineValue(draftee.BallworkGrade, draftee.Ballwork, false)
@@ -692,7 +691,7 @@ func NBACombineForDraft() {
 			if blocksDr > 15 {
 				successfulBlocks++
 			}
-			benchPressDr := util.GenerateIntFromRange(1, 100) + strength
+			benchPressDr := util.GenerateIntFromRange(1, 100) + int(strength)
 			if benchPressDr < 120 {
 				maxReps--
 			}
@@ -725,24 +724,24 @@ func NBACombineForDraft() {
 	repository.CreateNBACombineRecordsBatch(db, combineGrades, 250)
 }
 
-func GetCombineModifier(value int) float64 {
+func GetCombineModifier(value uint8) float64 {
 	return math.Log(float64(value)+1) * 1.7
 }
 
-func GetCombineValue(grade string, value int, isOverall bool) int {
+func GetCombineValue(grade string, value uint8, isOverall bool) uint8 {
 	gradeVal := GetValueFromGrade(grade)
 	if gradeVal == value {
 		return value
 	}
 	if isOverall {
-		return util.GenerateIntFromRange(value-15, value+15)
+		return uint8(util.GenerateIntFromRange(int(value)-15, int(value)+15))
 	}
 	min := math.Min(float64(gradeVal), float64(value))
 	max := math.Max(float64(gradeVal), float64(value))
-	return util.GenerateIntFromRange(int(min), int(max))
+	return uint8(util.GenerateIntFromRange(int(min), int(max)))
 }
 
-func GetValueFromGrade(grade string) int {
+func GetValueFromGrade(grade string) uint8 {
 	switch grade {
 	case "A+":
 		return 24

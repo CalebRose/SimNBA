@@ -169,30 +169,6 @@ func SaveNBAGameplanRecord(team structs.NBAGameplan, db *gorm.DB) {
 	}
 }
 
-func SaveCBBRecruit(recruit structs.Recruit, db *gorm.DB) {
-	recruit.RecruitProfiles = nil
-	err := db.Save(&recruit).Error
-	if err != nil {
-		log.Panicln("Could not save notification record!")
-	}
-}
-
-func SaveCBBRecruitProfile(profile structs.PlayerRecruitProfile, db *gorm.DB) {
-	profile.Recruit = structs.Recruit{}
-	err := db.Save(&profile).Error
-	if err != nil {
-		log.Panicln("Could not save notification record!")
-	}
-}
-
-func SaveCBBTeamRecruitingProfile(tp structs.TeamRecruitingProfile, db *gorm.DB) {
-	tp.Recruits = nil
-	err := db.Save(&tp).Error
-	if err != nil {
-		log.Panicln("Could not save notification record!")
-	}
-}
-
 func SaveCollegePromiseRecord(promise structs.CollegePromise, db *gorm.DB) {
 	// Save College Promise Record
 	err := db.Save(&promise).Error

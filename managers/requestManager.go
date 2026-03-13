@@ -74,7 +74,7 @@ func ApproveTeamRequest(request structs.Request) {
 
 	recruitingProfile.ActivateUserTeam()
 
-	repository.SaveCBBTeamRecruitingProfile(recruitingProfile, db)
+	repository.SaveTeamRecruitingProfileRecord(recruitingProfile, db)
 
 	ts := GetTimestamp()
 
@@ -181,7 +181,7 @@ func RemoveUserFromTeam(teamId string) structs.Team {
 	recruitingProfile.DeactivateUserTeam()
 
 	db.Save(&team)
-	repository.SaveCBBTeamRecruitingProfile(recruitingProfile, db)
+	repository.SaveTeamRecruitingProfileRecord(recruitingProfile, db)
 
 	db.Save(&standings)
 
@@ -247,7 +247,7 @@ func GetCBBTeamForAvailableTeamsPage(teamID string) structs.TeamRecordResponse {
 			break
 		}
 		tp := structs.TopPlayer{}
-		grade := util.GetPlayerOverallGrade(roster[i].Overall)
+		grade := util.GetAttributeGrade(roster[i].Overall, int(roster[i].Year))
 		tp.MapCollegePlayer(roster[i], grade)
 		topPlayers = append(topPlayers, tp)
 	}

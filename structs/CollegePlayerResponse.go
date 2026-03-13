@@ -5,34 +5,38 @@ type CollegePlayerResponse struct {
 	LastName              string
 	Archetype             string
 	Position              string
-	Age                   int
-	Year                  int
+	Age                   uint8
+	Year                  uint8
 	State                 string
 	Country               string
-	Stars                 int
-	Height                string
+	Stars                 uint8
+	Height                uint8
+	Weight                uint8
 	PotentialGrade        string
 	Shooting2Grade        string
 	Shooting3Grade        string
 	FreeThrowGrade        string
 	FinishingGrade        string
 	BallworkGrade         string
+	AgilityGrade          string
+	StealingGrade         string
+	BlockingGrade         string
 	ReboundingGrade       string
 	InteriorDefenseGrade  string
 	PerimeterDefenseGrade string
-	Stamina               int
-	PlaytimeExpectations  int
+	Stamina               uint8
+	PlaytimeExpectations  uint8
 	InsideProportion      float64
 	MidRangeProportion    float64
 	ThreePointProportion  float64
 	PositionOne           string
 	PositionTwo           string
 	PositionThree         string
-	P1Minutes             int
-	P2Minutes             int
-	P3Minutes             int
-	Minutes               int
-	Potential             int
+	P1Minutes             uint8
+	P2Minutes             uint8
+	P3Minutes             uint8
+	Minutes               uint8
+	Potential             uint8
 	OverallGrade          string
 	Personality           string
 	RecruitingBias        string
@@ -41,12 +45,12 @@ type CollegePlayerResponse struct {
 	AcademicBias          string
 	PlayerID              uint
 	TeamID                uint
-	TeamAbbr              string
+	Team                  string
 	IsRedshirting         bool
 	IsRedshirt            bool
 	PreviousTeamID        uint
 	PreviousTeam          string
-	TransferStatus        int    // 1 == Intends, 2 == Is Transferring
+	TransferStatus        uint8  // 1 == Intends, 2 == Is Transferring
 	TransferLikeliness    string // Low, Medium, High
 	LegacyID              uint   // Either a legacy school or a legacy coach
 	DisciplineGrade       string
@@ -54,7 +58,7 @@ type CollegePlayerResponse struct {
 	IsInjured             bool
 	InjuryName            string
 	InjuryType            string
-	WeeksOfRecovery       uint
+	WeeksOfRecovery       uint8
 	InjuryReserve         bool
 	SeasonStats           CollegePlayerSeasonStats
 	Stats                 CollegePlayerStats
@@ -64,25 +68,29 @@ type NBAPlayerResponse struct {
 	FirstName             string
 	LastName              string
 	Position              string
-	Age                   int
-	Year                  int
+	Age                   uint8
+	Year                  uint8
 	State                 string
 	Country               string
-	Stars                 int
-	Height                string
+	Stars                 uint8
+	Height                uint8
+	Weight                uint8
 	PotentialGrade        string
 	Shooting2Grade        string
 	Shooting3Grade        string
 	FreeThrowGrade        string
 	FinishingGrade        string
 	BallworkGrade         string
+	AgilityGrade          string
+	StealingGrade         string
+	BlockingGrade         string
 	ReboundingGrade       string
 	InteriorDefenseGrade  string
 	PerimeterDefenseGrade string
-	Stamina               int
-	PlaytimeExpectations  int
-	Minutes               int
-	Potential             int
+	Stamina               uint8
+	PlaytimeExpectations  uint8
+	Minutes               uint8
+	Potential             uint8
 	OverallGrade          string
 	Personality           string
 	RecruitingBias        string
@@ -90,7 +98,7 @@ type NBAPlayerResponse struct {
 	AcademicBias          string
 	PlayerID              uint
 	TeamID                uint
-	TeamAbbr              string
+	Team                  string
 	IsRedshirting         bool
 	IsRedshirt            bool
 	SeasonStats           NBAPlayerSeasonStats
@@ -103,12 +111,13 @@ type TransferPlayerResponse struct {
 	LastName             string
 	Archetype            string
 	Position             string
-	Age                  int
-	Year                 int
+	Age                  uint8
+	Year                 uint8
 	State                string
 	Country              string
-	Stars                int
-	Height               string
+	Stars                uint8
+	Height               uint8
+	Weight               uint8
 	PotentialGrade       string
 	Overall              string
 	Shooting2            string
@@ -119,9 +128,9 @@ type TransferPlayerResponse struct {
 	Rebounding           string
 	InteriorDefense      string
 	PerimeterDefense     string
-	Stamina              int
-	PlaytimeExpectations int
-	Minutes              int
+	Stamina              uint8
+	PlaytimeExpectations uint8
+	Minutes              uint8
 	OverallGrade         string
 	Personality          string
 	RecruitingBias       string
@@ -130,12 +139,12 @@ type TransferPlayerResponse struct {
 	AcademicBias         string
 	PlayerID             uint
 	TeamID               uint
-	TeamAbbr             string
+	Team                 string
 	IsRedshirting        bool
 	IsRedshirt           bool
 	PreviousTeamID       uint
 	PreviousTeam         string
-	TransferStatus       int    // 1 == Intends, 2 == Is Transferring
+	TransferStatus       uint8  // 1 == Intends, 2 == Is Transferring
 	TransferLikeliness   string // Low, Medium, High
 	LegacyID             uint   // Either a legacy school or a legacy coach
 	SeasonStats          CollegePlayerSeasonStats
@@ -152,9 +161,9 @@ func (c *TransferPlayerResponse) Map(r CollegePlayer, ovr string) {
 	c.Position = r.Position
 	c.Height = r.Height
 	c.Stars = r.Stars
-	c.Shooting2 = attributeMapper(r.Shooting2)
-	c.Shooting3 = attributeMapper(r.Shooting3)
-	c.Finishing = attributeMapper(r.Finishing)
+	c.Shooting2 = attributeMapper(r.MidRangeShooting)
+	c.Shooting3 = attributeMapper(r.ThreePointShooting)
+	c.Finishing = attributeMapper(r.InsideShooting)
 	c.FreeThrow = attributeMapper(r.FreeThrow)
 	c.Ballwork = attributeMapper(r.Ballwork)
 	c.Rebounding = attributeMapper(r.Rebounding)
@@ -169,7 +178,7 @@ func (c *TransferPlayerResponse) Map(r CollegePlayer, ovr string) {
 	c.WorkEthic = r.WorkEthic
 	c.State = r.State
 	c.Country = r.Country
-	c.TeamAbbr = r.TeamAbbr
+	c.Team = r.Team
 	c.PreviousTeam = r.PreviousTeam
 	c.PreviousTeamID = r.PreviousTeamID
 	c.Year = r.Year

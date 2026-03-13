@@ -8,8 +8,8 @@ import (
 	"github.com/CalebRose/SimNBA/structs"
 )
 
-func FilterOutRecruitingProfile(profiles []structs.PlayerRecruitProfile, ID int) []structs.PlayerRecruitProfile {
-	var rp []structs.PlayerRecruitProfile
+func FilterOutRecruitingProfile(profiles []structs.RecruitPlayerProfile, ID int) []structs.RecruitPlayerProfile {
+	var rp []structs.RecruitPlayerProfile
 
 	for _, profile := range profiles {
 		if int(profile.ID) != ID {
@@ -240,22 +240,22 @@ func GetStateKey(key string) string {
 }
 
 func IsPlayerOffensivelyStrong(r structs.Recruit) bool {
-	if r.Stars == 3 && (r.Shooting2 > 12 || r.Shooting3 > 12 || r.Finishing > 12) {
+	if r.Stars == 3 && (r.MidRangeShooting > 12 || r.ThreePointShooting > 12 || r.InsideShooting > 12) {
 		return true
-	} else if r.Stars == 2 && (r.Shooting2 > 10 || r.Shooting3 > 10 || r.Finishing > 10) {
+	} else if r.Stars == 2 && (r.MidRangeShooting > 10 || r.ThreePointShooting > 10 || r.InsideShooting > 10) {
 		return true
-	} else if r.Stars == 1 && (r.Shooting2 > 8 || r.Shooting3 > 8 || r.Finishing > 8) {
+	} else if r.Stars == 1 && (r.MidRangeShooting > 8 || r.ThreePointShooting > 8 || r.InsideShooting > 8) {
 		return true
 	}
 	return false
 }
 
 func IsPlayerDefensivelyStrong(r structs.Recruit) bool {
-	if r.Stars == 3 && (r.Rebounding > 12 || r.Defense > 12) {
+	if r.Stars == 3 && (r.Rebounding > 12 || r.InteriorDefense > 12) {
 		return true
-	} else if r.Stars == 2 && (r.Rebounding > 10 || r.Defense > 10) {
+	} else if r.Stars == 2 && (r.Rebounding > 10 || r.InteriorDefense > 10) {
 		return true
-	} else if r.Stars == 1 && (r.Rebounding > 8 || r.Defense > 8) {
+	} else if r.Stars == 1 && (r.Rebounding > 8 || r.InteriorDefense > 8) {
 		return true
 	}
 	return false
@@ -279,7 +279,7 @@ func IsAITeamContendingForPortalPlayer(profiles []structs.TransferPortalProfile)
 	return leadingVal
 }
 
-func IsAITeamContendingForCroot(profiles []structs.PlayerRecruitProfile) int {
+func IsAITeamContendingForCroot(profiles []structs.RecruitPlayerProfile) int {
 	if len(profiles) == 0 {
 		return 0
 	}

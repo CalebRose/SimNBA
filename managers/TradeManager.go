@@ -313,7 +313,7 @@ func AcceptTradeProposal(proposalID string) {
 				ovrGrade := util.GetOverallGrade(playerRecord.Overall)
 				ovr := playerRecord.Overall
 				if playerRecord.Year > 1 {
-					newsLogMessage += playerRecord.Position + " " + strconv.Itoa(ovr) + " " + playerRecord.FirstName + " " + playerRecord.LastName + " to " + proposal.RecepientTeam + "\n"
+					newsLogMessage += playerRecord.Position + " " + strconv.Itoa(int(ovr)) + " " + playerRecord.FirstName + " " + playerRecord.LastName + " to " + proposal.RecepientTeam + "\n"
 				} else {
 					newsLogMessage += playerRecord.Position + " " + ovrGrade + " " + playerRecord.FirstName + " " + playerRecord.LastName + " to " + proposal.RecepientTeam + "\n"
 				}

@@ -13,22 +13,22 @@ func CreateDrafteeRecord(player structs.CollegePlayer, db *gorm.DB) {
 	draftee.Map(player)
 	draftee.AssignPrimeAge(util.GenerateIntFromRange(24, 30))
 	// Generate Draft Grades
-	s2 := util.GenerateIntFromRange(draftee.Shooting2-3, draftee.Shooting2+3)
-	s2Grade := util.GetDrafteeGrade(s2)
-	s3 := util.GenerateIntFromRange(draftee.Shooting3-3, draftee.Shooting3+3)
-	s3Grade := util.GetDrafteeGrade(s3)
-	ft := util.GenerateIntFromRange(draftee.FreeThrow-3, draftee.FreeThrow+3)
-	ftGrade := util.GetDrafteeGrade(ft)
-	fn := util.GenerateIntFromRange(draftee.Finishing-3, draftee.Finishing+3)
-	fnGrade := util.GetDrafteeGrade(fn)
-	bw := util.GenerateIntFromRange(draftee.Ballwork-3, draftee.Ballwork+3)
-	bwGrade := util.GetDrafteeGrade(bw)
-	rb := util.GenerateIntFromRange(draftee.Rebounding-3, draftee.Rebounding+3)
-	rbGrade := util.GetDrafteeGrade(rb)
-	id := util.GenerateIntFromRange(draftee.InteriorDefense-3, draftee.InteriorDefense+3)
-	idGrade := util.GetDrafteeGrade(id)
-	pd := util.GenerateIntFromRange(draftee.PerimeterDefense-3, draftee.PerimeterDefense+3)
-	pdGrade := util.GetDrafteeGrade(pd)
+	s2 := util.GenerateIntFromRange(int(draftee.MidRangeShooting)-3, int(draftee.MidRangeShooting)+3)
+	s2Grade := util.GetDrafteeGrade(uint8(s2))
+	s3 := util.GenerateIntFromRange(int(draftee.ThreePointShooting)-3, int(draftee.ThreePointShooting)+3)
+	s3Grade := util.GetDrafteeGrade(uint8(s3))
+	ft := util.GenerateIntFromRange(int(draftee.FreeThrow)-3, int(draftee.FreeThrow)+3)
+	ftGrade := util.GetDrafteeGrade(uint8(ft))
+	fn := util.GenerateIntFromRange(int(draftee.InsideShooting)-3, int(draftee.InsideShooting)+3)
+	fnGrade := util.GetDrafteeGrade(uint8(fn))
+	bw := util.GenerateIntFromRange(int(draftee.Ballwork)-3, int(draftee.Ballwork)+3)
+	bwGrade := util.GetDrafteeGrade(uint8(bw))
+	rb := util.GenerateIntFromRange(int(draftee.Rebounding)-3, int(draftee.Rebounding)+3)
+	rbGrade := util.GetDrafteeGrade(uint8(rb))
+	id := util.GenerateIntFromRange(int(draftee.InteriorDefense)-3, int(draftee.InteriorDefense)+3)
+	idGrade := util.GetDrafteeGrade(uint8(id))
+	pd := util.GenerateIntFromRange(int(draftee.PerimeterDefense)-3, int(draftee.PerimeterDefense)+3)
+	pdGrade := util.GetDrafteeGrade(uint8(pd))
 	ovrVal := ((s2 + s3 + ft) / 3) + fn + bw + rb + ((id + pd) / 2)
 	ovr := util.GetOverallDraftGrade(ovrVal)
 	draftee.ApplyGrades(s2Grade, s3Grade, ftGrade, fnGrade, bwGrade, rbGrade, idGrade, pdGrade, ovr)
@@ -50,22 +50,22 @@ func CreateInternationalDrafteeRecord(player structs.NBAPlayer, db *gorm.DB) {
 	draftee.MapInternational(player)
 	draftee.AssignPrimeAge(int(player.PrimeAge))
 	// Generate Draft Grades
-	s2 := util.GenerateIntFromRange(draftee.Shooting2-3, draftee.Shooting2+3)
-	s2Grade := util.GetDrafteeGrade(s2)
-	s3 := util.GenerateIntFromRange(draftee.Shooting3-3, draftee.Shooting3+3)
-	s3Grade := util.GetDrafteeGrade(s3)
-	ft := util.GenerateIntFromRange(draftee.FreeThrow-3, draftee.FreeThrow+3)
-	ftGrade := util.GetDrafteeGrade(ft)
-	fn := util.GenerateIntFromRange(draftee.Finishing-3, draftee.Finishing+3)
-	fnGrade := util.GetDrafteeGrade(fn)
-	bw := util.GenerateIntFromRange(draftee.Ballwork-3, draftee.Ballwork+3)
-	bwGrade := util.GetDrafteeGrade(bw)
-	rb := util.GenerateIntFromRange(draftee.Rebounding-3, draftee.Rebounding+3)
-	rbGrade := util.GetDrafteeGrade(rb)
-	id := util.GenerateIntFromRange(draftee.InteriorDefense-3, draftee.InteriorDefense+3)
-	idGrade := util.GetDrafteeGrade(id)
-	pd := util.GenerateIntFromRange(draftee.PerimeterDefense-3, draftee.PerimeterDefense+3)
-	pdGrade := util.GetDrafteeGrade(pd)
+	s2 := util.GenerateIntFromRange(int(draftee.MidRangeShooting)-3, int(draftee.MidRangeShooting)+3)
+	s2Grade := util.GetDrafteeGrade(uint8(s2))
+	s3 := util.GenerateIntFromRange(int(draftee.ThreePointShooting)-3, int(draftee.ThreePointShooting)+3)
+	s3Grade := util.GetDrafteeGrade(uint8(s3))
+	ft := util.GenerateIntFromRange(int(draftee.FreeThrow)-3, int(draftee.FreeThrow)+3)
+	ftGrade := util.GetDrafteeGrade(uint8(ft))
+	fn := util.GenerateIntFromRange(int(draftee.InsideShooting)-3, int(draftee.InsideShooting)+3)
+	fnGrade := util.GetDrafteeGrade(uint8(fn))
+	bw := util.GenerateIntFromRange(int(draftee.Ballwork)-3, int(draftee.Ballwork)+3)
+	bwGrade := util.GetDrafteeGrade(uint8(bw))
+	rb := util.GenerateIntFromRange(int(draftee.Rebounding)-3, int(draftee.Rebounding)+3)
+	rbGrade := util.GetDrafteeGrade(uint8(rb))
+	id := util.GenerateIntFromRange(int(draftee.InteriorDefense)-3, int(draftee.InteriorDefense)+3)
+	idGrade := util.GetDrafteeGrade(uint8(id))
+	pd := util.GenerateIntFromRange(int(draftee.PerimeterDefense)-3, int(draftee.PerimeterDefense)+3)
+	pdGrade := util.GetDrafteeGrade(uint8(pd))
 	ovrVal := ((s2 + s3 + ft) / 3) + fn + bw + rb + ((id + pd) / 2)
 	ovr := util.GetOverallDraftGrade(ovrVal)
 	draftee.ApplyGrades(s2Grade, s3Grade, ftGrade, fnGrade, bwGrade, rbGrade, idGrade, pdGrade, ovr)
@@ -85,7 +85,8 @@ func CreateInternationalDrafteeRecord(player structs.NBAPlayer, db *gorm.DB) {
 func CreateCollegePlayerRecord(croot structs.Recruit, db *gorm.DB, fromProgression bool) {
 	cp := structs.CollegePlayer{}
 	cp.MapFromRecruit(croot)
-	cp.SetExpectations(util.GetPlaytimeExpectations(cp.Stars, cp.Year, cp.Overall))
+	expectations := util.GetPlaytimeExpectations(int(cp.Stars), int(cp.Year), int(cp.Overall))
+	cp.SetExpectations(uint8(expectations))
 	// Save College Player Record
 	err := db.Create(&cp).Error
 	if err != nil {
@@ -107,38 +108,6 @@ func CreateHistoricPlayerRecord(player structs.CollegePlayer, db *gorm.DB) {
 	}
 }
 
-func CreateRecruitRecord(croot structs.Recruit, db *gorm.DB) {
-	// Save College Player Record
-	err := db.Create(&croot).Error
-	if err != nil {
-		log.Panicln("Could not save new college recruit record")
-	}
-}
-
-func CreateRecruitRecordsBatch(db *gorm.DB, fds []structs.Recruit, batchSize int) error {
-	total := len(fds)
-	for i := 0; i < total; i += batchSize {
-		end := min(i+batchSize, total)
-
-		if err := db.CreateInBatches(fds[i:end], batchSize).Error; err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func CreateGlobalRecordsBatch(db *gorm.DB, fds []structs.GlobalPlayer, batchSize int) error {
-	total := len(fds)
-	for i := 0; i < total; i += batchSize {
-		end := min(i+batchSize, total)
-
-		if err := db.CreateInBatches(fds[i:end], batchSize).Error; err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func CreateRetireeRecord(retiree structs.RetiredPlayer, db *gorm.DB) {
 	// Save College Player Record
 	retiree.Offers = nil
@@ -153,17 +122,9 @@ func CreateRetireeRecord(retiree structs.RetiredPlayer, db *gorm.DB) {
 	}
 }
 
-func CreatePlayerRecruitProfileRecord(cp structs.PlayerRecruitProfile, db *gorm.DB) {
+func CreatePlayerRecruitProfileRecord(cp structs.RecruitPlayerProfile, db *gorm.DB) {
 	// Save College Player Record
 	err := db.Create(&cp).Error
-	if err != nil {
-		log.Panicln("Could not save new college recruit record")
-	}
-}
-
-func CreateProfessionalPlayerRecord(player structs.NBAPlayer, db *gorm.DB) {
-	// Save NBA Player Record
-	err := db.Create(&player).Error
 	if err != nil {
 		log.Panicln("Could not save new college recruit record")
 	}
@@ -174,14 +135,6 @@ func CreateProfessionalContractRecord(contract structs.NBAContract, db *gorm.DB)
 	err := db.Create(&contract).Error
 	if err != nil {
 		log.Panicln("Could not create contract record")
-	}
-}
-
-func CreateGlobalPlayerRecord(player structs.GlobalPlayer, db *gorm.DB) {
-	// Save College Player Record
-	err := db.Create(&player).Error
-	if err != nil {
-		log.Panicln("Could not save new college recruit record")
 	}
 }
 
@@ -220,7 +173,7 @@ func CreateNBARecordsBatch(db *gorm.DB, fds []structs.NBAMatch, batchSize int) e
 	return nil
 }
 
-func CreatePlayerRecruitProfileRecordsBatch(db *gorm.DB, cp []structs.PlayerRecruitProfile, batchSize int) error {
+func CreatePlayerRecruitProfileRecordsBatch(db *gorm.DB, cp []structs.RecruitPlayerProfile, batchSize int) error {
 	total := len(cp)
 	for i := 0; i < total; i += batchSize {
 		end := min(i+batchSize, total)
@@ -238,18 +191,6 @@ func CreateProContractRecordsBatch(db *gorm.DB, cp []structs.NBAContract, batchS
 		end := min(i+batchSize, total)
 
 		if err := db.CreateInBatches(cp[i:end], batchSize).Error; err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func CreateNBAPlayerRecordsBatch(db *gorm.DB, fds []structs.NBAPlayer, batchSize int) error {
-	total := len(fds)
-	for i := 0; i < total; i += batchSize {
-		end := min(i+batchSize, total)
-
-		if err := db.CreateInBatches(fds[i:end], batchSize).Error; err != nil {
 			return err
 		}
 	}

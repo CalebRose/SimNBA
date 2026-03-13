@@ -5,10 +5,8 @@ import (
 	"log"
 	"math"
 	"math/rand"
-	"runtime"
 	"sort"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
@@ -37,7 +35,6 @@ func SyncRecruiting() {
 	var modifierFor5Star float64 = 125
 	weeksOfRecruiting := 15
 	eligibleThresholdPercentage := 0.66
-	pointLimit := 20.0
 	recruitProfilePointsMap := make(map[string]float64)
 	teamRecruitingProfiles := GetTeamRecruitingProfilesForRecruitSync()
 	teamMap := make(map[string]*structs.TeamRecruitingProfile)
@@ -68,14 +65,14 @@ func SyncRecruiting() {
 			continue
 		}
 
-		var recruitProfilesWithScholarship []structs.PlayerRecruitProfile
+		var recruitProfilesWithScholarship []structs.RecruitPlayerProfile
 		eligibleTeams := 0
 		pointsPlaced := false
 		var totalPointsOnRecruit float64 = 0
 		var eligiblePointThreshold float64 = 0
 		var signThreshold float64
 
-		allocatePointsToRecruit(recruit, &recruitProfiles, teamMap, pointLimit, &pointsPlaced, timestamp, &recruitProfilePointsMap, db)
+		allocatePointsToRecruit(recruit, &recruitProfiles, teamMap, &pointsPlaced, timestamp, &recruitProfilePointsMap, db)
 
 		if !pointsPlaced {
 			continue
@@ -145,7 +142,7 @@ func SyncRecruiting() {
 						recruitTeamProfile.AddStarPlayer(recruit.Stars)
 						teamAbbreviation := recruitTeamProfile.TeamAbbr
 						recruit.AssignCollege(teamAbbreviation)
-						message := recruit.FirstName + " " + recruit.LastName + ", " + strconv.Itoa(recruit.Stars) + " star " + recruit.Position + " from " + recruit.State + ", " + recruit.Country + " has signed with " + recruit.TeamAbbr + " with " + strconv.Itoa(int(odds)) + " percent odds."
+						message := recruit.FirstName + " " + recruit.LastName + ", " + strconv.Itoa(int(recruit.Stars)) + " star " + recruit.Position + " from " + recruit.State + ", " + recruit.Country + " has signed with " + recruit.Team + " with " + strconv.Itoa(int(odds)) + " percent odds."
 						CreateNewsLog("CBB", message, "Commitment", int(winningTeamID), timestamp)
 						fmt.Println("Created new log!")
 
@@ -189,12 +186,12 @@ func SyncRecruiting() {
 		// Save Player Files towards Recruit
 		for _, rp := range recruitProfiles {
 			// Save Team Profile
-			repository.SaveCBBRecruitProfile(rp, db)
+			repository.SaveRecruitProfileRecord(rp, db)
 			fmt.Println("Save recruit profile from " + rp.TeamAbbreviation + " towards " + recruit.FirstName + " " + recruit.LastName)
 		}
 
 		// Save Recruit
-		repository.SaveCBBRecruit(recruit, db)
+		repository.SaveRecruitRecord(recruit, db)
 	}
 
 	updateTeamRankings(teamRecruitingProfiles, teamMap, recruitProfilePointsMap, db)
@@ -226,7 +223,7 @@ func FillAIRecruitingBoards() {
 
 	boardCount := 20
 
-	profileBatch := []structs.PlayerRecruitProfile{}
+	profileBatch := []structs.RecruitPlayerProfile{}
 
 	for _, team := range AITeams {
 		count := 0
@@ -304,7 +301,7 @@ func FillAIRecruitingBoards() {
 			recruitingNeed := teamNeedsMap[croot.Position]
 			willPursue := true
 			if croot.IsCustomCroot || (!recruitingNeed && ts.CollegeWeek < 12) ||
-				(croot.Stars > team.AIStarMax || croot.Stars < team.AIStarMin) {
+				(int(croot.Stars) > team.AIStarMax || int(croot.Stars) < team.AIStarMin) {
 				willPursue = false
 			}
 
@@ -352,13 +349,13 @@ func FillAIRecruitingBoards() {
 
 			switch team.AIValue {
 			case "Star":
-				odds += getOddsIncrementByStar(5, croot.Stars)
+				odds += getOddsIncrementByStar(5, int(croot.Stars))
 			case "Potential":
 				odds += getOddsIncrementByPotential(5, croot.Potential, team.AIQuality == "Mid-Major", team.IsUserTeam)
 			case "Talent":
-				odds += getOddsIncrementByTalent(croot.Shooting2, croot.Stars, croot.SpecShooting2, team.AIAttribute1 == "Shooting2" || team.AIAttribute2 == "Shooting2", team.AIQuality == "Mid-Major", team.IsUserTeam)
-				odds += getOddsIncrementByTalent(croot.Shooting3, croot.Stars, croot.SpecShooting3, team.AIAttribute1 == "Shooting3" || team.AIAttribute2 == "Shooting3", team.AIQuality == "Mid-Major", team.IsUserTeam)
-				odds += getOddsIncrementByTalent(croot.Finishing, croot.Stars, croot.SpecFinishing, team.AIAttribute1 == "Finishing" || team.AIAttribute2 == "Finishing", team.AIQuality == "Mid-Major", team.IsUserTeam)
+				odds += getOddsIncrementByTalent(croot.MidRangeShooting, croot.Stars, croot.SpecMidRangeShooting, team.AIAttribute1 == "Shooting2" || team.AIAttribute2 == "Shooting2", team.AIQuality == "Mid-Major", team.IsUserTeam)
+				odds += getOddsIncrementByTalent(croot.ThreePointShooting, croot.Stars, croot.SpecThreePointShooting, team.AIAttribute1 == "Shooting3" || team.AIAttribute2 == "Shooting3", team.AIQuality == "Mid-Major", team.IsUserTeam)
+				odds += getOddsIncrementByTalent(croot.InsideShooting, croot.Stars, croot.SpecInsideShooting, team.AIAttribute1 == "Finishing" || team.AIAttribute2 == "Finishing", team.AIQuality == "Mid-Major", team.IsUserTeam)
 				odds += getOddsIncrementByTalent(croot.FreeThrow, croot.Stars, croot.SpecFreeThrow, team.AIAttribute1 == "FreeThrow" || team.AIAttribute2 == "FreeThrow", team.AIQuality == "Mid-Major", team.IsUserTeam)
 				odds += getOddsIncrementByTalent(croot.Ballwork, croot.Stars, croot.SpecBallwork, team.AIAttribute1 == "Ballwork" || team.AIAttribute2 == "Ballwork", team.AIQuality == "Mid-Major", team.IsUserTeam)
 				odds += getOddsIncrementByTalent(croot.Rebounding, croot.Stars, croot.SpecRebounding, team.AIAttribute1 == "Rebounding" || team.AIAttribute2 == "Rebounding", team.AIQuality == "Mid-Major", team.IsUserTeam)
@@ -386,7 +383,7 @@ func FillAIRecruitingBoards() {
 				if ts.CollegeWeek > 12 {
 					lateSeasonCount += 1
 				}
-				playerProfile := structs.PlayerRecruitProfile{
+				playerProfile := structs.RecruitPlayerProfile{
 					RecruitID:          croot.ID,
 					ProfileID:          team.ID,
 					SeasonID:           ts.SeasonID,
@@ -417,6 +414,9 @@ func AllocatePointsToAIBoards() {
 	ts := GetTimestamp()
 
 	AITeams := GetOnlyAITeamRecruitingProfiles()
+
+	recruits := GetAllRecruitRecords()
+	recruitMap := MakeRecruitMap(recruits)
 
 	// Shuffles the list of AI teams so that it's not always iterating from A-Z. Gives the teams at the lower end of the list a chance to recruit other croots
 	rand.Shuffle(len(AITeams), func(i, j int) {
@@ -490,41 +490,35 @@ func AllocatePointsToAIBoards() {
 
 		teamRecruits := GetAllRecruitsByProfileID(strconv.Itoa(int(team.ID)))
 
-		sort.Slice(teamRecruits, func(i, j int) bool {
-			iCroot := teamRecruits[i].Recruit
-			jCroot := teamRecruits[j].Recruit
-			return iCroot.Stars > jCroot.Stars
-		})
-
-		for _, croot := range teamRecruits {
+		for _, crootProfile := range teamRecruits {
 			// If a team has no more points to spend, break the loop
 			pointsRemaining := team.WeeklyPoints - team.SpentPoints
 			if team.SpentPoints >= team.WeeklyPoints || pointsRemaining <= 0 || (pointsRemaining < 1 && pointsRemaining > 0) {
 				break
 			}
-
-			recruitingNeed := teamNeedsMap[croot.Recruit.Position]
+			croot := recruitMap[crootProfile.ID]
+			recruitingNeed := teamNeedsMap[croot.Position]
 			// If a croot was signed OR has points already placed on the croot, move on to the next croot
-			if croot.IsSigned || croot.CurrentWeeksPoints > 0 || croot.ScholarshipRevoked || !recruitingNeed {
+			if croot.IsSigned || crootProfile.CurrentWeeksPoints > 0 || crootProfile.ScholarshipRevoked || !recruitingNeed {
 				continue
 			}
 
 			removeCrootFromBoard := false
 			num := 0
 			// If a croot is locked and signed with a different team, remove from the team board and continue
-			if croot.IsLocked && croot.TeamAbbreviation != croot.Recruit.TeamAbbr {
+			if crootProfile.IsLocked && crootProfile.TeamAbbreviation != croot.Team {
 				removeCrootFromBoard = true
 			}
 
 			if !removeCrootFromBoard {
-				profiles := GetRecruitPlayerProfilesByRecruitId(strconv.Itoa(int(croot.RecruitID)))
+				profiles := GetRecruitPlayerProfilesByRecruitId(strconv.Itoa(int(crootProfile.RecruitID)))
 
 				// If an AI team previously spent points on a croot, use the previous week allocation.
-				if croot.PreviouslySpentPoints > 0 {
+				if crootProfile.PreviouslySpentPoints > 0 {
 					leadingTeamVal := util.IsAITeamContendingForCroot(profiles)
 					// If the allocation to be placed keeps the team in the lead, or if the lead is by 11 points or less
-					if float64(croot.PreviouslySpentPoints)+croot.TotalPoints >= float64(leadingTeamVal)*0.66 || leadingTeamVal < 14 {
-						num = croot.PreviouslySpentPoints
+					if float64(crootProfile.PreviouslySpentPoints)+crootProfile.TotalPoints >= float64(leadingTeamVal)*0.66 || leadingTeamVal < 14 {
+						num = int(crootProfile.PreviouslySpentPoints)
 						if num > pointsRemaining {
 							num = pointsRemaining
 						}
@@ -578,7 +572,7 @@ func AllocatePointsToAIBoards() {
 					}
 					// Check to see if other teams are contending
 					leadingValPoints := util.IsAITeamContendingForCroot(profiles)
-					if float64(num)+croot.TotalPoints < float64(leadingValPoints)*0.66 {
+					if float64(num)+crootProfile.TotalPoints < float64(leadingValPoints)*0.66 {
 						removeCrootFromBoard = true
 					}
 					if leadingValPoints < 14 {
@@ -588,18 +582,18 @@ func AllocatePointsToAIBoards() {
 			}
 
 			// If the Croot needs to be removed from the board, remove it and move on.
-			if removeCrootFromBoard || (team.ScholarshipsAvailable == 0 && !croot.Scholarship) {
-				if croot.Scholarship {
-					croot.RevokeScholarship()
+			if removeCrootFromBoard || (team.ScholarshipsAvailable == 0 && !crootProfile.Scholarship) {
+				if crootProfile.Scholarship {
+					crootProfile.RevokeScholarship()
 					team.ReallocateScholarship()
 				}
-				croot.RemoveRecruitFromBoard()
-				if croot.IsLocked {
-					fmt.Println("Because " + croot.Recruit.FirstName + " " + croot.Recruit.LastName + " signed with a different team, they are being removed from " + team.TeamAbbr + "'s Recruiting Board.")
+				crootProfile.RemoveRecruitFromBoard()
+				if crootProfile.IsLocked {
+					fmt.Println("Because " + croot.FirstName + " " + croot.LastName + " signed with a different team, they are being removed from " + team.TeamAbbr + "'s Recruiting Board.")
 				} else {
-					fmt.Println("Because " + croot.Recruit.FirstName + " " + croot.Recruit.LastName + " is heavily considering other teams, they are being removed from " + team.TeamAbbr + "'s Recruiting Board.")
+					fmt.Println("Because " + croot.FirstName + " " + croot.LastName + " is heavily considering other teams, they are being removed from " + team.TeamAbbr + "'s Recruiting Board.")
 				}
-				repository.SaveCBBRecruitProfile(croot, db)
+				repository.SaveRecruitProfileRecord(crootProfile, db)
 				continue
 			}
 
@@ -609,17 +603,17 @@ func AllocatePointsToAIBoards() {
 			}
 
 			// Allocate points and save
-			croot.AllocatePoints(num)
-			if !croot.Scholarship && team.ScholarshipsAvailable > 0 {
-				croot.ToggleScholarship(true, false)
+			crootProfile.AllocatePoints(num)
+			if !crootProfile.Scholarship && team.ScholarshipsAvailable > 0 {
+				crootProfile.ToggleScholarship(true, false)
 				team.SubtractScholarshipsAvailable()
 			}
 			team.AIAllocateSpentPoints(num)
 			// Save croot
-			repository.SaveCBBRecruitProfile(croot, db)
-			fmt.Println(team.TeamAbbr + " allocating " + strconv.Itoa(num) + " points to " + croot.Recruit.FirstName + " " + croot.Recruit.LastName)
+			repository.SaveRecruitProfileRecord(crootProfile, db)
+			fmt.Println(team.TeamAbbr + " allocating " + strconv.Itoa(num) + " points to " + croot.FirstName + " " + croot.LastName)
 
-			positionCount[croot.Recruit.Position] += 1
+			positionCount[croot.Position] += 1
 			if positionCount["PG"] >= 3 {
 				teamNeedsMap["PG"] = false
 			} else if positionCount["SG"] >= 4 {
@@ -634,7 +628,7 @@ func AllocatePointsToAIBoards() {
 		}
 		// Save Team Profile after iterating through recruits
 		fmt.Println("Saved " + team.TeamAbbr + " Recruiting Board!")
-		repository.SaveCBBTeamRecruitingProfile(team, db)
+		repository.SaveTeamRecruitingProfileRecord(team, db)
 	}
 }
 
@@ -657,10 +651,10 @@ func ResetAIBoardsForCompletedTeams() {
 				if team.IsAI {
 					croot.ToggleTotalMax()
 				}
-				repository.SaveCBBRecruitProfile(croot, db)
+				repository.SaveRecruitProfileRecord(croot, db)
 			}
 			team.ResetSpentPoints()
-			repository.SaveCBBTeamRecruitingProfile(team, db)
+			repository.SaveTeamRecruitingProfileRecord(team, db)
 		}
 	}
 }
@@ -669,18 +663,18 @@ func getOddsIncrementByStar(init int, stars int) int {
 	return init * stars
 }
 
-func getOddsIncrementByPotential(init int, potential int, isMidMajor, IsUserTeam bool) int {
+func getOddsIncrementByPotential(init int, potential uint8, isMidMajor, IsUserTeam bool) int {
 	divisor := 10
 	if isMidMajor && !IsUserTeam {
 		divisor = 20
 	}
-	potentialFloor := potential / divisor
+	potentialFloor := int(potential) / divisor
 	return init * potentialFloor
 }
 
-func getOddsIncrementByTalent(attr, stars int, attrspec, attrMatch bool, isMidMajor, IsUserTeam bool) int {
+func getOddsIncrementByTalent(attr, stars uint8, attrspec, attrMatch bool, isMidMajor, IsUserTeam bool) int {
 	attrRequirement := 14
-	if attrMatch && (attrspec || attr > attrRequirement) {
+	if attrMatch && (attrspec || int(attr) > attrRequirement) {
 		if stars > 3 && isMidMajor && !IsUserTeam {
 			return 10
 		}
@@ -689,44 +683,14 @@ func getOddsIncrementByTalent(attr, stars int, attrspec, attrMatch bool, isMidMa
 	return 0
 }
 
-func allocatePointsToRecruit(recruit structs.Recruit, recruitProfiles *[]structs.PlayerRecruitProfile, teamMap map[string]*structs.TeamRecruitingProfile, pointLimit float64, pointsPlaced *bool, timestamp structs.Timestamp, recruitProfilePointsMap *map[string]float64, db *gorm.DB) {
-	// numWorkers := 3
-	var mapMutex sync.Mutex
-	numWorkers := runtime.NumCPU()
-	if numWorkers > 3 {
-		numWorkers = 3
-	}
-	jobs := make(chan int, len(*recruitProfiles))
-	results := make(chan error, len(*recruitProfiles))
-
-	// This starts up numWorkers number of workers, initially blocked because there are no jobs yet.
-	for w := 1; w <= numWorkers; w++ {
-		go func(jobs <-chan int, results chan<- error, w int) {
-			for i := range jobs {
-				if (*recruitProfiles)[i].CurrentWeeksPoints == 0 {
-					results <- nil
-					continue
-				}
-				abbr := (*recruitProfiles)[i].ProfileID
-				mapMutex.Lock()
-				bonus := teamMap[strconv.Itoa(int(abbr))].BonusPoints
-				mapMutex.Unlock()
-				err := processRecruitProfile(i, recruit, recruitProfiles, float64(bonus), pointLimit, pointsPlaced, timestamp, recruitProfilePointsMap, &mapMutex, db)
-				results <- err
-			}
-		}(jobs, results, w)
-	}
-
-	// Here we send len(*recruitProfiles) jobs and then close the channel.
+func allocatePointsToRecruit(recruit structs.Recruit, recruitProfiles *[]structs.RecruitPlayerProfile, teamMap map[string]*structs.TeamRecruitingProfile, pointsPlaced *bool, timestamp structs.Timestamp, recruitProfilePointsMap *map[string]float64, db *gorm.DB) {
 	for i := 0; i < len(*recruitProfiles); i++ {
-		jobs <- i
-	}
-	close(jobs)
-
-	// Finally, we collect all the results.
-	// This ensures the function doesn't return until we've processed all recruit profiles.
-	for i := 0; i < len(*recruitProfiles); i++ {
-		err := <-results
+		if (*recruitProfiles)[i].CurrentWeeksPoints == 0 {
+			continue
+		}
+		abbr := (*recruitProfiles)[i].ProfileID
+		bonus := teamMap[strconv.Itoa(int(abbr))].BonusPoints
+		err := processRecruitProfile(i, recruit, recruitProfiles, float64(bonus), pointsPlaced, timestamp, recruitProfilePointsMap, db)
 		if err != nil {
 			fmt.Println(err)
 			log.Fatalf("Could not process recruit profile: %v", err)
@@ -734,9 +698,9 @@ func allocatePointsToRecruit(recruit structs.Recruit, recruitProfiles *[]structs
 	}
 }
 
-func processRecruitProfile(i int, recruit structs.Recruit, recruitProfiles *[]structs.PlayerRecruitProfile, bonus, pointLimit float64, pointsPlaced *bool, timestamp structs.Timestamp, recruitProfilePointsMap *map[string]float64, m *sync.Mutex, db *gorm.DB) error {
-	regionBonus := 1.05
-	stateBonus := 1.1
+func processRecruitProfile(i int, recruit structs.Recruit, recruitProfiles *[]structs.RecruitPlayerProfile, bonus float64, pointsPlaced *bool, timestamp structs.Timestamp, recruitProfilePointsMap *map[string]float64, db *gorm.DB) error {
+	regionBonus := 0.05
+	stateBonus := 0.1
 	*pointsPlaced = true
 
 	rpa := structs.RecruitPointAllocation{
@@ -747,19 +711,23 @@ func processRecruitProfile(i int, recruit structs.Recruit, recruitProfiles *[]st
 	}
 
 	var curr float64 = float64((*recruitProfiles)[i].CurrentWeeksPoints)
+	var modifier float64 = 1
 
 	// Region / State bonus
 	if (*recruitProfiles)[i].HasRegionBonus && recruit.Stars != 5 {
-		curr = curr * regionBonus
+		modifier += regionBonus
 	} else if (*recruitProfiles)[i].HasStateBonus && recruit.Stars != 5 {
-		curr = curr * stateBonus
+		modifier += stateBonus
 	}
+	// Apply modifier
+	curr = curr * modifier * float64((*recruitProfiles)[i].Modifier)
+
 	// Bonus Points value when saving
 	if curr > 0 {
 		curr += bonus
 	}
 
-	if (*recruitProfiles)[i].CurrentWeeksPoints < 0 || (*recruitProfiles)[i].CurrentWeeksPoints > 20 {
+	if (*recruitProfiles)[i].CurrentWeeksPoints > 20 {
 		curr = 0
 		rpa.ApplyCaughtCheating()
 	}
@@ -767,15 +735,10 @@ func processRecruitProfile(i int, recruit structs.Recruit, recruitProfiles *[]st
 	rpa.UpdatePointsSpent(float64((*recruitProfiles)[i].CurrentWeeksPoints), curr)
 	(*recruitProfiles)[i].AllocateTotalPoints(curr)
 
-	m.Lock()
 	(*recruitProfilePointsMap)[(*recruitProfiles)[i].TeamAbbreviation] += float64((*recruitProfiles)[i].CurrentWeeksPoints)
-	m.Unlock()
 
 	// Add RPA to point allocations list
-	err := db.Create(&rpa).Error
-	if err != nil {
-		return fmt.Errorf("could not save point allocation: %v", err)
-	}
+	repository.CreateRecruitPointAllocationRecord(rpa, db)
 	return nil
 }
 
@@ -842,20 +805,20 @@ func updateTeamRankings(teamRecruitingProfiles []structs.TeamRecruitingProfile, 
 		rp.ResetSpentPoints()
 
 		// Save TEAM Recruiting Profile
-		repository.SaveCBBTeamRecruitingProfile(rp, db)
+		repository.SaveTeamRecruitingProfileRecord(rp, db)
 		fmt.Println("Saved Rank Scores for Team " + rp.TeamAbbr)
 	}
 }
 
-func MakeRecruitProfileMapByRecruitID(profiles []structs.PlayerRecruitProfile) map[uint][]structs.PlayerRecruitProfile {
-	recruitProfileMap := make(map[uint][]structs.PlayerRecruitProfile)
+func MakeRecruitProfileMapByRecruitID(profiles []structs.RecruitPlayerProfile) map[uint][]structs.RecruitPlayerProfile {
+	recruitProfileMap := make(map[uint][]structs.RecruitPlayerProfile)
 
 	for _, profile := range profiles {
 		if profile.RemovedFromBoard {
 			continue
 		}
 		if len(recruitProfileMap[profile.RecruitID]) == 0 {
-			recruitProfileMap[profile.RecruitID] = []structs.PlayerRecruitProfile{profile}
+			recruitProfileMap[profile.RecruitID] = []structs.RecruitPlayerProfile{profile}
 		} else {
 			recruitProfileMap[profile.RecruitID] = append(recruitProfileMap[profile.RecruitID], profile)
 		}
@@ -864,15 +827,26 @@ func MakeRecruitProfileMapByRecruitID(profiles []structs.PlayerRecruitProfile) m
 	return recruitProfileMap
 }
 
-func MakeRecruitProfileMapByProfileID(profiles []structs.PlayerRecruitProfile) map[uint][]structs.PlayerRecruitProfile {
-	recruitProfileMap := make(map[uint][]structs.PlayerRecruitProfile)
+func MakeRecruitMap(croots []structs.Recruit) map[uint]structs.Recruit {
+	recruitMap := make(map[uint]structs.Recruit)
+
+	for _, croot := range croots {
+		recruitMap[croot.ID] = croot
+
+	}
+
+	return recruitMap
+}
+
+func MakeRecruitProfileMapByProfileID(profiles []structs.RecruitPlayerProfile) map[uint][]structs.RecruitPlayerProfile {
+	recruitProfileMap := make(map[uint][]structs.RecruitPlayerProfile)
 
 	for _, profile := range profiles {
 		if profile.RemovedFromBoard {
 			continue
 		}
 		if len(recruitProfileMap[profile.ProfileID]) == 0 {
-			recruitProfileMap[profile.ProfileID] = []structs.PlayerRecruitProfile{profile}
+			recruitProfileMap[profile.ProfileID] = []structs.RecruitPlayerProfile{profile}
 		} else {
 			recruitProfileMap[profile.ProfileID] = append(recruitProfileMap[profile.ProfileID], profile)
 		}

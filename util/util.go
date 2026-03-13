@@ -65,14 +65,14 @@ func GenerateNormalizedIntFromRange(min int, max int) int {
 }
 
 func PickPositionFromList() string {
-	roll := GenerateIntFromRange(1, 10)
-	if roll > 9 {
-		return "C"
-	}
-	return PickFromStringList([]string{"PG", "SG", "PF", "SF"})
+	return PickFromStringList([]string{"G", "G", "G", "F", "F", "F", "C"})
 }
 
 func PickFromStringList(list []string) string {
+	if len(list) == 0 {
+		return ""
+	}
+
 	return list[rand.Intn(len(list))]
 }
 
@@ -158,23 +158,23 @@ func GenerateStamina() int {
 	return int(value)
 }
 
-func GeneratePotential() int {
+func GeneratePotential() uint8 {
 	num := GenerateIntFromRange(1, 100)
 
 	if num < 10 {
-		return GenerateIntFromRange(1, 20)
+		return uint8(GenerateIntFromRange(1, 20))
 	} else if num < 20 {
-		return GenerateIntFromRange(21, 40)
+		return uint8(GenerateIntFromRange(21, 40))
 	} else if num < 80 {
-		return GenerateIntFromRange(41, 55)
+		return uint8(GenerateIntFromRange(41, 55))
 	} else if num < 85 {
-		return GenerateIntFromRange(56, 65)
+		return uint8(GenerateIntFromRange(56, 65))
 	} else if num < 90 {
-		return GenerateIntFromRange(66, 75)
+		return uint8(GenerateIntFromRange(66, 75))
 	} else if num < 95 {
-		return GenerateIntFromRange(76, 85)
+		return uint8(GenerateIntFromRange(76, 85))
 	} else {
-		return GenerateIntFromRange(86, 99)
+		return uint8(GenerateIntFromRange(86, 99))
 	}
 }
 
@@ -328,95 +328,6 @@ func GetFreeAgencyBias(age, ovr int) string {
 	return PickFromStringList(list)
 }
 
-func GetSpecialties(pos string) []string {
-	chance := GenerateIntFromRange(0, 9)
-	if chance < 1 {
-		return []string{}
-	}
-
-	list := []string{}
-	mod := 0
-	diceRoll := 0
-
-	// S2
-	diceRoll = GenerateIntFromRange(1, 20)
-	if pos == "SG" || pos == "SF" || pos == "PG" {
-		mod = 2
-	}
-	if diceRoll+mod > 13 {
-		list = append(list, "SpecShooting2")
-	}
-
-	// S3
-	diceRoll = GenerateIntFromRange(1, 20)
-	if pos == "PG" || pos == "SG" {
-		mod = 2
-	}
-	if diceRoll+mod > 13 {
-		list = append(list, "SpecShooting3")
-	}
-	// FT
-	diceRoll = GenerateIntFromRange(1, 20)
-	if pos == "SG" || pos == "SF" || pos == "PF" {
-		mod = 2
-	} else {
-		mod = -1
-	}
-	if diceRoll+mod > 13 {
-		list = append(list, "SpecFreeThrow")
-	}
-
-	// FN
-	diceRoll = GenerateIntFromRange(1, 20)
-	if pos == "SF" || pos == "SG" {
-		mod = 2
-	}
-	if diceRoll > 13 {
-		list = append(list, "SpecFinishing")
-	}
-
-	// BW
-	diceRoll = GenerateIntFromRange(1, 20)
-	if pos == "PG" || pos == "SG" {
-		mod = 2
-	}
-	if diceRoll+mod > 13 {
-		list = append(list, "SpecBallwork")
-	}
-
-	// RB
-	diceRoll = GenerateIntFromRange(1, 20)
-	if pos == "C" || pos == "PF" {
-		mod = 2
-	}
-	if diceRoll+mod > 13 {
-		list = append(list, "SpecRebounding")
-	}
-
-	// ID
-	diceRoll = GenerateIntFromRange(1, 20)
-	if pos == "C" || pos == "PF" {
-		mod = 2
-	} else if pos == "PG" || pos == "SG" {
-		mod = -2
-	}
-	if diceRoll+mod > 13 {
-		list = append(list, "SpecInteriorDefense")
-	}
-
-	// PD
-	diceRoll = GenerateIntFromRange(1, 20)
-	if pos == "PG" || pos == "SF" {
-		mod = 2
-	} else if pos == "PF" || pos == "C" {
-		mod = -2
-	}
-	if diceRoll+mod > 13 {
-		list = append(list, "SpecPerimeterDefense")
-	}
-	return list
-}
-
 func GetOffenseGrade(rating int) string {
 	if rating > 45 {
 		return "A+"
@@ -497,7 +408,7 @@ func GetDefenseGrade(rating int) string {
 	return "F"
 }
 
-func GetOverallGrade(rating int) string {
+func GetOverallGrade(rating uint8) string {
 	if rating > 45 {
 		return "A+"
 	}
@@ -579,29 +490,30 @@ func GetOverallDraftGrade(rating int) string {
 }
 
 func GetNumericalSortValueByLetterGrade(grade string) int {
-	if grade == "A+" {
+	switch grade {
+	case "A+":
 		return 1
-	} else if grade == "A" {
+	case "A":
 		return 2
-	} else if grade == "A-" {
+	case "A-":
 		return 3
-	} else if grade == "B+" {
+	case "B+":
 		return 4
-	} else if grade == "B" {
+	case "B":
 		return 5
-	} else if grade == "B-" {
+	case "B-":
 		return 6
-	} else if grade == "C+" {
+	case "C+":
 		return 7
-	} else if grade == "C" {
+	case "C":
 		return 8
-	} else if grade == "C-" {
+	case "C-":
 		return 9
-	} else if grade == "D+" {
+	case "D+":
 		return 10
-	} else if grade == "D" {
+	case "D":
 		return 11
-	} else if grade == "D-" {
+	case "D-":
 		return 12
 	}
 	return 13
@@ -647,20 +559,56 @@ func GetNBATeamGrade(rating int) string {
 	return "F"
 }
 
-func GetAttributeGrade(rating int) string {
-	if rating > 16 {
+func GetAttributeGrade(attr uint8, year int) string {
+	if year < 3 {
+		if attr > 23 {
+			return "A"
+		}
+		if attr > 18 {
+			return "B"
+		}
+		if attr > 10 {
+			return "C"
+		}
+		if attr > 5 {
+			return "D"
+		}
+		return "F"
+	}
+	if attr > 29 {
+		return "A+"
+	}
+	if attr > 26 {
 		return "A"
-	} else if rating > 13 {
+	}
+	if attr > 23 {
+		return "A-"
+	}
+	if attr > 20 {
+		return "B+"
+	}
+	if attr > 17 {
 		return "B"
-	} else if rating > 10 {
+	}
+	if attr > 14 {
+		return "B-"
+	}
+	if attr > 11 {
+		return "C+"
+	}
+	if attr > 8 {
 		return "C"
-	} else if rating > 7 {
+	}
+	if attr > 5 {
+		return "C-"
+	}
+	if attr > 2 {
 		return "D"
 	}
 	return "F"
 }
 
-func GetDrafteeGrade(rating int) string {
+func GetDrafteeGrade(rating uint8) string {
 	if rating > 24 {
 		return "A+"
 	}
@@ -694,24 +642,8 @@ func GetDrafteeGrade(rating int) string {
 	return "F"
 }
 
-func GetPlayerOverallGrade(rating int) string {
-	if rating > 69 {
-		return "A"
-	}
-	if rating > 56 {
-		return "B"
-	}
-	if rating > 48 {
-		return "C"
-	}
-	if rating > 36 {
-		return "D"
-	}
-	return "F"
-}
-
-func GetWeightedPotentialGrade(rating int) string {
-	weightedRating := GenerateIntFromRange(rating-15, rating+15)
+func GetWeightedPotentialGrade(rating uint8) string {
+	weightedRating := GenerateIntFromRange(int(rating)-15, int(rating)+15)
 	if weightedRating > 100 {
 		weightedRating = 99
 	} else if weightedRating < 0 {
@@ -758,35 +690,36 @@ func GetWeightedPotentialGrade(rating int) string {
 }
 
 func GetNBAProgressionRatingFromGrade(grade string) int {
-	if grade == "A+" {
+	switch grade {
+	case "A+":
 		return GenerateIntFromRange(88, 100)
-	} else if grade == "A" {
+	case "A":
 		return GenerateIntFromRange(81, 88)
-	} else if grade == "A-" {
+	case "A-":
 		return GenerateIntFromRange(75, 80)
-	} else if grade == "B+" {
+	case "B+":
 		return GenerateIntFromRange(69, 74)
-	} else if grade == "B" {
+	case "B":
 		return GenerateIntFromRange(63, 68)
-	} else if grade == "B-" {
+	case "B-":
 		return GenerateIntFromRange(57, 62)
-	} else if grade == "C+" {
+	case "C+":
 		return GenerateIntFromRange(51, 56)
-	} else if grade == "C" {
+	case "C":
 		return GenerateIntFromRange(45, 50)
-	} else if grade == "C-" {
+	case "C-":
 		return GenerateIntFromRange(39, 44)
-	} else if grade == "D+" {
+	case "D+":
 		return GenerateIntFromRange(33, 38)
-	} else if grade == "D" {
+	case "D":
 		return GenerateIntFromRange(27, 32)
-	} else if grade == "D-" {
+	case "D-":
 		return GenerateIntFromRange(21, 26)
 	}
 	return GenerateIntFromRange(1, 20)
 }
 
-func GetPotentialGrade(rating int) string {
+func GetPotentialGrade(rating uint8) string {
 
 	if rating > 88 {
 		return "A+"
@@ -829,42 +762,44 @@ func GetPotentialGrade(rating int) string {
 
 func GetPlaytimeExpectations(stars int, year int, overall int) int {
 	mod := 0
-	if overall > 60 {
+	if overall > 30 {
 		mod = GenerateIntFromRange(1, 3)
 	}
-	if stars == 5 {
+	switch stars {
+	case 5:
 		if year == 4 {
 			return GenerateIntFromRange(15, 23) + mod
 		}
 		return GenerateIntFromRange(10, 22) + mod
-	} else if stars == 4 {
+	case 4:
 		if year == 4 {
 			return GenerateIntFromRange(8, 15) + mod
 		}
 		return GenerateIntFromRange(7, 15) + mod
-	} else if stars == 3 {
+	case 3:
 		if year == 4 {
 			return GenerateIntFromRange(7, 11) + mod
 		}
 		return GenerateIntFromRange(1, 10) + mod
-	} else if stars == 2 {
-		if year == 4 {
+	case 2:
+		switch year {
+		case 4:
 			return GenerateIntFromRange(4, 8) + mod
-		} else if year == 3 {
+		case 3:
 			return GenerateIntFromRange(1, 6) + mod
 		}
 		return GenerateIntFromRange(1, 5) + mod
-	} else {
+	default:
 		return 1 + mod
 	}
 }
 
-func GetProfessionalPlaytimeExpectations(age, primeage, overall int) int {
-	mod := calculateOverallModifier(overall)
+func GetProfessionalPlaytimeExpectations(age, primeage, overall uint8) int {
+	mod := calculateOverallModifier(int(overall))
 	if age < 23 {
 		mod -= 5
 	} else if age >= primeage {
-		mod -= (age - primeage)
+		mod -= (int(age) - int(primeage))
 	}
 	if overall < 70 {
 		return GenerateIntFromRange(0, 12) + mod
@@ -901,7 +836,7 @@ func ConvertStringToBool(str string) bool {
 }
 
 func ConvertStringToInt(num string) int {
-	if num == "" {
+	if num == "" || num == "NULL" {
 		return 0
 	}
 	val, err := strconv.Atoi(num)
@@ -913,6 +848,9 @@ func ConvertStringToInt(num string) int {
 }
 
 func ConvertStringToFloat(num string) float64 {
+	if num == "" || num == "NULL" {
+		return 0
+	}
 	floatNum, error := strconv.ParseFloat(num, 64)
 	if error != nil {
 		fmt.Println("Could not convert string to float 64, resetting as 0.")
@@ -921,7 +859,7 @@ func ConvertStringToFloat(num string) float64 {
 	return floatNum
 }
 
-func WillPlayerRetire(age int, overall int) bool {
+func WillPlayerRetire(age, overall uint8) bool {
 	if age > 25 && overall < 60 {
 		return true
 	}
@@ -951,17 +889,18 @@ func WillPlayerRetire(age int, overall int) bool {
 }
 
 func GetRoundAbbreviation(str string) string {
-	if str == "1" {
+	switch str {
+	case "1":
 		return "1st Round"
-	} else if str == "2" {
+	case "2":
 		return "2nd Round"
-	} else if str == "3" {
+	case "3":
 		return "3rd Round"
-	} else if str == "4" {
+	case "4":
 		return "4th Round"
-	} else if str == "5" {
+	case "5":
 		return "5th Round"
-	} else if str == "6" {
+	case "6":
 		return "6th Round"
 	}
 	return "7th Round"
@@ -1015,28 +954,31 @@ func GetAttributeNew(position, attribute string, spec, isWalkon bool) int {
 		mod = 4
 	}
 	if position == "PG" || position == "SG" {
-		if attribute == "Shooting2" || attribute == "Shooting3" ||
-			attribute == "Ballwork" {
+		switch attribute {
+		case "Shooting2", "Shooting3", "Ballwork":
 			mod += GenerateIntFromRange(1, 2)
-		} else if attribute == "Rebounding" || attribute == "Interior Defense" {
+		case "Rebounding", "Interior Defense":
 			mod -= GenerateIntFromRange(0, 1)
 		}
-	} else if position == "SG" || position == "SF" {
+	}
+	if position == "SG" || position == "SF" {
 		if attribute == "Perimeter Defense" {
 			mod += GenerateIntFromRange(1, 2)
 		}
-	} else if position == "PF" || position == "SF" {
-		if attribute == "Finishing" {
+	}
+	if position == "PF" || position == "SF" {
+		switch attribute {
+		case "Finishing":
 			mod += GenerateIntFromRange(1, 2)
-		} else if attribute == "Shooting3" {
+		case "Shooting3":
 			mod -= GenerateIntFromRange(0, 1)
 		}
-	} else if position == "C" {
-		if attribute == "Finishing" || attribute == "Interior Defense" ||
-			attribute == "Rebounding" {
+	}
+	if position == "C" {
+		switch attribute {
+		case "Finishing", "Interior Defense", "Rebounding":
 			mod += GenerateIntFromRange(1, 2)
-		} else if attribute == "Shooting2" || attribute == "Shooting3" ||
-			attribute == "FreeThrow" || attribute == "Ballwork" {
+		case "Shooting2", "Shooting3", "FreeThrow", "Ballwork":
 			mod -= GenerateIntFromRange(0, 1)
 		}
 	}
@@ -1044,4 +986,378 @@ func GetAttributeNew(position, attribute string, spec, isWalkon bool) int {
 		mod = 0
 	}
 	return GenerateIntFromRange(3, 14) + mod
+}
+
+func GetWeekIDBySeasonAndWeek(season uint, week uint) uint {
+	// Format should be SSWW where SS is the last two digits of the season and WW is the week number with leading zeros if necessary
+	seasonPart := season % 100
+	weekPart := week
+	if week < 10 {
+		weekPart = week + 100 // This will ensure that when we convert to string, it will have a leading zero
+	}
+
+	return uint(seasonPart*100 + weekPart)
+}
+
+func GetStarRating(isCustom, isInt bool) int {
+	roll := GenerateIntFromRange(1, 1000)
+	if isInt {
+		if roll < 3 {
+			return 5
+		}
+		if roll < 40 {
+			return 4
+		}
+		if roll < 275 {
+			return 3
+		}
+		if roll < 650 {
+			return 2
+		}
+		return 1
+	}
+	if isCustom {
+		roll -= 100
+	}
+	if roll < 0 {
+		roll = 1
+	}
+	if roll < 3 {
+		return 6
+	}
+	if roll < 18 {
+		return 5
+	}
+	if roll < 70 {
+		return 4
+	}
+	if roll < 300 || isCustom {
+		return 3
+	}
+	if roll < 600 {
+		return 2
+	}
+	return 1
+}
+
+type Locale struct {
+	Name   string
+	Weight int
+}
+
+// Pick a US state or Canadian province for which the player is from
+func PickState() string {
+	states := []Locale{
+		{Name: "TX", Weight: 45}, // Collective weight for less prominent states
+		{Name: "CA", Weight: 40}, // Collective weight for less prominent states
+		{Name: "NY", Weight: 40},
+		{Name: "NC", Weight: 40}, // Collective weight for less prominent states
+		{Name: "IL", Weight: 40},
+		{Name: "FL", Weight: 40}, // Collective weight for less prominent states
+		{Name: "OH", Weight: 30},
+		{Name: "PA", Weight: 30},
+		{Name: "GA", Weight: 30}, // Collective weight for less prominent states
+		{Name: "IN", Weight: 30}, // Collective weight for less prominent states
+		{Name: "NJ", Weight: 25}, // Collective weight for less prominent states
+		{Name: "VA", Weight: 20}, // Collective weight for less prominent states
+		{Name: "AZ", Weight: 20}, // Collective weight for less prominent states
+		{Name: "TN", Weight: 20}, // Collective weight for less prominent states
+		{Name: "SC", Weight: 20}, // Collective weight for less prominent states
+		{Name: "KS", Weight: 20}, // Collective weight for less prominent states
+		{Name: "LA", Weight: 20}, // Collective weight for less prominent states
+		{Name: "KY", Weight: 15}, // Collective weight for less prominent states
+		{Name: "MO", Weight: 15}, // Collective weight for less prominent states
+		{Name: "MA", Weight: 15},
+		{Name: "AL", Weight: 15}, // Collective weight for less prominent states
+		{Name: "UT", Weight: 10}, // Collective weight for less prominent states
+		{Name: "MI", Weight: 10},
+		{Name: "CO", Weight: 10},
+		{Name: "CT", Weight: 10},
+		{Name: "MS", Weight: 10}, // Collective weight for less prominent states
+		{Name: "OK", Weight: 10}, // Collective weight for less prominent states
+		{Name: "WA", Weight: 8},  // Collective weight for less prominent states
+		{Name: "VT", Weight: 5},
+		{Name: "OR", Weight: 5}, // Collective weight for less prominent states
+		{Name: "AK", Weight: 5},
+		{Name: "NH", Weight: 5}, // Collective weight for less prominent states
+		{Name: "RI", Weight: 5}, // Collective weight for less prominent states
+		{Name: "ME", Weight: 5}, // Collective weight for less prominent states
+		{Name: "MN", Weight: 5},
+		{Name: "WI", Weight: 5},
+		{Name: "ND", Weight: 3},
+		{Name: "DE", Weight: 3}, // Collective weight for less prominent states
+		{Name: "MT", Weight: 3}, // Collective weight for less prominent states
+		{Name: "NE", Weight: 2}, // Collective weight for less prominent states
+		{Name: "MD", Weight: 1}, // Collective weight for less prominent states
+		{Name: "IA", Weight: 1}, // Collective weight for less prominent states
+		{Name: "NM", Weight: 1}, // Collective weight for less prominent states
+		{Name: "SD", Weight: 1}, // Collective weight for less prominent states
+		{Name: "WY", Weight: 1}, // Collective weight for less prominent states
+		{Name: "ID", Weight: 1}, // Collective weight for less prominent states
+		{Name: "NV", Weight: 1}, // Collective weight for less prominent states
+		{Name: "WV", Weight: 1}, // Collective weight for less prominent states
+		{Name: "AR", Weight: 1}, // Collective weight for less prominent states
+		{Name: "HI", Weight: 1}, // Collective weight for less prominent states
+		{Name: "GM", Weight: 1}, // Collective weight for less prominent states
+		{Name: "AS", Weight: 1}, // Collective weight for less prominent states
+	}
+
+	totalWeight := 0
+	for _, state := range states {
+		totalWeight += state.Weight
+	}
+
+	randomWeight := GenerateIntFromRange(0, totalWeight)
+	for _, state := range states {
+		if randomWeight < state.Weight {
+			return state.Name
+		}
+		randomWeight -= state.Weight
+	}
+	return PickFromStringList([]string{"MN", "MI", "NY", "MA"})
+}
+
+func GetArchetype(pos string) string {
+	diceRoll := GenerateIntFromRange(1, 1000)
+	if diceRoll > 998 {
+		return "All-Around"
+	}
+	switch pos {
+	case "C":
+		return PickFromStringList([]string{"Rim Protector", "Post Scorer", "Stretch Center"})
+	case "F":
+		return PickFromStringList([]string{"Power Forward", "Small Forward", "Point Forward", "Swingman", "Two-Way"})
+	case "G":
+		return PickFromStringList([]string{"Point Guard", "Shooting Guard", "Combo Guard", "Slasher", "3-and-D"})
+	}
+	return ""
+}
+
+func RescaleAttribute(attr int) uint8 {
+	// Rescale attribute from 1-40 range to 1-50 range
+	newAttr := 1 + (attr-1)*49/39
+	if newAttr < 1 {
+		return 1
+	}
+	return uint8(newAttr)
+}
+
+func RescaleDisciplineAndInjury(attr int) uint8 {
+	// Rescale attribute from 1-20 range to 1-100 range
+	newAttr := 1 + (attr-1)*99/19
+	if newAttr < 1 {
+		return 1
+	}
+	return uint8(newAttr)
+}
+
+func GenerateSpecialty(pos, arch, attr string) bool {
+	chance := GenerateIntFromRange(0, 9)
+	if chance < 1 {
+		return false
+	}
+
+	mod := 0
+	diceRoll := GenerateIntFromRange(1, 20)
+	if diceRoll == 20 {
+		return true
+	}
+
+	switch pos {
+	case "G":
+		switch arch {
+		case "Point Guard":
+			switch attr {
+			case "Ballwork":
+				mod += 3
+			case "Agility", "PerimeterDefense":
+				mod += 2
+			case "MidRangeShooting", "ThreePointShooting", "FreeThrow", "Stealing":
+				mod += 1
+			case "InteriorDefense":
+				mod -= 2
+			case "InsideShooting", "Rebounding", "Blocking":
+				mod -= 3
+			}
+		case "Shooting Guard":
+			switch attr {
+			case "MidRangeShooting", "ThreePointShooting":
+				mod += 3
+			case "InsideShooting":
+				mod += 2
+			case "FreeThrow", "Stealing", "Agility":
+				mod += 1
+			case "Ballwork":
+				mod -= 2
+			case "InteriorDefense", "PerimeterDefense":
+				mod -= 1
+			case "Rebounding":
+				mod -= 2
+			case "Blocking":
+				mod -= 3
+			}
+		case "Combo Guard":
+			switch attr {
+			case "MidRangeShooting", "ThreePointShooting", "Ballwork":
+				mod += 2
+			case "Agility", "FreeThrow", "Stealing", "PerimeterDefense":
+				mod += 1
+			case "InteriorDefense":
+				mod -= 1
+			case "Rebounding", "Blocking":
+				mod -= 2
+			case "InsideShooting":
+				mod -= 1
+			}
+		case "Slasher":
+			switch attr {
+			case "InsideShooting", "Agility", "Stealing":
+				mod += 3
+			case "Blocking":
+				mod += 2
+			case "FreeThrow", "InteriorDefense", "PerimeterDefense":
+				mod += 1
+			case "Ballwork":
+				mod -= 1
+			case "MidRangeShooting", "Rebounding":
+				mod -= 2
+			case "ThreePointShooting":
+				mod -= 3
+			}
+		case "3-and-D":
+			switch attr {
+			case "ThreePointShooting", "Agility", "PerimeterDefense":
+				mod += 3
+			case "Stealing", "InteriorDefense":
+				mod += 2
+			case "FreeThrow":
+				mod += 1
+			case "MidRangeShooting":
+				mod -= 1
+			case "Rebounding", "Blocking":
+				mod -= 2
+			case "InsideShooting":
+				mod -= 3
+			}
+		case "All-Around":
+			mod += 2 // It's a very rare archetype, give them an edge.
+		}
+	case "F":
+		switch arch {
+		case "Power Forward":
+			switch attr {
+			case "InsideShooting", "MidRangeShooting", "Rebounding", "Blocking", "InteriorDefense":
+				mod += 2
+			case "Stealing":
+				mod += 1
+			case "Agility", "ThreePointShooting":
+				mod -= 1
+			case "Ballwork", "FreeThrow", "PerimeterDefense":
+				mod -= 2
+			}
+		case "Small Forward":
+			switch attr {
+			case "Stealing":
+				mod += 3
+			case "Agility":
+				mod += 2
+			case "FreeThrow", "Rebounding", "Ballwork", "PerimeterDefense":
+				mod += 1
+			case "Blocking":
+				mod -= 1
+			case "InteriorDefense":
+				mod -= 1
+			case "InsideShooting":
+				mod -= 1
+			}
+		case "Point Forward":
+			switch attr {
+			case "Ballwork":
+				mod += 3
+			case "InsideShooting", "FreeThrow":
+				mod += 2
+			case "Agility", "Rebounding", "Stealing", "PerimeterDefense":
+				mod += 1
+			case "ThreePointShooting", "Blocking", "InteriorDefense":
+				mod -= 2
+			}
+		case "Swingman":
+			switch attr {
+			case "Agility":
+				mod += 3
+			case "Stealing", "PerimeterDefense":
+				mod += 2
+			case "MidRangeShooting", "ThreePointShooting", "Ballwork", "FreeThrow":
+				mod += 1
+			case "InsideShooting", "InteriorDefense":
+				mod -= 1
+			case "Rebounding", "Blocking":
+				mod -= 2
+			}
+		case "Two-Way":
+			switch attr {
+			case "Stealing", "Blocking", "InteriorDefense", "PerimeterDefense":
+				mod += 2
+			case "Agility", "Rebounding":
+				mod += 1
+			case "InsideShooting", "MidRangeShooting", "ThreePointShooting", "Ballwork":
+				mod -= 1
+			case "FreeThrow":
+				mod -= 1
+			}
+		case "All-Around":
+			mod += 2 // It's a very rare archetype, give them an edge.
+		}
+	case "C":
+		switch arch {
+		case "Rim Protector":
+			switch attr {
+			case "Blocking", "InteriorDefense":
+				mod += 3
+			case "Rebounding":
+				mod += 2
+			case "InsideShooting":
+				mod += 1
+			case "FreeThrow", "Agility", "Ballwork":
+				mod -= 1
+			case "MidRangeShooting", "PerimeterDefense", "Stealing":
+				mod -= 2
+			case "ThreePointShooting":
+				mod -= 3
+			}
+		case "Post Scorer":
+			switch attr {
+			case "InsideShooting":
+				mod += 3
+			case "MidRangeShooting", "Rebounding", "Blocking", "InteriorDefense":
+				mod += 2
+			case "FreeThrow", "Agility", "Ballwork":
+				mod += 1
+			case "Stealing":
+				mod -= 1
+			case "ThreePointShooting", "PerimeterDefense":
+				mod -= 2
+			}
+		case "Stretch Center":
+			switch attr {
+			case "ThreePointShooting":
+				mod += 3
+			case "MidRangeShooting", "InteriorDefense":
+				mod += 2
+			case "Agility", "Ballwork", "FreeThrow", "PerimeterDefense":
+				mod += 1
+			case "InsideShooting", "Blocking":
+				mod -= 1
+			case "Rebounding", "Stealing":
+				mod -= 2
+			}
+		case "All-Around":
+			mod += 2 // It's a very rare archetype, give them an edge.
+		}
+	}
+
+	if diceRoll+mod > 14 {
+		return true
+	}
+	return false
 }

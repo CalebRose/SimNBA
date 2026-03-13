@@ -105,7 +105,7 @@ func ProgressNBAPlayers() {
 			isInternationalProspect := player.IsIntGenerated
 			willDeclare := InternationalDeclaration(player, isInternationalProspect)
 			if willDeclare {
-				message := player.TeamAbbr + " " + player.Position + " " + player.FirstName + " " + player.LastName + " from " + player.Country + " has declared for the SimNBA Draft!"
+				message := player.Team + " " + player.Position + " " + player.FirstName + " " + player.LastName + " from " + player.Country + " has declared for the SimNBA Draft!"
 				CreateNewsLog("NBA", message, "Draft", 0, ts)
 				// Create NBA Draftee Record
 				player.BecomeInternationalDraftee()
@@ -116,7 +116,7 @@ func ProgressNBAPlayers() {
 				repository.CreateInternationalDrafteeRecord(player, db)
 			} else if willPlayerRetire {
 				player.SetRetiringStatus()
-				message := player.TeamAbbr + " " + player.Position + " " + player.FirstName + " " + player.LastName + " has announced his retirement. He retires at " + strconv.Itoa(player.Age) + " years old and played professionally for " + strconv.Itoa(player.Year) + " years."
+				message := player.Team + " " + player.Position + " " + player.FirstName + " " + player.LastName + " has announced his retirement. He retires at " + strconv.Itoa(int(player.Age)) + " years old and played professionally for " + strconv.Itoa(int(player.Year)) + " years."
 				CreateNewsLog("NBA", message, "Retirement", 0, ts)
 				retiringPlayer := (structs.RetiredPlayer)(player)
 				contract.RetireContract()
@@ -146,7 +146,7 @@ func ProgressNBAPlayers() {
 					if acceptedExtension.ID > 0 {
 						contract.MapFromExtension(acceptedExtension)
 						player.AssignMinimumContractValue(contract.ContractValue)
-						message := "Breaking News: " + player.Position + " " + player.FirstName + " " + player.LastName + " has official signed his extended offer with " + player.TeamAbbr + " for $" + strconv.Itoa(int(contract.ContractValue)) + " Million Dollars!"
+						message := "Breaking News: " + player.Position + " " + player.FirstName + " " + player.LastName + " has official signed his extended offer with " + player.Team + " for $" + strconv.Itoa(int(contract.ContractValue)) + " Million Dollars!"
 						CreateNewsLog("NBA", message, "Free Agency", int(player.TeamID), ts)
 						repository.DeleteExtension(acceptedExtension, db)
 					} else {
@@ -168,7 +168,7 @@ func ProgressNBAPlayers() {
 func ProgressNBAPlayer(np structs.NBAPlayer, isISLGen bool) structs.NBAPlayer {
 	var MinutesPerGame int = int(np.SeasonStats.MinutesPerGame)
 	age := np.Age + 1
-	ageDifference := age - int(np.PrimeAge)
+	ageDifference := int(age) - int(np.PrimeAge)
 	if ageDifference < 0 {
 		ageDifference = 0
 	}
@@ -196,19 +196,19 @@ func ProgressNBAPlayer(np structs.NBAPlayer, isISLGen bool) structs.NBAPlayer {
 	idDiceRoll := util.GenerateIntFromRange(1, 20)
 	pdDiceRoll := util.GenerateIntFromRange(1, 20)
 
-	potentialModifier := np.Potential / 20 // Guaranteed to be between 1-5
+	potentialModifier := int(np.Potential) / 20 // Guaranteed to be between 1-5
 
-	if np.SpecShooting2 {
+	if np.SpecMidRangeShooting {
 		attributeList = append(attributeList, "Shooting2")
 	}
 
-	if np.SpecShooting3 {
+	if np.SpecThreePointShooting {
 		attributeList = append(attributeList, "Shooting3")
 	}
 	if np.SpecFreeThrow {
 		attributeList = append(attributeList, "FreeThrow")
 	}
-	if np.SpecFinishing {
+	if np.SpecInsideShooting {
 		attributeList = append(attributeList, "Finishing")
 	}
 	if np.SpecBallwork {
@@ -263,50 +263,50 @@ func ProgressNBAPlayer(np structs.NBAPlayer, isISLGen bool) structs.NBAPlayer {
 		allocation := 0
 		switch attr {
 		case "Shooting2":
-			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecShooting2, developingPlayer)
+			allocation = NBAPlayerProgression(int(np.Potential), int(ageDifference), MinutesPerGame, int(np.PlaytimeExpectations), np.SpecMidRangeShooting, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			shooting2 += allocation
 		case "Shooting3":
-			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecShooting3, developingPlayer)
+			allocation = NBAPlayerProgression(int(np.Potential), int(ageDifference), MinutesPerGame, int(np.PlaytimeExpectations), np.SpecThreePointShooting, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			shooting3 += allocation
 		case "FreeThrow":
-			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecFreeThrow, developingPlayer)
+			allocation = NBAPlayerProgression(int(np.Potential), int(ageDifference), MinutesPerGame, int(np.PlaytimeExpectations), np.SpecFreeThrow, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			freeThrow += allocation
 		case "Finishing":
-			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecFinishing, developingPlayer)
+			allocation = NBAPlayerProgression(int(np.Potential), int(ageDifference), MinutesPerGame, int(np.PlaytimeExpectations), np.SpecInsideShooting, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			finishing += allocation
 		case "Ballwork":
-			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecBallwork, developingPlayer)
+			allocation = NBAPlayerProgression(int(np.Potential), int(ageDifference), MinutesPerGame, int(np.PlaytimeExpectations), np.SpecBallwork, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			ballwork += allocation
 		case "Rebounding":
 
-			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecRebounding, developingPlayer)
+			allocation = NBAPlayerProgression(int(np.Potential), int(ageDifference), MinutesPerGame, int(np.PlaytimeExpectations), np.SpecRebounding, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			rebounding += allocation
 		case "InteriorDefense":
-			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecInteriorDefense, developingPlayer)
+			allocation = NBAPlayerProgression(int(np.Potential), int(ageDifference), MinutesPerGame, int(np.PlaytimeExpectations), np.SpecInteriorDefense, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			interiorDefense += allocation
 		case "PerimeterDefense":
-			allocation = NBAPlayerProgression(np.Potential, ageDifference, MinutesPerGame, np.PlaytimeExpectations, np.SpecPerimeterDefense, developingPlayer)
+			allocation = NBAPlayerProgression(int(np.Potential), int(ageDifference), MinutesPerGame, int(np.PlaytimeExpectations), np.SpecPerimeterDefense, developingPlayer)
 			if allocation > 0 && count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
@@ -315,19 +315,19 @@ func ProgressNBAPlayer(np structs.NBAPlayer, isISLGen bool) structs.NBAPlayer {
 		count += allocation
 	}
 
-	stamina := ProgressStamina(np.Stamina, ageDifference, true)
+	stamina := ProgressStamina(int(np.Stamina), int(ageDifference), true)
 
 	progressions := structs.NBAPlayerProgressions{
-		Shooting2:        shooting2,
-		Shooting3:        shooting3,
-		Ballwork:         ballwork,
-		Finishing:        finishing,
-		Rebounding:       rebounding,
-		InteriorDefense:  interiorDefense,
-		PerimeterDefense: perimeterDefense,
-		FreeThrow:        freeThrow,
-		Age:              age,
-		Stamina:          stamina,
+		Shooting2:        uint8(shooting2),
+		Shooting3:        uint8(shooting3),
+		Ballwork:         uint8(ballwork),
+		Finishing:        uint8(finishing),
+		Rebounding:       uint8(rebounding),
+		InteriorDefense:  uint8(interiorDefense),
+		PerimeterDefense: uint8(perimeterDefense),
+		FreeThrow:        uint8(freeThrow),
+		Age:              uint8(age),
+		Stamina:          uint8(stamina),
 	}
 
 	np.Progress(progressions)
@@ -365,7 +365,9 @@ func processCollegePlayer(player structs.CollegePlayer, ts structs.Timestamp, db
 		player.SetRedshirtStatus()
 	}
 
-	player.SetExpectations(util.GetPlaytimeExpectations(player.Stars, player.Year, player.Overall))
+	expectations := util.GetPlaytimeExpectations(int(player.Stars), int(player.Year), int(player.Overall))
+
+	player.SetExpectations(uint8(expectations))
 
 	if player.WillDeclare || isSenior {
 		// Graduate Player
@@ -384,7 +386,7 @@ func handlePlayerGraduation(player structs.CollegePlayer, ts structs.Timestamp, 
 	player.GraduatePlayer()
 	playerID := strconv.Itoa(int(player.ID))
 
-	message := player.Position + " " + player.FirstName + " " + player.LastName + " has graduated from " + player.TeamAbbr + "!"
+	message := player.Position + " " + player.FirstName + " " + player.LastName + " has graduated from " + player.Team + "!"
 
 	// Create News Log
 	CreateNewsLog("CBB", message, "Graduation", int(player.TeamID), ts)
@@ -432,18 +434,18 @@ func ProgressCollegePlayer(cp structs.CollegePlayer, mpg int, isGeneration bool)
 	idDiceRoll := util.GenerateIntFromRange(1, 20)
 	pdDiceRoll := util.GenerateIntFromRange(1, 20)
 
-	potentialModifier := cp.Potential / 20 // Guaranteed to be between 1-5
+	potentialModifier := int(cp.Potential) / 20 // Guaranteed to be between 1-5
 
-	if cp.SpecShooting2 {
+	if cp.SpecMidRangeShooting {
 		attributeList = append(attributeList, "Shooting2")
 	}
-	if cp.SpecShooting3 {
+	if cp.SpecThreePointShooting {
 		attributeList = append(attributeList, "Shooting3")
 	}
 	if cp.SpecFreeThrow {
 		attributeList = append(attributeList, "FreeThrow")
 	}
-	if cp.SpecFinishing {
+	if cp.SpecInsideShooting {
 		attributeList = append(attributeList, "Finishing")
 	}
 	if cp.SpecBallwork {
@@ -497,49 +499,49 @@ func ProgressCollegePlayer(cp structs.CollegePlayer, mpg int, isGeneration bool)
 		allocation := 0
 		switch attr {
 		case "Shooting2":
-			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecShooting2, cp.IsRedshirting)
+			allocation = CollegePlayerProgression(int(cp.Potential), MinutesPerGame, int(cp.PlaytimeExpectations), cp.SpecMidRangeShooting, cp.IsRedshirting)
 			if count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			shooting2 += allocation
 		case "Shooting3":
-			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecShooting3, cp.IsRedshirting)
+			allocation = CollegePlayerProgression(int(cp.Potential), MinutesPerGame, int(cp.PlaytimeExpectations), cp.SpecThreePointShooting, cp.IsRedshirting)
 			if count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			shooting3 += allocation
 		case "FreeThrow":
-			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecFreeThrow, cp.IsRedshirting)
+			allocation = CollegePlayerProgression(int(cp.Potential), MinutesPerGame, int(cp.PlaytimeExpectations), cp.SpecFreeThrow, cp.IsRedshirting)
 			if count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			freeThrow += allocation
 		case "Finishing":
-			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecFinishing, cp.IsRedshirting)
+			allocation = CollegePlayerProgression(int(cp.Potential), MinutesPerGame, int(cp.PlaytimeExpectations), cp.SpecInsideShooting, cp.IsRedshirting)
 			if count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			finishing += allocation
 		case "Ballwork":
-			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecBallwork, cp.IsRedshirting)
+			allocation = CollegePlayerProgression(int(cp.Potential), MinutesPerGame, int(cp.PlaytimeExpectations), cp.SpecBallwork, cp.IsRedshirting)
 			if count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			ballwork += allocation
 		case "Rebounding":
-			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecRebounding, cp.IsRedshirting)
+			allocation = CollegePlayerProgression(int(cp.Potential), MinutesPerGame, int(cp.PlaytimeExpectations), cp.SpecRebounding, cp.IsRedshirting)
 			if count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			rebounding += allocation
 		case "InteriorDefense":
-			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecInteriorDefense, cp.IsRedshirting)
+			allocation = CollegePlayerProgression(int(cp.Potential), MinutesPerGame, int(cp.PlaytimeExpectations), cp.SpecInteriorDefense, cp.IsRedshirting)
 			if count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
 			interiorDefense += allocation
 		case "PerimeterDefense":
-			allocation = CollegePlayerProgression(cp.Potential, MinutesPerGame, cp.PlaytimeExpectations, cp.SpecPerimeterDefense, cp.IsRedshirting)
+			allocation = CollegePlayerProgression(int(cp.Potential), MinutesPerGame, int(cp.PlaytimeExpectations), cp.SpecPerimeterDefense, cp.IsRedshirting)
 			if count+allocation > pointLimit {
 				allocation = pointLimit - count
 			}
@@ -549,20 +551,20 @@ func ProgressCollegePlayer(cp structs.CollegePlayer, mpg int, isGeneration bool)
 	}
 
 	// Primary Progressions
-	staminaCheck := ProgressStamina(cp.Stamina, 0, false)
+	staminaCheck := ProgressStamina(int(cp.Stamina), 0, false)
 
 	potentialGrade := util.GetWeightedPotentialGrade(cp.Potential)
 
 	progressions := structs.CollegePlayerProgressions{
-		Shooting2:        shooting2,
-		Shooting3:        shooting3,
-		Ballwork:         ballwork,
-		FreeThrow:        freeThrow,
-		Finishing:        finishing,
-		Rebounding:       rebounding,
-		InteriorDefense:  interiorDefense,
-		PerimeterDefense: perimeterDefense,
-		Stamina:          staminaCheck,
+		Shooting2:        uint8(shooting2),
+		Shooting3:        uint8(shooting3),
+		Ballwork:         uint8(ballwork),
+		FreeThrow:        uint8(freeThrow),
+		Finishing:        uint8(finishing),
+		Rebounding:       uint8(rebounding),
+		InteriorDefense:  uint8(interiorDefense),
+		PerimeterDefense: uint8(perimeterDefense),
+		Stamina:          uint8(staminaCheck),
 		PotentialGrade:   potentialGrade,
 	}
 
@@ -656,7 +658,7 @@ func GetModifiers(position string, mpg int, attrib string) float64 {
 	return minuteMod
 }
 
-func GetPointLimit(pot int) int {
+func GetPointLimit(pot uint8) int {
 	floater := float64(pot)
 	floor := floater / 10
 	roundUp := math.Ceil(floor)

@@ -165,3 +165,10 @@ func AddNBAMatches(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode("Done.")
 }
+
+func GenerateOOCScheduleForSimCBB(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+
+	managers.GenerateOOCScheduleToCSV()
+
+}

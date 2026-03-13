@@ -342,11 +342,11 @@ func ImportMinutesExpectations() {
 		if p.PlaytimeExpectations > 0 {
 			continue
 		}
-		minutes := util.GetProfessionalPlaytimeExpectations(p.Age, int(p.PrimeAge), p.Overall)
+		minutes := util.GetProfessionalPlaytimeExpectations(p.Age, p.PrimeAge, p.Overall)
 		if minutes < 0 {
 			minutes = util.GenerateNormalizedIntFromRange(0, 12)
 		}
-		p.SetMinutesExpectations(minutes)
+		p.SetMinutesExpectations(uint8(minutes))
 		repository.SaveProfessionalPlayerRecord(p, db)
 	}
 }
@@ -1072,7 +1072,7 @@ func ImportNewPositions() {
 		if c.Position == "C" {
 			continue
 		}
-		shooting := (c.Shooting2 + c.Shooting3) / 2
+		shooting := (c.MidRangeShooting + c.ThreePointShooting) / 2
 		if c.Position == "G" {
 			if shooting > c.Ballwork || c.Archetype == "Floor General" {
 				c.SetNewPosition("PG")
@@ -1093,7 +1093,7 @@ func ImportNewPositions() {
 		if r.Position == "C" {
 			continue
 		}
-		shooting := (r.Shooting2 + r.Shooting3) / 2
+		shooting := (r.MidRangeShooting + r.ThreePointShooting) / 2
 		if r.Position == "G" {
 			if shooting > r.Ballwork || r.Archetype == "Floor General" {
 				r.SetNewPosition("PG")

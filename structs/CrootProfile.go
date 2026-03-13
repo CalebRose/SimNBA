@@ -20,14 +20,14 @@ type CrootProfile struct {
 	Recruit            Croot
 }
 
-func (cp *CrootProfile) Map(rp PlayerRecruitProfile, c Croot) {
+func (cp *CrootProfile) Map(rp RecruitPlayerProfile, c Croot) {
 	cp.ID = rp.ID
 	cp.SeasonID = rp.SeasonID
 	cp.RecruitID = rp.RecruitID
 	cp.ProfileID = rp.ProfileID
 	cp.TotalPoints = rp.TotalPoints
-	cp.CurrentWeeksPoints = rp.CurrentWeeksPoints
-	cp.SpendingCount = rp.SpendingCount
+	cp.CurrentWeeksPoints = int(rp.CurrentWeeksPoints)
+	cp.SpendingCount = int(rp.SpendingCount)
 	cp.Scholarship = rp.Scholarship
 	cp.ScholarshipRevoked = rp.ScholarshipRevoked
 	cp.TeamAbbreviation = rp.TeamAbbreviation

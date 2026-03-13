@@ -7,15 +7,12 @@ import (
 type CollegePlayer struct {
 	gorm.Model
 	BasePlayer
-	PlayerID           uint
-	TeamID             uint
-	TeamAbbr           string
 	IsRedshirt         bool
 	IsRedshirting      bool
 	HasGraduated       bool
 	HasProgressed      bool
 	WillDeclare        bool
-	TransferStatus     int                      // 1 == Intends, 2 == Is Transferring
+	TransferStatus     uint8                    // 1 == Intends, 2 == Is Transferring
 	TransferLikeliness string                   // Low, Medium, High
 	LegacyID           uint                     // Either a legacy school or a legacy coach
 	Stats              []CollegePlayerStats     `gorm:"foreignKey:CollegePlayerID"`
@@ -33,10 +30,6 @@ func (c *CollegePlayer) SetRedshirtingStatus() {
 	}
 }
 
-func (c *CollegePlayer) UpdateMinutes(newMinutes int) {
-	c.Minutes = newMinutes
-}
-
 func (c *CollegePlayer) SetID(id uint) {
 	c.ID = id
 }
@@ -45,16 +38,16 @@ func (cp *CollegePlayer) Progress(attr CollegePlayerProgressions) {
 	cp.Age++
 	cp.Year++
 	cp.Ballwork += attr.Ballwork
-	cp.Shooting2 += attr.Shooting2
-	cp.Shooting3 += attr.Shooting3
+	cp.MidRangeShooting += attr.Shooting2
+	cp.ThreePointShooting += attr.Shooting3
 	cp.FreeThrow += attr.FreeThrow
-	cp.Finishing += attr.Finishing
+	cp.InsideShooting += attr.Finishing
 	cp.InteriorDefense += attr.InteriorDefense
 	cp.PerimeterDefense += attr.PerimeterDefense
 	cp.Rebounding += attr.Rebounding
 	cp.PotentialGrade = attr.PotentialGrade
 	cp.Stamina = attr.Stamina
-	cp.Overall = (int((cp.Shooting2 + cp.Shooting3 + cp.FreeThrow) / 3)) + cp.Finishing + cp.Ballwork + cp.Rebounding + int((cp.InteriorDefense+cp.PerimeterDefense)/2)
+	cp.Overall = (uint8((cp.MidRangeShooting + cp.ThreePointShooting + cp.FreeThrow) / 3)) + cp.InsideShooting + cp.Ballwork + cp.Rebounding + uint8((cp.InteriorDefense+cp.PerimeterDefense)/2)
 	cp.HasProgressed = true
 	cp.IsInjured = false
 	cp.WeeksOfRecovery = 0
@@ -66,7 +59,6 @@ func (cp *CollegePlayer) Progress(attr CollegePlayerProgressions) {
 func (cp *CollegePlayer) MapFromRecruit(r Recruit) {
 	cp.ID = r.ID
 	cp.TeamID = r.TeamID
-	cp.TeamAbbr = r.TeamAbbr
 	cp.PlayerID = r.PlayerID
 	cp.State = r.State
 	cp.Country = r.Country
@@ -83,10 +75,10 @@ func (cp *CollegePlayer) MapFromRecruit(r Recruit) {
 	cp.Height = r.Height
 	cp.Stars = r.Stars
 	cp.Overall = r.Overall
-	cp.Shooting2 = r.Shooting2
-	cp.Shooting3 = r.Shooting3
+	cp.MidRangeShooting = r.MidRangeShooting
+	cp.ThreePointShooting = r.ThreePointShooting
 	cp.FreeThrow = r.FreeThrow
-	cp.Finishing = r.Finishing
+	cp.InsideShooting = r.InsideShooting
 	cp.Ballwork = r.Ballwork
 	cp.Rebounding = r.Rebounding
 	cp.InteriorDefense = r.InteriorDefense
@@ -101,14 +93,14 @@ func (cp *CollegePlayer) MapFromRecruit(r Recruit) {
 	cp.WorkEthic = r.WorkEthic
 	cp.AcademicBias = r.AcademicBias
 	cp.SpecBallwork = r.SpecBallwork
-	cp.SpecFinishing = r.SpecFinishing
+	cp.SpecInsideShooting = r.SpecInsideShooting
 	cp.SpecFreeThrow = r.SpecFreeThrow
 	cp.SpecCount = r.SpecCount
 	cp.SpecInteriorDefense = r.SpecInteriorDefense
 	cp.SpecPerimeterDefense = r.SpecPerimeterDefense
 	cp.SpecRebounding = r.SpecRebounding
-	cp.SpecShooting2 = r.SpecShooting2
-	cp.SpecShooting3 = r.SpecShooting3
+	cp.SpecMidRangeShooting = r.SpecMidRangeShooting
+	cp.SpecThreePointShooting = r.SpecThreePointShooting
 }
 
 func (h *CollegePlayer) MapFromHistoricPlayer(cp HistoricCollegePlayer) {
@@ -116,7 +108,6 @@ func (h *CollegePlayer) MapFromHistoricPlayer(cp HistoricCollegePlayer) {
 	h.BasePlayer = cp.BasePlayer
 	h.PlayerID = cp.PlayerID
 	h.TeamID = cp.TeamID
-	h.TeamAbbr = cp.TeamAbbr
 	h.State = cp.State
 	h.Country = cp.Country
 }
@@ -144,10 +135,6 @@ func (p *CollegePlayer) FixAge() {
 	}
 }
 
-func (p *CollegePlayer) SetMinutes(val int) {
-	p.Minutes = val
-}
-
 func (b *CollegePlayer) SetNewPosition(pos string) {
 	b.Position = pos
 }
@@ -162,11 +149,10 @@ func (b *CollegePlayer) StayHome() {
 
 func (b *CollegePlayer) DismissFromTeam() {
 	b.PreviousTeamID = b.TeamID
-	b.PreviousTeam = b.TeamAbbr
+	b.PreviousTeam = b.Team
 	b.TeamID = 0
-	b.TeamAbbr = ""
+	b.Team = ""
 	b.TransferStatus = 2
-	b.ResetMinutes()
 }
 
 func (cp *CollegePlayer) DeclareTransferIntention(status string) {
@@ -181,25 +167,24 @@ func (cp *CollegePlayer) WillStay() {
 
 func (cp *CollegePlayer) WillTransfer() {
 	cp.TransferStatus = 2
-	cp.PreviousTeam = cp.TeamAbbr
+	cp.PreviousTeam = cp.Team
 	cp.PreviousTeamID = cp.TeamID
-	cp.TeamAbbr = ""
+	cp.Team = ""
 	cp.TeamID = 0
 }
 
 func (cp *CollegePlayer) WillReturn() {
 	cp.TransferStatus = 0
-	cp.TeamAbbr = cp.PreviousTeam
+	cp.Team = cp.PreviousTeam
 	cp.TeamID = cp.PreviousTeamID
 	cp.PreviousTeam = ""
 	cp.PreviousTeamID = 0
 }
-func (cp *CollegePlayer) SignWithNewTeam(teamID uint, teamAbbr string) {
+func (cp *CollegePlayer) SignWithNewTeam(teamID uint, team string) {
 	cp.TransferStatus = 0
-	cp.TeamAbbr = teamAbbr
+	cp.Team = team
 	cp.TeamID = teamID
 	cp.TransferLikeliness = ""
-	cp.ResetMinutes()
 }
 
 // Sorting Funcs

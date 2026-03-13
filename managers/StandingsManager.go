@@ -487,7 +487,7 @@ func ProgressStandings() {
 		teamProfile.ResetScholarshipCount()
 		teamProfile.AssignBonusPoints(bonus)
 
-		repository.SaveCBBTeamRecruitingProfile(*teamProfile, db)
+		repository.SaveTeamRecruitingProfileRecord(*teamProfile, db)
 	}
 }
 

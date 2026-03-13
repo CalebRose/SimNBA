@@ -383,8 +383,8 @@ func GetTeamRatings(t structs.Team) {
 		if idx > 9 {
 			break
 		}
-		offenseSum += player.Shooting2 + player.Shooting3 + player.Finishing
-		defenseSum += player.Ballwork + player.Rebounding + player.Defense
+		offenseSum += int(player.MidRangeShooting) + int(player.ThreePointShooting) + int(player.InsideShooting)
+		defenseSum += int(player.Ballwork) + int(player.Rebounding) + int(player.InteriorDefense) + int(player.PerimeterDefense)
 	}
 
 	offenseRating = offenseSum / 9
@@ -393,7 +393,7 @@ func GetTeamRatings(t structs.Team) {
 
 	offLetterGrade := util.GetOffenseGrade(offenseRating)
 	defLetterGrade := util.GetDefenseGrade(defenseRating)
-	ovrLetterGrade := util.GetOverallGrade(overallRating)
+	ovrLetterGrade := util.GetOverallGrade(uint8(overallRating))
 
 	t.AssignRatings(offLetterGrade, defLetterGrade, ovrLetterGrade)
 
@@ -423,8 +423,8 @@ func GetNBATeamRatings(t structs.NBATeam) {
 		if count > 9 {
 			break
 		}
-		offenseSum += player.Shooting2 + player.Shooting3 + player.Finishing + player.FreeThrow
-		defenseSum += player.Ballwork + player.Rebounding + player.InteriorDefense + player.PerimeterDefense
+		offenseSum += int(player.MidRangeShooting) + int(player.ThreePointShooting) + int(player.InsideShooting) + int(player.FreeThrow)
+		defenseSum += int(player.Ballwork) + int(player.Rebounding) + int(player.InteriorDefense) + int(player.PerimeterDefense)
 		count++
 	}
 

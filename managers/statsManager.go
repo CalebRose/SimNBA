@@ -360,7 +360,7 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 
 			if stat.IsInjured {
 				player := GetCollegePlayerByPlayerID(id)
-				player.SetInjury(stat.InjuryName, stat.InjuryType, int(stat.WeeksOfRecovery))
+				player.SetInjury(stat.InjuryName, stat.InjuryType, stat.WeeksOfRecovery)
 				message := player.Position + " " + player.FirstName + " " + player.LastName + " has been injured for " + strconv.Itoa(int(stat.WeeksOfRecovery)) + "."
 				CreateNotification("CBB", message, "Injury", player.TeamID)
 				repository.SaveCollegePlayerRecord(player, db)
@@ -417,7 +417,7 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 
 			if stat.IsInjured {
 				player := GetNBAPlayerByID(id)
-				player.SetInjury(stat.InjuryName, stat.InjuryType, int(stat.WeeksOfRecovery))
+				player.SetInjury(stat.InjuryName, stat.InjuryType, stat.WeeksOfRecovery)
 				message := player.Position + " " + player.FirstName + " " + player.LastName + " has been injured for " + strconv.Itoa(int(stat.WeeksOfRecovery)) + "."
 				CreateNotification("NBA", message, "Injury", player.TeamID)
 				repository.SaveProfessionalPlayerRecord(player, db)

@@ -2,152 +2,336 @@ package structs
 
 import "math/rand"
 
+var archetypeWeights = map[string]map[string]map[string]float64{
+	"C": {
+		"Rim Protector": {
+			"InsideShooting":     1.1,
+			"MidRangeShooting":   0.85,
+			"ThreePointShooting": 0.7,
+			"FreeThrow":          1.0,
+			"Agility":            1.0,
+			"Ballwork":           1.0,
+			"Rebounding":         1.2,
+			"Stealing":           0.7,
+			"Blocking":           1.3,
+			"InteriorDefense":    1.3,
+			"PerimeterDefense":   0.8,
+		},
+		"Post Scorer": {
+			"InsideShooting":     1.2,
+			"MidRangeShooting":   1.1,
+			"ThreePointShooting": 0.75,
+			"FreeThrow":          1.1,
+			"Agility":            1.0,
+			"Ballwork":           1.0,
+			"Rebounding":         1.15,
+			"Stealing":           0.75,
+			"Blocking":           1.15,
+			"InteriorDefense":    1.15,
+			"PerimeterDefense":   0.7,
+		},
+		"Stretch Center": {
+			"InsideShooting":     0.9,
+			"MidRangeShooting":   1.1,
+			"ThreePointShooting": 1.2,
+			"FreeThrow":          1.0,
+			"Agility":            1.0,
+			"Ballwork":           1.0,
+			"Rebounding":         0.9,
+			"Stealing":           0.7,
+			"Blocking":           0.9,
+			"InteriorDefense":    1.2,
+			"PerimeterDefense":   1.0,
+		},
+		"All-Around": {
+			"InsideShooting":     1.0,
+			"MidRangeShooting":   1.0,
+			"ThreePointShooting": 1.0,
+			"FreeThrow":          1.0,
+			"Agility":            1.0,
+			"Ballwork":           1.0,
+			"Rebounding":         1.0,
+			"Stealing":           1.0,
+			"Blocking":           1.0,
+			"InteriorDefense":    1.0,
+			"PerimeterDefense":   1.0,
+		},
+	},
+	"F": {
+		"Power Forward": {
+			"InsideShooting":     1.2,
+			"MidRangeShooting":   1.2,
+			"ThreePointShooting": 1.0,
+			"FreeThrow":          0.75,
+			"Agility":            1.0,
+			"Ballwork":           0.75,
+			"Rebounding":         1.1,
+			"Stealing":           1.0,
+			"Blocking":           1.2,
+			"InteriorDefense":    1.1,
+			"PerimeterDefense":   0.75,
+		},
+		"Small Forward": {
+			"InsideShooting":     1.0,
+			"MidRangeShooting":   1.0,
+			"ThreePointShooting": 1.0,
+			"FreeThrow":          1.0,
+			"Agility":            1.1,
+			"Ballwork":           1.0,
+			"Rebounding":         1.0,
+			"Stealing":           1.15,
+			"Blocking":           0.8,
+			"InteriorDefense":    1.0,
+			"PerimeterDefense":   1.0,
+		},
+		"Point Forward": {
+			"InsideShooting":     1.1,
+			"MidRangeShooting":   1.0,
+			"ThreePointShooting": 0.85,
+			"FreeThrow":          1.1,
+			"Agility":            1.0,
+			"Ballwork":           1.3,
+			"Rebounding":         1.0,
+			"Stealing":           1.0,
+			"Blocking":           0.8,
+			"InteriorDefense":    0.8,
+			"PerimeterDefense":   1.0,
+		},
+		"Swingman": {
+			"InsideShooting":     0.85,
+			"MidRangeShooting":   1.0,
+			"ThreePointShooting": 1.0,
+			"FreeThrow":          1.0,
+			"Agility":            1.2,
+			"Ballwork":           1.0,
+			"Rebounding":         0.85,
+			"Stealing":           1.15,
+			"Blocking":           0.85,
+			"InteriorDefense":    0.9,
+			"PerimeterDefense":   1.0,
+		},
+		"Two-Way": {
+			"InsideShooting":     0.9,
+			"MidRangeShooting":   0.9,
+			"ThreePointShooting": 0.9,
+			"FreeThrow":          1.0,
+			"Agility":            1.0,
+			"Ballwork":           0.9,
+			"Rebounding":         1.0,
+			"Stealing":           1.15,
+			"Blocking":           1.1,
+			"InteriorDefense":    1.05,
+			"PerimeterDefense":   1.05,
+		},
+		"All-Around": {
+			"InsideShooting":     1.0,
+			"MidRangeShooting":   1.0,
+			"ThreePointShooting": 1.0,
+			"FreeThrow":          1.0,
+			"Agility":            1.0,
+			"Ballwork":           1.0,
+			"Rebounding":         1.0,
+			"Stealing":           1.0,
+			"Blocking":           1.0,
+			"InteriorDefense":    1.0,
+			"PerimeterDefense":   1.0,
+		},
+	},
+	"G": {
+		"Point Guard": {
+			"InsideShooting":     0.7,
+			"MidRangeShooting":   1.1,
+			"ThreePointShooting": 1.0,
+			"FreeThrow":          1.0,
+			"Agility":            1.0,
+			"Ballwork":           1.3,
+			"Rebounding":         0.7,
+			"Stealing":           1.0,
+			"Blocking":           0.7,
+			"InteriorDefense":    1.0,
+			"PerimeterDefense":   1.15,
+		},
+		"Shooting Guard": {
+			"InsideShooting":     1.2,
+			"MidRangeShooting":   1.2,
+			"ThreePointShooting": 1.2,
+			"FreeThrow":          1.0,
+			"Agility":            1.0,
+			"Ballwork":           1.0,
+			"Rebounding":         0.75,
+			"Stealing":           1.0,
+			"Blocking":           0.7,
+			"InteriorDefense":    0.8,
+			"PerimeterDefense":   0.85,
+		},
+		"Combo Guard": {
+			"InsideShooting":     1.0,
+			"MidRangeShooting":   1.1,
+			"ThreePointShooting": 1.1,
+			"FreeThrow":          1.0,
+			"Agility":            1.0,
+			"Ballwork":           1.15,
+			"Rebounding":         0.8,
+			"Stealing":           1.0,
+			"Blocking":           0.75,
+			"InteriorDefense":    0.9,
+			"PerimeterDefense":   1.0,
+		},
+		"Slasher": {
+			"InsideShooting":     1.2,
+			"MidRangeShooting":   0.75,
+			"ThreePointShooting": 0.7,
+			"FreeThrow":          1.0,
+			"Agility":            1.2,
+			"Ballwork":           0.8,
+			"Rebounding":         0.75,
+			"Stealing":           1.2,
+			"Blocking":           1.1,
+			"InteriorDefense":    1.0,
+			"PerimeterDefense":   1.0,
+		},
+		"3-and-D": {
+			"InsideShooting":     0.7,
+			"MidRangeShooting":   0.9,
+			"ThreePointShooting": 1.2,
+			"FreeThrow":          1.0,
+			"Agility":            1.0,
+			"Ballwork":           1.0,
+			"Rebounding":         0.8,
+			"Stealing":           1.0,
+			"Blocking":           0.7,
+			"InteriorDefense":    1.15,
+			"PerimeterDefense":   1.2,
+		},
+		"All-Around": {
+			"InsideShooting":     1.0,
+			"MidRangeShooting":   1.0,
+			"ThreePointShooting": 1.0,
+			"FreeThrow":          1.0,
+			"Agility":            1.0,
+			"Ballwork":           1.0,
+			"Rebounding":         1.0,
+			"Stealing":           1.0,
+			"Blocking":           1.0,
+			"InteriorDefense":    1.0,
+			"PerimeterDefense":   1.0,
+		},
+	},
+
+	// Add more archetypes as needed
+}
+
 type BasePlayer struct {
-	FirstName            string
-	LastName             string
-	Position             string
-	Archetype            string
-	Age                  int
-	Year                 int
-	State                string
-	Country              string
-	Stars                int
-	Height               string
-	Shooting2            int
-	SpecShooting2        bool
-	Shooting3            int
-	SpecShooting3        bool
-	Finishing            int
-	SpecFinishing        bool
-	FreeThrow            int
-	SpecFreeThrow        bool
-	Ballwork             int
-	SpecBallwork         bool
-	Rebounding           int
-	SpecRebounding       bool
-	Defense              int
-	InteriorDefense      int
-	SpecInteriorDefense  bool
-	PerimeterDefense     int
-	SpecPerimeterDefense bool
-	Potential            int
-	PotentialGrade       string
-	ProPotentialGrade    int
-	Stamina              int
-	Discipline           int
-	InjuryRating         int
-	IsInjured            bool
-	InjuryName           string
-	InjuryType           string
-	WeeksOfRecovery      uint
-	InjuryReserve        bool
-	PlaytimeExpectations int
-	Minutes              int
-	InsideProportion     float64
-	MidRangeProportion   float64
-	ThreePointProportion float64
-	Overall              int
-	PositionOne          string
-	PositionTwo          string
-	PositionThree        string
-	P1Minutes            int
-	P2Minutes            int
-	P3Minutes            int
-	SpecCount            int
-	Personality          string
-	FreeAgency           string
-	RecruitingBias       string
-	RecruitingBiasValue  string
-	WorkEthic            string
-	AcademicBias         string
-	PreviousTeamID       uint
-	PreviousTeam         string
-	RelativeID           uint
-	RelativeType         uint
-	Notes                string
+	TeamID                 uint
+	Team                   string
+	PlayerID               uint
+	FirstName              string
+	LastName               string
+	Position               string
+	Archetype              string
+	Age                    uint8
+	PrimeAge               uint8
+	Year                   uint8
+	City                   string
+	HighSchool             string
+	State                  string
+	Country                string
+	Stars                  uint8
+	Height                 uint8
+	Weight                 uint16
+	InsideShooting         uint8
+	SpecInsideShooting     bool
+	MidRangeShooting       uint8
+	SpecMidRangeShooting   bool
+	ThreePointShooting     uint8
+	SpecThreePointShooting bool
+	FreeThrow              uint8
+	SpecFreeThrow          bool
+	Agility                uint8
+	SpecAgility            bool
+	Ballwork               uint8
+	SpecBallwork           bool
+	Rebounding             uint8
+	SpecRebounding         bool
+	Stealing               uint8
+	SpecStealing           bool
+	Blocking               uint8
+	SpecBlocking           bool
+	InteriorDefense        uint8
+	SpecInteriorDefense    bool
+	PerimeterDefense       uint8
+	SpecPerimeterDefense   bool
+	Potential              uint8
+	PotentialGrade         string
+	ProPotentialGrade      uint8
+	Stamina                uint8
+	Discipline             uint8
+	InjuryRating           uint8
+	IsInjured              bool
+	InjuryName             string
+	InjuryType             string
+	WeeksOfRecovery        uint8
+	InjuryReserve          bool
+	PlaytimeExpectations   uint8
+	Overall                uint8
+	SpecCount              uint8
+	Personality            string
+	FreeAgency             string
+	RecruitingBias         string
+	RecruitingBiasValue    string
+	WorkEthic              string
+	AcademicBias           string
+	PreviousTeamID         uint
+	PreviousTeam           string
+	RelativeID             uint8
+	RelativeType           uint8
+	Notes                  string
+	PlayerPreferences
 }
 
-func (b *BasePlayer) ToggleSpecialties(str string) {
-	switch str {
-	case "SpecShooting2":
-		b.SpecShooting2 = true
-	case "SpecShooting3":
-		b.SpecShooting3 = true
-	case "SpecFreeThrow":
-		b.SpecFreeThrow = true
-	case "SpecFinishing":
-		b.SpecFinishing = true
-	case "SpecBallwork":
-		b.SpecBallwork = true
-	case "SpecRebounding":
-		b.SpecRebounding = true
-	case "SpecInteriorDefense":
-		b.SpecInteriorDefense = true
-	case "SpecPerimeterDefense":
-		b.SpecPerimeterDefense = true
-	}
-	b.SpecCount++
-}
+func (b *BasePlayer) GetOverall() {
+	weights := archetypeWeights[b.Position][b.Archetype]
+	totalWeight := 0.0
+	weightedSum := 0.0
 
-func (b *BasePlayer) AssignArchetype() {
-	pos := b.Position
-	if b.SpecCount > 5 {
-		b.Archetype = "All-Around"
-		return
-	}
-	switch pos {
-	case "G":
-		if b.SpecBallwork && !b.SpecShooting2 && !b.SpecShooting3 || (b.Ballwork > b.Shooting2 && b.Ballwork > b.Shooting3) {
-			b.Archetype = "Floor General"
-		} else if (b.SpecShooting2 && b.SpecShooting3) && (!b.SpecBallwork || !b.SpecRebounding) {
-			b.Archetype = "Sharp Shooter"
-		} else if b.SpecBallwork && (b.SpecShooting2 || b.SpecFreeThrow) && (!b.SpecShooting3 || !b.SpecFinishing) {
-			b.Archetype = "Mid-Range Magician"
-		} else if b.SpecRebounding && (b.SpecInteriorDefense || b.SpecPerimeterDefense) && (!b.SpecShooting2 || !b.SpecShooting3) {
-			b.Archetype = "Defensive Dawg"
-		} else if b.SpecShooting3 && (b.SpecInteriorDefense || b.SpecPerimeterDefense) {
-			b.Archetype = "3-and-D"
-		} else if b.SpecFinishing && b.SpecBallwork {
-			b.Archetype = "Dunk Specialist"
-		} else if b.SpecShooting2 && b.SpecShooting3 && b.SpecFinishing && (!b.SpecBallwork || !b.SpecInteriorDefense || !b.SpecPerimeterDefense) {
-			b.Archetype = "Microwave"
+	for attr, weight := range weights {
+		var value uint8
+		switch attr {
+		case "InsideShooting":
+			value = b.InsideShooting
+		case "MidRangeShooting":
+			value = b.MidRangeShooting
+		case "ThreePointShooting":
+			value = b.ThreePointShooting
+		case "FreeThrow":
+			value = b.FreeThrow
+		case "Agility":
+			value = b.Agility
+		case "Ballwork":
+			value = b.Ballwork
+		case "Rebounding":
+			value = b.Rebounding
+		case "Stealing":
+			value = b.Stealing
+		case "Blocking":
+			value = b.Blocking
+		case "InteriorDefense":
+			value = b.InteriorDefense
+		case "PerimeterDefense":
+			value = b.PerimeterDefense
 		}
-	case "F":
-		if b.SpecShooting3 && (b.SpecInteriorDefense || b.SpecPerimeterDefense) {
-			b.Archetype = "Two-Way Wing"
-		} else if (!b.SpecShooting2 || !b.SpecShooting3) && b.SpecFinishing && (b.SpecInteriorDefense || b.SpecPerimeterDefense) {
-			b.Archetype = "Slasher"
-		} else if b.SpecShooting2 && b.SpecFinishing && (b.SpecInteriorDefense || b.SpecPerimeterDefense) {
-			b.Archetype = "Traditional Forward"
-		} else if b.SpecShooting2 && b.SpecShooting3 && b.SpecFinishing && (!b.SpecInteriorDefense || !b.SpecPerimeterDefense) {
-			b.Archetype = "Offensive Weapon"
-		} else if b.SpecRebounding && (b.SpecInteriorDefense || b.SpecPerimeterDefense) && (!b.SpecShooting2 || !b.SpecShooting3 || !b.SpecFinishing) ||
-			((b.Rebounding > b.Shooting2 && b.Rebounding > b.Shooting3) || (b.InteriorDefense > b.Shooting2 && b.InteriorDefense > b.Shooting3) || (b.PerimeterDefense > b.Shooting2 && b.PerimeterDefense > b.Shooting3)) {
-			b.Archetype = "Pure Defender"
-		} else if b.SpecBallwork && (b.SpecInteriorDefense || b.SpecPerimeterDefense) && (!b.SpecShooting2 || !b.SpecShooting3 || !b.SpecFinishing) {
-			b.Archetype = "Point Forward"
-		}
-	case "C":
-		if b.SpecRebounding && !b.SpecFinishing {
-			b.Archetype = "Rim Protector"
-		} else if b.SpecShooting3 || (b.Shooting3 > b.Shooting2 && (b.InteriorDefense > b.Shooting2 || b.PerimeterDefense > b.Shooting2)) {
-			b.Archetype = "Stretch Bigs"
-		} else if b.SpecFinishing && b.SpecRebounding {
-			b.Archetype = "Lob Threat"
+		weightedSum += float64(value) * weight
+		if value > 0 {
+			totalWeight += weight
 		}
 	}
-}
 
-func (p *BasePlayer) SetMidShotProportion(mid float64) {
-	p.MidRangeProportion = mid
-}
-
-func (p *BasePlayer) SetInsideProportion(ins float64) {
-	p.InsideProportion = ins
-}
-
-func (p *BasePlayer) SetThreePointProportion(tp float64) {
-	p.ThreePointProportion = tp
+	// Normalize to 1–50 range
+	if totalWeight > 0 {
+		b.Overall = uint8((weightedSum / totalWeight)) // * 50.0
+	} else {
+		b.Overall = 0
+	}
 }
 
 func (cp *BasePlayer) GetPotentialGrade() {
@@ -163,7 +347,7 @@ func (cp *BasePlayer) GetPotentialGrade() {
 			adjust = 0
 		}
 	}
-	potential := cp.Potential + adjust
+	potential := cp.Potential + uint8(adjust)
 	if potential > 80 {
 		cp.PotentialGrade = "A+"
 	} else if potential > 70 {
@@ -206,7 +390,7 @@ func (cp *BasePlayer) GetNBAPotentialGrade() {
 			adjust = 0
 		}
 	}
-	potential := cp.ProPotentialGrade + adjust
+	potential := cp.ProPotentialGrade + uint8(adjust)
 	if potential > 80 {
 		cp.PotentialGrade = "A+"
 	} else if potential > 70 {
@@ -236,48 +420,51 @@ func (cp *BasePlayer) GetNBAPotentialGrade() {
 	}
 }
 
+func (cp *BasePlayer) GetSpecCount() {
+	count := 0
+	if cp.SpecInsideShooting {
+		count++
+	}
+	if cp.SpecMidRangeShooting {
+		count++
+	}
+	if cp.SpecThreePointShooting {
+		count++
+	}
+	if cp.SpecFreeThrow {
+		count++
+	}
+	if cp.SpecAgility {
+		count++
+	}
+	if cp.SpecBallwork {
+		count++
+	}
+	if cp.SpecRebounding {
+		count++
+	}
+	if cp.SpecStealing {
+		count++
+	}
+	if cp.SpecBlocking {
+		count++
+	}
+	if cp.SpecInteriorDefense {
+		count++
+	}
+	if cp.SpecPerimeterDefense {
+		count++
+	}
+	cp.SpecCount = uint8(count)
+}
+
 func (p *BasePlayer) SetDisciplineAndIR(val, val2 int) {
-	p.Discipline = val
-	p.InjuryRating = val2
+	p.Discipline = uint8(val)
+	p.InjuryRating = uint8(val2)
 }
 
-func (p *BasePlayer) SetExpectations(val int) {
+func (p *BasePlayer) SetExpectations(val uint8) {
 	p.PlaytimeExpectations = val
-}
-
-func (p *BasePlayer) SetMinutes() {
-	p.Minutes = p.P1Minutes + p.P2Minutes + p.P3Minutes
-}
-
-func (c *BasePlayer) UpdatePlayer(p1Minutes, p2Minutes, p3Minutes int, posOne, posTwo, posThree string, ins, mid, three float64) {
-	c.P1Minutes = p1Minutes
-	c.P2Minutes = p2Minutes
-	c.P3Minutes = p3Minutes
-	c.PositionOne = posOne
-	c.PositionTwo = posTwo
-	c.PositionThree = posThree
-	c.InsideProportion = ins
-	c.MidRangeProportion = mid
-	c.ThreePointProportion = three
-	c.SetMinutes()
-}
-
-func (c *BasePlayer) SetP1Minutes(p int, pos string) {
-	c.PositionOne = pos
-	c.P1Minutes = p
-	c.SetMinutes()
-}
-
-func (c *BasePlayer) SetP2Minutes(p int, pos string) {
-	c.PositionTwo = pos
-	c.P2Minutes = p
-	c.SetMinutes()
-}
-
-func (c *BasePlayer) SetP3Minutes(p int, pos string) {
-	c.PositionThree = pos
-	c.P3Minutes = p
-	c.SetMinutes()
 }
 
 func (c *BasePlayer) SetWorkEthic(ethic string) {
@@ -297,64 +484,36 @@ func (c *BasePlayer) SetRecruitingBias(recBias string) {
 }
 
 func (c *BasePlayer) SetAge(age int) {
-	c.Age = age
+	c.Age = uint8(age)
 }
 
-func (c *BasePlayer) SetMinutesExpectations(min int) {
+func (c *BasePlayer) SetMinutesExpectations(min uint8) {
 	c.PlaytimeExpectations = min
 }
 
 func (np *BasePlayer) SetAttributes(s2, s3, fn, ft, bl, rb, id, pd, ovr, stars, exp int) {
-	np.Shooting2 = s2
-	np.Shooting3 = s3
-	np.Finishing = fn
-	np.FreeThrow = ft
-	np.Ballwork = bl
-	np.Rebounding = rb
-	np.InteriorDefense = id
-	np.PerimeterDefense = pd
-	np.Overall = ovr
-	np.Stars = stars
-	np.PlaytimeExpectations = exp
+	np.MidRangeShooting = uint8(s2)
+	np.ThreePointShooting = uint8(s3)
+	np.InsideShooting = uint8(fn)
+	np.FreeThrow = uint8(ft)
+	np.Ballwork = uint8(bl)
+	np.Rebounding = uint8(rb)
+	np.InteriorDefense = uint8(id)
+	np.PerimeterDefense = uint8(pd)
+	np.Overall = uint8(ovr)
+	np.Stars = uint8(stars)
+	np.PlaytimeExpectations = uint8(exp)
 	np.IsInjured = false
 	np.WeeksOfRecovery = 0
 	np.InjuryName = ""
 	np.InjuryType = ""
 }
 
-func (np *BasePlayer) AssignOverall() {
-	np.Overall = ((np.Shooting2 + np.Shooting3 + np.FreeThrow) / 3) + np.Finishing + np.Ballwork + np.Rebounding + ((np.InteriorDefense + np.PerimeterDefense) / 2)
-}
-
-func (np *BasePlayer) AssignStar() {
-	if np.Overall > 67 {
-		np.Stars = 5
-	} else if np.Overall > 61 {
-		np.Stars = 4
-	} else if np.Overall > 52 {
-		np.Stars = 3
-	} else if np.Overall > 45 {
-		np.Stars = 2
-	} else {
-		np.Stars = 1
-	}
-}
-
-func (np *BasePlayer) ResetMinutes() {
-	np.P1Minutes = 0
-	np.P2Minutes = 0
-	np.P3Minutes = 0
-	np.InsideProportion = 0
-	np.MidRangeProportion = 0
-	np.ThreePointProportion = 0
-	np.Minutes = 0
-}
-
-func (bp *BasePlayer) SetInjury(ijName, ijType string, wor int) {
+func (bp *BasePlayer) SetInjury(ijName, ijType string, wor uint8) {
 	bp.IsInjured = true
 	bp.InjuryName = ijName
 	bp.InjuryType = ijType
-	bp.WeeksOfRecovery = uint(wor)
+	bp.WeeksOfRecovery = wor
 }
 func (bp *BasePlayer) RunRecovery() {
 	bp.WeeksOfRecovery -= 1

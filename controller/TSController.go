@@ -21,7 +21,7 @@ func CreateTSModelsFile(w http.ResponseWriter, r *http.Request) {
 		Add(structs.CollegeStandings{}).
 		Add(structs.NBAStandings{}).
 		Add(structs.Recruit{}).
-		Add(structs.PlayerRecruitProfile{}).
+		Add(structs.RecruitPlayerProfile{}).
 		Add(structs.TeamRecruitingProfile{}).
 		Add(structs.Croot{}).
 		Add(structs.LeadingTeams{}).

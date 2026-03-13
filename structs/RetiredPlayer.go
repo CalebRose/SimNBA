@@ -5,17 +5,13 @@ import "github.com/jinzhu/gorm"
 type RetiredPlayer struct {
 	gorm.Model
 	BasePlayer
-	PlayerID            uint
-	TeamID              uint
-	TeamAbbr            string
 	CollegeID           uint
 	College             string
 	DraftPickID         uint
 	DraftedRound        uint
 	DraftPick           uint
 	DraftedTeamID       uint
-	DraftedTeamAbbr     string
-	PrimeAge            uint
+	DraftedTeam         string
 	IsNBA               bool
 	MaxRequested        bool
 	IsSuperMaxQualified bool

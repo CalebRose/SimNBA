@@ -1157,7 +1157,7 @@ func SyncAIOffers() {
 	}
 }
 
-func GetMaxPercentage(year int, maxRequested, isSuperMax bool) float64 {
+func GetMaxPercentage(year uint8, maxRequested, isSuperMax bool) float64 {
 	if isSuperMax {
 		if year > 9 {
 			return 0.35
