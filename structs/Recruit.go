@@ -43,8 +43,7 @@ type Recruit struct {
 	IsTransfer            bool
 	IsCustomCroot         bool
 	CreatedFor            string
-	PlayerPreferences
-	RecruitProfiles []RecruitPlayerProfile `gorm:"foreignKey:RecruitID"`
+	RecruitProfiles       []RecruitPlayerProfile `gorm:"foreignKey:RecruitID"`
 	// RecruitPoints         []RecruitPointAllocation `gorm:"foreignKey:RecruitID"`
 }
 

@@ -69,6 +69,10 @@ func PickPositionFromList() string {
 }
 
 func PickFromStringList(list []string) string {
+	if len(list) == 0 {
+		return ""
+	}
+
 	return list[rand.Intn(len(list))]
 }
 
@@ -1021,16 +1025,16 @@ func GetStarRating(isCustom, isInt bool) int {
 	if roll < 3 {
 		return 6
 	}
-	if roll < 42 {
+	if roll < 18 {
 		return 5
 	}
-	if roll < 122 {
+	if roll < 70 {
 		return 4
 	}
-	if roll < 352 || isCustom {
+	if roll < 300 || isCustom {
 		return 3
 	}
-	if roll < 652 {
+	if roll < 600 {
 		return 2
 	}
 	return 1

@@ -91,13 +91,13 @@ func (pg *CrootGenerator) generatePlayer() (structs.Recruit, structs.GlobalPlaye
 	state := ""
 	pg.pickedEthnicity = pickEthnicity()
 	country := pickCountry(pg.pickedEthnicity)
+	locale := pickLocale(country)
 	switch country {
 	case "USA":
 		state = util.PickState()
 	}
-	firstNameList := pg.nameMap[pg.pickedEthnicity]
-	lastNameList := pg.lastNameMap[pg.pickedEthnicity]
-	fName := util.PickFromStringList(firstNameList["first_names"])
+	nameList := pg.nameMap[locale]
+	fName := util.PickFromStringList(nameList["first_names"])
 	firstName := pg.caser.String(strings.ToLower(fName))
 	// Roll for type of recruit generated
 	// If num == 200, then create some flair
@@ -133,7 +133,7 @@ func (pg *CrootGenerator) generatePlayer() (structs.Recruit, structs.GlobalPlaye
 			if coinFlip == 1 {
 				lastName = cp.LastName
 			} else {
-				lName := getName(lastNameList)
+				lName := util.PickFromStringList(nameList["last_names"])
 				lastName = pg.caser.String(strings.ToLower(lName))
 			}
 			state = cp.State
@@ -152,7 +152,7 @@ func (pg *CrootGenerator) generatePlayer() (structs.Recruit, structs.GlobalPlaye
 			if coinFlip < 3 {
 				lastName = cp.LastName
 			} else {
-				lName := getName(lastNameList)
+				lName := util.PickFromStringList(nameList["last_names"])
 				lastName = pg.caser.String(strings.ToLower(lName))
 			}
 			state = cp.State
@@ -167,7 +167,7 @@ func (pg *CrootGenerator) generatePlayer() (structs.Recruit, structs.GlobalPlaye
 		relativeType = 1
 	}
 	if relativeType == 1 || relativeType == 5 {
-		lName := getName(lastNameList)
+		lName := util.PickFromStringList(nameList["last_names"])
 		lastName = pg.caser.String(strings.ToLower(lName))
 	}
 	pickedPosition := util.PickPositionFromList()
@@ -194,21 +194,21 @@ func (pg *CrootGenerator) generateTwin(player *structs.Recruit) (structs.Recruit
 	pg.newID++
 	twinRelativeID := relativeID
 	relativeID = int(pg.newID)
-	firstNameList := pg.firstNameMap[pg.pickedEthnicity]
-	twinName := getName(firstNameList)
+	country := player.Country
+	locale := pickLocale(country)
+	firstNameList := pg.nameMap[locale]["first_names"]
+	twinName := util.PickFromStringList(firstNameList)
 	twinN := pg.caser.String(strings.ToLower(twinName))
 	twinPosition := ""
 	switch player.Position {
-	case "PF":
-		twinPosition = util.PickFromStringList([]string{"C", "SF"})
+	case "F":
+		twinPosition = util.PickFromStringList([]string{"C", "F"})
 	case "C":
-		twinPosition = "PF"
-	case "SF":
-		twinPosition = util.PickFromStringList([]string{"PF", "SG"})
-	case "SG":
-		twinPosition = util.PickFromStringList([]string{"SF", "PG"})
+		twinPosition = "F"
+	case "G":
+		twinPosition = util.PickFromStringList([]string{"G", "F"})
 	default:
-		twinPosition = "SG"
+		twinPosition = "G"
 	}
 	twinNotes := "Twin Brother of " + strconv.Itoa(int(player.Stars)) + " Star Recruit " + player.Position + " " + player.FirstName + " " + player.LastName
 	twinPlayer := createRecruit(twinPosition, twinN, player.LastName, player.State, player.Country, "", "", 1, int(player.Stars), pg.newID, pg.attributeBlob, pg.usCrootLocations[player.State])
@@ -302,10 +302,14 @@ func GenerateNewTeams() {
 	firstNameMap, lastNameMap := getNameMaps()
 	teams := GetAllActiveCollegeTeams()
 
-	var positionList []string = []string{"PG", "SG", "PF", "SF", "C"}
+	generator := CrootGenerator{
+		attributeBlob: getAttributeBlob(),
+	}
+
+	var positionList []string = []string{"G", "G", "F", "F", "C"}
 
 	for _, team := range teams {
-		if team.ID != 364 && team.ID != 369 {
+		if team.ID < 370 {
 			continue
 		}
 		// Test Generation
@@ -315,12 +319,10 @@ func GenerateNewTeams() {
 		juniors := 3
 		sophomores := 3
 		freshmen := 3
-		sfCount := 0
-		pfCount := 0
-		pgCount := 0
-		sgCount := 0
+		fCount := 0
+		gCount := 0
 		cCount := 0
-		requiredPlayers := 12
+		requiredPlayers := 13
 		count := 0
 
 		requiredPlayers -= len(players)
@@ -335,14 +337,10 @@ func GenerateNewTeams() {
 				freshmen--
 			}
 			switch player.Position {
-			case "PF":
-				pfCount++
-			case "SF":
-				sfCount++
-			case "PG":
-				pgCount++
-			case "SG":
-				sgCount++
+			case "F":
+				fCount++
+			case "G":
+				gCount++
 			default:
 				cCount++
 			}
@@ -363,32 +361,22 @@ func GenerateNewTeams() {
 		var positionQueue []string
 		for i := 0; i < requiredPlayers; i++ {
 			pickedPosition := util.PickFromStringList(positionList)
-			if pickedPosition == "PF" && pfCount > 2 {
-				quickList := []string{"PG", "SF", "SG", "C"}
+			if pickedPosition == "F" && fCount > 5 {
+				quickList := []string{"G", "C"}
 				pickedPosition = util.PickFromStringList(quickList)
-			} else if pickedPosition == "SF" && sfCount > 2 {
-				quickList := []string{"PG", "PF", "SG", "C"}
-				pickedPosition = util.PickFromStringList(quickList)
-			} else if pickedPosition == "PG" && pgCount > 2 {
-				quickList := []string{"PF", "SG", "SF", "C"}
-				pickedPosition = util.PickFromStringList(quickList)
-			} else if pickedPosition == "SG" && pgCount > 2 {
-				quickList := []string{"PF", "PG", "SF", "C"}
+			} else if pickedPosition == "G" && gCount > 5 {
+				quickList := []string{"F", "C"}
 				pickedPosition = util.PickFromStringList(quickList)
 			} else if pickedPosition == "C" && cCount > 2 {
-				quickList := []string{"SF", "PG", "SG", "PF"}
+				quickList := []string{"F", "G"}
 				pickedPosition = util.PickFromStringList(quickList)
 			}
 
 			switch pickedPosition {
-			case "SF":
-				sfCount++
-			case "PF":
-				pfCount++
-			case "PG":
-				pgCount++
-			case "SG":
-				sgCount++
+			case "F":
+				fCount++
+			case "G":
+				gCount++
 			default:
 				cCount++
 			}
@@ -408,7 +396,7 @@ func GenerateNewTeams() {
 			year := yearList[count]
 			pickedEthnicity := pickEthnicity()
 			pickedPosition := positionQueue[count]
-			player := createCollegePlayer(team, pickedEthnicity, pickedPosition, year, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], newID, false)
+			player := createCollegePlayer(team, pickedEthnicity, pickedPosition, year, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], newID, false, generator.attributeBlob)
 			globalPlayer := structs.GlobalPlayer{
 				Model:           gorm.Model{ID: newID},
 				CollegePlayerID: newID,
@@ -487,9 +475,9 @@ func GenerateCroots() {
 		nameMap:           getInternationalNameMap(),
 		collegePlayerList: GetAllCollegePlayers(),
 		teamMap:           GetCollegeTeamMap(),
-		positionList:      []string{"PG", "SG", "PF", "SF", "C"},
+		positionList:      []string{"G", "G", "F", "F", "C"},
 		newID:             lastPlayerRecord.ID + 1,
-		requiredPlayers:   util.GenerateIntFromRange(1204, 1550),
+		requiredPlayers:   util.GenerateIntFromRange(1500, 1600),
 		usCrootLocations:  getCrootLocations("HS"),
 		attributeBlob:     getAttributeBlob(),
 		faceDataBlob:      getFaceDataBlob(),
@@ -511,7 +499,7 @@ func GenerateCroots() {
 	// Test Generation
 	// requiredPlayers := util.GenerateIntFromRange(203, 205)
 	// 1061 is the number of open spots on teams in the league.
-	// Currently 368 teams. 363 * 3 = 1089, the size of the average class.
+	// Currently 378 teams. 363 * 3 = 1089, the size of the average class.
 	// The plan is to ensure that every recruit is signed
 	generator.GenerateRecruits()
 	// Croot Stats
@@ -643,10 +631,11 @@ func GenerateNewAttributes() {
 }
 
 // Private Methods
-func createCollegePlayer(team structs.Team, ethnicity string, position string, year int, firstNameList [][]string, lastNameList [][]string, id uint, isWalkon bool) structs.CollegePlayer {
+func createCollegePlayer(team structs.Team, ethnicity string, position string, year int, firstNameList [][]string, lastNameList [][]string, id uint, isWalkon bool, attributeBlob map[string]map[string]map[string]map[string]interface{}) structs.CollegePlayer {
 	fName := getName(firstNameList)
 	lName := getName(lastNameList)
 	caser := cases.Title(language.English)
+	archetype := util.GetArchetype(position)
 
 	firstName := caser.String(strings.ToLower(fName))
 	lastName := caser.String(strings.ToLower(lName))
@@ -669,30 +658,108 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 	recruitingBias := util.GetRecruitingBias()
 	freeAgency := util.GetFreeAgencyBias(0, 0)
 
+	stars := util.GetStarRating(false, false)
+	// Preferences
+	program := util.GenerateNormalizedIntFromRange(1, 9)
+	profDevelopment := util.GenerateNormalizedIntFromRange(1, 9)
+	traditions := util.GenerateNormalizedIntFromRange(1, 9)
+	facilities := util.GenerateNormalizedIntFromRange(1, 9)
+	atmosphere := util.GenerateNormalizedIntFromRange(1, 9)
+	academics := util.GenerateNormalizedIntFromRange(1, 9)
+	conferencePrestige := util.GenerateNormalizedIntFromRange(1, 9)
+	coachPref := util.GenerateNormalizedIntFromRange(1, 9)
+	seasonMomentumPref := util.GenerateNormalizedIntFromRange(1, 9)
+	campusLife := util.GenerateNormalizedIntFromRange(1, 9)
+	// Attributes
+	insideShooting := getAttributeValue(position, archetype, stars, "InsideShooting", attributeBlob)
+	shooting2 := getAttributeValue(position, archetype, stars, "MidRangeShooting", attributeBlob)
+	shooting3 := getAttributeValue(position, archetype, stars, "ThreePointShooting", attributeBlob)
+	freeThrow := getAttributeValue(position, archetype, stars, "FreeThrow", attributeBlob)
+	ballwork := getAttributeValue(position, archetype, stars, "Ballwork", attributeBlob)
+	rebounding := getAttributeValue(position, archetype, stars, "Rebounding", attributeBlob)
+	agility := getAttributeValue(position, archetype, stars, "Agility", attributeBlob)
+	stealing := getAttributeValue(position, archetype, stars, "Stealing", attributeBlob)
+	blocking := getAttributeValue(position, archetype, stars, "Blocking", attributeBlob)
+	interiorDefense := getAttributeValue(position, archetype, stars, "InteriorDefense", attributeBlob)
+	perimeterDefense := getAttributeValue(position, archetype, stars, "PerimeterDefense", attributeBlob)
+	// Specialties
+	specInsideShooting := util.GenerateSpecialty(position, archetype, "InsideShooting")
+	specMidRangeShooting := util.GenerateSpecialty(position, archetype, "MidRangeShooting")
+	specThreePointShooting := util.GenerateSpecialty(position, archetype, "ThreePointShooting")
+	specFreeThrow := util.GenerateSpecialty(position, archetype, "FreeThrow")
+	specBallwork := util.GenerateSpecialty(position, archetype, "Ballwork")
+	specAgility := util.GenerateSpecialty(position, archetype, "Agility")
+	specStealing := util.GenerateSpecialty(position, archetype, "Stealing")
+	specBlocking := util.GenerateSpecialty(position, archetype, "Blocking")
+	specRebounding := util.GenerateSpecialty(position, archetype, "Rebounding")
+	specInteriorDefense := util.GenerateSpecialty(position, archetype, "InteriorDefense")
+	specPerimeterDefense := util.GenerateSpecialty(position, archetype, "PerimeterDefense")
+	height = getAttributeValue(position, archetype, stars, "Height", attributeBlob)
+	weight = getAttributeValue(position, archetype, stars, "Weight", attributeBlob)
+	if isWalkon {
+		stars = 0
+	}
+	expectations := util.GetPlaytimeExpectations(stars, year, 10)
 	basePlayer := structs.BasePlayer{
-		FirstName:         firstName,
-		LastName:          lastName,
-		Position:          position,
-		Age:               19,
-		Year:              uint8(year),
-		State:             state,
-		Country:           country,
-		Height:            uint8(height),
-		Weight:            uint16(weight),
-		Potential:         potential,
-		PotentialGrade:    potentialGrade,
-		ProPotentialGrade: proPotential,
-		Stamina:           uint8(stamina),
-		Personality:       personality,
-		FreeAgency:        freeAgency,
-		RecruitingBias:    recruitingBias,
-		WorkEthic:         workEthic,
-		AcademicBias:      academicBias,
-		InjuryRating:      uint8(injuryRating),
-		Discipline:        uint8(discipline),
-		PlayerID:          id,
-		TeamID:            team.ID,
-		Team:              team.Abbr,
+		FirstName:              firstName,
+		LastName:               lastName,
+		Position:               position,
+		Archetype:              archetype,
+		Age:                    19,
+		Year:                   uint8(year),
+		State:                  state,
+		Country:                country,
+		Height:                 uint8(height),
+		Weight:                 uint16(weight),
+		Agility:                uint8(agility),
+		InsideShooting:         uint8(insideShooting),
+		MidRangeShooting:       uint8(shooting2),
+		ThreePointShooting:     uint8(shooting3),
+		FreeThrow:              uint8(freeThrow),
+		Ballwork:               uint8(ballwork),
+		Stealing:               uint8(stealing),
+		Blocking:               uint8(blocking),
+		Rebounding:             uint8(rebounding),
+		InteriorDefense:        uint8(interiorDefense),
+		PerimeterDefense:       uint8(perimeterDefense),
+		SpecInsideShooting:     specInsideShooting,
+		SpecMidRangeShooting:   specMidRangeShooting,
+		SpecThreePointShooting: specThreePointShooting,
+		SpecFreeThrow:          specFreeThrow,
+		SpecBallwork:           specBallwork,
+		SpecAgility:            specAgility,
+		SpecStealing:           specStealing,
+		SpecBlocking:           specBlocking,
+		SpecRebounding:         specRebounding,
+		SpecInteriorDefense:    specInteriorDefense,
+		SpecPerimeterDefense:   specPerimeterDefense,
+		Potential:              potential,
+		PotentialGrade:         potentialGrade,
+		ProPotentialGrade:      proPotential,
+		PlaytimeExpectations:   uint8(expectations),
+		Stamina:                uint8(stamina),
+		Personality:            personality,
+		FreeAgency:             freeAgency,
+		RecruitingBias:         recruitingBias,
+		WorkEthic:              workEthic,
+		AcademicBias:           academicBias,
+		InjuryRating:           uint8(injuryRating),
+		Discipline:             uint8(discipline),
+		PlayerID:               id,
+		TeamID:                 team.ID,
+		Team:                   team.Abbr,
+		PlayerPreferences: structs.PlayerPreferences{
+			ProgramPref:        uint8(program),
+			ProfDevPref:        uint8(profDevelopment),
+			TraditionsPref:     uint8(traditions),
+			FacilitiesPref:     uint8(facilities),
+			AtmospherePref:     uint8(atmosphere),
+			AcademicsPref:      uint8(academics),
+			ConferencePref:     uint8(conferencePrestige),
+			CoachPref:          uint8(coachPref),
+			SeasonMomentumPref: uint8(seasonMomentumPref),
+			CampusLifePref:     uint8(campusLife),
+		},
 	}
 
 	collegePlayer := structs.CollegePlayer{
@@ -701,22 +768,6 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 		IsRedshirting: false,
 		HasGraduated:  false,
 	}
-
-	shooting2 := util.GetAttributeNew(position, "Shooting2", collegePlayer.SpecMidRangeShooting, isWalkon)
-	shooting3 := util.GetAttributeNew(position, "Shooting3", collegePlayer.SpecThreePointShooting, isWalkon)
-	finishing := util.GetAttributeNew(position, "Finishing", collegePlayer.SpecInsideShooting, isWalkon)
-	freeThrow := util.GetAttributeNew(position, "FreeThrow", collegePlayer.SpecFreeThrow, isWalkon)
-	ballwork := util.GetAttributeNew(position, "Ballwork", collegePlayer.SpecBallwork, isWalkon)
-	rebounding := util.GetAttributeNew(position, "Rebounding", collegePlayer.SpecRebounding, isWalkon)
-	interiorDefense := util.GetAttributeNew(position, "Interior Defense", collegePlayer.SpecInteriorDefense, isWalkon)
-	perimeterDefense := util.GetAttributeNew(position, "Perimeter Defense", collegePlayer.SpecPerimeterDefense, isWalkon)
-	overall := (int((shooting2 + shooting3 + freeThrow) / 3)) + finishing + ballwork + rebounding + int((interiorDefense+perimeterDefense)/2)
-	stars := getStarRating(overall)
-	if isWalkon {
-		stars = 0
-	}
-	expectations := util.GetPlaytimeExpectations(stars, year, overall)
-	collegePlayer.SetAttributes(shooting2, shooting3, finishing, freeThrow, ballwork, rebounding, interiorDefense, perimeterDefense, overall, stars, expectations)
 	collegePlayer.SetID(id)
 	return collegePlayer
 }
@@ -724,7 +775,7 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 func createRecruit(position, fName, lName, state, country, cit, hs string, year uint8, stars int, id uint, blob map[string]map[string]map[string]map[string]interface{}, hsBlob []structs.CrootLocation) structs.Recruit {
 	age := 18
 	city, highSchool := cit, hs
-	if state != "" && len(hsBlob) > 0 {
+	if state != "" && len(hsBlob) > 0 && country == "USA" {
 		city, highSchool = getCityAndHighSchool(hsBlob)
 	}
 	archetype := util.GetArchetype(position)
@@ -743,7 +794,19 @@ func createRecruit(position, fName, lName, state, country, cit, hs string, year 
 	recruitingBias := util.GetRecruitingBias()
 	freeAgency := util.GetFreeAgencyBias(0, 0)
 
-	// Specialties
+	// Preferences
+	program := util.GenerateNormalizedIntFromRange(1, 9)
+	profDevelopment := util.GenerateNormalizedIntFromRange(1, 9)
+	traditions := util.GenerateNormalizedIntFromRange(1, 9)
+	facilities := util.GenerateNormalizedIntFromRange(1, 9)
+	atmosphere := util.GenerateNormalizedIntFromRange(1, 9)
+	academics := util.GenerateNormalizedIntFromRange(1, 9)
+	conferencePrestige := util.GenerateNormalizedIntFromRange(1, 9)
+	coachPref := util.GenerateNormalizedIntFromRange(1, 9)
+	seasonMomentumPref := util.GenerateNormalizedIntFromRange(1, 9)
+	campusLife := util.GenerateNormalizedIntFromRange(1, 9)
+
+	// Attributes
 	insideShooting := getAttributeValue(position, archetype, stars, "InsideShooting", blob)
 	midRangeShooting := getAttributeValue(position, archetype, stars, "MidRangeShooting", blob)
 	threePointShooting := getAttributeValue(position, archetype, stars, "ThreePointShooting", blob)
@@ -755,42 +818,83 @@ func createRecruit(position, fName, lName, state, country, cit, hs string, year 
 	agility := getAttributeValue(position, archetype, stars, "Agility", blob)
 	stealing := getAttributeValue(position, archetype, stars, "Stealing", blob)
 	blocking := getAttributeValue(position, archetype, stars, "Blocking", blob)
+	// Specialties
+	specInsideShooting := util.GenerateSpecialty(position, archetype, "InsideShooting")
+	specMidRangeShooting := util.GenerateSpecialty(position, archetype, "MidRangeShooting")
+	specThreePointShooting := util.GenerateSpecialty(position, archetype, "ThreePointShooting")
+	specFreeThrow := util.GenerateSpecialty(position, archetype, "FreeThrow")
+	specBallwork := util.GenerateSpecialty(position, archetype, "Ballwork")
+	specAgility := util.GenerateSpecialty(position, archetype, "Agility")
+	specStealing := util.GenerateSpecialty(position, archetype, "Stealing")
+	specBlocking := util.GenerateSpecialty(position, archetype, "Blocking")
+	specRebounding := util.GenerateSpecialty(position, archetype, "Rebounding")
+	specInteriorDefense := util.GenerateSpecialty(position, archetype, "InteriorDefense")
+	specPerimeterDefense := util.GenerateSpecialty(position, archetype, "PerimeterDefense")
+
+	starRating := stars
+	if starRating > 5 {
+		starRating = 5
+	}
 
 	var basePlayer = structs.BasePlayer{
-		FirstName:          fName,
-		LastName:           lName,
-		Position:           position,
-		Archetype:          archetype,
-		Age:                uint8(age),
-		Year:               uint8(year),
-		City:               city,
-		HighSchool:         highSchool,
-		State:              state,
-		Country:            country,
-		Height:             uint8(height),
-		Weight:             uint16(weight),
-		Agility:            uint8(agility),
-		InsideShooting:     uint8(insideShooting),
-		MidRangeShooting:   uint8(midRangeShooting),
-		ThreePointShooting: uint8(threePointShooting),
-		FreeThrow:          uint8(freeThrow),
-		Ballwork:           uint8(ballwork),
-		Stealing:           uint8(stealing),
-		Blocking:           uint8(blocking),
-		Rebounding:         uint8(rebounding),
-		InteriorDefense:    uint8(interiorDefense),
-		PerimeterDefense:   uint8(perimeterDefense),
-		Potential:          potential,
-		PotentialGrade:     potentialGrade,
-		ProPotentialGrade:  proPotential,
-		Stamina:            uint8(stamina),
-		Personality:        personality,
-		FreeAgency:         freeAgency,
-		RecruitingBias:     recruitingBias,
-		WorkEthic:          workEthic,
-		AcademicBias:       academicBias,
-		InjuryRating:       uint8(injuryRating),
-		Discipline:         uint8(discipline),
+		FirstName:              fName,
+		LastName:               lName,
+		Position:               position,
+		Archetype:              archetype,
+		Age:                    uint8(age),
+		Year:                   uint8(year),
+		Stars:                  uint8(starRating),
+		City:                   city,
+		HighSchool:             highSchool,
+		State:                  state,
+		Country:                country,
+		Height:                 uint8(height),
+		Weight:                 uint16(weight),
+		Agility:                uint8(agility),
+		InsideShooting:         uint8(insideShooting),
+		MidRangeShooting:       uint8(midRangeShooting),
+		ThreePointShooting:     uint8(threePointShooting),
+		FreeThrow:              uint8(freeThrow),
+		Ballwork:               uint8(ballwork),
+		Stealing:               uint8(stealing),
+		Blocking:               uint8(blocking),
+		Rebounding:             uint8(rebounding),
+		InteriorDefense:        uint8(interiorDefense),
+		PerimeterDefense:       uint8(perimeterDefense),
+		SpecInsideShooting:     specInsideShooting,
+		SpecMidRangeShooting:   specMidRangeShooting,
+		SpecThreePointShooting: specThreePointShooting,
+		SpecFreeThrow:          specFreeThrow,
+		SpecBallwork:           specBallwork,
+		SpecAgility:            specAgility,
+		SpecStealing:           specStealing,
+		SpecBlocking:           specBlocking,
+		SpecRebounding:         specRebounding,
+		SpecInteriorDefense:    specInteriorDefense,
+		SpecPerimeterDefense:   specPerimeterDefense,
+		Potential:              potential,
+		PotentialGrade:         potentialGrade,
+		ProPotentialGrade:      proPotential,
+		Stamina:                uint8(stamina),
+		Personality:            personality,
+		FreeAgency:             freeAgency,
+		RecruitingBias:         recruitingBias,
+		WorkEthic:              workEthic,
+		AcademicBias:           academicBias,
+		InjuryRating:           uint8(injuryRating),
+		Discipline:             uint8(discipline),
+		PlayerPreferences: structs.PlayerPreferences{
+			ProgramPref:        uint8(program),
+			ProfDevPref:        uint8(profDevelopment),
+			TraditionsPref:     uint8(traditions),
+			FacilitiesPref:     uint8(facilities),
+			AtmospherePref:     uint8(atmosphere),
+			AcademicsPref:      uint8(academics),
+			ConferencePref:     uint8(conferencePrestige),
+			CoachPref:          uint8(coachPref),
+			SeasonMomentumPref: uint8(seasonMomentumPref),
+			CampusLifePref:     uint8(campusLife),
+		},
 	}
 
 	var croot = structs.Recruit{
@@ -802,8 +906,8 @@ func createRecruit(position, fName, lName, state, country, cit, hs string, year 
 
 	croot.GetOverall()
 
-	recruitModifier := GetRecruitModifier(uint8(stars))
-	expectations := util.GetPlaytimeExpectations(stars, int(year), int(croot.Overall))
+	recruitModifier := GetRecruitModifier(uint8(starRating))
+	expectations := util.GetPlaytimeExpectations(starRating, int(year), int(croot.Overall))
 	croot.SetExpectations(uint8(expectations))
 	croot.SetID(id)
 	croot.AssignRecruitModifier(recruitModifier)
@@ -851,37 +955,60 @@ func createInternationalPlayer(teamID uint, team, country, ethnicity, position s
 	agility := getAttributeValue(position, archetype, stars, "Agility", blob)
 	stealing := getAttributeValue(position, archetype, stars, "Stealing", blob)
 	blocking := getAttributeValue(position, archetype, stars, "Blocking", blob)
+	// Specialties
+	specInsideShooting := util.GenerateSpecialty(position, archetype, "InsideShooting")
+	specMidRangeShooting := util.GenerateSpecialty(position, archetype, "MidRangeShooting")
+	specThreePointShooting := util.GenerateSpecialty(position, archetype, "ThreePointShooting")
+	specFreeThrow := util.GenerateSpecialty(position, archetype, "FreeThrow")
+	specBallwork := util.GenerateSpecialty(position, archetype, "Ballwork")
+	specAgility := util.GenerateSpecialty(position, archetype, "Agility")
+	specStealing := util.GenerateSpecialty(position, archetype, "Stealing")
+	specBlocking := util.GenerateSpecialty(position, archetype, "Blocking")
+	specRebounding := util.GenerateSpecialty(position, archetype, "Rebounding")
+	specInteriorDefense := util.GenerateSpecialty(position, archetype, "InteriorDefense")
+	specPerimeterDefense := util.GenerateSpecialty(position, archetype, "PerimeterDefense")
 
 	var basePlayer = structs.BasePlayer{
-		FirstName:          firstName,
-		LastName:           lastName,
-		Position:           position,
-		Age:                uint8(age),
-		Year:               uint8(year),
-		State:              "",
-		Country:            country,
-		Height:             uint8(height),
-		Weight:             uint16(weight),
-		Agility:            uint8(agility),
-		InsideShooting:     uint8(insideShooting),
-		MidRangeShooting:   uint8(midRangeShooting),
-		ThreePointShooting: uint8(threePointShooting),
-		FreeThrow:          uint8(freeThrow),
-		Ballwork:           uint8(ballwork),
-		Stealing:           uint8(stealing),
-		Blocking:           uint8(blocking),
-		Rebounding:         uint8(rebounding),
-		InteriorDefense:    uint8(interiorDefense),
-		PerimeterDefense:   uint8(perimeterDefense),
-		Potential:          potential,
-		PotentialGrade:     potentialGrade,
-		ProPotentialGrade:  proPotential,
-		Stamina:            uint8(stamina),
-		Personality:        personality,
-		FreeAgency:         freeAgency,
-		RecruitingBias:     recruitingBias,
-		WorkEthic:          workEthic,
-		AcademicBias:       academicBias, PlayerID: id,
+		FirstName:              firstName,
+		LastName:               lastName,
+		Position:               position,
+		Age:                    uint8(age),
+		Year:                   uint8(year),
+		State:                  "",
+		Country:                country,
+		Height:                 uint8(height),
+		Weight:                 uint16(weight),
+		Agility:                uint8(agility),
+		InsideShooting:         uint8(insideShooting),
+		MidRangeShooting:       uint8(midRangeShooting),
+		ThreePointShooting:     uint8(threePointShooting),
+		FreeThrow:              uint8(freeThrow),
+		Ballwork:               uint8(ballwork),
+		Stealing:               uint8(stealing),
+		Blocking:               uint8(blocking),
+		Rebounding:             uint8(rebounding),
+		InteriorDefense:        uint8(interiorDefense),
+		PerimeterDefense:       uint8(perimeterDefense),
+		SpecInsideShooting:     specInsideShooting,
+		SpecMidRangeShooting:   specMidRangeShooting,
+		SpecThreePointShooting: specThreePointShooting,
+		SpecFreeThrow:          specFreeThrow,
+		SpecBallwork:           specBallwork,
+		SpecAgility:            specAgility,
+		SpecStealing:           specStealing,
+		SpecBlocking:           specBlocking,
+		SpecRebounding:         specRebounding,
+		SpecInteriorDefense:    specInteriorDefense,
+		SpecPerimeterDefense:   specPerimeterDefense,
+		Potential:              potential,
+		PotentialGrade:         potentialGrade,
+		ProPotentialGrade:      proPotential,
+		Stamina:                uint8(stamina),
+		Personality:            personality,
+		FreeAgency:             freeAgency,
+		RecruitingBias:         recruitingBias,
+		WorkEthic:              workEthic,
+		AcademicBias:           academicBias, PlayerID: id,
 		TeamID: teamID,
 		Team:   team,
 	}
@@ -915,142 +1042,6 @@ func createInternationalPlayer(teamID uint, team, country, ethnicity, position s
 	player.SetAge(age)
 
 	return player
-}
-
-func createCollegeCoach(team structs.TeamRecruitingProfile, almaMaterID uint, almaMater, ethnicity string, firstNameList, lastNameList [][]string, retiredPlayers []structs.RetiredPlayer, retireeMap, coachMap *map[uint]bool) structs.CollegeCoach {
-	firstName := ""
-	lastName := ""
-	diceRoll := util.GenerateIntFromRange(1, 20)
-	formerPlayerID := uint(0)
-	almaID := almaMaterID
-	alma := almaMater
-	age := 32
-	if diceRoll == 20 {
-		// Get a former player as a coach
-		idx := util.GenerateIntFromRange(0, len(retiredPlayers)-1)
-		retiree := retiredPlayers[idx]
-		for (*retireeMap)[retiree.ID] || (*coachMap)[retiree.ID] {
-			idx = util.GenerateIntFromRange(0, len(retiredPlayers)-1)
-			retiree = retiredPlayers[idx]
-		}
-		(*retireeMap)[retiree.ID] = true
-		(*coachMap)[retiree.ID] = true
-		formerPlayerID = retiree.ID
-		almaID = retiree.CollegeID
-		alma = retiree.College
-		firstName = retiree.FirstName
-		lastName = retiree.LastName
-		age = int(retiree.Age + 1)
-	} else {
-		fName := getName(firstNameList)
-		lName := getName(lastNameList)
-		caser := cases.Title(language.English)
-		firstName = caser.String(strings.ToLower(fName))
-		lastName = caser.String(strings.ToLower(lName))
-		age = getCoachAge()
-	}
-	fullName := firstName + " " + lastName
-
-	schoolQuality := team.AIQuality
-	adminBehavior := team.AIBehavior
-	goodHire := getGoodHire(schoolQuality, adminBehavior)
-	starMin, starMax := getStarRange(schoolQuality, goodHire)
-	pointMin, pointmax := getPointRange(schoolQuality, goodHire)
-	odds1 := 0
-	odds2 := 0
-	odds3 := 0
-	odds4 := 0
-	odds5 := 0
-
-	starList := make([]int, 5)
-	for i := starMin; i <= starMax; i++ {
-		starList = append(starList, i)
-	}
-
-	for _, star := range starList {
-		switch star {
-		case 1:
-			odds1 = 10
-		case 2:
-			odds2 = 10
-		case 3:
-			odds3 = 8
-		case 4:
-			odds4 = 5
-		case 5:
-			odds5 = 5
-		}
-	}
-
-	schemeRoll := util.GenerateIntFromRange(1, 6)
-	scheme := "Traditional"
-	if schemeRoll == 6 {
-		schemeList := []string{"Traditional", "Small Ball", "Microball", "Jumbo"}
-		scheme = util.PickFromStringList(schemeList)
-	}
-	defensiveScheme := "Man-to-Man"
-	defensiveSchemeList := []string{"Man-to-Man", "1-3-1 Zone", "3-2 Zone", "2-3 Zone", "Box-and-One Zone"}
-	schemeRoll = util.GenerateIntFromRange(1, 6)
-	if schemeRoll == 6 {
-		defensiveScheme = util.PickFromStringList(defensiveSchemeList)
-	}
-	contractLength := util.GenerateIntFromRange(2, 5)
-	startingPrestige := getStartingPrestige(goodHire)
-	teamBuildingList := []string{"Recruiting", "Transfer", "Average"}
-	teamBuildPref := util.PickFromStringList(teamBuildingList)
-	careerPrefList := []string{"Average", "Prefers to Stay at Current Job", "Wants to coach Alma-Mater", "Wants a more competitive job", "Average"}
-	careerPref := util.PickFromStringList(careerPrefList)
-	promiseTendencyList := []string{"Average", "Under-Promise", "Over-Promise"}
-	promiseTendency := util.PickFromStringList(promiseTendencyList)
-	if goodHire {
-		fmt.Println("Good hire for " + team.TeamAbbr + "!")
-	}
-	formerPlayer := formerPlayerID > 0
-
-	if formerPlayer {
-		fmt.Println("Former SimNBA Player " + fullName + " is committing to coach for " + team.TeamAbbr + "!")
-	}
-
-	coach := structs.CollegeCoach{
-		Name:                   fullName,
-		Age:                    age,
-		TeamID:                 team.ID,
-		Team:                   team.TeamAbbr,
-		FormerPlayerID:         formerPlayerID,
-		AlmaMaterID:            almaID,
-		AlmaMater:              alma,
-		Prestige:               startingPrestige,
-		PointMin:               pointMin,
-		PointMax:               pointmax,
-		StarMin:                starMin,
-		StarMax:                starMax,
-		Odds1:                  odds1,
-		Odds2:                  odds2,
-		Odds3:                  odds3,
-		Odds4:                  odds4,
-		Odds5:                  odds5,
-		Scheme:                 scheme,
-		SchoolTenure:           0,
-		CareerTenure:           0,
-		ContractLength:         contractLength,
-		YearsRemaining:         contractLength,
-		IsRetired:              false,
-		IsFormerPlayer:         formerPlayer,
-		DefensiveScheme:        defensiveScheme,
-		TeambuildingPreference: teamBuildPref,
-		CareerPreference:       careerPref,
-		PromiseTendency:        promiseTendency,
-		PortalReputation:       100,
-	}
-
-	if startingPrestige > 1 {
-		for i := 0; i < startingPrestige; i++ {
-			selectStar := util.GenerateIntFromRange(starMin, starMax)
-			coach.IncrementOdds(selectStar)
-		}
-	}
-
-	return coach
 }
 
 func getNameList(ethnicity string, isFirstName bool) [][]string {
@@ -1152,7 +1143,7 @@ func pickEthnicity() string {
 	max := 10000
 	num := util.GenerateIntFromRange(min, max)
 
-	if num < 6000 {
+	if num < 5000 {
 		return "Caucasian"
 	} else if num < 7800 {
 		return "African"
@@ -1166,7 +1157,10 @@ func pickEthnicity() string {
 
 func pickLocale(country string) string {
 	countryMap := map[string][]string{
+		"USA":                {"en_US", "es_ES"},
+		"Antarctica":         {"en_US", "es_ES", "en_GB", "fr_CA", "en_CA", "en_IE", "it_IT", "ru_RU", "zh_CN"},
 		"England":            {"en_GB", "en_US"},
+		"United Kingdom":     {"en_GB", "en_US"},
 		"Scotland":           {"en_GB", "en_IE"},
 		"Austria":            {"de_AT"},
 		"Canada":             {"fr_CA", "en_CA"},
@@ -1181,6 +1175,7 @@ func pickLocale(country string) string {
 		"Andorra":            {"fr_FR", "es_ES"},
 		"Germany":            {"de_AT", "de_CH", "de_DE"},
 		"Belgium":            {"nl_BE", "nl_NL", "fr_FR"},
+		"Luxembourg":         {"fr_FR", "de_DE"},
 		"Netherlands":        {"nl_BE", "nl_NL", "de_DE"},
 		"Lithuania":          {"lt_LT"},
 		"Latvia":             {"lv_LV", "lt_LT"},
@@ -1215,6 +1210,7 @@ func pickLocale(country string) string {
 		"HK":                 {"zh_CN"},
 		"Japan":              {"ja_JP"},
 		"South Korea":        {"ko_KR"},
+		"North Korea":        {"ko_KR"},
 		"Taiwan":             {"zh_TW"},
 		"Philippines":        {"en_PH", "es_ES"},
 		"Phillipines":        {"en_PH", "es_ES"},
@@ -1238,7 +1234,8 @@ func pickLocale(country string) string {
 		"Colombia":           {"es_MX"},
 		"Guatemala":          {"es_MX"},
 		"Dominican Republic": {"es_MX"},
-		"The Bahamas":        {"es_MX"},
+		"Grenada":            {"es_MX"},
+		"Barbados":           {"es_MX", "zu_ZA"},
 		"El Salvador":        {"es_MX"},
 		"Belize":             {"es_MX"},
 		"Honduras":           {"es_MX"},
@@ -1246,6 +1243,7 @@ func pickLocale(country string) string {
 		"French Guiana":      {"es_MX", "fr_FR"},
 		"Jamaica":            {"es_MX", "zu_ZA"},
 		"Haiti":              {"es_MX", "zu_ZA"},
+		"The Bahamas":        {"es_MX", "zu_ZA"},
 		"Costa Rica":         {"es_MX"},
 		"Nicaragua":          {"es_MX"},
 		"Panama":             {"es_MX"},
@@ -1253,6 +1251,8 @@ func pickLocale(country string) string {
 		"Puerto Rico":        {"es_MX"},
 		"Venezuela":          {"es_MX"},
 		"Guyana":             {"es_MX"},
+		"Ecuador":            {"es_MX"},
+		"Suriname":           {"nl_NL", "es_MX", "pt_BR"},
 		"Peru":               {"es_MX"},
 		"Paraguay":           {"es_MX"},
 		"Sierra Leone":       {"es_MX"},
@@ -1307,6 +1307,7 @@ func pickLocale(country string) string {
 		"South Sudan":        {"sa_SA"},
 		"Burundi":            {"sa_SA"},
 		"Ivory Coast":        {"sa_SA"},
+		"Ghana":              {"sa_SA"},
 		"Tunisia":            {"sa_SA", "ar_EG"},
 		"Zambia":             {"sa_SA"},
 		"Morocco":            {"ar_EG", "sa_SA"},
@@ -1382,7 +1383,7 @@ func pickCountry(ethnicity string) string {
 	max := 10000
 	num := util.GenerateIntFromRange(min, max)
 
-	if num < 8001 {
+	if num < 8201 {
 		return "USA"
 	} else if num < 8251 {
 		switch ethnicity {
@@ -1426,7 +1427,7 @@ func pickCountry(ethnicity string) string {
 	} else if num < 8401 {
 		switch ethnicity {
 		case "African":
-			return "Democratic Republic of Congo"
+			return "DRC"
 		case "Hispanic":
 			return "Colombia"
 		case "NativeAmerican":
@@ -1699,7 +1700,7 @@ func pickCountry(ethnicity string) string {
 	} else if num < 9501 {
 		switch ethnicity {
 		case "African":
-			return "DCR"
+			return "DRC"
 		case "Hispanic":
 			return "Uruguay"
 		case "NativeAmerican":
@@ -1803,131 +1804,6 @@ func pickCountry(ethnicity string) string {
 	}
 }
 
-func getHeight(position string) string {
-	foot := 0
-	inches := 0
-	switch position {
-	case "PG", "SG":
-		footMin := 5
-		footMax := 6
-		foot = util.GenerateIntFromRange(footMin, footMax)
-
-		if foot == 5 {
-			inchesMin := 10
-			inchesMax := 11
-			inches = util.GenerateIntFromRange(inchesMin, inchesMax)
-		} else {
-			inchesMin := 0
-			inchesMax := 5
-			inches = util.GenerateIntFromRange(inchesMin, inchesMax)
-		}
-	case "PF", "SF":
-		foot = 6
-		inchesMin := 5
-		inchesMax := 8
-		inches = util.GenerateIntFromRange(inchesMin, inchesMax)
-	default:
-		footMin := 6
-		footMax := 7
-		foot = util.GenerateIntFromRange(footMin, footMax)
-
-		if foot == 6 {
-			inchesMin := 9
-			inchesMax := 11
-			inches = util.GenerateIntFromRange(inchesMin, inchesMax)
-		} else {
-			inchesMin := 0
-			inchesMax := 1
-			inches = util.GenerateIntFromRange(inchesMin, inchesMax)
-		}
-	}
-	height := strconv.Itoa(foot) + "-" + strconv.Itoa(inches)
-	return height
-}
-
-func getAttribute(position string, attribute string, isGeneration bool) int {
-	switch position {
-	case "PG", "SG":
-		switch attribute {
-		case "Shooting2":
-			return util.GenerateIntFromRange(7, 17)
-		case "Shooting3":
-			return util.GenerateIntFromRange(7, 17)
-		case "Finishing":
-			return util.GenerateIntFromRange(4, 14)
-		case "FreeThrow":
-			return util.GenerateIntFromRange(4, 14)
-		case "Ballwork":
-			return util.GenerateIntFromRange(7, 17)
-		case "Rebounding":
-			return util.GenerateIntFromRange(1, 11)
-		case "Interior Defense":
-			return util.GenerateIntFromRange(1, 11)
-		case "Perimeter Defense":
-			return util.GenerateIntFromRange(1, 11)
-		default:
-			return 1
-		}
-	case "PF", "SF":
-		switch attribute {
-		case "Shooting2":
-			return util.GenerateIntFromRange(4, 14)
-		case "Shooting3":
-			return util.GenerateIntFromRange(1, 11)
-		case "FreeThrow":
-			return util.GenerateIntFromRange(4, 14)
-		case "Finishing":
-			return util.GenerateIntFromRange(6, 16)
-		case "Ballwork":
-			return util.GenerateIntFromRange(4, 14)
-		case "Rebounding":
-			return util.GenerateIntFromRange(4, 14)
-		case "Interior Defense":
-			return util.GenerateIntFromRange(4, 14)
-		case "Perimeter Defense":
-			return util.GenerateIntFromRange(4, 14)
-		default:
-			return 1
-		}
-	case "C":
-		switch attribute {
-		case "Shooting2":
-			return util.GenerateIntFromRange(1, 11)
-		case "Shooting3":
-			return util.GenerateIntFromRange(1, 11)
-		case "FreeThrow":
-			return util.GenerateIntFromRange(1, 11)
-		case "Finishing":
-			return util.GenerateIntFromRange(6, 16)
-		case "Ballwork":
-			return util.GenerateIntFromRange(1, 11)
-		case "Rebounding":
-			return util.GenerateIntFromRange(6, 16)
-		case "Interior Defense":
-			return util.GenerateIntFromRange(6, 16)
-		case "Perimeter Defense":
-			return util.GenerateIntFromRange(6, 16)
-		default:
-			return 1
-		}
-	}
-	return 1
-}
-
-func getStarRating(overall int) int {
-	if overall > 67 {
-		return 5
-	} else if overall > 61 {
-		return 4
-	} else if overall > 52 {
-		return 3
-	} else if overall > 45 {
-		return 2
-	} else {
-		return 1
-	}
-}
-
 func GetRecruitModifier(stars uint8) int {
 	switch stars {
 	case 5:
@@ -1960,129 +1836,6 @@ func getName(list [][]string) string {
 		}
 	}
 	return name
-}
-
-func pickAlmaMater(teams []structs.TeamRecruitingProfile) structs.TeamRecruitingProfile {
-	start := 0
-	end := len(teams) - 1
-	idx := util.GenerateIntFromRange(start, end)
-	return teams[idx]
-}
-
-func getCoachAge() int {
-	num := util.GenerateIntFromRange(1, 100)
-
-	if num < 10 {
-		return util.GenerateIntFromRange(32, 36)
-	} else if num < 25 {
-		return util.GenerateIntFromRange(37, 39)
-	} else if num < 55 {
-		return util.GenerateIntFromRange(40, 49)
-	} else if num < 80 {
-		return util.GenerateIntFromRange(50, 59)
-	} else if num < 95 {
-		return util.GenerateIntFromRange(60, 65)
-	} else {
-		return util.GenerateIntFromRange(66, 70)
-	}
-}
-
-func getGoodHire(schoolQuality, adminBehavior string) bool {
-	diceRoll := util.GenerateIntFromRange(1, 20)
-	mod := 0
-	switch schoolQuality {
-	case "P6", "Cinderella":
-		mod += 1
-	case "Blue Blood":
-		mod += 3
-	}
-	switch adminBehavior {
-	case "Aggressive":
-		mod += 3
-	case "Conservative":
-		mod -= 3
-	}
-
-	sum := diceRoll + mod
-	goodHire := sum > 12
-	return goodHire
-}
-
-func getStarRange(schoolQuality string, goodHire bool) (int, int) {
-
-	switch schoolQuality {
-	case "Blue Blood":
-		if goodHire {
-			return 3, 5
-		} else {
-			return 3, 4
-		}
-	case "Cinderella":
-		if goodHire {
-			return 2, 4
-		} else {
-			return 2, 3
-		}
-	case "P6":
-		if goodHire {
-			return 2, 4
-		} else {
-			return 2, 3
-		}
-	default:
-		if goodHire {
-			return 1, 3
-		} else {
-			return 1, 2
-		}
-	}
-}
-
-func getPointRange(schoolQuality string, goodHire bool) (int, int) {
-	min := 0
-	max := 15
-	switch schoolQuality {
-	case "Blue Blood":
-		if goodHire {
-			min = util.GenerateIntFromRange(7, 8)
-			max = util.GenerateIntFromRange(12, 16)
-		} else {
-			min = util.GenerateIntFromRange(6, 7)
-			max = util.GenerateIntFromRange(10, 13)
-		}
-	case "Cinderella":
-		if goodHire {
-			min = util.GenerateIntFromRange(5, 7)
-			max = util.GenerateIntFromRange(10, 15)
-		} else {
-			min = util.GenerateIntFromRange(4, 6)
-			max = util.GenerateIntFromRange(10, 12)
-		}
-	case "P6":
-		if goodHire {
-			min = util.GenerateIntFromRange(5, 8)
-			max = util.GenerateIntFromRange(10, 14)
-		} else {
-			min = util.GenerateIntFromRange(4, 6)
-			max = util.GenerateIntFromRange(8, 12)
-		}
-	default:
-		if goodHire {
-			min = util.GenerateIntFromRange(3, 6)
-			max = util.GenerateIntFromRange(8, 12)
-		} else {
-			min = 4
-			max = util.GenerateIntFromRange(6, 8)
-		}
-	}
-	return min, max
-}
-
-func getStartingPrestige(goodHire bool) int {
-	if goodHire {
-		return util.GenerateIntFromRange(3, 7)
-	}
-	return util.GenerateIntFromRange(1, 5)
 }
 
 func getRelativeType() int {
@@ -2291,6 +2044,10 @@ func GenerateCollegeWalkons() {
 	globalPlayers := []structs.GlobalPlayer{}
 	collegePlayersToUpload := []structs.CollegePlayer{}
 
+	generator := CrootGenerator{
+		attributeBlob: getAttributeBlob(),
+	}
+
 	for _, team := range teams {
 		if !team.IsUserCoached {
 			continue
@@ -2375,7 +2132,7 @@ func GenerateCollegeWalkons() {
 				break
 			}
 			pickedEthnicity := pickEthnicity()
-			player := createCollegePlayer(team, pickedEthnicity, position, year, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], newID, true)
+			player := createCollegePlayer(team, pickedEthnicity, position, year, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], newID, true, generator.attributeBlob)
 			globalPlayer := structs.GlobalPlayer{
 				Model:           gorm.Model{ID: newID},
 				CollegePlayerID: newID,

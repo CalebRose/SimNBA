@@ -61,7 +61,7 @@ type TeamRecruitingProfile struct {
 
 func (r *TeamRecruitingProfile) ResetSpentPoints() {
 	r.SpentPoints = 0
-	r.WeeklyScoutingPoints = 50
+	r.WeeklyScoutingPoints = 25
 }
 
 func (r *TeamRecruitingProfile) SubtractScholarshipsAvailable() {

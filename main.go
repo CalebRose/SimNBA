@@ -255,6 +255,7 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/recruiting/profile/determine/size/", controller.DetermineRecruitingClassSize).Methods("GET")
 	apiRouter.HandleFunc("/recruiting/class/{teamID}/", controller.GetRecruitingClassByTeamID).Methods("GET")
 	apiRouter.HandleFunc("/recruiting/add/recruit/", controller.AddRecruitToBoardV2).Methods("POST")
+	apiRouter.HandleFunc("/recruiting/scout/attribute/", controller.ScoutAttributeOnRecruit).Methods("POST")
 	apiRouter.HandleFunc("/recruit/createRecruitingPointsProfile", controller.AddRecruitToBoard).Methods("POST")
 	apiRouter.HandleFunc("/recruit/allocatePoints", controller.AllocateRecruitingPointsForRecruit).Methods("PUT")
 	apiRouter.HandleFunc("/recruit/toggleScholarship", controller.SendScholarshipToRecruit).Methods("POST")

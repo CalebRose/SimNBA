@@ -286,6 +286,7 @@ type BasePlayer struct {
 	RelativeID             uint8
 	RelativeType           uint8
 	Notes                  string
+	PlayerPreferences
 }
 
 func (b *BasePlayer) GetOverall() {
