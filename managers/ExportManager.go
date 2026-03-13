@@ -23,11 +23,9 @@ func ExportCroots(w http.ResponseWriter) {
 
 	HeaderRow := []string{
 		"First Name", "Last Name", "Position",
-		"Stars", "College", "State", "Country", "Height",
-		"Overall", "Shooting 2s", "Shooting 3s", "Finishing",
-		"Ballwork", "Rebounding", "InteriorDefense", "PerimeterDefense", "Potential Grade",
-		"Personality", "Recruiting Bias", "Academic Bias", "Work Ethic",
-		"ESPN Rank", "Rivals Rank", "247 Rank", "LeadingTeams",
+		"Stars", "College", "High School", "City", "State", "Country", "Height",
+		"Weight", "Program Pref.", "Prof Dev Pref.", "Traditions Pref.", "Facilities Pref.", "Atmosphere Pref.",
+		"Academics Pref.", "Campus Life Pref.", "Conference Pref.", "Coach Pref.", "Season Momentum Pref.", "Leading Teams",
 	}
 
 	err := writer.Write(HeaderRow)
@@ -44,11 +42,11 @@ func ExportCroots(w http.ResponseWriter) {
 
 		crootRow := []string{
 			croot.FirstName, croot.LastName, croot.Position, strconv.Itoa(int(croot.Stars)),
-			croot.College, croot.State, croot.Country, strconv.Itoa(int(croot.Height)),
-			strconv.Itoa(int(croot.Weight)), croot.OverallGrade, croot.MidRangeShooting, croot.ThreePointShooting, croot.InsideShooting,
-			croot.Ballwork, croot.Rebounding, croot.InteriorDefense, croot.PerimeterDefense, croot.PotentialGrade,
-			croot.Personality, croot.RecruitingBias, croot.AcademicBias, croot.WorkEthic,
-			strconv.Itoa(int(croot.ESPNRank)), strconv.Itoa(int(croot.RivalsRank)), strconv.Itoa(int(croot.Rank247)), strings.Join(leadingAbbr, ", "),
+			croot.College, croot.HighSchool, croot.City, croot.State, croot.Country, strconv.Itoa(int(croot.Height)),
+			strconv.Itoa(int(croot.Weight)),
+			strconv.Itoa(int(croot.ProgramPref)), strconv.Itoa(int(croot.ProfDevPref)), strconv.Itoa(int(croot.TraditionsPref)), strconv.Itoa(int(croot.FacilitiesPref)), strconv.Itoa(int(croot.AtmospherePref)),
+			strconv.Itoa(int(croot.AcademicsPref)), strconv.Itoa(int(croot.CampusLifePref)), strconv.Itoa(int(croot.ConferencePref)), strconv.Itoa(int(croot.CoachPref)), strconv.Itoa(int(croot.SeasonMomentumPref)),
+			strings.Join(leadingAbbr, ", "),
 		}
 
 		err = writer.Write(crootRow)

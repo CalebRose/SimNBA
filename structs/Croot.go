@@ -32,6 +32,8 @@ type Croot struct {
 	RecruitingBias     string
 	AcademicBias       string
 	WorkEthic          string
+	HighSchool         string
+	City               string
 	State              string
 	Country            string
 	ESPNRank           float64
@@ -106,6 +108,8 @@ func (c *Croot) Map(r Recruit) {
 	c.RelativeID = r.RelativeID
 	c.Notes = r.Notes
 	c.PlayerPreferences = r.PlayerPreferences
+	c.HighSchool = r.HighSchool
+	c.City = r.City
 
 	mod := r.TopRankModifier
 	if mod == 0 {
