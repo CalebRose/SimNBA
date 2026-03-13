@@ -532,7 +532,7 @@ func ScoutAttribute(dto structs.ScoutAttributeDTO) structs.RecruitPlayerProfile 
 
 	recruitProfile.ApplyScoutingAttribute(dto.Attribute)
 
-	teamProfile.SubtractScoutingPoints()
+	teamProfile.SubtractScoutingPoints(dto.Attribute)
 
 	repository.SaveTeamRecruitingProfileRecord(teamProfile, db)
 	repository.SaveRecruitProfileRecord(recruitProfile, db)

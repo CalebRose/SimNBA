@@ -98,9 +98,11 @@ func (r *TeamRecruitingProfile) AIResetPoints() {
 	r.SpentPoints = 0
 }
 
-func (r *TeamRecruitingProfile) SubtractScoutingPoints() {
-	if r.WeeklyScoutingPoints > 0 {
+func (r *TeamRecruitingProfile) SubtractScoutingPoints(attr string) {
+	if r.WeeklyScoutingPoints > 0 && attr != "Potential" {
 		r.WeeklyScoutingPoints--
+	} else {
+		r.WeeklyScoutingPoints -= 3
 	}
 }
 

@@ -98,16 +98,16 @@ func (rp *RecruitPlayerProfile) ApplyScoutingAttribute(attr string) {
 	if attr == "Agility" {
 		rp.Agility = true
 	}
-	if attr == "Inside Shooting" {
+	if attr == "InsideShooting" {
 		rp.InsideShooting = true
 	}
-	if attr == "Midrange Shooting" {
+	if attr == "MidRangeShooting" {
 		rp.MidrangeShooting = true
 	}
-	if attr == "Three Point Shooting" {
+	if attr == "ThreePointShooting" {
 		rp.ThreePointShooting = true
 	}
-	if attr == "Free Throw" {
+	if attr == "FreeThrow" {
 		rp.FreeThrow = true
 	}
 	if attr == "Ballwork" {
@@ -122,10 +122,10 @@ func (rp *RecruitPlayerProfile) ApplyScoutingAttribute(attr string) {
 	if attr == "Blocking" {
 		rp.Blocking = true
 	}
-	if attr == "Interior Defense" {
+	if attr == "InteriorDefense" {
 		rp.InteriorDefense = true
 	}
-	if attr == "Perimeter Defense" {
+	if attr == "PerimeterDefense" {
 		rp.PerimeterDefense = true
 	}
 	if attr == "Potential" {
