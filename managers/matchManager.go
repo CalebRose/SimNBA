@@ -327,7 +327,7 @@ func GetCBBMatchesBySeasonID(seasonId string) []structs.Match {
 
 	var teamMatches []structs.Match
 
-	db.Where("season_id = ?", seasonId).Find(&teamMatches)
+	db.Order("week_id asc").Order("match_of_week asc").Where("season_id = ?", seasonId).Find(&teamMatches)
 
 	return teamMatches
 }
@@ -337,7 +337,7 @@ func GetNBAMatchesBySeasonID(seasonId string) []structs.NBAMatch {
 
 	var teamMatches []structs.NBAMatch
 
-	db.Where("season_id = ? AND is_international = false", seasonId).Find(&teamMatches)
+	db.Order("week_id asc").Order("match_of_week asc").Where("season_id = ? AND is_international = false", seasonId).Find(&teamMatches)
 
 	return teamMatches
 }
@@ -347,7 +347,7 @@ func GetISLMatchesBySeasonID(seasonId string) []structs.NBAMatch {
 
 	var teamMatches []structs.NBAMatch
 
-	db.Where("season_id = ? AND is_international = true", seasonId).Find(&teamMatches)
+	db.Order("week_id asc").Order("match_of_week asc").Where("season_id = ? AND is_international = true", seasonId).Find(&teamMatches)
 
 	return teamMatches
 }

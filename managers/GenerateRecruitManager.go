@@ -303,10 +303,13 @@ func GenerateNewTeams() {
 	teams := GetAllActiveCollegeTeams()
 
 	generator := CrootGenerator{
-		attributeBlob: getAttributeBlob(),
+		attributeBlob:    getAttributeBlob(),
+		usCrootLocations: getCrootLocations("HS"),
 	}
 
 	var positionList []string = []string{"G", "G", "F", "F", "C"}
+	playersToAdd := []structs.CollegePlayer{}
+	globalPlayers := []structs.GlobalPlayer{}
 
 	for _, team := range teams {
 		if team.ID < 370 {
@@ -318,7 +321,7 @@ func GenerateNewTeams() {
 		seniors := 3
 		juniors := 3
 		sophomores := 3
-		freshmen := 3
+		freshmen := 4
 		fCount := 0
 		gCount := 0
 		cCount := 0
@@ -396,7 +399,7 @@ func GenerateNewTeams() {
 			year := yearList[count]
 			pickedEthnicity := pickEthnicity()
 			pickedPosition := positionQueue[count]
-			player := createCollegePlayer(team, pickedEthnicity, pickedPosition, year, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], newID, false, generator.attributeBlob)
+			player := createCollegePlayer(team, pickedEthnicity, pickedPosition, year, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], newID, false, generator.attributeBlob, generator.usCrootLocations)
 			globalPlayer := structs.GlobalPlayer{
 				Model:           gorm.Model{ID: newID},
 				CollegePlayerID: newID,
@@ -404,18 +407,16 @@ func GenerateNewTeams() {
 				NBAPlayerID:     newID,
 			}
 			// playerList = append(playerList, player)
-			err := db.Create(&player).Error
-			if err != nil {
-				log.Panicln("Could not save player record")
-			}
-
-			db.Create(&globalPlayer)
+			playersToAdd = append(playersToAdd, player)
+			globalPlayers = append(globalPlayers, globalPlayer)
 
 			count++
 			newID++
 		}
 
 	}
+	repository.CreateCollegePlayerRecordsBatch(db, playersToAdd, 100)
+	repository.CreateGlobalRecordsBatch(db, globalPlayers, 100)
 	// return playerList
 }
 
@@ -631,7 +632,7 @@ func GenerateNewAttributes() {
 }
 
 // Private Methods
-func createCollegePlayer(team structs.Team, ethnicity string, position string, year int, firstNameList [][]string, lastNameList [][]string, id uint, isWalkon bool, attributeBlob map[string]map[string]map[string]map[string]interface{}) structs.CollegePlayer {
+func createCollegePlayer(team structs.Team, ethnicity string, position string, year int, firstNameList [][]string, lastNameList [][]string, id uint, isWalkon bool, attributeBlob map[string]map[string]map[string]map[string]interface{}, crootLocations map[string][]structs.CrootLocation) structs.CollegePlayer {
 	fName := getName(firstNameList)
 	lName := getName(lastNameList)
 	caser := cases.Title(language.English)
@@ -640,10 +641,12 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 	firstName := caser.String(strings.ToLower(fName))
 	lastName := caser.String(strings.ToLower(lName))
 	state := ""
-	country := pickCountry(ethnicity)
+	country := "USA"
 	if country == "USA" {
 		state = util.PickState()
 	}
+
+	city, hs := getCityAndHighSchool(crootLocations[state])
 	height := 0
 	weight := 0
 	potential := util.GeneratePotential()
@@ -705,8 +708,10 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 		LastName:               lastName,
 		Position:               position,
 		Archetype:              archetype,
-		Age:                    19,
+		Age:                    19 + uint8(year) - 1,
 		Year:                   uint8(year),
+		City:                   city,
+		HighSchool:             hs,
 		State:                  state,
 		Country:                country,
 		Height:                 uint8(height),
@@ -768,6 +773,7 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 		IsRedshirting: false,
 		HasGraduated:  false,
 	}
+	collegePlayer.GetOverall()
 	collegePlayer.SetID(id)
 	return collegePlayer
 }
@@ -2045,7 +2051,8 @@ func GenerateCollegeWalkons() {
 	collegePlayersToUpload := []structs.CollegePlayer{}
 
 	generator := CrootGenerator{
-		attributeBlob: getAttributeBlob(),
+		attributeBlob:    getAttributeBlob(),
+		usCrootLocations: getCrootLocations("HS"),
 	}
 
 	for _, team := range teams {
@@ -2132,7 +2139,7 @@ func GenerateCollegeWalkons() {
 				break
 			}
 			pickedEthnicity := pickEthnicity()
-			player := createCollegePlayer(team, pickedEthnicity, position, year, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], newID, true, generator.attributeBlob)
+			player := createCollegePlayer(team, pickedEthnicity, position, year, firstNameMap[pickedEthnicity], lastNameMap[pickedEthnicity], newID, true, generator.attributeBlob, generator.usCrootLocations)
 			globalPlayer := structs.GlobalPlayer{
 				Model:           gorm.Model{ID: newID},
 				CollegePlayerID: newID,

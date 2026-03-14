@@ -495,6 +495,7 @@ func GenerateCollegeStandings() {
 	db := dbprovider.GetInstance().GetDB()
 	ts := GetTimestamp()
 	teams := GetAllActiveCollegeTeams()
+	standingsBatch := []structs.CollegeStandings{}
 
 	for _, t := range teams {
 		if !t.IsActive {
@@ -515,14 +516,18 @@ func GenerateCollegeStandings() {
 			},
 		}
 
-		db.Create(&standings)
+		standingsBatch = append(standingsBatch, standings)
 	}
+
+	repository.CreateCollegeStandingsRecordsBatch(standingsBatch, db, 100)
 }
 
 func GenerateNBAStandings() {
 	db := dbprovider.GetInstance().GetDB()
 	ts := GetTimestamp()
 	teams := GetAllActiveNBATeams()
+
+	standingsBatch := []structs.NBAStandings{}
 
 	for _, t := range teams {
 		if !t.IsActive {
@@ -552,8 +557,10 @@ func GenerateNBAStandings() {
 			},
 		}
 
-		db.Create(&standings)
+		standingsBatch = append(standingsBatch, standings)
 	}
+
+	repository.CreateNBAStandingsRecordsBatch(standingsBatch, db, 100)
 }
 
 func GetHistoricalCBBRecordsByTeamID(TeamID string) structs.TeamRecordResponse {

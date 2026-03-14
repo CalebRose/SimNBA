@@ -3,6 +3,7 @@ package repository
 import (
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
+	"gorm.io/gorm"
 )
 
 type StandingsQuery struct {
@@ -25,4 +26,28 @@ func FindAllCollegeStandingsRecords(clauses StandingsQuery) []structs.CollegeSta
 	query.Find(&standings)
 
 	return standings
+}
+
+func CreateCollegeStandingsRecordsBatch(records []structs.CollegeStandings, db *gorm.DB, batchSize int) error {
+	total := len(records)
+	for i := 0; i < total; i += batchSize {
+		end := min(i+batchSize, total)
+
+		if err := db.CreateInBatches(records[i:end], batchSize).Error; err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func CreateNBAStandingsRecordsBatch(records []structs.NBAStandings, db *gorm.DB, batchSize int) error {
+	total := len(records)
+	for i := 0; i < total; i += batchSize {
+		end := min(i+batchSize, total)
+
+		if err := db.CreateInBatches(records[i:end], batchSize).Error; err != nil {
+			return err
+		}
+	}
+	return nil
 }

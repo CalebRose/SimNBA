@@ -1,14 +1,13 @@
 package managers
 
 import (
-	"encoding/csv"
 	"fmt"
 	"math/rand"
-	"os"
 	"strconv"
 	"time"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 )
 
@@ -24,6 +23,7 @@ func ShuffleTeams(teams []structs.Team) []structs.Team {
 }
 
 func GenerateOOCScheduleToCSV() {
+	db := dbprovider.GetInstance().GetDB()
 	ts := GetTimestamp()
 	seasonID := strconv.Itoa(int(ts.SeasonID))
 	collegeTeams := GetAllActiveCollegeTeams()
@@ -47,81 +47,7 @@ func GenerateOOCScheduleToCSV() {
 		}
 	}
 
-	// Write Results to CSV
-	filename := fmt.Sprintf("./data/%d/%d_SimCBB_OOC_Games.csv", ts.Season, ts.Season)
-	file, err := os.Create(filename)
-	if err != nil {
-		fmt.Printf("Error creating CSV file: %v\n", err)
-		return
-	}
-	defer file.Close()
-
-	writer := csv.NewWriter(file)
-	defer writer.Flush()
-
-	// Write header row
-	headerRow := []string{
-		"MatchID", "Season", "SeasonID", "Week", "WeekID", "TimeSlot",
-		"HomeTeamID", "HomeTeam", "HomeTeamCoach", "HomeTeamRank",
-		"Arena", "City", "State",
-		"AwayTeamID", "AwayTeam", "AwayTeamCoach", "AwayTeamRank",
-		"IsNeutralSite", "IsInvitational", "IsConference", "IsConferenceTournament",
-		"IsCBI", "IsNIT", "IsTournament", "IsNationalChampionship",
-		"GameTitle", "NextGameID", "HomeOrAway",
-	}
-
-	err = writer.Write(headerRow)
-	if err != nil {
-		fmt.Printf("Error writing CSV header: %v\n", err)
-		return
-	}
-
-	// Write match rows
-	for idx, match := range matchesToUpload {
-		matchID := idx + 1 // Generate sequential IDs
-		isConferenceStr := "FALSE"
-		if match.IsConference {
-			isConferenceStr = "TRUE"
-		}
-		matchRow := []string{
-			strconv.Itoa(matchID),
-			strconv.Itoa(ts.Season),
-			strconv.Itoa(int(match.SeasonID)),
-			strconv.Itoa(int(match.Week)),
-			strconv.Itoa(int(match.WeekID)),
-			match.MatchOfWeek,
-			strconv.Itoa(int(match.HomeTeamID)),
-			match.HomeTeam,
-			match.HomeTeamCoach,
-			"", // HomeTeamRank (empty for OOC)
-			match.Arena,
-			match.City,
-			match.State,
-			strconv.Itoa(int(match.AwayTeamID)),
-			match.AwayTeam,
-			match.AwayTeamCoach,
-			"",              // AwayTeamRank (empty for OOC)
-			"FALSE",         // IsNeutralSite
-			"FALSE",         // IsInvitational
-			isConferenceStr, // IsConference
-			"FALSE",         // IsConferenceTournament
-			"FALSE",         // IsCBI
-			"FALSE",         // IsNIT
-			"FALSE",         // IsTournament
-			"FALSE",         // IsNationalChampionship
-			"",              // GameTitle
-			"",              // NextGameID
-			"",              // HomeOrAway
-		}
-
-		err = writer.Write(matchRow)
-		if err != nil {
-			fmt.Printf("Error writing match row %d: %v\n", matchID, err)
-		}
-	}
-
-	fmt.Printf("Schedule generation complete. Total matches created: %d\n", len(matchesToUpload))
-	fmt.Printf("CSV exported to: %s\n", filename)
+	repository.CreateCollegeMatchesRecordsBatch(db, matchesToUpload, 100)
 }
 
 func GenerateOOCSchedule() {
@@ -163,7 +89,7 @@ func GenerateOOCSchedule() {
 
 func attemptGenerateOOCSchedule(ts structs.Timestamp, seasonID string, collegeTeams []structs.Team) ([]structs.Match, error) {
 	maxNumberOfGamesPerTeam := 30
-	oocWeeks := []uint{1, 2, 3, 4} // Only weeks 1-4 for OOC games
+	oocWeeks := []uint{15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1} // Schedule backwards: fill constrained weeks (7-15) first
 	timeSlots := []string{"A", "B"}
 
 	// Initialize tracking maps
@@ -172,6 +98,10 @@ func attemptGenerateOOCSchedule(ts structs.Timestamp, seasonID string, collegeTe
 	homeGamesByTeam := make(map[uint]int)
 	awayGamesByTeam := make(map[uint]int)
 	opponentsFacedMap := make(map[uint]map[uint]bool) // teamID -> opponentTeamID -> bool
+	// Count the number of games per week and time slot to ensure we are filling them correctly
+	weekTimeSlotCounts := make(map[uint]map[string]int)
+	numberOfGamesExpectedPerSlot := len(collegeTeams) / 2 // Each game has 2 teams
+	gamesScheduledPerTeam := make(map[uint]int)
 
 	// Create a map to track user vs AI teams
 	isUserTeam := make(map[uint]bool)
@@ -187,18 +117,61 @@ func attemptGenerateOOCSchedule(ts structs.Timestamp, seasonID string, collegeTe
 
 	// Process existing matches to update counters
 	allActiveMatches := GetCBBMatchesBySeasonID(seasonID)
+	// Check all active games to ensure no team is scheduled twice in the same timeslot
+	// teamSlotSeen: teamID -> "week:timeSlot" -> matchID
+	teamSlotSeen := make(map[uint]map[string]uint)
 	for _, match := range allActiveMatches {
-		// Initialize nested maps if needed
+		if match.AwayTeamID == 0 && match.HomeTeamID == 0 {
+			continue
+		}
+		if weekTimeSlotCounts[match.Week] == nil {
+			weekTimeSlotCounts[match.Week] = make(map[string]int)
+		}
+		weekTimeSlotCounts[match.Week][match.MatchOfWeek]++
+		slotKey := fmt.Sprintf("%d:%s", match.Week, match.MatchOfWeek)
+		for _, teamID := range []uint{match.HomeTeamID, match.AwayTeamID} {
+			if teamSlotSeen[teamID] == nil {
+				teamSlotSeen[teamID] = make(map[string]uint)
+			}
+			if firstMatchID, exists := teamSlotSeen[teamID][slotKey]; exists {
+				fmt.Printf("DOUBLE-SCHEDULED: TeamID %d appears in Week %d TimeSlot %s in both MatchID %d and MatchID %d\n",
+					teamID, match.Week, match.MatchOfWeek, firstMatchID, match.ID)
+			} else {
+				teamSlotSeen[teamID][slotKey] = match.ID
+			}
+		}
+	}
+
+	for _, match := range allActiveMatches {
+		if match.AwayTeamID == 0 && match.HomeTeamID == 0 {
+			continue
+		}
+		// Initialize nested maps if needed, guarding against team IDs not present in collegeTeams
+		if timeSlotMap[match.HomeTeamID] == nil {
+			timeSlotMap[match.HomeTeamID] = make(map[uint]map[string]bool)
+		}
 		if timeSlotMap[match.HomeTeamID][match.Week] == nil {
 			timeSlotMap[match.HomeTeamID][match.Week] = make(map[string]bool)
+		}
+		if timeSlotMap[match.AwayTeamID] == nil {
+			timeSlotMap[match.AwayTeamID] = make(map[uint]map[string]bool)
 		}
 		if timeSlotMap[match.AwayTeamID][match.Week] == nil {
 			timeSlotMap[match.AwayTeamID][match.Week] = make(map[string]bool)
 		}
 
+		gamesScheduledPerTeam[match.HomeTeamID]++
+		gamesScheduledPerTeam[match.AwayTeamID]++
+
 		// Mark time slots as occupied
-		timeSlotMap[match.HomeTeamID][match.Week][match.TimeSlot] = true
-		timeSlotMap[match.AwayTeamID][match.Week][match.TimeSlot] = true
+		timeSlotMap[match.HomeTeamID][match.Week][match.MatchOfWeek] = true
+		timeSlotMap[match.AwayTeamID][match.Week][match.MatchOfWeek] = true
+		if opponentsFacedMap[match.HomeTeamID] == nil {
+			opponentsFacedMap[match.HomeTeamID] = make(map[uint]bool)
+		}
+		if opponentsFacedMap[match.AwayTeamID] == nil {
+			opponentsFacedMap[match.AwayTeamID] = make(map[uint]bool)
+		}
 		opponentsFacedMap[match.HomeTeamID][match.AwayTeamID] = true
 		opponentsFacedMap[match.AwayTeamID][match.HomeTeamID] = true
 
@@ -343,12 +316,141 @@ func attemptGenerateOOCSchedule(ts structs.Timestamp, seasonID string, collegeTe
 				opponentsFacedMap[homeTeam.ID][awayTeam.ID] = true
 				opponentsFacedMap[awayTeam.ID][homeTeam.ID] = true
 			}
+
+			// Log teams that were available this slot but could not be paired
+			for _, team := range availableTeams {
+				if !matchedInSlot[team.ID] && remainingGamesLeftByTeam[team.ID] > 0 {
+					fmt.Printf("Week %d, Slot %s: Could not schedule TeamID %d (%s)\n", week, timeSlot, team.ID, team.Abbr)
+				}
+			}
+		}
+	}
+
+	// Cleanup pass: schedule any remaining games with relaxed constraints.
+	// The only requirement is that the two teams are from different conferences;
+	// the opponentsFacedMap check is intentionally dropped to allow rematches.
+	fmt.Println("Starting cleanup scheduling pass for remaining unscheduled games...")
+	for _, week := range oocWeeks {
+		for _, timeSlot := range timeSlots {
+			var cleanupAvailable []structs.Team
+			for _, team := range collegeTeams {
+				if remainingGamesLeftByTeam[team.ID] > 0 {
+					if timeSlotMap[team.ID][week] == nil || !timeSlotMap[team.ID][week][timeSlot] {
+						cleanupAvailable = append(cleanupAvailable, team)
+					}
+				}
+			}
+
+			if len(cleanupAvailable) < 2 {
+				continue
+			}
+
+			cleanupAvailable = ShuffleTeams(cleanupAvailable)
+			cleanupMatchedInSlot := make(map[uint]bool)
+
+			for i := 0; i < len(cleanupAvailable); i++ {
+				team := cleanupAvailable[i]
+				if cleanupMatchedInSlot[team.ID] {
+					continue
+				}
+
+				opponentIndex := -1
+				for j := i + 1; j < len(cleanupAvailable); j++ {
+					opponent := cleanupAvailable[j]
+					// Relaxed: only require different conference and no previous matchup
+					if !cleanupMatchedInSlot[opponent.ID] &&
+						opponent.ConferenceID != team.ConferenceID &&
+						remainingGamesLeftByTeam[opponent.ID] > 0 &&
+						!opponentsFacedMap[team.ID][opponent.ID] {
+						opponentIndex = j
+						break
+					}
+				}
+
+				if opponentIndex == -1 {
+					continue
+				}
+
+				opponent := cleanupAvailable[opponentIndex]
+
+				var homeTeam, awayTeam structs.Team
+				if isUserTeam[team.ID] && !isUserTeam[opponent.ID] {
+					if homeGamesByTeam[team.ID] <= awayGamesByTeam[team.ID] {
+						homeTeam, awayTeam = team, opponent
+					} else {
+						homeTeam, awayTeam = opponent, team
+					}
+				} else if !isUserTeam[team.ID] && isUserTeam[opponent.ID] {
+					if homeGamesByTeam[opponent.ID] <= awayGamesByTeam[opponent.ID] {
+						homeTeam, awayTeam = opponent, team
+					} else {
+						homeTeam, awayTeam = team, opponent
+					}
+				} else {
+					teamHomeDeficit := homeGamesByTeam[team.ID] - awayGamesByTeam[team.ID]
+					oppHomeDeficit := homeGamesByTeam[opponent.ID] - awayGamesByTeam[opponent.ID]
+					if teamHomeDeficit < oppHomeDeficit {
+						homeTeam, awayTeam = team, opponent
+					} else if teamHomeDeficit > oppHomeDeficit {
+						homeTeam, awayTeam = opponent, team
+					} else {
+						if rand.Intn(2) == 0 {
+							homeTeam, awayTeam = team, opponent
+						} else {
+							homeTeam, awayTeam = opponent, team
+						}
+					}
+				}
+
+				match := structs.Match{
+					SeasonID:      ts.SeasonID,
+					Week:          week,
+					WeekID:        ts.CollegeWeekID + week,
+					MatchOfWeek:   timeSlot,
+					HomeTeamID:    homeTeam.ID,
+					HomeTeam:      homeTeam.Abbr,
+					HomeTeamCoach: homeTeam.Coach,
+					Arena:         homeTeam.Arena,
+					City:          homeTeam.City,
+					State:         homeTeam.State,
+					AwayTeamID:    awayTeam.ID,
+					AwayTeam:      awayTeam.Abbr,
+					AwayTeamCoach: awayTeam.Coach,
+					IsConference:  homeTeam.ConferenceID == awayTeam.ConferenceID,
+				}
+
+				matchesToUpload = append(matchesToUpload, match)
+
+				cleanupMatchedInSlot[team.ID] = true
+				cleanupMatchedInSlot[opponent.ID] = true
+
+				if timeSlotMap[homeTeam.ID][week] == nil {
+					timeSlotMap[homeTeam.ID][week] = make(map[string]bool)
+				}
+				if timeSlotMap[awayTeam.ID][week] == nil {
+					timeSlotMap[awayTeam.ID][week] = make(map[string]bool)
+				}
+
+				timeSlotMap[homeTeam.ID][week][timeSlot] = true
+				timeSlotMap[awayTeam.ID][week][timeSlot] = true
+
+				remainingGamesLeftByTeam[homeTeam.ID]--
+				remainingGamesLeftByTeam[awayTeam.ID]--
+
+				homeGamesByTeam[homeTeam.ID]++
+				awayGamesByTeam[awayTeam.ID]++
+
+				opponentsFacedMap[homeTeam.ID][awayTeam.ID] = true
+				opponentsFacedMap[awayTeam.ID][homeTeam.ID] = true
+
+				fmt.Printf("Cleanup: Scheduled Week %d, Slot %s: TeamID %d (%s) vs TeamID %d (%s)\n",
+					week, timeSlot, homeTeam.ID, homeTeam.Abbr, awayTeam.ID, awayTeam.Abbr)
+			}
 		}
 	}
 
 	// Validate the schedule - check if all teams that need OOC games got enough
 	expectedGamesPerTeam := len(oocWeeks) * len(timeSlots) // 4 weeks * 2 slots = 8 games expected per team
-	gamesScheduledPerTeam := make(map[uint]int)
 
 	for _, match := range matchesToUpload {
 		gamesScheduledPerTeam[match.HomeTeamID]++
@@ -362,9 +464,6 @@ func attemptGenerateOOCSchedule(ts structs.Timestamp, seasonID string, collegeTe
 			insufficientTeams++
 		}
 	}
-	// Count the number of games per week and time slot to ensure we are filling them correctly
-	weekTimeSlotCounts := make(map[uint]map[string]int)
-	numberOfGamesExpectedPerSlot := len(collegeTeams) / 2 // Each game has 2 teams
 
 	for _, match := range matchesToUpload {
 		if weekTimeSlotCounts[match.Week] == nil {

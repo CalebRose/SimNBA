@@ -170,5 +170,4 @@ func GenerateOOCScheduleForSimCBB(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 
 	managers.GenerateOOCScheduleToCSV()
-
 }

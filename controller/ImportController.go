@@ -89,3 +89,9 @@ func AutoGenerateNBAGames(w http.ResponseWriter, r *http.Request) {
 	ts := managers.GetTimestamp()
 	managers.GenerateNBAPlayoffGames(db, &ts)
 }
+
+func RunStandings(w http.ResponseWriter, r *http.Request) {
+	managers.DetermineRecruitingClassSize()
+	managers.GenerateCollegeStandings()
+	managers.GenerateNBAStandings()
+}

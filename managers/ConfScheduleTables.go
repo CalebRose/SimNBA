@@ -1254,8 +1254,8 @@ var fifteenTeamSchedule = []scheduleEntry{
 var sixteenTeamSchedule = []scheduleEntry{
 	// Week 7 - Slot A
 	{7, "A", 0, 1},
-	{7, "A", 1, 3},
-	{7, "A", 2, 5},
+	{7, "A", 2, 3},
+	{7, "A", 4, 5},
 	{7, "A", 6, 7},
 	{7, "A", 8, 9},
 	{7, "A", 10, 11},
