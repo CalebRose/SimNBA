@@ -114,3 +114,27 @@ func CreateNBARetiredPlayerRecordsBatch(db *gorm.DB, fds []structs.RetiredPlayer
 	}
 	return nil
 }
+
+// Saves
+func SaveCollegePlayerRecord(player structs.CollegePlayer, db *gorm.DB) {
+	player.Stats = nil
+	player.SeasonStats = structs.CollegePlayerSeasonStats{}
+	err := db.Save(&player).Error
+	if err != nil {
+		log.Panicln("Could not save player record")
+	}
+}
+
+func SaveProfessionalPlayerRecord(player structs.NBAPlayer, db *gorm.DB) {
+	player.Stats = nil
+	player.SeasonStats = structs.NBAPlayerSeasonStats{}
+	player.Contract = structs.NBAContract{}
+	player.Offers = nil
+	player.WaiverOffers = nil
+	player.Extensions = nil
+
+	err := db.Save(&player).Error
+	if err != nil {
+		log.Panicln("Could not save player record")
+	}
+}

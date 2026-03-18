@@ -201,3 +201,51 @@ func MakeTeamRecruitingProfileMapByTeamID(profiles []structs.TeamRecruitingProfi
 
 	return teamProfileMap
 }
+
+func MakeCollegeLineupMapByTeamID(offers []structs.CollegeLineup) map[uint][]structs.CollegeLineup {
+	lineupMap := make(map[uint][]structs.CollegeLineup)
+
+	for _, offer := range offers {
+		if len(lineupMap[offer.TeamID]) > 0 {
+			lineupMap[offer.TeamID] = append(lineupMap[uint(offer.TeamID)], offer)
+		} else {
+			lineupMap[offer.TeamID] = []structs.CollegeLineup{offer}
+		}
+	}
+
+	return lineupMap
+}
+
+func MakeNBALineupMapByTeamID(offers []structs.NBALineup) map[uint][]structs.NBALineup {
+	lineupMap := make(map[uint][]structs.NBALineup)
+
+	for _, offer := range offers {
+		if len(lineupMap[offer.TeamID]) > 0 {
+			lineupMap[offer.TeamID] = append(lineupMap[uint(offer.TeamID)], offer)
+		} else {
+			lineupMap[offer.TeamID] = []structs.NBALineup{offer}
+		}
+	}
+
+	return lineupMap
+}
+
+func MakeCollegeStandingsMap(standings []structs.CollegeStandings) map[uint]structs.CollegeStandings {
+	standingsMap := make(map[uint]structs.CollegeStandings)
+
+	for _, t := range standings {
+		standingsMap[t.TeamID] = t
+	}
+
+	return standingsMap
+}
+
+func MakeNBAStandingsMap(standings []structs.NBAStandings) map[uint]structs.NBAStandings {
+	standingsMap := make(map[uint]structs.NBAStandings)
+
+	for _, t := range standings {
+		standingsMap[t.TeamID] = t
+	}
+
+	return standingsMap
+}

@@ -92,3 +92,11 @@ type GameplanLineup struct {
 	TSMidProportion    uint8
 	TSThreeProportion  uint8
 }
+
+type CollegeLineup struct {
+	GameplanLineup
+}
+
+type NBALineup struct {
+	GameplanLineup
+}

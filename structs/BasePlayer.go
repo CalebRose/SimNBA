@@ -524,3 +524,44 @@ func (bp *BasePlayer) RunRecovery() {
 		bp.WeeksOfRecovery = 0
 	}
 }
+
+type GamePlayer struct {
+	ID uint
+	BasePlayer
+	InsideShootingMod     float64
+	MidRangeShootingMod   float64
+	ThreePointShootingMod float64
+	FreeThrowMod          float64
+	AgilityMod            float64
+	BallworkingMod        float64
+	StealingMod           float64
+	BlockingMod           float64
+	ReboundingMod         float64
+	InteriorDefenseMod    float64
+	PerimeterDefenseMod   float64
+}
+
+func (g *GamePlayer) CalculateModifiers(isHome bool, hra float64) {
+	g.AgilityMod = calculateAttributeModifier(float64(g.Agility), isHome, hra)
+	g.InsideShootingMod = calculateAttributeModifier(float64(g.InsideShooting), isHome, hra)
+	g.MidRangeShootingMod = calculateAttributeModifier(float64(g.MidRangeShooting), isHome, hra)
+	g.ThreePointShootingMod = calculateAttributeModifier(float64(g.ThreePointShooting), isHome, hra)
+	g.FreeThrowMod = calculateAttributeModifier(float64(g.FreeThrow), isHome, hra)
+	g.BallworkingMod = calculateAttributeModifier(float64(g.Ballwork), isHome, hra)
+	g.StealingMod = calculateAttributeModifier(float64(g.Stealing), isHome, hra)
+	g.BlockingMod = calculateAttributeModifier(float64(g.Blocking), isHome, hra)
+	g.ReboundingMod = calculateAttributeModifier(float64(g.Rebounding), isHome, hra)
+	g.InteriorDefenseMod = calculateAttributeModifier(float64(g.InteriorDefense), isHome, hra)
+	g.PerimeterDefenseMod = calculateAttributeModifier(float64(g.PerimeterDefense), isHome, hra)
+}
+
+func calculateAttributeModifier(attribute float64, isHome bool, hra float64) float64 {
+	hraMod := 1.0
+	penalty := 0.0
+	if !isHome {
+		penalty = 0.03 + (0.12 * hra)
+		hraMod = hraMod - penalty
+	}
+	// return scaleFactor * math.Log(float64(attribute)+1)
+	return (attribute / 10) * hraMod
+}

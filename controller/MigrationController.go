@@ -17,3 +17,10 @@ func Migrate2026Data(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Migration Complete.")
 	w.WriteHeader(http.StatusOK)
 }
+
+func GenerateCollegeAndNBALineupStructs(w http.ResponseWriter, r *http.Request) {
+	managers.GenerateCollegeAndNBALineupStructs()
+
+	fmt.Println("Lineup Generation Complete.")
+	w.WriteHeader(http.StatusOK)
+}

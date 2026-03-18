@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/CalebRose/SimNBA/managers"
+	"github.com/CalebRose/SimNBA/structs"
 	"github.com/gorilla/mux"
 )
 
@@ -170,4 +171,18 @@ func GenerateOOCScheduleForSimCBB(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 
 	managers.GenerateOOCScheduleToCSV()
+}
+
+func GetTestMatches(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+
+	var request structs.TestRequest
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		panic(err)
+	}
+
+	matches := managers.GetTestMatches(request)
+
+	json.NewEncoder(w).Encode(matches)
 }

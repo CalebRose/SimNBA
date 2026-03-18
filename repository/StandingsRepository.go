@@ -28,6 +28,23 @@ func FindAllCollegeStandingsRecords(clauses StandingsQuery) []structs.CollegeSta
 	return standings
 }
 
+func FindAllNBAStandingsRecords(clauses StandingsQuery) []structs.NBAStandings {
+	db := dbprovider.GetInstance().GetDB()
+
+	var standings []structs.NBAStandings
+
+	query := db.Model(&structs.NBAStandings{})
+	if clauses.SeasonID != "" {
+		query = query.Where("season_id = ?", clauses.SeasonID)
+	}
+	if clauses.TeamID != "" {
+		query = query.Where("team_id = ?", clauses.TeamID)
+	}
+	query.Find(&standings)
+
+	return standings
+}
+
 func CreateCollegeStandingsRecordsBatch(records []structs.CollegeStandings, db *gorm.DB, batchSize int) error {
 	total := len(records)
 	for i := 0; i < total; i += batchSize {

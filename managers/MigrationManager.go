@@ -1134,3 +1134,40 @@ func getNewMigrationAttribute(value string, stars, year int, isDraft bool) uint8
 	}
 	return uint8(buffed)
 }
+
+func GenerateCollegeAndNBALineupStructs() {
+	db := dbprovider.GetInstance().GetDB()
+
+	collegeLineups := []structs.CollegeLineup{}
+	nbaLineups := []structs.NBALineup{}
+
+	collegeTeams := GetAllActiveCollegeTeams()
+	nbaTeams := GetAllActiveNBATeams()
+
+	for _, team := range collegeTeams {
+		for i := 0; i < 5; i++ {
+			lineup := structs.CollegeLineup{
+				GameplanLineup: structs.GameplanLineup{
+					TeamID:   team.ID,
+					Position: []string{"C", "F", "F", "G", "G"}[i],
+				},
+			}
+			collegeLineups = append(collegeLineups, lineup)
+		}
+	}
+
+	for _, team := range nbaTeams {
+		for i := 0; i < 5; i++ {
+			lineup := structs.NBALineup{
+				GameplanLineup: structs.GameplanLineup{
+					TeamID:   team.ID,
+					Position: []string{"C", "F", "F", "G", "G"}[i],
+				},
+			}
+			nbaLineups = append(nbaLineups, lineup)
+		}
+	}
+
+	repository.CreateCollegeLineupsRecordsBatch(db, collegeLineups, 200)
+	repository.CreateNBALineupsRecordsBatch(db, nbaLineups, 200)
+}

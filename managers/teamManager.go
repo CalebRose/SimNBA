@@ -13,6 +13,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// Get All Active College Teams (378+)
 func GetAllActiveCollegeTeams() []structs.Team {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -493,6 +494,7 @@ func GetInternationalTeams() []structs.NBATeam {
 	return teams
 }
 
+// Get all Teams within NBATeams table
 func GetAllActiveNBATeams() []structs.NBATeam {
 	db := dbprovider.GetInstance().GetDB()
 

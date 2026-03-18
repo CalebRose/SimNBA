@@ -14,29 +14,6 @@ func SaveTimeStamp(ts structs.Timestamp, db *gorm.DB) {
 	}
 }
 
-func SaveCollegePlayerRecord(player structs.CollegePlayer, db *gorm.DB) {
-	player.Stats = nil
-	player.SeasonStats = structs.CollegePlayerSeasonStats{}
-	err := db.Save(&player).Error
-	if err != nil {
-		log.Panicln("Could not save player record")
-	}
-}
-
-func SaveProfessionalPlayerRecord(player structs.NBAPlayer, db *gorm.DB) {
-	player.Stats = nil
-	player.SeasonStats = structs.NBAPlayerSeasonStats{}
-	player.Contract = structs.NBAContract{}
-	player.Offers = nil
-	player.WaiverOffers = nil
-	player.Extensions = nil
-
-	err := db.Save(&player).Error
-	if err != nil {
-		log.Panicln("Could not save player record")
-	}
-}
-
 func SaveContractOfferRecord(contract structs.NBAContractOffer, db *gorm.DB) {
 	err := db.Save(&contract).Error
 	if err != nil {
@@ -159,13 +136,6 @@ func SaveNBATeamRecord(team structs.NBATeam, db *gorm.DB) {
 	err := db.Save(&team).Error
 	if err != nil {
 		log.Panicln("Could not save team record!")
-	}
-}
-
-func SaveNBAGameplanRecord(team structs.NBAGameplan, db *gorm.DB) {
-	err := db.Save(&team).Error
-	if err != nil {
-		log.Panicln("Could not save gameplan record!")
 	}
 }
 

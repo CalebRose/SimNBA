@@ -1,5 +1,15 @@
 package structs
 
+type TestRequest struct {
+	TestMatches []TestMatchDTO
+}
+
+type TestMatchDTO struct {
+	HomeTeam  string
+	AwayTeam  string
+	IsNeutral bool
+}
+
 type MatchStateResponse struct {
 	MatchType string
 	Week      uint
@@ -32,6 +42,19 @@ type MatchResponse struct {
 	IsInvitational         bool
 	IsInternational        bool
 	Channel                uint
+	MatchData              MatchDataResponse
+}
+
+type MatchDataResponse struct {
+	HomeTeam         MatchTeamResponse
+	HomeTeamRoster   []GamePlayer
+	HomeTeamGameplan Gameplan
+	HomeTeamLineup   []GameplanLineup
+	AwayTeam         MatchTeamResponse
+	AwayTeamRoster   []GamePlayer
+	AwayTeamGameplan Gameplan
+	AwayTeamLineup   []GameplanLineup
+	League           string
 }
 
 type CBBMatchDataResponse struct {

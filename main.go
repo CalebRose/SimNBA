@@ -80,6 +80,8 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/simbba/matches/simulation", controller.GetMatchesForSimulation).Methods("GET")
 	apiRouter.HandleFunc("/simcbb/user/gameplans/fix", controller.CheckUserGameplans).Methods("GET")
 
+	// TEST MATCHES
+	apiRouter.HandleFunc("/admin/test/matches", controller.GetTestMatches).Methods("POST")
 	// apiRouter.HandleFunc("/admin/generateGlobalPlayers", controller.GenerateGlobalPlayerRecords).Methods("GET")
 	// apiRouter.HandleFunc("/admin/generate/gameplans", controller.GenerateGameplans).Methods("GET")
 	// apiRouter.HandleFunc("/admin/generate/new/teams", controller.GeneratePlayers).Methods("GET")
@@ -152,6 +154,7 @@ func handleRequests() http.Handler {
 	// apiRouter.HandleFunc("/admin/generateTeam", controller.GeneratePlayers).Methods("GET")
 	// apiRouter.HandleFunc("/admin/generateTestPlayers", controller.GenerateTestPlayers).Methods("GET")
 	// apiRouter.HandleFunc("/admin/generateCroots", controller.GenerateCroots).Methods("GET")
+	// apiRouter.HandleFunc("/admin/generate/lineups", controller.GenerateCollegeAndNBALineupStructs).Methods("GET")
 	// apiRouter.HandleFunc("/admin/generate/walkons", controller.GenerateCollegeWalkons).Methods("GET")
 	// apiRouter.HandleFunc("/admin/generate/international", controller.GenerateInternationalPlayers).Methods("GET")
 	// apiRouter.HandleFunc("/admin/generate/worldcup/players", controller.GenerateInternationalPlayers).Methods("GET")
