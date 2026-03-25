@@ -131,6 +131,7 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/export/cbb/preseason", controller.ExportCBBPreseasonRanks).Methods("GET")
 	apiRouter.HandleFunc("/export/cbb/team/{teamID}", controller.ExportCBBRosterToCSV).Methods("GET")
 	apiRouter.HandleFunc("/export/nba/team/{teamID}", controller.ExportNBARosterToCSV).Methods("GET")
+	apiRouter.HandleFunc("/export/nba/freeagents", controller.ExportNBAFreeAgentsToCSV).Methods("GET")
 
 	// Free Agency Controls
 	apiRouter.HandleFunc("/nba/freeagency/available/{teamID}", controller.FreeAgencyAvailablePlayers).Methods("GET")

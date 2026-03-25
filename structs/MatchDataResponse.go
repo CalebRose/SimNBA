@@ -1,21 +1,25 @@
 package structs
 
+// For requesting test matches
 type TestRequest struct {
 	TestMatches []TestMatchDTO
 }
 
+// HomeTeam and AwayTeam are abbreviations, College Only.
 type TestMatchDTO struct {
 	HomeTeam  string
 	AwayTeam  string
 	IsNeutral bool
 }
 
+// The large response object returning
 type MatchStateResponse struct {
 	MatchType string
 	Week      uint
 	Matches   []MatchResponse
 }
 
+// An individual match object for the engine
 type MatchResponse struct {
 	ID                     uint
 	MatchName              string // For Post-Season matchups
@@ -45,6 +49,7 @@ type MatchResponse struct {
 	MatchData              MatchDataResponse
 }
 
+// The game data needed to run a match
 type MatchDataResponse struct {
 	HomeTeam         MatchTeamResponse
 	HomeTeamRoster   []GamePlayer

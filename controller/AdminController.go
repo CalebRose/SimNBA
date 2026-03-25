@@ -194,3 +194,10 @@ func ExportNBARosterToCSV(w http.ResponseWriter, r *http.Request) {
 
 	managers.ExportNBARosterToCSV(teamId, w)
 }
+
+func ExportNBAFreeAgentsToCSV(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	w.Header().Set("Content-Type", "text/csv")
+
+	managers.ExportNBAFreeAgentsToCSV(w)
+}

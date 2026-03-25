@@ -380,6 +380,24 @@ func ExportNBARosterToCSV(TeamID string, w http.ResponseWriter) {
 	// Get Players
 	players := GetAllNBAPlayersByTeamID(TeamID)
 
+	WriteNBAPlayersToCSV(writer, team.Team, players)
+}
+
+func ExportNBAFreeAgentsToCSV(w http.ResponseWriter) {
+	w.Header().Set("Content-Disposition", "attachment;filename=NBA_Free_Agents.csv")
+	w.Header().Set("Transfer-Encoding", "chunked")
+	// Initialize writer
+	writer := csv.NewWriter(w)
+
+	// Get Players
+	players := GetAllFreeAgents()
+	WriteNBAPlayersToCSV(writer, "FA", players)
+}
+
+// WriteNBAPlayersToCSV writes a header row and a player row for each NBA player
+// to the provided csv.Writer. teamName is used as the "Team" column value for
+// every row, allowing callers to pass any subset of NBA players.
+func WriteNBAPlayersToCSV(writer *csv.Writer, teamName string, players []structs.NBAPlayer) {
 	HeaderRow := []string{
 		"Team", "First Name", "Last Name", "Position",
 		"Archetype", "Year", "Age", "Stars",
@@ -409,7 +427,7 @@ func ExportNBARosterToCSV(TeamID string, w http.ResponseWriter) {
 			nbaStatus = "International"
 		}
 		playerRow := []string{
-			team.Team, csvModel.FirstName, csvModel.LastName, csvModel.Position,
+			teamName, csvModel.FirstName, csvModel.LastName, csvModel.Position,
 			csvModel.Archetype, strconv.Itoa(int(csvModel.Year)), strconv.Itoa(int(csvModel.Age)), strconv.Itoa(int(csvModel.Stars)),
 			csvModel.State, csvModel.Country, strconv.Itoa(int(csvModel.Height)), strconv.Itoa(int(csvModel.Overall)), strconv.Itoa(int(csvModel.InsideShooting)),
 			strconv.Itoa(int(csvModel.MidRangeShooting)), strconv.Itoa(int(csvModel.ThreePointShooting)), strconv.Itoa(int(csvModel.FreeThrow)),
