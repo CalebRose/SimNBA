@@ -399,7 +399,7 @@ func loadEnvs() {
 }
 func handleCron() *cron.Cron {
 
-	c := cron.New()
+	c := cron.New(cron.WithLocation(time.UTC))
 	runJobs := os.Getenv("RUN_JOBS")
 	if runJobs != "FALSE" {
 		c.AddFunc("0 16 * * 3", controller.SyncRecruitingViaCron)
