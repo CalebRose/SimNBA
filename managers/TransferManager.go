@@ -1,6 +1,7 @@
 package managers
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -11,6 +12,7 @@ import (
 	"sync"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	fbsvc "github.com/CalebRose/SimNBA/firebase"
 	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
@@ -957,6 +959,8 @@ func SyncTransferPortal() {
 	transferPortalProfileMap := MakeFullTransferPortalProfileMap()
 	rosterMap := GetFullTeamRosterWithCrootsMap()
 
+	var signingLabels []string
+
 	if !ts.IsRecruitingLocked {
 		ts.ToggleLockRecruiting()
 		repository.SaveTimeStamp(ts, db)
@@ -1076,7 +1080,37 @@ func SyncTransferPortal() {
 						portalPlayer.SignWithNewTeam(teamProfile.ID, teamProfile.TeamAbbr)
 						message := portalPlayer.FirstName + " " + portalPlayer.LastName + ", " + strconv.Itoa(int(portalPlayer.Stars)) + " star " + portalPlayer.Position + " from " + portalPlayer.PreviousTeam + " has signed with " + portalPlayer.Team + " with " + strconv.Itoa(int(odds)) + " percent odds."
 						CreateNewsLog("CBB", message, "Transfer Portal", int(winningTeamID), ts)
+						signingLabels = append(signingLabels, message)
 						fmt.Println("Created new log!")
+
+						// Firebase: notify the winning team's coach (best-effort).
+						if teamProfile.IsUserTeam && teamProfile.Recruiter != "" {
+							pID := portalPlayer.ID
+							pName := portalPlayer.FirstName + " " + portalPlayer.LastName
+							pPos := portalPlayer.Position
+							pStars := int(portalPlayer.Stars)
+							prevTeam := portalPlayer.PreviousTeam
+							tID := winningTeamID
+							tName := portalPlayer.Team
+							recruiter := teamProfile.Recruiter
+							go func() {
+								ctx := context.Background()
+								uids := fbsvc.ResolveUIDsByUsernames(ctx, []string{recruiter})
+								if len(uids) > 0 {
+									_ = fbsvc.NotifyTransferPortalSigning(ctx, fbsvc.TransferPortalSigningNotificationInput{
+										TeamID:         tID,
+										TeamName:       tName,
+										PlayerID:       pID,
+										PlayerName:     pName,
+										Position:       pPos,
+										Stars:          pStars,
+										PreviousTeam:   prevTeam,
+										RecipientUIDs:  uids,
+										SourceEventKey: fbsvc.BuildSourceEventKey("transfer_portal_signed", "cbb", strconv.Itoa(int(pID))),
+									})
+								}
+							}()
+						}
 						// Add player to existing roster map
 						rosterMap[teamProfile.ID] = append(rosterMap[teamProfile.ID], portalPlayer)
 						for i := range portalProfiles {
@@ -1139,6 +1173,10 @@ func SyncTransferPortal() {
 			repository.SaveCollegePlayerRecord(portalPlayer, db)
 		}
 	}
+
+	// Create a transfer portal sync forum thread (best-effort).
+	season, round, labels := ts.Season, int(ts.TransferPortalRound), signingLabels
+	go CreateTransferPortalSyncForumThread(season, round, labels)
 
 	ts.IncrementTransferPortalRound()
 	repository.SaveTimeStamp(ts, db)

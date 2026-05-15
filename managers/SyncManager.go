@@ -1,6 +1,7 @@
 package managers
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"math"
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	fbsvc "github.com/CalebRose/SimNBA/firebase"
 	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
@@ -30,6 +32,8 @@ func SyncRecruiting() {
 		timestamp.ToggleLockRecruiting()
 		db.Save(&timestamp)
 	}
+
+	var signingLabels []string
 
 	var modifier1 float64 = 75
 	var modifierFor5Star float64 = 125
@@ -144,7 +148,33 @@ func SyncRecruiting() {
 						recruit.AssignCollege(teamAbbreviation)
 						message := recruit.FirstName + " " + recruit.LastName + ", " + strconv.Itoa(int(recruit.Stars)) + " star " + recruit.Position + " from " + recruit.State + ", " + recruit.Country + " has signed with " + recruit.Team + " with " + strconv.Itoa(int(odds)) + " percent odds."
 						CreateNewsLog("CBB", message, "Commitment", int(winningTeamID), timestamp)
+						signingLabels = append(signingLabels, message)
 						fmt.Println("Created new log!")
+
+						// Firebase: notify the winning team's coach (best-effort).
+						if recruitTeamProfile.IsUserTeam && recruitTeamProfile.Recruiter != "" {
+							rID := recruit.ID
+							rName := recruit.FirstName + " " + recruit.LastName
+							tID := winningTeamID
+							tName := recruit.Team
+							recruiter := recruitTeamProfile.Recruiter
+							go func() {
+								ctx := context.Background()
+								uids := fbsvc.ResolveUIDsByUsernames(ctx, []string{recruiter})
+								if len(uids) > 0 {
+									_ = fbsvc.NotifyRecruitSigned(ctx, fbsvc.RecruitSignedNotificationInput{
+										League:         "cbb",
+										Domain:         fbsvc.DomainCBB,
+										TeamID:         tID,
+										TeamName:       tName,
+										RecruitID:      rID,
+										RecruitName:    rName,
+										RecipientUIDs:  uids,
+										SourceEventKey: fbsvc.BuildSourceEventKey("recruit_signed", "cbb", strconv.Itoa(int(rID))),
+									})
+								}
+							}()
+						}
 
 						for i := 0; i < len(recruitProfiles); i++ {
 							if recruitProfiles[i].ProfileID == winningTeamID {
@@ -199,6 +229,10 @@ func SyncRecruiting() {
 	if timestamp.IsRecruitingLocked {
 		timestamp.ToggleLockRecruiting()
 	}
+
+	// Create a recruiting sync forum thread (best-effort).
+	season, week, labels := timestamp.Season, timestamp.CollegeWeek, signingLabels
+	go CreateRecruitingSyncForumThread(season, week, labels)
 
 	repository.SaveTimeStamp(timestamp, db)
 }

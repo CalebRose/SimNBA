@@ -10,9 +10,9 @@ import (
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/repository"
-	"github.com/CalebRose/SimNBA/secrets"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
+	"gorm.io/gorm"
 )
 
 func ToggleDraftTime() {
@@ -27,89 +27,309 @@ func ToggleDraftTime() {
 
 func ConductDraftLottery() {
 	db := dbprovider.GetInstance().GetDB()
-	path := secrets.GetPath()["draftlottery"]
-	lotteryCSV := util.ReadCSV(path)
-	lotteryBalls := []structs.DraftLottery{}
-	draftPicks := []structs.DraftPick{}
+
+	// Get the pre-lottery base order from standings/series data.
+	// Lottery teams (Chances set) come first, sorted worst→best record.
+	// Playoff teams (Chances empty) follow, sorted by elimination round then record.
+	baseOrder := GetDraftLotteryOrder(db)
 	draftMap := GetDraftPickMap()
 
-	for idx, row := range lotteryCSV {
-		if idx == 0 {
-			continue
-		}
-		teamID := util.ConvertStringToInt(row[0])
-		team := row[1]
-
-		// Rows 1-16 of the CSV, the 16 teams for the draft lottery
-		if idx < 17 {
-			chances := util.GetLotteryChances(idx)
-			lottery := structs.DraftLottery{
-				ID:      uint(teamID),
-				Team:    team,
-				Chances: chances,
-			}
-			lotteryBalls = append(lotteryBalls, lottery)
+	// Split into lottery balls and playoff order based on whether Chances is set.
+	lotteryBalls := []structs.DraftLottery{}
+	playoffOrder := []structs.DraftLottery{}
+	for _, entry := range baseOrder {
+		if len(entry.Chances) > 0 {
+			lotteryBalls = append(lotteryBalls, entry)
 		} else {
-			break
-		}
-	}
-	lotteryPicks := 16
-	draftOrder := []structs.DraftLottery{}
-	for i := range lotteryPicks {
-		if i <= 3 {
-			sum := 0
-			for _, l := range lotteryBalls {
-				l.ApplyCurrentChance(i)
-				sum += int(l.CurrentChance)
-			}
-
-			chance := util.GenerateIntFromRange(1, sum)
-			sum2 := 0
-			for _, l := range lotteryBalls {
-				l.ApplyCurrentChance(i)
-				sum2 += int(l.CurrentChance)
-				if chance < sum2 {
-					draftOrder = append(draftOrder, l)
-					lotteryBalls = filterLotteryPicks(lotteryBalls, l.ID)
-					break
-				}
-			}
-		} else {
-			draftOrder = append(draftOrder, lotteryBalls...)
-			break
+			playoffOrder = append(playoffOrder, entry)
 		}
 	}
 
-	for idx, do := range draftOrder {
-		key := "1 " + do.Team
-		pick := idx + 1
-		draftPick := draftMap[key]
-		draftPick.AssignDraftNumber(uint(pick))
-		draftPicks = append(draftPicks, draftPick)
+	// Run weighted lottery for picks 1-4.
+	finalRound1 := []structs.DraftLottery{}
+	remaining := make([]structs.DraftLottery, len(lotteryBalls))
+	copy(remaining, lotteryBalls)
+
+	for i := 0; i < 4; i++ {
+		sum := 0
+		for _, l := range remaining {
+			l.ApplyCurrentChance(i)
+			sum += int(l.CurrentChance)
+		}
+		chance := util.GenerateIntFromRange(1, sum)
+		sum2 := 0
+		for _, l := range remaining {
+			l.ApplyCurrentChance(i)
+			sum2 += int(l.CurrentChance)
+			if chance < sum2 {
+				finalRound1 = append(finalRound1, l)
+				remaining = filterLotteryPicks(remaining, l.ID)
+				break
+			}
+		}
+	}
+	// Picks 5-N: remaining lottery teams keep their base order.
+	finalRound1 = append(finalRound1, remaining...)
+	// Picks N+1 through 32: playoff teams in elimination order.
+	finalRound1 = append(finalRound1, playoffOrder...)
+
+	// Assign Round 1 draft numbers and collect pick records.
+	draftPicks := []structs.DraftPick{}
+	round1PickMap := make(map[uint]uint) // teamID → R1 pick number (for R2 tiebreaking)
+	for idx, team := range finalRound1 {
+		pickNum := uint(idx + 1)
+		round1PickMap[team.ID] = pickNum
+		key := "1 " + strconv.Itoa(int(team.ID))
+		pick := draftMap[key]
+		pick.AssignDraftNumber(pickNum)
+		draftPicks = append(draftPicks, pick)
+	}
+
+	// Build Round 2 order: all teams sorted by record (worst first), no playoff
+	// consideration. Ties broken by reverse Round 1 pick (higher R1 pick = earlier R2 pick).
+	ts := GetTimestamp()
+	seasonID := strconv.Itoa(int(ts.SeasonID - 1))
+	allStandings := GetNBAStandingsBySeasonID(seasonID)
+	standingsMap := make(map[uint]structs.NBAStandings)
+	for _, s := range allStandings {
+		if s.TeamID <= 32 {
+			standingsMap[s.TeamID] = s
+		}
+	}
+
+	round2Order := make([]structs.DraftLottery, len(finalRound1))
+	copy(round2Order, finalRound1)
+	sort.Slice(round2Order, func(i, j int) bool {
+		si := standingsMap[round2Order[i].ID]
+		sj := standingsMap[round2Order[j].ID]
+		if si.TotalWins != sj.TotalWins {
+			return si.TotalWins < sj.TotalWins
+		}
+		return round1PickMap[round2Order[i].ID] > round1PickMap[round2Order[j].ID]
+	})
+
+	for idx, team := range round2Order {
+		pickNum := uint(idx + 1)
+		key := "2 " + strconv.Itoa(int(team.ID))
+		pick := draftMap[key]
+		pick.AssignDraftNumber(pickNum)
+		draftPicks = append(draftPicks, pick)
 	}
 
 	sort.Sort(structs.ByDraftNumber(draftPicks))
-
-	for idx, row := range lotteryCSV {
-		if idx < 17 {
-			continue
-		}
-		pickNumber := idx
-		team := row[1]
-		roundStr := "1"
-		if pickNumber > 32 {
-			roundStr = "2"
-		}
-		key := roundStr + " " + team
-		draftpick := draftMap[key]
-		draftpick.AssignDraftNumber(uint(pickNumber))
-		draftPicks = append(draftPicks, draftpick)
-	}
 
 	for _, pick := range draftPicks {
 		fmt.Println("Pick " + strconv.Itoa(int(pick.DraftNumber)) + ": " + pick.OriginalTeam)
 		db.Save(&pick)
 	}
+
+	// Create a draft lottery forum thread (best-effort).
+	season, picks := ts.Season, draftPicks
+	go CreateDraftLotteryForumThread(season, picks)
+}
+
+func GetDraftLotteryOrder(db *gorm.DB) []structs.DraftLottery {
+	lotteryOrder := []structs.DraftLottery{}
+
+	nbaTeams := GetAllActiveNBATeams()
+	ts := GetTimestamp()
+	seasonID := strconv.Itoa(int(ts.SeasonID - 1))
+	nbaSeries := GetNBASeriesBySeasonID(seasonID)
+	nbaGames := GetNBAMatchesBySeasonID(seasonID)
+
+	// Build full team name map (City + Nickname) for NBA teams only (ID <= 32)
+	teamNameMap := make(map[uint]string)
+	for _, t := range nbaTeams {
+		if t.ID <= 32 {
+			teamNameMap[t.ID] = t.Team + " " + t.Nickname
+		}
+	}
+
+	// Load previous season standings for NBA teams (ID <= 32)
+	allStandings := GetNBAStandingsBySeasonID(seasonID)
+	standingsMap := make(map[uint]structs.NBAStandings)
+	nbaStandings := []structs.NBAStandings{}
+	for _, s := range allStandings {
+		if s.TeamID <= 32 {
+			standingsMap[s.TeamID] = s
+			nbaStandings = append(nbaStandings, s)
+		}
+	}
+
+	// Build head-to-head win map from regular season games only.
+	// Exclude playoff games, play-in games (week 18), and international teams.
+	headToHead := make(map[uint]map[uint]int)
+	for _, g := range nbaGames {
+		if g.IsPlayoffGame || g.IsPlayInGame || g.Week >= 18 || !g.GameComplete {
+			continue
+		}
+		if g.HomeTeamID > 32 || g.AwayTeamID > 32 {
+			continue
+		}
+		if headToHead[g.HomeTeamID] == nil {
+			headToHead[g.HomeTeamID] = make(map[uint]int)
+		}
+		if headToHead[g.AwayTeamID] == nil {
+			headToHead[g.AwayTeamID] = make(map[uint]int)
+		}
+		if g.HomeTeamWin {
+			headToHead[g.HomeTeamID][g.AwayTeamID]++
+		} else if g.AwayTeamWin {
+			headToHead[g.AwayTeamID][g.HomeTeamID]++
+		}
+	}
+
+	// Count playoff series wins per team to determine the round they were eliminated.
+	// 0 wins = Round 1 loser, 1 = Round 2 loser, 2 = Conference Finals loser,
+	// 3 = Finals loser, 4 = Champion.
+	seriesWins := make(map[uint]int)
+	for _, s := range nbaSeries {
+		if !s.IsPlayoffGame || s.IsInternational || !s.SeriesComplete {
+			continue
+		}
+		if s.HomeTeamWin && s.HomeTeamID <= 32 {
+			seriesWins[s.HomeTeamID]++
+		} else if !s.HomeTeamWin && s.AwayTeamID <= 32 {
+			seriesWins[s.AwayTeamID]++
+		}
+	}
+
+	// Collect all NBA teams that appeared in a playoff series
+	type playoffEntry struct {
+		TeamID   uint
+		TeamName string
+		Wins     int
+		Standing structs.NBAStandings
+	}
+	playoffMap := make(map[uint]playoffEntry)
+	for _, s := range nbaSeries {
+		if !s.IsPlayoffGame || s.IsInternational || !s.SeriesComplete {
+			continue
+		}
+		for _, id := range []uint{s.HomeTeamID, s.AwayTeamID} {
+			if id > 32 {
+				continue
+			}
+			name := teamNameMap[id]
+			if name == "" {
+				if id == s.HomeTeamID {
+					name = s.HomeTeam
+				} else {
+					name = s.AwayTeam
+				}
+			}
+			playoffMap[id] = playoffEntry{
+				TeamID:   id,
+				TeamName: name,
+				Wins:     seriesWins[id],
+				Standing: standingsMap[id],
+			}
+		}
+	}
+
+	playoffTeamIDs := make(map[uint]bool)
+	for id := range playoffMap {
+		playoffTeamIDs[id] = true
+	}
+
+	// --- BOTTOM 16: Lottery teams ---
+	// Any NBA team (ID <= 32) not in a playoff series is a lottery team.
+	// This naturally includes play-in losers (they never appear in NBASeries).
+	lotteryStandings := []structs.NBAStandings{}
+	for _, s := range nbaStandings {
+		if !playoffTeamIDs[s.TeamID] {
+			lotteryStandings = append(lotteryStandings, s)
+		}
+	}
+
+	// Sort: worst record first (fewest wins).
+	// Tiebreaker 1: head-to-head wins between the tied teams.
+	// Tiebreaker 2: point differential (lower = picks earlier).
+	// Tiebreaker 3: random coin flip.
+	sort.Slice(lotteryStandings, func(i, j int) bool {
+		si, sj := lotteryStandings[i], lotteryStandings[j]
+		if si.TotalWins != sj.TotalWins {
+			return si.TotalWins < sj.TotalWins
+		}
+		h2hI := headToHead[si.TeamID][sj.TeamID]
+		h2hJ := headToHead[sj.TeamID][si.TeamID]
+		if h2hI != h2hJ {
+			return h2hI < h2hJ
+		}
+		if si.PointsFor-si.PointsAgainst != sj.PointsFor-sj.PointsAgainst {
+			return (si.PointsFor - si.PointsAgainst) < (sj.PointsFor - sj.PointsAgainst)
+		}
+		return rand.Intn(2) == 0
+	})
+
+	// Assign lottery ball chances based on position (1 = worst team, 16 = best lottery team)
+	for idx, s := range lotteryStandings {
+		chances := util.GetLotteryChances(idx + 1)
+		name := teamNameMap[s.TeamID]
+		if name == "" {
+			name = s.TeamAbbr
+		}
+		lotteryOrder = append(lotteryOrder, structs.DraftLottery{
+			ID:      s.TeamID,
+			Team:    name,
+			Chances: chances,
+		})
+	}
+
+	// --- TOP 16: Playoff teams ---
+	// Grouped by series wins (proxy for elimination round).
+	// Within each round group, sort by regular season record (worst first).
+	sortPlayoffGroup := func(group []playoffEntry) {
+		sort.Slice(group, func(i, j int) bool {
+			si, sj := group[i].Standing, group[j].Standing
+			if si.TotalWins != sj.TotalWins {
+				return si.TotalWins < sj.TotalWins
+			}
+			h2hI := headToHead[group[i].TeamID][group[j].TeamID]
+			h2hJ := headToHead[group[j].TeamID][group[i].TeamID]
+			if h2hI != h2hJ {
+				return h2hI < h2hJ
+			}
+			return (si.PointsFor - si.PointsAgainst) < (sj.PointsFor - sj.PointsAgainst)
+		})
+	}
+
+	roundGroups := make(map[int][]playoffEntry)
+	for _, entry := range playoffMap {
+		if entry.TeamID > 32 {
+			continue
+		}
+		roundGroups[entry.Wins] = append(roundGroups[entry.Wins], entry)
+	}
+
+	// Append in order: R1 losers (0 wins) → Semis losers (1) → CF losers (2) → Finals loser (3) → Champion (4)
+	for wins := 0; wins <= 4; wins++ {
+		group := roundGroups[wins]
+		sortPlayoffGroup(group)
+		for _, entry := range group {
+			lotteryOrder = append(lotteryOrder, structs.DraftLottery{
+				ID:      entry.TeamID,
+				Team:    entry.TeamName,
+				Chances: []uint{},
+			})
+		}
+	}
+
+	return lotteryOrder
+}
+
+func GetDraftPickMap() map[string]structs.DraftPick {
+	draftPicks := GetCurrentSeasonDraftPickList()
+	draftMap := make(map[string]structs.DraftPick)
+
+	for _, pick := range draftPicks {
+		if pick.ID == 0 {
+			continue
+		}
+		keyString := strconv.Itoa(int(pick.DraftRound)) + " " + strconv.Itoa(int(pick.OriginalTeamID))
+		draftMap[keyString] = pick
+	}
+	return draftMap
 }
 
 // Gets all Current Season and Beyond Draft Picks
@@ -210,20 +430,6 @@ func DraftPredictionRound() {
 
 		db.Save(&d)
 	}
-}
-
-func GetDraftPickMap() map[string]structs.DraftPick {
-	draftPicks := GetCurrentSeasonDraftPickList()
-	draftMap := make(map[string]structs.DraftPick)
-
-	for _, pick := range draftPicks {
-		if pick.ID == 0 {
-			continue
-		}
-		keyString := strconv.Itoa(int(pick.DraftRound)) + " " + pick.OriginalTeam
-		draftMap[keyString] = pick
-	}
-	return draftMap
 }
 
 func GetAllRelevantDraftPicks() []structs.DraftPick {

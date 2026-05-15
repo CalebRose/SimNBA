@@ -132,7 +132,6 @@ func SaveNBATeamRecord(team structs.NBATeam, db *gorm.DB) {
 	team.TeamSeasonStats = structs.NBATeamSeasonStats{}
 	team.Capsheet = structs.NBACapsheet{}
 	team.Contracts = nil
-	team.DraftPicks = nil
 	err := db.Save(&team).Error
 	if err != nil {
 		log.Panicln("Could not save team record!")

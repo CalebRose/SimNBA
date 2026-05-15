@@ -1,6 +1,7 @@
 package managers
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -8,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	fbsvc "github.com/CalebRose/SimNBA/firebase"
 	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
@@ -450,6 +452,38 @@ func SignFreeAgent(offer structs.NBAContractOffer, FreeAgent structs.NBAPlayer, 
 	// News Log
 	message := "FA " + FreeAgent.Position + " " + FreeAgent.FirstName + " " + FreeAgent.LastName + " has signed with the " + NBATeam.Team + " " + NBATeam.Nickname + " with a contract worth approximately $" + strconv.Itoa(int(Contract.TotalRemaining)) + " Million Dollars."
 	CreateNewsLog("NBA", message, "Free Agency", 0, ts)
+
+	// Firebase: notify the NBA team's staff (best-effort).
+	{
+		pID := FreeAgent.ID
+		pName := FreeAgent.FirstName + " " + FreeAgent.LastName
+		pPos := FreeAgent.Position
+		tID := NBATeam.ID
+		tName := NBATeam.Team + " " + NBATeam.Nickname
+		contractVal := offer.ContractValue
+		totalYears := offer.TotalYears
+		go func() {
+			usernames := collectNBATeamUsernames(NBATeam)
+			if len(usernames) == 0 {
+				return
+			}
+			ctx := context.Background()
+			uids := fbsvc.ResolveUIDsByUsernames(ctx, usernames)
+			if len(uids) > 0 {
+				_ = fbsvc.NotifyNBAFreeAgentSigned(ctx, fbsvc.NBAFreeAgentSignedNotificationInput{
+					TeamID:         tID,
+					TeamName:       tName,
+					PlayerID:       pID,
+					PlayerName:     pName,
+					Position:       pPos,
+					ContractValue:  contractVal,
+					TotalYears:     totalYears,
+					RecipientUIDs:  uids,
+					SourceEventKey: fbsvc.BuildSourceEventKey("fa_signed", "nba", strconv.Itoa(int(pID))),
+				})
+			}
+		}()
+	}
 }
 
 func SyncFreeAgencyOffers() {

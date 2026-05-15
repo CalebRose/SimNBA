@@ -114,7 +114,7 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/nba/contracts/get/value", controller.CalculateContracts).Methods("GET")
 
 	// Draft Controls
-	// apiRouter.HandleFunc("/nba/draft/conduct/lottery", controller.ConductDraftLottery).Methods("GET")
+	apiRouter.HandleFunc("/nba/draft/conduct/lottery", controller.ConductDraftLottery).Methods("GET")
 	apiRouter.HandleFunc("/nba/draft/export/picks", controller.ExportDraftedPicks).Methods("POST")
 	// apiRouter.HandleFunc("/nba/draft/run/combine", controller.RunNBACombine).Methods("GET")
 	apiRouter.HandleFunc("/nba/draft/page/{teamID}", controller.GetDraftPageData).Methods("GET")
@@ -381,6 +381,13 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/ds/nba/flex/{teamOneID}/{teamTwoID}/", controller.CompareNFLTeams).Methods("GET")
 	apiRouter.HandleFunc("/ds/cbb/assign/discord/{teamID}/{discordID}", controller.AssignDiscordIDtoCollegeTeam).Methods("GET")
 	apiRouter.HandleFunc("/ds/nba/assign/discord/{teamID}/{discordID}/{username}", controller.AssignDiscordIDtoNBATeam).Methods("GET")
+
+	// Scheduler Controls (CBB)
+	apiRouter.HandleFunc("/cbb/scheduler/game/request/create", controller.CreateCBBGameRequest).Methods("POST")
+	apiRouter.HandleFunc("/cbb/scheduler/game/request/accept/{requestID}", controller.AcceptCBBGameRequest).Methods("GET")
+	apiRouter.HandleFunc("/cbb/scheduler/game/request/reject/{requestID}", controller.RejectCBBGameRequest).Methods("GET")
+	apiRouter.HandleFunc("/cbb/scheduler/game/request/process/{requestID}", controller.ProcessCBBGameRequest).Methods("GET")
+	apiRouter.HandleFunc("/cbb/scheduler/game/request/veto/{requestID}", controller.VetoCBBGameRequest).Methods("GET")
 
 	// Websocket
 	myRouter.HandleFunc("/ws", ws.WebSocketHandler)

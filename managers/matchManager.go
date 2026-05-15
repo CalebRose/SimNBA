@@ -880,6 +880,17 @@ func GetNBASeriesBySeriesID(seriesID string) structs.NBASeries {
 	return nbaSeries
 }
 
+// GetNBASeriesBySeasonID -- Get an NBA Playoff Series Record
+func GetNBASeriesBySeasonID(seasonID string) []structs.NBASeries {
+	db := dbprovider.GetInstance().GetDB()
+
+	var nbaSeries []structs.NBASeries
+
+	db.Where("season_id = ?", seasonID).Find(&nbaSeries)
+
+	return nbaSeries
+}
+
 func GetNBASeriesByTeamID(teamID string) []structs.NBASeries {
 	db := dbprovider.GetInstance().GetDB()
 

@@ -41,6 +41,7 @@ func (p *DraftPick) TradePick(id uint, team string) {
 
 type DraftLottery struct {
 	ID            uint
+	Round         string
 	Team          string
 	Chances       []uint
 	CurrentChance uint
@@ -65,6 +66,9 @@ type ByDraftNumber []DraftPick
 func (fo ByDraftNumber) Len() int      { return len(fo) }
 func (fo ByDraftNumber) Swap(i, j int) { fo[i], fo[j] = fo[j], fo[i] }
 func (fo ByDraftNumber) Less(i, j int) bool {
+	if fo[i].DraftRound != fo[j].DraftRound {
+		return fo[i].DraftRound < fo[j].DraftRound
+	}
 	return fo[i].DraftNumber < fo[j].DraftNumber
 }
 

@@ -286,6 +286,7 @@ type BasePlayer struct {
 	RelativeID             uint8
 	RelativeType           uint8
 	Notes                  string
+	IsInjuryReserve        bool
 	PlayerPreferences
 }
 
@@ -461,6 +462,10 @@ func (cp *BasePlayer) GetSpecCount() {
 func (p *BasePlayer) SetDisciplineAndIR(val, val2 int) {
 	p.Discipline = uint8(val)
 	p.InjuryRating = uint8(val2)
+}
+
+func (p *BasePlayer) ToggleInjuryReserve() {
+	p.IsInjuryReserve = !p.IsInjuryReserve
 }
 
 func (p *BasePlayer) SetExpectations(val uint8) {

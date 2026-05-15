@@ -1,6 +1,7 @@
 package managers
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"math/rand"
@@ -11,6 +12,7 @@ import (
 
 	edmondsblossom "github.com/CalebRose/SimNBA/EdmondsBlossom"
 	"github.com/CalebRose/SimNBA/dbprovider"
+	fbsvc "github.com/CalebRose/SimNBA/firebase"
 	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/secrets"
 	"github.com/CalebRose/SimNBA/structs"
@@ -91,16 +93,81 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 
 		teamStats = append(teamStats, awayTeam)
 
+		var homePlayerStats []structs.CollegePlayerStats
+		var awayPlayerStats []structs.CollegePlayerStats
+		cbbPlayerMap := make(map[uint]structs.CollegePlayer)
+		sentCBBInjury := make(map[uint]bool)
+
 		for _, player := range dto.RosterOne {
 			id := player.ID
 			collegePlayerStats := mapToCBBPlayerStatsObject(player, id, matchID, timestamp.SeasonID, timestamp.CollegeWeekID, uint(timestamp.NBAWeek), matchType)
 			playerStats = append(playerStats, collegePlayerStats)
+			homePlayerStats = append(homePlayerStats, collegePlayerStats)
+			cbbPlayerMap[uint(id)] = structs.CollegePlayer{BasePlayer: structs.BasePlayer{
+				FirstName: player.FirstName,
+				LastName:  player.LastName,
+				Position:  player.Position,
+			}}
+			if player.Stats.IsInjured && ht.IsUserCoached && ht.Coach != "" && !sentCBBInjury[ht.ID] {
+				sentCBBInjury[ht.ID] = true
+				p, t, gID := player, ht, dto.GameID
+				go func() {
+					ctx := context.Background()
+					uids := fbsvc.ResolveUIDsByUsernames(ctx, []string{t.Coach})
+					if len(uids) > 0 {
+						_ = fbsvc.NotifyTeamInjury(ctx, fbsvc.TeamInjuryNotificationInput{
+							League:          "cbb",
+							Domain:          fbsvc.DomainCBB,
+							TeamID:          t.ID,
+							TeamName:        t.Team,
+							PlayerID:        uint(p.ID),
+							PlayerName:      p.FirstName + " " + p.LastName,
+							Position:        p.Position,
+							InjuryType:      p.Stats.InjuryType,
+							WeeksOfRecovery: int(p.Stats.WeeksOfRecovery),
+							GameID:          gID,
+							RecipientUIDs:   uids,
+							SourceEventKey:  fbsvc.BuildSourceEventKey("injury", "cbb", gID, strconv.Itoa(p.ID)),
+						})
+					}
+				}()
+			}
 		}
 
 		for _, player := range dto.RosterTwo {
 			id := player.ID
 			collegePlayerStats := mapToCBBPlayerStatsObject(player, id, matchID, timestamp.SeasonID, timestamp.CollegeWeekID, uint(timestamp.NBAWeek), matchType)
 			playerStats = append(playerStats, collegePlayerStats)
+			awayPlayerStats = append(awayPlayerStats, collegePlayerStats)
+			cbbPlayerMap[uint(id)] = structs.CollegePlayer{BasePlayer: structs.BasePlayer{
+				FirstName: player.FirstName,
+				LastName:  player.LastName,
+				Position:  player.Position,
+			}}
+			if player.Stats.IsInjured && at.IsUserCoached && at.Coach != "" && !sentCBBInjury[at.ID] {
+				sentCBBInjury[at.ID] = true
+				p, t, gID := player, at, dto.GameID
+				go func() {
+					ctx := context.Background()
+					uids := fbsvc.ResolveUIDsByUsernames(ctx, []string{t.Coach})
+					if len(uids) > 0 {
+						_ = fbsvc.NotifyTeamInjury(ctx, fbsvc.TeamInjuryNotificationInput{
+							League:          "cbb",
+							Domain:          fbsvc.DomainCBB,
+							TeamID:          t.ID,
+							TeamName:        t.Team,
+							PlayerID:        uint(p.ID),
+							PlayerName:      p.FirstName + " " + p.LastName,
+							Position:        p.Position,
+							InjuryType:      p.Stats.InjuryType,
+							WeeksOfRecovery: int(p.Stats.WeeksOfRecovery),
+							GameID:          gID,
+							RecipientUIDs:   uids,
+							SourceEventKey:  fbsvc.BuildSourceEventKey("injury", "cbb", gID, strconv.Itoa(p.ID)),
+						})
+					}
+				}()
+			}
 		}
 
 		gameRecord.UpdateScore(dto.TeamOne.Stats.Points, dto.TeamTwo.Stats.Points)
@@ -113,6 +180,12 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 		err = db.CreateInBatches(&playerStats, len(playerStats)).Error
 		if err != nil {
 			log.Panicln("Could not save player stats from week " + strconv.Itoa(timestamp.CollegeWeek))
+		}
+
+		// Create a post-game discussion thread for user-coached games (best-effort).
+		if gameRecord.HomeTeamCoach != "" || gameRecord.AwayTeamCoach != "" {
+			gr, htStats, atStats, hpStats, apStats, pm, sid := gameRecord, homeTeam, awayTeam, homePlayerStats, awayPlayerStats, cbbPlayerMap, timestamp.SeasonID
+			go CreatePostGameDiscussionThreadForCBBGame(gr, sid, htStats, atStats, hpStats, apStats, pm)
 		}
 
 		fmt.Println("Finished Game " + strconv.Itoa(int(gameRecord.ID)) + " Between " + gameRecord.HomeTeam + " and " + gameRecord.AwayTeam)
@@ -159,16 +232,72 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 
 		nbaTeamStats = append(nbaTeamStats, awayTeam)
 
+		sentNBAInjury := make(map[uint]bool)
+
 		for _, player := range dto.RosterOne {
 			id := player.ID
 			nbaPlayerStats := mapToNBAPlayerStatsObject(player, id, matchID, timestamp.SeasonID, timestamp.NBAWeekID, uint(timestamp.NBAWeek), matchType)
 			playerStats = append(playerStats, nbaPlayerStats)
+			if player.Stats.IsInjured && !sentNBAInjury[ht.ID] {
+				usernames := collectNBATeamUsernames(ht)
+				if len(usernames) > 0 {
+					sentNBAInjury[ht.ID] = true
+					p, t, gID := player, ht, dto.GameID
+					go func() {
+						ctx := context.Background()
+						uids := fbsvc.ResolveUIDsByUsernames(ctx, usernames)
+						if len(uids) > 0 {
+							_ = fbsvc.NotifyTeamInjury(ctx, fbsvc.TeamInjuryNotificationInput{
+								League:          "nba",
+								Domain:          fbsvc.DomainNBA,
+								TeamID:          t.ID,
+								TeamName:        t.Team,
+								PlayerID:        uint(p.ID),
+								PlayerName:      p.FirstName + " " + p.LastName,
+								Position:        p.Position,
+								InjuryType:      p.Stats.InjuryType,
+								WeeksOfRecovery: int(p.Stats.WeeksOfRecovery),
+								GameID:          gID,
+								RecipientUIDs:   uids,
+								SourceEventKey:  fbsvc.BuildSourceEventKey("injury", "nba", gID, strconv.Itoa(p.ID)),
+							})
+						}
+					}()
+				}
+			}
 		}
 
 		for _, player := range dto.RosterTwo {
 			id := player.ID
 			nbaPlayerStats := mapToNBAPlayerStatsObject(player, id, matchID, timestamp.SeasonID, timestamp.NBAWeekID, uint(timestamp.NBAWeek), matchType)
 			playerStats = append(playerStats, nbaPlayerStats)
+			if player.Stats.IsInjured && !sentNBAInjury[at.ID] {
+				usernames := collectNBATeamUsernames(at)
+				if len(usernames) > 0 {
+					sentNBAInjury[at.ID] = true
+					p, t, gID := player, at, dto.GameID
+					go func() {
+						ctx := context.Background()
+						uids := fbsvc.ResolveUIDsByUsernames(ctx, usernames)
+						if len(uids) > 0 {
+							_ = fbsvc.NotifyTeamInjury(ctx, fbsvc.TeamInjuryNotificationInput{
+								League:          "nba",
+								Domain:          fbsvc.DomainNBA,
+								TeamID:          t.ID,
+								TeamName:        t.Team,
+								PlayerID:        uint(p.ID),
+								PlayerName:      p.FirstName + " " + p.LastName,
+								Position:        p.Position,
+								InjuryType:      p.Stats.InjuryType,
+								WeeksOfRecovery: int(p.Stats.WeeksOfRecovery),
+								GameID:          gID,
+								RecipientUIDs:   uids,
+								SourceEventKey:  fbsvc.BuildSourceEventKey("injury", "nba", gID, strconv.Itoa(p.ID)),
+							})
+						}
+					}()
+				}
+			}
 		}
 
 		gameRecord.UpdateScore(dto.TeamOne.Stats.Points, dto.TeamTwo.Stats.Points)
@@ -201,6 +330,21 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 		}
 	}
 	fmt.Println("Finished Import for all games")
+}
+
+// collectNBATeamUsernames returns the distinct, non-empty usernames assigned to
+// an NBA team's owner, head coach, GM, and assistant so they can be resolved to
+// Firebase UIDs for notifications.
+func collectNBATeamUsernames(team structs.NBATeam) []string {
+	seen := make(map[string]bool)
+	usernames := make([]string, 0, 4)
+	for _, u := range []string{team.NBAOwnerName, team.NBACoachName, team.NBAGMName, team.NBAAssistantName} {
+		if u != "" && !seen[u] {
+			seen[u] = true
+			usernames = append(usernames, u)
+		}
+	}
+	return usernames
 }
 
 func ImportNBATeamsAndArenas() {

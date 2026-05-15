@@ -124,6 +124,7 @@ type GameRequest struct {
 	SeasonID         uint
 	WeekID           uint
 	Week             uint
+	Timeslot         string
 }
 
 func (g *GameRequest) Accepted() {
@@ -141,4 +142,8 @@ func (g *GameRequest) UpdateRequest(arenaID uint, arena string, isNeutralSite bo
 	g.SeasonID = seasonID
 	g.WeekID = weekID
 	g.Week = week
+}
+
+type CBBGameRequest struct {
+	GameRequest
 }

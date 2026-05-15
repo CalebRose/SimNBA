@@ -51,7 +51,6 @@ type NBATeam struct {
 	TeamSeasonStats    NBATeamSeasonStats `gorm:"foreignKey:TeamID"`
 	Capsheet           NBACapsheet        `gorm:"foreignKey:TeamID"`
 	Contracts          []NBAContract      `gorm:"foreignKey:TeamID"`
-	DraftPicks         []DraftPick        `gorm:"foreignKey:TeamID"`
 }
 
 func (bt *NBATeam) UpdateLatestInstance() {
