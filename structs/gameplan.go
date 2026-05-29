@@ -93,6 +93,24 @@ type GameplanLineup struct {
 	TSThreeProportion  uint8
 }
 
+func (gl *GameplanLineup) MapLineupData(updated GameplanLineup) {
+	gl.FirstStringID = updated.FirstStringID
+	gl.FSMinutes = updated.FSMinutes
+	gl.FSInsideProportion = updated.FSInsideProportion
+	gl.FSMidProportion = updated.FSMidProportion
+	gl.FSThreeProportion = updated.FSThreeProportion
+	gl.SecondStringID = updated.SecondStringID
+	gl.SSMinutes = updated.SSMinutes
+	gl.SSInsideProportion = updated.SSInsideProportion
+	gl.SSMidProportion = updated.SSMidProportion
+	gl.SSThreeProportion = updated.SSThreeProportion
+	gl.ThirdStringID = updated.ThirdStringID
+	gl.TSMinutes = updated.TSMinutes
+	gl.TSInsideProportion = updated.TSInsideProportion
+	gl.TSMidProportion = updated.TSMidProportion
+	gl.TSThreeProportion = updated.TSThreeProportion
+}
+
 type CollegeLineup struct {
 	GameplanLineup
 }
