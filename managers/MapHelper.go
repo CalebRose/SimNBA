@@ -202,6 +202,22 @@ func MakeTeamRecruitingProfileMapByTeamID(profiles []structs.TeamRecruitingProfi
 	return teamProfileMap
 }
 
+func MakeIndCollegeLineupMap(lineups []structs.CollegeLineup) map[uint]structs.CollegeLineup {
+	lineupMap := make(map[uint]structs.CollegeLineup)
+	for _, l := range lineups {
+		lineupMap[l.ID] = l
+	}
+	return lineupMap
+}
+
+func MakeIndNBALineupMap(lineups []structs.NBALineup) map[uint]structs.NBALineup {
+	lineupMap := make(map[uint]structs.NBALineup)
+	for _, l := range lineups {
+		lineupMap[l.ID] = l
+	}
+	return lineupMap
+}
+
 func MakeCollegeLineupMapByTeamID(offers []structs.CollegeLineup) map[uint][]structs.CollegeLineup {
 	lineupMap := make(map[uint][]structs.CollegeLineup)
 

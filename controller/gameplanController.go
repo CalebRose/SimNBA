@@ -36,12 +36,13 @@ func UpdateGameplan(w http.ResponseWriter, r *http.Request) {
 	var updateGameplanDto structs.UpdateGameplanDto
 
 	err := json.NewDecoder(r.Body).Decode(&updateGameplanDto)
-
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
-	managers.UpdateGameplan(updateGameplanDto)
+	dto := managers.UpdateGameplan(updateGameplanDto)
+	json.NewEncoder(w).Encode(dto)
 }
 
 func GetNBAGameplanByTeamId(w http.ResponseWriter, r *http.Request) {
@@ -70,12 +71,13 @@ func UpdateNBAGameplan(w http.ResponseWriter, r *http.Request) {
 	var updateGameplanDto structs.UpdateGameplanDto
 
 	err := json.NewDecoder(r.Body).Decode(&updateGameplanDto)
-
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
-	managers.UpdateNBAGameplan(updateGameplanDto)
+	dto := managers.UpdateNBAGameplan(updateGameplanDto)
+	json.NewEncoder(w).Encode(dto)
 }
 
 func SetAIGameplans(w http.ResponseWriter, r *http.Request) {

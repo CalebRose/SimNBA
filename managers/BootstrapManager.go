@@ -62,8 +62,10 @@ type BootstrapData struct {
 	WarRoomMap             map[uint]structs.NBAWarRoom
 	ScoutingProfileMap     map[uint]structs.ScoutingProfile
 	TransferPortalProfiles []structs.TransferPortalProfile
+	CollegeLineupMap       map[uint][]structs.CollegeLineup
+	ProLineupMap           map[uint][]structs.NBALineup
 	CollegeGameplanMap     map[uint]structs.Gameplan
-	ProGameplanMap         map[uint]structs.NBAGameplan
+	NBAGameplanMap         map[uint]structs.NBAGameplan
 }
 
 type BootstrapDataNews struct {
@@ -551,12 +553,20 @@ func GetBootstrapDataGameplan(collegeID, proID string) BootstrapData {
 	var wg sync.WaitGroup
 
 	var (
+		collegeLineupMap   map[uint][]structs.CollegeLineup
+		proGameplanMap     map[uint][]structs.NBALineup
 		collegeGameplanMap map[uint]structs.Gameplan
-		proGameplanMap     map[uint]structs.NBAGameplan
+		nbaGameplanMap     map[uint]structs.NBAGameplan
 	)
 
 	if len(collegeID) > 0 && collegeID != "0" {
-		wg.Add(1)
+		wg.Add(2)
+		go func() {
+			defer wg.Done()
+			collegeLineups := GetAllCollegeLineups()
+			collegeLineupMap = MakeCollegeLineupMapByTeamID(collegeLineups)
+		}()
+
 		go func() {
 			defer wg.Done()
 			collegeGameplans := GetAllCollegeGameplans()
@@ -565,19 +575,26 @@ func GetBootstrapDataGameplan(collegeID, proID string) BootstrapData {
 	}
 
 	if len(proID) > 0 && proID != "0" {
-		wg.Add(1)
+		wg.Add(2)
 		go func() {
 			defer wg.Done()
-			gameplans := GetAllNBAGameplans()
-			proGameplanMap = MakeNBAGameplanMap(gameplans)
+			gameplans := GetAllNBALineups()
+			proGameplanMap = MakeNBALineupMapByTeamID(gameplans)
+		}()
+		go func() {
+			defer wg.Done()
+			nbaGameplans := GetAllNBAGameplans()
+			nbaGameplanMap = MakeNBAGameplanMap(nbaGameplans)
 		}()
 	}
 
 	wg.Wait()
 
 	return BootstrapData{
+		CollegeLineupMap:   collegeLineupMap,
+		ProLineupMap:       proGameplanMap,
 		CollegeGameplanMap: collegeGameplanMap,
-		ProGameplanMap:     proGameplanMap,
+		NBAGameplanMap:     nbaGameplanMap,
 	}
 }
 

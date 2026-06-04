@@ -1,7 +1,6 @@
 package managers
 
 import (
-	"fmt"
 	"sort"
 	"strconv"
 
@@ -11,37 +10,100 @@ import (
 	"gorm.io/gorm"
 )
 
-// UpdateGameplan -- Need to update
-func UpdateGameplan(updateGameplanDto structs.UpdateGameplanDto) {
-	db := dbprovider.GetInstance().GetDB()
-
-	var teamId = strconv.Itoa(updateGameplanDto.TeamID)
-
-	// Get Gameplans
-	var gameplan = GetGameplansByTeam(teamId)
-
-	ug := updateGameplanDto.Gameplan
-
-	// If no changes made to gameplan
-
-	// Otherwise, update the gameplan
-	gameplan.UpdateGameplan(ug.Pace, ug.OffensiveFormation, ug.DefensiveFormation, ug.OffensiveStyle, ug.FocusPlayer)
-	gameplan.UpdateToggles(ug.Toggle2pt, ug.Toggle3pt, ug.ToggleFN, ug.ToggleFT, ug.ToggleBW, ug.ToggleRB, ug.ToggleID, ug.TogglePD, ug.ToggleP2, ug.ToggleP3)
-	fmt.Printf("%s", "Saving Gameplan for Team "+teamId+"\n")
-	db.Save(&gameplan)
-
-	// Get Players
-	updatedPlayers := updateGameplanDto.CollegePlayers
-
-	for _, player := range updatedPlayers {
-		id := strconv.Itoa(int(player.PlayerID))
-		record := GetCollegePlayerByPlayerID(id)
-		db.Save(&record)
-	}
+// collegeLineupHasChanged returns true if any player slot, minutes, or shot proportion differs.
+func collegeLineupHasChanged(old, updated structs.CollegeLineup) bool {
+	o := old.GameplanLineup
+	u := updated.GameplanLineup
+	return o.FirstStringID != u.FirstStringID ||
+		o.FSMinutes != u.FSMinutes ||
+		o.FSInsideProportion != u.FSInsideProportion ||
+		o.FSMidProportion != u.FSMidProportion ||
+		o.FSThreeProportion != u.FSThreeProportion ||
+		o.SecondStringID != u.SecondStringID ||
+		o.SSMinutes != u.SSMinutes ||
+		o.SSInsideProportion != u.SSInsideProportion ||
+		o.SSMidProportion != u.SSMidProportion ||
+		o.SSThreeProportion != u.SSThreeProportion ||
+		o.ThirdStringID != u.ThirdStringID ||
+		o.TSMinutes != u.TSMinutes ||
+		o.TSInsideProportion != u.TSInsideProportion ||
+		o.TSMidProportion != u.TSMidProportion ||
+		o.TSThreeProportion != u.TSThreeProportion
 }
 
-func UpdateNBAGameplan(updateGameplanDto structs.UpdateGameplanDto) {
-	// Will need to redesign this function to account for new updates
+// nbaLineupHasChanged returns true if any player slot, minutes, or shot proportion differs.
+func nbaLineupHasChanged(old, updated structs.NBALineup) bool {
+	o := old.GameplanLineup
+	u := updated.GameplanLineup
+	return o.FirstStringID != u.FirstStringID ||
+		o.FSMinutes != u.FSMinutes ||
+		o.FSInsideProportion != u.FSInsideProportion ||
+		o.FSMidProportion != u.FSMidProportion ||
+		o.FSThreeProportion != u.FSThreeProportion ||
+		o.SecondStringID != u.SecondStringID ||
+		o.SSMinutes != u.SSMinutes ||
+		o.SSInsideProportion != u.SSInsideProportion ||
+		o.SSMidProportion != u.SSMidProportion ||
+		o.SSThreeProportion != u.SSThreeProportion ||
+		o.ThirdStringID != u.ThirdStringID ||
+		o.TSMinutes != u.TSMinutes ||
+		o.TSInsideProportion != u.TSInsideProportion ||
+		o.TSMidProportion != u.TSMidProportion ||
+		o.TSThreeProportion != u.TSThreeProportion
+}
+
+// UpdateGameplan saves changed college lineup records for a team.
+func UpdateGameplan(updateGameplanDto structs.UpdateGameplanDto) structs.UpdateGameplanDto {
+	db := dbprovider.GetInstance().GetDB()
+	teamID := strconv.Itoa(updateGameplanDto.TeamID)
+	incomingLineups := updateGameplanDto.CollegeLineups
+
+	// Build a map of incoming lineups keyed by record ID
+	collegeLineupMap := MakeIndCollegeLineupMap(incomingLineups)
+
+	// Fetch existing lineup records from DB
+	existingLineupRecords := repository.FindCollegeLineupRecords(repository.GameplanQuery{TeamID: teamID})
+
+	for _, rec := range existingLineupRecords {
+		updatedLineup, exists := collegeLineupMap[rec.ID]
+		if !exists {
+			continue
+		}
+		if !collegeLineupHasChanged(rec, updatedLineup) {
+			continue
+		}
+		rec.MapLineupData(updatedLineup.GameplanLineup)
+		repository.SaveCollegeLineupRecord(rec, db)
+	}
+
+	return updateGameplanDto
+}
+
+// UpdateNBAGameplan saves changed NBA lineup records for a team.
+func UpdateNBAGameplan(updateGameplanDto structs.UpdateGameplanDto) structs.UpdateGameplanDto {
+	db := dbprovider.GetInstance().GetDB()
+	teamID := strconv.Itoa(updateGameplanDto.TeamID)
+	incomingLineups := updateGameplanDto.NBALineups
+
+	// Build a map of incoming lineups keyed by record ID
+	nbaLineupMap := MakeIndNBALineupMap(incomingLineups)
+
+	// Fetch existing lineup records from DB
+	existingLineupRecords := repository.FindNBALineupRecords(repository.GameplanQuery{TeamID: teamID})
+
+	for _, rec := range existingLineupRecords {
+		updatedLineup, exists := nbaLineupMap[rec.ID]
+		if !exists {
+			continue
+		}
+		if !nbaLineupHasChanged(rec, updatedLineup) {
+			continue
+		}
+		rec.MapLineupData(updatedLineup.GameplanLineup)
+		repository.SaveNBALineupRecord(rec, db)
+	}
+
+	return updateGameplanDto
 }
 
 func GetAllCollegeGameplans() []structs.Gameplan {
