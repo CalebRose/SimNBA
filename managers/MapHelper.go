@@ -182,11 +182,15 @@ func MakeNBAWarRoomMap(warRooms []structs.NBAWarRoom) map[uint]structs.NBAWarRoo
 	return warRoomMap
 }
 
-func MakeScoutingProfileMapByTeam(profiles []structs.ScoutingProfile) map[uint]structs.ScoutingProfile {
-	profileMap := make(map[uint]structs.ScoutingProfile)
+func MakeScoutingProfileMapByTeam(profiles []structs.ScoutingProfile) map[uint][]structs.ScoutingProfile {
+	profileMap := make(map[uint][]structs.ScoutingProfile)
 
 	for _, t := range profiles {
-		profileMap[t.TeamID] = t
+		if len(profileMap[t.TeamID]) > 0 {
+			profileMap[t.TeamID] = append(profileMap[t.TeamID], t)
+		} else {
+			profileMap[t.TeamID] = []structs.ScoutingProfile{t}
+		}
 	}
 
 	return profileMap

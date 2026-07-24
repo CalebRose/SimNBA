@@ -60,7 +60,7 @@ type BootstrapData struct {
 	PollSubmission         structs.CollegePollSubmission
 	NBADraftees            []structs.NBADraftee
 	WarRoomMap             map[uint]structs.NBAWarRoom
-	ScoutingProfileMap     map[uint]structs.ScoutingProfile
+	ScoutingProfileMap     map[uint][]structs.ScoutingProfile
 	TransferPortalProfiles []structs.TransferPortalProfile
 	CollegeLineupMap       map[uint][]structs.CollegeLineup
 	ProLineupMap           map[uint][]structs.NBALineup
@@ -479,8 +479,8 @@ func GetBootstrapDataDraft(proID string) BootstrapData {
 
 	var (
 		nbaDraftees        []structs.NBADraftee
-		warRoomMap         map[uint]structs.NBAWarRoom      // BY TEAM
-		scoutingProfileMap map[uint]structs.ScoutingProfile // By TEAM
+		warRoomMap         map[uint]structs.NBAWarRoom        // BY TEAM
+		scoutingProfileMap map[uint][]structs.ScoutingProfile // By TEAM
 	)
 
 	if len(proID) > 0 && proID != "0" {
