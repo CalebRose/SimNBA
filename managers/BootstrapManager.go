@@ -481,10 +481,11 @@ func GetBootstrapDataDraft(proID string) BootstrapData {
 		nbaDraftees        []structs.NBADraftee
 		warRoomMap         map[uint]structs.NBAWarRoom        // BY TEAM
 		scoutingProfileMap map[uint][]structs.ScoutingProfile // By TEAM
+		draftPicks         []structs.DraftPick
 	)
 
 	if len(proID) > 0 && proID != "0" {
-		wg.Add(3)
+		wg.Add(4)
 		go func() {
 			defer wg.Done()
 			nbaDraftees = GetAllNBADraftees()
@@ -503,6 +504,11 @@ func GetBootstrapDataDraft(proID string) BootstrapData {
 
 		}()
 
+		go func() {
+			defer wg.Done()
+			draftPicks = GetAllRelevantDraftPicks()
+		}()
+
 		log.Println("Initiated all Pro data queries.")
 	}
 	wg.Wait()
@@ -510,6 +516,7 @@ func GetBootstrapDataDraft(proID string) BootstrapData {
 		NBADraftees:        nbaDraftees,
 		WarRoomMap:         warRoomMap,
 		ScoutingProfileMap: scoutingProfileMap,
+		DraftPicks:         draftPicks,
 	}
 }
 
