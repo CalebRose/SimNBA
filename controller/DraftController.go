@@ -136,8 +136,6 @@ func RevealScoutingAttribute(w http.ResponseWriter, r *http.Request) {
 	saveComplete := managers.RevealScoutingAttribute(revealAttributeDTO)
 
 	json.NewEncoder(w).Encode(saveComplete)
-
-	fmt.Fprintf(w, "New Scout Profile Created")
 }
 
 func RemovePlayerFromScoutBoard(w http.ResponseWriter, r *http.Request) {

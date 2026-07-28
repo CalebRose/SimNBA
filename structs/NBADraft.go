@@ -51,29 +51,29 @@ type ScoutingProfile struct {
 
 func (sp *ScoutingProfile) RevealAttribute(attr string) {
 	switch attr {
-	case "MidRangeShooting":
+	case "ShowShooting2":
 		sp.ShowShooting2 = true
-	case "ThreePointShooting":
+	case "ShowShooting3":
 		sp.ShowShooting3 = true
-	case "FreeThrow":
+	case "ShowFreeThrow":
 		sp.ShowFreeThrow = true
-	case "InsideShooting":
+	case "ShowFinishing":
 		sp.ShowFinishing = true
-	case "Agility":
+	case "ShowAgility":
 		sp.ShowAgility = true
-	case "Ballwork":
+	case "ShowBallwork":
 		sp.ShowBallwork = true
-	case "Rebounding":
+	case "ShowRebounding":
 		sp.ShowRebounding = true
-	case "Stealing":
+	case "ShowStealing":
 		sp.ShowStealing = true
-	case "Blocking":
+	case "ShowBlocking":
 		sp.ShowBlocking = true
-	case "InteriorDefense":
+	case "ShowInteriorDefense":
 		sp.ShowInteriorDefense = true
-	case "PerimeterDefense":
+	case "ShowPerimeterDefense":
 		sp.ShowPerimeterDefense = true
-	case "Potential":
+	case "ShowPotential":
 		sp.ShowPotential = true
 	}
 	sp.ShowCount++
