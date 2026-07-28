@@ -76,6 +76,10 @@ func UpdateGameplan(updateGameplanDto structs.UpdateGameplanDto) structs.UpdateG
 		repository.SaveCollegeLineupRecord(rec, db)
 	}
 
+	gameplan := GetGameplansByTeam(teamID)
+	gameplan.UpdatePace(updateGameplanDto.Pace)
+	repository.SaveCBBGameplanRecord(gameplan, db)
+
 	return updateGameplanDto
 }
 

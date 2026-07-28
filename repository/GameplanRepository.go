@@ -78,6 +78,13 @@ func SaveCollegeLineupRecord(lineup structs.CollegeLineup, db *gorm.DB) {
 	}
 }
 
+func SaveCBBGameplanRecord(gameplan structs.Gameplan, db *gorm.DB) {
+	err := db.Save(&gameplan).Error
+	if err != nil {
+		log.Panicln("Could not save gameplan record!")
+	}
+}
+
 // Saves NBALineup
 func SaveNBALineupRecord(lineup structs.NBALineup, db *gorm.DB) {
 	err := db.Save(&lineup).Error

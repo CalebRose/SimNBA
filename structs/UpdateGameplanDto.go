@@ -7,4 +7,5 @@ type UpdateGameplanDto struct {
 	CollegePlayers []CollegePlayerResponse
 	NBAPlayers     []NBAPlayer
 	TeamID         int
+	Pace           string
 }
