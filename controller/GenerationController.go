@@ -59,7 +59,7 @@ func GenerateDraftWarRooms(w http.ResponseWriter, r *http.Request) {
 }
 
 func GenerateNewAttributes(w http.ResponseWriter, r *http.Request) {
-	managers.GenerateNewAttributes()
+	managers.MigrateBasketballIQ()
 	json.NewEncoder(w).Encode("GENERATION COMPLETE")
 }
 

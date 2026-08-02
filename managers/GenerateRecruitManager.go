@@ -685,6 +685,7 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 	blocking := getAttributeValue(position, archetype, stars, "Blocking", attributeBlob)
 	interiorDefense := getAttributeValue(position, archetype, stars, "InteriorDefense", attributeBlob)
 	perimeterDefense := getAttributeValue(position, archetype, stars, "PerimeterDefense", attributeBlob)
+	basketballIQ := getAttributeValue(position, archetype, stars, "BasketballIQ", attributeBlob)
 	// Specialties
 	specInsideShooting := util.GenerateSpecialty(position, archetype, "InsideShooting")
 	specMidRangeShooting := util.GenerateSpecialty(position, archetype, "MidRangeShooting")
@@ -697,6 +698,7 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 	specRebounding := util.GenerateSpecialty(position, archetype, "Rebounding")
 	specInteriorDefense := util.GenerateSpecialty(position, archetype, "InteriorDefense")
 	specPerimeterDefense := util.GenerateSpecialty(position, archetype, "PerimeterDefense")
+	specBasketballIQ := util.GenerateSpecialty(position, archetype, "BasketballIQ")
 	height = getAttributeValue(position, archetype, stars, "Height", attributeBlob)
 	weight = getAttributeValue(position, archetype, stars, "Weight", attributeBlob)
 	if isWalkon {
@@ -716,6 +718,7 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 		Country:                country,
 		Height:                 uint8(height),
 		Weight:                 uint16(weight),
+		BasketballIQ:           uint8(basketballIQ),
 		Agility:                uint8(agility),
 		InsideShooting:         uint8(insideShooting),
 		MidRangeShooting:       uint8(shooting2),
@@ -727,6 +730,7 @@ func createCollegePlayer(team structs.Team, ethnicity string, position string, y
 		Rebounding:             uint8(rebounding),
 		InteriorDefense:        uint8(interiorDefense),
 		PerimeterDefense:       uint8(perimeterDefense),
+		SpecBasketballIQ:       specBasketballIQ,
 		SpecInsideShooting:     specInsideShooting,
 		SpecMidRangeShooting:   specMidRangeShooting,
 		SpecThreePointShooting: specThreePointShooting,

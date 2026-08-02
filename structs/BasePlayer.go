@@ -239,6 +239,8 @@ type BasePlayer struct {
 	Stars                  uint8
 	Height                 uint8
 	Weight                 uint16
+	BasketballIQ           uint8
+	SpecBasketballIQ       bool
 	InsideShooting         uint8
 	SpecInsideShooting     bool
 	MidRangeShooting       uint8

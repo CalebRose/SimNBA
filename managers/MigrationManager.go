@@ -1171,3 +1171,67 @@ func GenerateCollegeAndNBALineupStructs() {
 	repository.CreateCollegeLineupsRecordsBatch(db, collegeLineups, 200)
 	repository.CreateNBALineupsRecordsBatch(db, nbaLineups, 200)
 }
+
+func MigrateBasketballIQ() {
+	db := dbprovider.GetInstance().GetDB()
+
+	collegePlayers := GetAllCollegePlayers()
+	recruits := GetAllUnsignedRecruits()
+	draftees := GetAllNBADraftees()
+	nbaPlayers := GetAllNBAPlayers()
+
+	for _, player := range collegePlayers {
+		minAttribute := min(player.InsideShooting, player.MidRangeShooting, player.ThreePointShooting, player.Ballwork, player.Rebounding, player.InteriorDefense, player.PerimeterDefense, player.Agility, player.Stealing, player.Blocking)
+		maxAttribute := max(player.InsideShooting, player.MidRangeShooting, player.ThreePointShooting, player.Ballwork, player.Rebounding, player.InteriorDefense, player.PerimeterDefense, player.Agility, player.Stealing, player.Blocking)
+		basketballIQ := util.GenerateNormalizedIntFromRange(int(minAttribute), int(maxAttribute))
+		specBasketballIQ := calculateSpecBasketballIQ(player.Archetype)
+		player.BasketballIQ = uint8(basketballIQ)
+		player.SpecBasketballIQ = specBasketballIQ
+		repository.SaveCollegePlayerRecord(player, db)
+	}
+
+	for _, player := range recruits {
+		minAttribute := min(player.InsideShooting, player.MidRangeShooting, player.ThreePointShooting, player.Ballwork, player.Rebounding, player.InteriorDefense, player.PerimeterDefense, player.Agility, player.Stealing, player.Blocking)
+		maxAttribute := max(player.InsideShooting, player.MidRangeShooting, player.ThreePointShooting, player.Ballwork, player.Rebounding, player.InteriorDefense, player.PerimeterDefense, player.Agility, player.Stealing, player.Blocking)
+		basketballIQ := util.GenerateNormalizedIntFromRange(int(minAttribute), int(maxAttribute))
+		specBasketballIQ := calculateSpecBasketballIQ(player.Archetype)
+		player.BasketballIQ = uint8(basketballIQ)
+		player.SpecBasketballIQ = specBasketballIQ
+		repository.SaveRecruitRecord(player, db)
+	}
+
+	for _, player := range nbaPlayers {
+		minAttribute := min(player.InsideShooting, player.MidRangeShooting, player.ThreePointShooting, player.Ballwork, player.Rebounding, player.InteriorDefense, player.PerimeterDefense, player.Agility, player.Stealing, player.Blocking)
+		maxAttribute := max(player.InsideShooting, player.MidRangeShooting, player.ThreePointShooting, player.Ballwork, player.Rebounding, player.InteriorDefense, player.PerimeterDefense, player.Agility, player.Stealing, player.Blocking)
+		basketballIQ := util.GenerateNormalizedIntFromRange(int(minAttribute), int(maxAttribute))
+		specBasketballIQ := calculateSpecBasketballIQ(player.Archetype)
+		player.BasketballIQ = uint8(basketballIQ)
+		player.SpecBasketballIQ = specBasketballIQ
+		repository.SaveNBAPlayerRecord(player, db)
+	}
+
+	for _, player := range draftees {
+		minAttribute := min(player.InsideShooting, player.MidRangeShooting, player.ThreePointShooting, player.Ballwork, player.Rebounding, player.InteriorDefense, player.PerimeterDefense, player.Agility, player.Stealing, player.Blocking)
+		maxAttribute := max(player.InsideShooting, player.MidRangeShooting, player.ThreePointShooting, player.Ballwork, player.Rebounding, player.InteriorDefense, player.PerimeterDefense, player.Agility, player.Stealing, player.Blocking)
+		basketballIQ := util.GenerateNormalizedIntFromRange(int(minAttribute), int(maxAttribute))
+		specBasketballIQ := calculateSpecBasketballIQ(player.Archetype)
+		player.BasketballIQ = uint8(basketballIQ)
+		player.SpecBasketballIQ = specBasketballIQ
+		bIQ := util.GenerateIntFromRange(int(player.BasketballIQ)-3, int(player.BasketballIQ)+3)
+		bIQGrade := util.GetDrafteeGrade(uint8(bIQ))
+		player.BasketballIQGrade = bIQGrade
+		db.Save(&player)
+	}
+}
+
+func calculateSpecBasketballIQ(archetype string) bool {
+	diceRoll := util.GenerateNormalizedIntFromRange(1, 20)
+	if diceRoll == 20 {
+		return true
+	}
+	if archetype == "Point Guard" || archetype == "Combo Guard" || archetype == "Swingman" || archetype == "Point Forward" || archetype == "All-Around" {
+		return diceRoll >= 15
+	}
+
+	return diceRoll > 17
+}

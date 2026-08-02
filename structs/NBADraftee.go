@@ -20,6 +20,7 @@ type NBADraftee struct {
 	ThreeQuarterSprint      float64
 	ShuttleRun              float64
 	WingSpan                string
+	BasketballIQGrade       string
 	MidrangeShootingGrade   string
 	ThreePointShootingGrade string
 	FreeThrowGrade          string

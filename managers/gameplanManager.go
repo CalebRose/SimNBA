@@ -77,7 +77,7 @@ func UpdateGameplan(updateGameplanDto structs.UpdateGameplanDto) structs.UpdateG
 	}
 
 	gameplan := GetGameplansByTeam(teamID)
-	gameplan.UpdatePace(updateGameplanDto.Pace)
+	gameplan.UpdateGameplan(updateGameplanDto.Pace, updateGameplanDto.OffensiveFormation, updateGameplanDto.DefensiveFormation, "", updateGameplanDto.FocusPlayer)
 	repository.SaveCBBGameplanRecord(gameplan, db)
 
 	return updateGameplanDto
@@ -106,6 +106,10 @@ func UpdateNBAGameplan(updateGameplanDto structs.UpdateGameplanDto) structs.Upda
 		rec.MapLineupData(updatedLineup.GameplanLineup)
 		repository.SaveNBALineupRecord(rec, db)
 	}
+
+	gameplan := GetNBAGameplanByTeam(teamID)
+	gameplan.UpdateGameplan(updateGameplanDto.Pace, updateGameplanDto.OffensiveFormation, updateGameplanDto.DefensiveFormation, "", updateGameplanDto.FocusPlayer)
+	repository.SaveNBAGameplanRecord(gameplan, db)
 
 	return updateGameplanDto
 }
