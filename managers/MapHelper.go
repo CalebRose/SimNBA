@@ -269,3 +269,13 @@ func MakeNBAStandingsMap(standings []structs.NBAStandings) map[uint]structs.NBAS
 
 	return standingsMap
 }
+
+func MakeNBACombineMapByPlayerID(records []structs.NBACombineResults) map[uint]structs.NBACombineResults {
+	combineMap := make(map[uint]structs.NBACombineResults)
+
+	for _, r := range records {
+		combineMap[r.PlayerID] = r
+	}
+
+	return combineMap
+}

@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/structs"
 	"gorm.io/gorm"
 )
@@ -15,4 +16,11 @@ func CreateNBACombineRecordsBatch(db *gorm.DB, fds []structs.NBACombineResults, 
 		}
 	}
 	return nil
+}
+
+func FindNBACombineRecords() []structs.NBACombineResults {
+	db := dbprovider.GetInstance().GetDB()
+	var records []structs.NBACombineResults
+	db.Find(&records)
+	return records
 }

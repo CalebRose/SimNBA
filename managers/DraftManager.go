@@ -857,16 +857,16 @@ func NBACombineForDraft() {
 
 	for _, draftee := range draftees {
 		// Disregard all candidates under 55 overall
-		if draftee.Overall < 55 {
+		if draftee.Overall < 10 {
 			continue
 		}
 		strength := GetCombineValue(draftee.OverallGrade, draftee.Overall, true)
-		agility := GetCombineValue(draftee.OverallGrade, draftee.Overall, true)
+		agility := GetCombineValue(draftee.AgilityGrade, draftee.Agility, false)
 		shooting2 := GetCombineValue(draftee.MidrangeShootingGrade, draftee.MidRangeShooting, false)
 		shooting3 := GetCombineValue(draftee.ThreePointShootingGrade, draftee.ThreePointShooting, false)
 		passing := GetCombineValue(draftee.BallworkGrade, draftee.Ballwork, false)
-		blocking := GetCombineValue(draftee.InteriorDefenseGrade, draftee.PerimeterDefense, false)
-		stealing := GetCombineValue(draftee.BallworkGrade, draftee.Ballwork, false)
+		blocking := GetCombineValue(draftee.BlockingGrade, draftee.Blocking, false)
+		stealing := GetCombineValue(draftee.StealingGrade, draftee.Stealing, false)
 		rebound := GetCombineValue(draftee.ReboundingGrade, draftee.Rebounding, false)
 
 		// Shooting Drills
@@ -940,7 +940,7 @@ func GetCombineValue(grade string, value uint8, isOverall bool) uint8 {
 		return value
 	}
 	if isOverall {
-		return uint8(util.GenerateIntFromRange(int(value)-15, int(value)+15))
+		return uint8(util.GenerateIntFromRange(int(value)-10, int(value)+10))
 	}
 	min := math.Min(float64(gradeVal), float64(value))
 	max := math.Max(float64(gradeVal), float64(value))
@@ -950,25 +950,25 @@ func GetCombineValue(grade string, value uint8, isOverall bool) uint8 {
 func GetValueFromGrade(grade string) uint8 {
 	switch grade {
 	case "A+":
-		return 24
+		return 30
 	case "A":
-		return 22
+		return 27
 	case "A-":
-		return 20
+		return 24
 	case "B+":
-		return 18
+		return 21
 	case "B":
-		return 16
+		return 18
 	case "B-":
-		return 14
+		return 15
 	case "C+":
 		return 12
 	case "C":
-		return 10
+		return 9
 	case "C-":
-		return 8
+		return 6
 	case "D":
-		return 5
+		return 3
 	}
 	return 1
 }

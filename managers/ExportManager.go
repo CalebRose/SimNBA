@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
 )
@@ -50,6 +51,68 @@ func ExportCroots(w http.ResponseWriter) {
 		}
 
 		err = writer.Write(crootRow)
+		if err != nil {
+			log.Fatal("Cannot write croot row to CSV", err)
+		}
+
+		writer.Flush()
+		err = writer.Error()
+		if err != nil {
+			log.Fatal("Error while writing to file ::", err)
+		}
+	}
+}
+
+func ExportNBADraftees(w http.ResponseWriter) {
+	ts := GetTimestamp()
+	season := strconv.Itoa(ts.Season)
+	filename := "migis_" + season + "_nba_draftees_list.csv"
+	w.Header().Set("Content-Disposition", "attachment;filename="+filename)
+	w.Header().Set("Transfer-Encoding", "chunked")
+
+	writer := csv.NewWriter(w)
+
+	players := GetAllNBADraftees()
+	combineResults := repository.FindNBACombineRecords()
+	combineMap := MakeNBACombineMapByPlayerID(combineResults)
+
+	sort.Slice(players, func(i, j int) bool {
+		return players[i].TeamID < players[j].TeamID
+	})
+
+	HeaderRow := []string{
+		"ID", "College", "First Name", "Last Name", "Position", "Archetype", "Age",
+		"Stars", "High School", "City", "State", "Country", "Height", "Weight",
+		"Overall", "BasketballIQ", "Inside Shooting", "MidRange Shooting", "Three Point Shooting", "Free Throwing", "Agility",
+		"Ballwork", "Stealing", "Blocking", "Rebounding", "InteriorDefense", "PerimeterDefense", "Stamina", "Potential Grade",
+		"Personality", "RecruitingBias", "Work Ethic", "Previous Team",
+		"2pt Shooting Results", "3pt Shooting Results", "Passing Drills", "Blocking Drills",
+		"Steal Drills", "Bench Press", "Standing Vertical Leap", "Max Vertical Leap", "Lane Agility", "Shuttle Run",
+	}
+
+	err := writer.Write(HeaderRow)
+	if err != nil {
+		log.Fatal("Cannot write header row", err)
+	}
+
+	for _, player := range players {
+
+		sta := strconv.Itoa(int(player.Stamina))
+		combine := combineMap[player.ID]
+
+		playerRow := []string{
+			strconv.Itoa(int(player.ID)), player.Team, player.FirstName, player.LastName, player.Position, player.Archetype, strconv.Itoa(int(player.Age)),
+			strconv.Itoa(int(player.Stars)), player.HighSchool, player.City, player.State, player.Country, strconv.Itoa(int(player.Height)), strconv.Itoa(int(player.Weight)),
+			player.OverallGrade, player.BasketballIQGrade, player.InsideShootingGrade, player.MidrangeShootingGrade, player.ThreePointShootingGrade, player.FreeThrowGrade, player.AgilityGrade,
+			player.BallworkGrade, player.StealingGrade, player.BlockingGrade, player.ReboundingGrade, player.InteriorDefenseGrade, player.PerimeterDefenseGrade, sta, player.PotentialGrade,
+			player.Personality, player.RecruitingBias, player.WorkEthic, player.PreviousTeam,
+			strconv.Itoa(int(combine.TwoPointShooting)), strconv.Itoa(int(combine.ThreePointShooting)), strconv.Itoa(int(combine.PassingDrills)), strconv.Itoa(int(combine.BlockingDrills)), strconv.Itoa(int(combine.StealDrills)), strconv.Itoa(int(combine.BenchPress)),
+			// These are floats
+			// Is this a good use of Format float? What would be the best approach?
+			strconv.FormatFloat(float64(combine.StandingVerticalLeap), 'f', 2, 64), strconv.FormatFloat(float64(combine.MaxVerticalLeap), 'f', 2, 64), strconv.FormatFloat(float64(combine.LaneAgility), 'f', 2, 64), strconv.FormatFloat(float64(combine.ShuttleRun), 'f', 2, 64),
+		}
+
+		err = writer.Write(playerRow)
 		if err != nil {
 			log.Fatal("Cannot write croot row to CSV", err)
 		}

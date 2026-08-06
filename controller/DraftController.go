@@ -108,6 +108,12 @@ func AddPlayerToScoutBoard(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(scoutingProfile)
 }
 
+func ExportNBADraftees(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	w.Header().Set("Content-Type", "text/csv")
+	managers.ExportNBADraftees(w)
+}
+
 func ExportDraftedPicks(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	var draftPickDTO structs.ExportDraftPicksDTO
