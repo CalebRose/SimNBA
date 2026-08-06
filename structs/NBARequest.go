@@ -4,15 +4,20 @@ import "github.com/jinzhu/gorm"
 
 type NBARequest struct {
 	gorm.Model
-	Username            string
-	NBATeamID           uint
-	NBATeam             string
-	NBATeamAbbreviation string
-	IsOwner             bool
-	IsManager           bool
-	IsCoach             bool
-	IsAssistant         bool
-	IsApproved          bool
+	Username                string
+	NBATeamID               uint
+	NBATeam                 string
+	NBATeamAbbreviation     string
+	IsOwner                 bool
+	IsManager               bool
+	IsCoach                 bool
+	IsAssistant             bool
+	IsApproved              bool
+	DiscordUsername         string
+	HowMuchTimeAnswer       string
+	HowDidYouHearAboutSimSN string
+	CommunityReference      string
+	AboutYourself           string
 }
 
 func (r *NBARequest) ApproveTeamRequest() {

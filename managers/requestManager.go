@@ -38,6 +38,10 @@ func CreateTeamRequest(request structs.Request) {
 	if err != nil {
 		log.Fatalln("Could not create record to DB:" + err.Error())
 	}
+
+	cbbTeam := GetTeamByTeamID(strconv.Itoa(int(request.TeamID)))
+
+	go CreateCBBJobApplicationThread(request, cbbTeam.Team, cbbTeam.Nickname)
 }
 
 func CreateNBATeamRequest(request structs.NBARequest) {
@@ -54,7 +58,11 @@ func CreateNBATeamRequest(request structs.NBARequest) {
 		log.Fatalln("There is already an existing request in place for the user. Please be patient while admin approves your formal request. If there is an issue, please reach out to TuscanSota.")
 	}
 
+	nbaTeam := GetNBATeamByTeamID(strconv.Itoa(int(request.NBATeamID)))
+
 	db.Create(&request)
+
+	go CreateNBAJobApplicationThread(request, nbaTeam)
 }
 
 func ApproveTeamRequest(request structs.Request) {

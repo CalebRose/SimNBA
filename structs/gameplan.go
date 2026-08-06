@@ -31,6 +31,17 @@ type Gameplan struct {
 	TogglePD             bool
 	ToggleP2             bool
 	ToggleP3             bool
+	PreserveTimeouts     bool
+	Trigger1Enabled      bool
+	Trigger1Type         uint8 // 1 == Designated Player, 2 == Fouls Per Half
+	Trigger1Value        uint  // Could either be player ID or number of fouls per half
+	Trigger2Enabled      bool
+	Trigger2Value        uint // Number of points the opponent is up by
+	Trigger3Enabled      bool // Designate Player Exhaustion Trigger
+	Trigger3Value        uint // PlayerID of the player to monitor for exhaustion
+	Trigger3Exhaustion   uint // Exhaustion threshold for the designated player
+	Trigger4Enabled      bool // On-floor average exhaustion
+	Trigger4Value        uint // Average exhaustion of all players on the floor
 }
 
 func (g *Gameplan) UpdateGameplan(pace, of, df, os, fp string) {
