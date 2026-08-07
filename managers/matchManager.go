@@ -245,7 +245,7 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 			attendancePercent = 1.0
 		}
 		fanCount := uint32(float64(capacity) * attendancePercent)
-		hra := float64(fanCount) / float64(capacity)
+		hca := float64(fanCount) / float64(capacity)
 		homeRoster := collegePlayerMap[c.HomeTeamID]
 		awayRoster := collegePlayerMap[c.AwayTeamID]
 
@@ -257,7 +257,7 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 				ID:         p.ID,
 				BasePlayer: p.BasePlayer,
 			}
-			gamePlayer.CalculateModifiers(true, hra)
+			// gamePlayer.CalculateModifiers(true, hca)
 			homeGamePlayerRoster = append(homeGamePlayerRoster, gamePlayer)
 		}
 
@@ -266,7 +266,7 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 				ID:         p.ID,
 				BasePlayer: p.BasePlayer,
 			}
-			gamePlayer.CalculateModifiers(false, hra)
+			// gamePlayer.CalculateModifiers(false, hca)
 			awayGamePlayerRoster = append(awayGamePlayerRoster, gamePlayer)
 		}
 
@@ -342,9 +342,10 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 					ConferenceID: at.ConferenceID,
 					LeagueID:     1,
 				},
-				AwayTeamRoster:   awayGamePlayerRoster,
-				AwayTeamLineup:   atGameLineUp,
-				AwayTeamGameplan: awayGameplan,
+				AwayTeamRoster:     awayGamePlayerRoster,
+				AwayTeamLineup:     atGameLineUp,
+				AwayTeamGameplan:   awayGameplan,
+				HomeCourtAdvantage: hca,
 			},
 		}
 		matchesList = append(matchesList, match)
@@ -419,7 +420,7 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 			attendancePercent = 1.0
 		}
 		fanCount := uint32(float64(capacity) * attendancePercent)
-		hra := float64(fanCount) / float64(capacity)
+		hca := float64(fanCount) / float64(capacity)
 		homeRoster := nbaPlayerMap[m.HomeTeamID]
 		awayRoster := nbaPlayerMap[m.AwayTeamID]
 
@@ -431,7 +432,7 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 				ID:         p.ID,
 				BasePlayer: p.BasePlayer,
 			}
-			gamePlayer.CalculateModifiers(true, hra)
+			// gamePlayer.CalculateModifiers(true, hca)
 			homeGamePlayerRoster = append(homeGamePlayerRoster, gamePlayer)
 		}
 
@@ -440,7 +441,7 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 				ID:         p.ID,
 				BasePlayer: p.BasePlayer,
 			}
-			gamePlayer.CalculateModifiers(false, hra)
+			// gamePlayer.CalculateModifiers(false, hca)
 			awayGamePlayerRoster = append(awayGamePlayerRoster, gamePlayer)
 		}
 
@@ -491,9 +492,10 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 					ConferenceID: at.ConferenceID,
 					LeagueID:     1,
 				},
-				AwayTeamRoster:   awayGamePlayerRoster,
-				AwayTeamLineup:   awayGameplanLineup,
-				AwayTeamGameplan: awayGameplan,
+				AwayTeamRoster:     awayGamePlayerRoster,
+				AwayTeamLineup:     awayGameplanLineup,
+				AwayTeamGameplan:   awayGameplan,
+				HomeCourtAdvantage: hca,
 			},
 		}
 		matchesList = append(matchesList, match)

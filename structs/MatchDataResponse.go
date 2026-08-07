@@ -51,15 +51,16 @@ type MatchResponse struct {
 
 // The game data needed to run a match
 type MatchDataResponse struct {
-	HomeTeam         MatchTeamResponse
-	HomeTeamRoster   []GamePlayer
-	HomeTeamGameplan Gameplan
-	HomeTeamLineup   []GameplanLineup
-	AwayTeam         MatchTeamResponse
-	AwayTeamRoster   []GamePlayer
-	AwayTeamGameplan Gameplan
-	AwayTeamLineup   []GameplanLineup
-	League           string
+	HomeTeam           MatchTeamResponse
+	HomeTeamRoster     []GamePlayer
+	HomeTeamGameplan   Gameplan
+	HomeTeamLineup     []GameplanLineup
+	AwayTeam           MatchTeamResponse
+	AwayTeamRoster     []GamePlayer
+	AwayTeamGameplan   Gameplan
+	AwayTeamLineup     []GameplanLineup
+	League             string
+	HomeCourtAdvantage float64
 }
 
 type CBBMatchDataResponse struct {
