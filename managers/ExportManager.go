@@ -84,7 +84,7 @@ func ExportNBADraftees(w http.ResponseWriter) {
 		"ID", "College", "First Name", "Last Name", "Position", "Archetype", "Age",
 		"Stars", "High School", "City", "State", "Country", "Height", "Weight",
 		"Overall", "BasketballIQ", "Inside Shooting", "MidRange Shooting", "Three Point Shooting", "Free Throwing", "Agility",
-		"Ballwork", "Stealing", "Blocking", "Rebounding", "InteriorDefense", "PerimeterDefense", "Stamina", "Potential Grade",
+		"Ballwork", "Stealing", "Blocking", "Rebounding", "InteriorDefense", "PerimeterDefense",
 		"Personality", "RecruitingBias", "Work Ethic", "Previous Team",
 		"2pt Shooting Results", "3pt Shooting Results", "Passing Drills", "Blocking Drills",
 		"Steal Drills", "Bench Press", "Standing Vertical Leap", "Max Vertical Leap", "Lane Agility", "Shuttle Run",
@@ -97,14 +97,13 @@ func ExportNBADraftees(w http.ResponseWriter) {
 
 	for _, player := range players {
 
-		sta := strconv.Itoa(int(player.Stamina))
 		combine := combineMap[player.ID]
 
 		playerRow := []string{
 			strconv.Itoa(int(player.ID)), player.Team, player.FirstName, player.LastName, player.Position, player.Archetype, strconv.Itoa(int(player.Age)),
 			strconv.Itoa(int(player.Stars)), player.HighSchool, player.City, player.State, player.Country, strconv.Itoa(int(player.Height)), strconv.Itoa(int(player.Weight)),
 			player.OverallGrade, player.BasketballIQGrade, player.InsideShootingGrade, player.MidrangeShootingGrade, player.ThreePointShootingGrade, player.FreeThrowGrade, player.AgilityGrade,
-			player.BallworkGrade, player.StealingGrade, player.BlockingGrade, player.ReboundingGrade, player.InteriorDefenseGrade, player.PerimeterDefenseGrade, sta, player.PotentialGrade,
+			player.BallworkGrade, player.StealingGrade, player.BlockingGrade, player.ReboundingGrade, player.InteriorDefenseGrade, player.PerimeterDefenseGrade,
 			player.Personality, player.RecruitingBias, player.WorkEthic, player.PreviousTeam,
 			strconv.Itoa(int(combine.TwoPointShooting)), strconv.Itoa(int(combine.ThreePointShooting)), strconv.Itoa(int(combine.PassingDrills)), strconv.Itoa(int(combine.BlockingDrills)), strconv.Itoa(int(combine.StealDrills)), strconv.Itoa(int(combine.BenchPress)),
 			// These are floats
