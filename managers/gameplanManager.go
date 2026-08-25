@@ -243,6 +243,32 @@ func GetAllNBALineups() []structs.NBALineup {
 	return repository.FindNBALineupRecords(repository.GameplanQuery{})
 }
 
+// isEligibleForSlot returns true if a player's position can fill a lineup slot of the given position.
+// G slots accept G or F; F slots accept any; C slots accept F or C.
+func isEligibleForSlot(playerPos, slotPos string) bool {
+	switch slotPos {
+	case "G":
+		return playerPos == "G" || playerPos == "F"
+	case "F":
+		return true
+	case "C":
+		return playerPos == "F" || playerPos == "C"
+	}
+	return false
+}
+
+// slotRestrictiveness returns a higher value for more constrained slot positions.
+// Used to process the most constrained slots first in greedy assignment.
+func slotRestrictiveness(pos string) int {
+	switch pos {
+	case "C":
+		return 2
+	case "G":
+		return 1
+	}
+	return 0
+}
+
 // calcShotProportions derives per-player shot type splits from shooting attributes.
 // Returns (inside, mid, threePoint) proportions that sum to 100.
 func calcShotProportions(inside, mid, three uint8) (uint8, uint8, uint8) {
@@ -256,15 +282,15 @@ func calcShotProportions(inside, mid, three uint8) (uint8, uint8, uint8) {
 	return inProp, midProp, tpProp
 }
 
-// fillCollegeLineupSlots assigns players from a sorted bucket to lineup slots using a
-// round-robin draft style so the best players rotate across slots. College games are
-// 40 minutes per position slot.
+// fillCollegeLineupSlots assigns players across all position slots using a greedy
+// tier-by-tier approach. Eligibility: G slots accept G/F; F slots accept any; C slots
+// accept F/C. Constraints per tier: ≤4 Forwards, ≤2 Centers, ≥1 Forward (when possible).
+// College games are 40 minutes per position slot.
 func fillCollegeLineupSlots(slots []*structs.CollegeLineup, players []structs.CollegePlayer) {
-	n := len(slots)
-	if n == 0 {
+	if len(slots) == 0 {
 		return
 	}
-	for i, slot := range slots {
+	for _, slot := range slots {
 		slot.FirstStringID = 0
 		slot.FSMinutes = 0
 		slot.FSInsideProportion = 0
@@ -280,47 +306,101 @@ func fillCollegeLineupSlots(slots []*structs.CollegeLineup, players []structs.Co
 		slot.TSInsideProportion = 0
 		slot.TSMidProportion = 0
 		slot.TSThreeProportion = 0
+	}
 
-		fsIdx := i
-		ssIdx := i + n
-		tsIdx := i + n*2
+	// Slot fill order: process most-constrained (C) first, then G, then F.
+	type indexedSlot struct {
+		idx  int
+		slot *structs.CollegeLineup
+	}
+	ordered := make([]indexedSlot, len(slots))
+	for i, s := range slots {
+		ordered[i] = indexedSlot{i, s}
+	}
+	sort.SliceStable(ordered, func(i, j int) bool {
+		return slotRestrictiveness(ordered[i].slot.Position) > slotRestrictiveness(ordered[j].slot.Position)
+	})
 
-		hasFS := fsIdx < len(players)
-		hasSS := ssIdx < len(players)
-		hasTS := tsIdx < len(players)
+	globalUsed := make(map[uint]bool)
+
+	// assignTier picks one eligible player per slot from the global player pool,
+	// marking each chosen player as globally used so they appear in at most one tier.
+	assignTier := func() []structs.CollegePlayer {
+		result := make([]structs.CollegePlayer, len(slots))
+		tierUsed := make(map[uint]bool)
+		fwdCount, cCount := 0, 0
+
+		for _, is := range ordered {
+			for _, p := range players {
+				if globalUsed[p.ID] || tierUsed[p.ID] {
+					continue
+				}
+				if !isEligibleForSlot(p.Position, is.slot.Position) {
+					continue
+				}
+				if p.Position == "F" && fwdCount >= 4 {
+					continue
+				}
+				if p.Position == "C" && cCount >= 2 {
+					continue
+				}
+				tierUsed[p.ID] = true
+				globalUsed[p.ID] = true
+				if p.Position == "F" {
+					fwdCount++
+				}
+				if p.Position == "C" {
+					cCount++
+				}
+				result[is.idx] = p
+				break
+			}
+		}
+		return result
+	}
+
+	fsPlayers := assignTier()
+	ssPlayers := assignTier()
+	tsPlayers := assignTier()
+
+	for i, slot := range slots {
+		fs := fsPlayers[i]
+		ss := ssPlayers[i]
+		ts := tsPlayers[i]
+
+		hasFS := fs.ID != 0
+		hasSS := ss.ID != 0
+		hasTS := ts.ID != 0
 
 		switch {
 		case hasFS && hasSS && hasTS:
-			slot.FSMinutes = 24
-			slot.SSMinutes = 13
-			slot.TSMinutes = 3
+			slot.FSMinutes = 10
+			slot.SSMinutes = 5
+			slot.TSMinutes = 1
 		case hasFS && hasSS:
-			slot.FSMinutes = 27
-			slot.SSMinutes = 13
+			slot.FSMinutes = 10
+			slot.SSMinutes = 5
 		case hasFS:
-			slot.FSMinutes = 40
+			slot.FSMinutes = 10
 		}
 
 		if hasFS {
-			p := players[fsIdx]
-			in, mid, tp := calcShotProportions(p.InsideShooting, p.MidRangeShooting, p.ThreePointShooting)
-			slot.FirstStringID = p.ID
+			in, mid, tp := calcShotProportions(fs.InsideShooting, fs.MidRangeShooting, fs.ThreePointShooting)
+			slot.FirstStringID = fs.ID
 			slot.FSInsideProportion = in
 			slot.FSMidProportion = mid
 			slot.FSThreeProportion = tp
 		}
 		if hasSS {
-			p := players[ssIdx]
-			in, mid, tp := calcShotProportions(p.InsideShooting, p.MidRangeShooting, p.ThreePointShooting)
-			slot.SecondStringID = p.ID
+			in, mid, tp := calcShotProportions(ss.InsideShooting, ss.MidRangeShooting, ss.ThreePointShooting)
+			slot.SecondStringID = ss.ID
 			slot.SSInsideProportion = in
 			slot.SSMidProportion = mid
 			slot.SSThreeProportion = tp
 		}
 		if hasTS {
-			p := players[tsIdx]
-			in, mid, tp := calcShotProportions(p.InsideShooting, p.MidRangeShooting, p.ThreePointShooting)
-			slot.ThirdStringID = p.ID
+			in, mid, tp := calcShotProportions(ts.InsideShooting, ts.MidRangeShooting, ts.ThreePointShooting)
+			slot.ThirdStringID = ts.ID
 			slot.TSInsideProportion = in
 			slot.TSMidProportion = mid
 			slot.TSThreeProportion = tp
@@ -328,14 +408,13 @@ func fillCollegeLineupSlots(slots []*structs.CollegeLineup, players []structs.Co
 	}
 }
 
-// fillNBALineupSlots assigns players from a sorted bucket to lineup slots using a
-// round-robin draft style. NBA games are 48 minutes per position slot.
+// fillNBALineupSlots assigns players across all position slots using the same greedy
+// tier-by-tier approach as the college variant. NBA games are 48 minutes per slot.
 func fillNBALineupSlots(slots []*structs.NBALineup, players []structs.NBAPlayer) {
-	n := len(slots)
-	if n == 0 {
+	if len(slots) == 0 {
 		return
 	}
-	for i, slot := range slots {
+	for _, slot := range slots {
 		slot.FirstStringID = 0
 		slot.FSMinutes = 0
 		slot.FSInsideProportion = 0
@@ -351,47 +430,98 @@ func fillNBALineupSlots(slots []*structs.NBALineup, players []structs.NBAPlayer)
 		slot.TSInsideProportion = 0
 		slot.TSMidProportion = 0
 		slot.TSThreeProportion = 0
+	}
 
-		fsIdx := i
-		ssIdx := i + n
-		tsIdx := i + n*2
+	type indexedSlot struct {
+		idx  int
+		slot *structs.NBALineup
+	}
+	ordered := make([]indexedSlot, len(slots))
+	for i, s := range slots {
+		ordered[i] = indexedSlot{i, s}
+	}
+	sort.SliceStable(ordered, func(i, j int) bool {
+		return slotRestrictiveness(ordered[i].slot.Position) > slotRestrictiveness(ordered[j].slot.Position)
+	})
 
-		hasFS := fsIdx < len(players)
-		hasSS := ssIdx < len(players)
-		hasTS := tsIdx < len(players)
+	globalUsed := make(map[uint]bool)
+
+	assignTier := func() []structs.NBAPlayer {
+		result := make([]structs.NBAPlayer, len(slots))
+		tierUsed := make(map[uint]bool)
+		fwdCount, cCount := 0, 0
+
+		for _, is := range ordered {
+			for _, p := range players {
+				if globalUsed[p.ID] || tierUsed[p.ID] {
+					continue
+				}
+				if !isEligibleForSlot(p.Position, is.slot.Position) {
+					continue
+				}
+				if p.Position == "F" && fwdCount >= 4 {
+					continue
+				}
+				if p.Position == "C" && cCount >= 2 {
+					continue
+				}
+				tierUsed[p.ID] = true
+				globalUsed[p.ID] = true
+				if p.Position == "F" {
+					fwdCount++
+				}
+				if p.Position == "C" {
+					cCount++
+				}
+				result[is.idx] = p
+				break
+			}
+		}
+		return result
+	}
+
+	fsPlayers := assignTier()
+	ssPlayers := assignTier()
+	tsPlayers := assignTier()
+
+	for i, slot := range slots {
+		fs := fsPlayers[i]
+		ss := ssPlayers[i]
+		ts := tsPlayers[i]
+
+		hasFS := fs.ID != 0
+		hasSS := ss.ID != 0
+		hasTS := ts.ID != 0
 
 		switch {
 		case hasFS && hasSS && hasTS:
-			slot.FSMinutes = 30
-			slot.SSMinutes = 13
-			slot.TSMinutes = 5
+			slot.FSMinutes = 10
+			slot.SSMinutes = 5
+			slot.TSMinutes = 1
 		case hasFS && hasSS:
-			slot.FSMinutes = 32
-			slot.SSMinutes = 16
+			slot.FSMinutes = 10
+			slot.SSMinutes = 5
 		case hasFS:
-			slot.FSMinutes = 48
+			slot.FSMinutes = 10
 		}
 
 		if hasFS {
-			p := players[fsIdx]
-			in, mid, tp := calcShotProportions(p.InsideShooting, p.MidRangeShooting, p.ThreePointShooting)
-			slot.FirstStringID = p.ID
+			in, mid, tp := calcShotProportions(fs.InsideShooting, fs.MidRangeShooting, fs.ThreePointShooting)
+			slot.FirstStringID = fs.ID
 			slot.FSInsideProportion = in
 			slot.FSMidProportion = mid
 			slot.FSThreeProportion = tp
 		}
 		if hasSS {
-			p := players[ssIdx]
-			in, mid, tp := calcShotProportions(p.InsideShooting, p.MidRangeShooting, p.ThreePointShooting)
-			slot.SecondStringID = p.ID
+			in, mid, tp := calcShotProportions(ss.InsideShooting, ss.MidRangeShooting, ss.ThreePointShooting)
+			slot.SecondStringID = ss.ID
 			slot.SSInsideProportion = in
 			slot.SSMidProportion = mid
 			slot.SSThreeProportion = tp
 		}
 		if hasTS {
-			p := players[tsIdx]
-			in, mid, tp := calcShotProportions(p.InsideShooting, p.MidRangeShooting, p.ThreePointShooting)
-			slot.ThirdStringID = p.ID
+			in, mid, tp := calcShotProportions(ts.InsideShooting, ts.MidRangeShooting, ts.ThreePointShooting)
+			slot.ThirdStringID = ts.ID
 			slot.TSInsideProportion = in
 			slot.TSMidProportion = mid
 			slot.TSThreeProportion = tp
@@ -407,11 +537,36 @@ func SetAIGameplans() bool {
 	collegePlayerMapByTeamID := MakeCollegePlayerMapByTeamID(collegePlayers, true)
 	collegeLineups := GetAllCollegeLineups()
 	collegeLineupMap := MakeCollegeLineupMapByTeamID(collegeLineups)
+	gameplans := GetAllCollegeGameplans()
+	gameplanMap := MakeCollegeGameplanMap(gameplans)
 
 	for _, team := range teams {
+		// if team.ID < 365 {
+		// 	continue
+		// }
 		// if team.IsUserCoached {
 		// 	continue
 		// }
+		gameplan := gameplanMap[team.ID]
+		if gameplan.ID == 0 {
+			gameplan = structs.Gameplan{
+				TeamID:             team.ID,
+				Pace:               "Balanced",
+				PreserveTimeouts:   true,
+				Trigger1Enabled:    false,
+				Trigger1Type:       1,
+				Trigger1Value:      0,
+				Trigger2Enabled:    false,
+				Trigger2Value:      0,
+				Trigger3Enabled:    false,
+				Trigger3Value:      0,
+				Trigger3Exhaustion: 0,
+				Trigger4Enabled:    false,
+				Trigger4Value:      10,
+			}
+			repository.SaveCBBGameplanRecord(gameplan, db)
+		}
+
 		SetCollegeMinutesAndShotProportions(db, team.ID, collegeLineupMap, collegePlayerMapByTeamID)
 	}
 
@@ -466,24 +621,18 @@ func SetCollegeMinutesAndShotProportions(db *gorm.DB, teamID uint, lineupMap map
 	sort.Slice(fPlayers, func(i, j int) bool { return fPlayers[i].Overall > fPlayers[j].Overall })
 	sort.Slice(cPlayers, func(i, j int) bool { return cPlayers[i].Overall > cPlayers[j].Overall })
 
-	gSlots := []*structs.CollegeLineup{}
-	fSlots := []*structs.CollegeLineup{}
-	cSlots := []*structs.CollegeLineup{}
-
+	allSlots := make([]*structs.CollegeLineup, len(lineups))
 	for i := range lineups {
-		switch lineups[i].Position {
-		case "G":
-			gSlots = append(gSlots, &lineups[i])
-		case "F":
-			fSlots = append(fSlots, &lineups[i])
-		case "C":
-			cSlots = append(cSlots, &lineups[i])
-		}
+		allSlots[i] = &lineups[i]
 	}
 
-	fillCollegeLineupSlots(gSlots, gPlayers)
-	fillCollegeLineupSlots(fSlots, fPlayers)
-	fillCollegeLineupSlots(cSlots, cPlayers)
+	allPlayers := make([]structs.CollegePlayer, 0, len(gPlayers)+len(fPlayers)+len(cPlayers))
+	allPlayers = append(allPlayers, gPlayers...)
+	allPlayers = append(allPlayers, fPlayers...)
+	allPlayers = append(allPlayers, cPlayers...)
+	sort.Slice(allPlayers, func(i, j int) bool { return allPlayers[i].Overall > allPlayers[j].Overall })
+
+	fillCollegeLineupSlots(allSlots, allPlayers)
 
 	for _, lineup := range lineups {
 		repository.SaveCollegeLineupRecord(lineup, db)
@@ -519,24 +668,18 @@ func SetNBAMinutesAndShotProportions(db *gorm.DB, teamID uint, lineupMap map[uin
 	sort.Slice(fPlayers, func(i, j int) bool { return fPlayers[i].Overall > fPlayers[j].Overall })
 	sort.Slice(cPlayers, func(i, j int) bool { return cPlayers[i].Overall > cPlayers[j].Overall })
 
-	gSlots := []*structs.NBALineup{}
-	fSlots := []*structs.NBALineup{}
-	cSlots := []*structs.NBALineup{}
-
+	allSlots := make([]*structs.NBALineup, len(lineups))
 	for i := range lineups {
-		switch lineups[i].Position {
-		case "G":
-			gSlots = append(gSlots, &lineups[i])
-		case "F":
-			fSlots = append(fSlots, &lineups[i])
-		case "C":
-			cSlots = append(cSlots, &lineups[i])
-		}
+		allSlots[i] = &lineups[i]
 	}
 
-	fillNBALineupSlots(gSlots, gPlayers)
-	fillNBALineupSlots(fSlots, fPlayers)
-	fillNBALineupSlots(cSlots, cPlayers)
+	allPlayers := make([]structs.NBAPlayer, 0, len(gPlayers)+len(fPlayers)+len(cPlayers))
+	allPlayers = append(allPlayers, gPlayers...)
+	allPlayers = append(allPlayers, fPlayers...)
+	allPlayers = append(allPlayers, cPlayers...)
+	sort.Slice(allPlayers, func(i, j int) bool { return allPlayers[i].Overall > allPlayers[j].Overall })
+
+	fillNBALineupSlots(allSlots, allPlayers)
 
 	for _, lineup := range lineups {
 		repository.SaveNBALineupRecord(lineup, db)

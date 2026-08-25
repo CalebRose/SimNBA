@@ -31,65 +31,60 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 		tsChn <- ts
 	}()
 
-	timestamp := <-tsChn
+	ts := <-tsChn
 	close(tsChn)
 
 	matchType := ""
 
-	if !timestamp.GamesARan {
+	if !ts.GamesARan {
 		matchType = "A"
-	} else if !timestamp.GamesBRan {
+	} else if !ts.GamesBRan {
 		matchType = "B"
-	} else if !timestamp.GamesCRan {
+	} else if !ts.GamesCRan {
 		matchType = "C"
-	} else if !timestamp.GamesDRan {
+	} else if !ts.GamesDRan {
 		matchType = "D"
 	}
+
+	collegePlayers := GetAllCollegePlayers()
+	collegePlayerMap := MakeCollegePlayerMap(collegePlayers)
+	collegeTeams := GetAllActiveCollegeTeams()
+	collegeTeamMap := MakeCollegeTeamMap(collegeTeams)
+	nbaTeams := GetAllActiveNBATeams()
+	nbaTeamMap := MakeNBATeamMap(nbaTeams)
+	nbaPlayers := GetAllNBAPlayers()
+	nbaPlayerMap := MakeNBAPlayerMap(nbaPlayers)
+	collegeMatches := GetMatchesByWeekIdAndMatchType(strconv.Itoa(int(ts.CollegeWeekID)), strconv.Itoa(int(ts.SeasonID)), matchType)
+	nbaMatches := GetNBAMatchesByWeekIdAndMatchType(strconv.Itoa(int(ts.CollegeWeekID)), strconv.Itoa(int(ts.SeasonID)), matchType)
+	collegePlayByPlays := []structs.CollegePlayByPlay{}
+	nbaPlayByPlays := []structs.NBAPlayByPlay{}
+
+	collegeMatchMap := MakeCollegeMatchMap(collegeMatches)
+	nbaMatchMap := MakeNBAMatchMap(nbaMatches)
 
 	var teamStats []structs.TeamStats
 	var nbaTeamStats []structs.NBATeamStats
 
 	// Import College Game Results
 	for _, dto := range Results.CBBResults {
-		record := make(chan structs.Match)
-		go func() {
-			asyncMatch := GetMatchByMatchId(dto.GameID)
-			record <- asyncMatch
-		}()
-
-		gameRecord := <-record
-		close(record)
+		gameRecord := collegeMatchMap[dto.GameID]
 
 		var playerStats []structs.CollegePlayerStats
 
-		homeTeamChn := make(chan structs.Team)
-		go func() {
-			homeTeam := GetTeamByTeamID(strconv.Itoa(dto.TeamOne.ID))
-			homeTeamChn <- homeTeam
-		}()
-
-		ht := <-homeTeamChn
-		close(homeTeamChn)
+		ht := collegeTeamMap[uint(dto.TeamOne.ID)]
 
 		matchID, err := strconv.Atoi(dto.GameID)
 		if err != nil {
 			log.Fatalln("Could not convert string to int")
 		}
 
-		homeTeam := mapToCollegeTeamStatsObject(ht.ID, uint(matchID), timestamp.CollegeWeekID, uint(timestamp.NBAWeek), timestamp.SeasonID, matchType, dto.TeamOne, dto.TeamTwo)
+		homeTeam := mapToCollegeTeamStatsObject(ht.ID, uint(matchID), ts.CollegeWeekID, uint(ts.NBAWeek), ts.SeasonID, matchType, dto.TeamOne, dto.TeamTwo)
 
 		teamStats = append(teamStats, homeTeam)
 
-		awayTeamChn := make(chan structs.Team)
-		go func() {
-			awayTeam := GetTeamByTeamID(strconv.Itoa(dto.TeamTwo.ID))
-			awayTeamChn <- awayTeam
-		}()
+		at := collegeTeamMap[uint(dto.TeamTwo.ID)]
 
-		at := <-awayTeamChn
-		close(awayTeamChn)
-
-		awayTeam := mapToCollegeTeamStatsObject(at.ID, uint(matchID), timestamp.CollegeWeekID, uint(timestamp.NBAWeek), timestamp.SeasonID, matchType, dto.TeamTwo, dto.TeamOne)
+		awayTeam := mapToCollegeTeamStatsObject(at.ID, uint(matchID), ts.CollegeWeekID, uint(ts.NBAWeek), ts.SeasonID, matchType, dto.TeamTwo, dto.TeamOne)
 
 		teamStats = append(teamStats, awayTeam)
 
@@ -98,19 +93,23 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 		cbbPlayerMap := make(map[uint]structs.CollegePlayer)
 		sentCBBInjury := make(map[uint]bool)
 
-		for _, player := range dto.RosterOne {
-			id := player.ID
-			collegePlayerStats := mapToCBBPlayerStatsObject(player, id, matchID, timestamp.SeasonID, timestamp.CollegeWeekID, uint(timestamp.NBAWeek), matchType)
+		for _, player := range dto.PlayerStats {
+			id := player.PlayerID
+			collegePlayerRecord := collegePlayerMap[uint(id)]
+			collegeTeam := collegeTeamMap[uint(collegePlayerRecord.TeamID)]
+			collegePlayerStats := mapToCBBPlayerStatsObject(player, id, int(collegePlayerRecord.TeamID), matchID, ts.SeasonID, ts.CollegeWeekID, uint(ts.NBAWeek), matchType)
 			playerStats = append(playerStats, collegePlayerStats)
-			homePlayerStats = append(homePlayerStats, collegePlayerStats)
-			cbbPlayerMap[uint(id)] = structs.CollegePlayer{BasePlayer: structs.BasePlayer{
-				FirstName: player.FirstName,
-				LastName:  player.LastName,
-				Position:  player.Position,
-			}}
-			if player.Stats.IsInjured && ht.IsUserCoached && ht.Coach != "" && !sentCBBInjury[ht.ID] {
-				sentCBBInjury[ht.ID] = true
-				p, t, gID := player, ht, dto.GameID
+			if collegeTeam.ID == ht.ID {
+				homePlayerStats = append(homePlayerStats, collegePlayerStats)
+			} else {
+				awayPlayerStats = append(awayPlayerStats, collegePlayerStats)
+			}
+
+			if player.IsInjured && collegeTeam.IsUserCoached && collegeTeam.Coach != "" && !sentCBBInjury[collegeTeam.ID] {
+				sentCBBInjury[collegeTeam.ID] = true
+				collegePlayerRecord.SetInjury(player.InjuryName, player.InjuryType, player.WeeksOfRecovery)
+				repository.SaveCollegePlayerRecord(collegePlayerRecord, db)
+				t, gID := collegeTeam, dto.GameID
 				go func() {
 					ctx := context.Background()
 					uids := fbsvc.ResolveUIDsByUsernames(ctx, []string{t.Coach})
@@ -120,54 +119,58 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 							Domain:          fbsvc.DomainCBB,
 							TeamID:          t.ID,
 							TeamName:        t.Team,
-							PlayerID:        uint(p.ID),
-							PlayerName:      p.FirstName + " " + p.LastName,
-							Position:        p.Position,
-							InjuryType:      p.Stats.InjuryType,
-							WeeksOfRecovery: int(p.Stats.WeeksOfRecovery),
+							PlayerID:        uint(player.PlayerID),
+							PlayerName:      collegePlayerRecord.FirstName + " " + collegePlayerRecord.LastName,
+							Position:        collegePlayerRecord.Position,
+							InjuryType:      player.InjuryType,
+							WeeksOfRecovery: int(player.WeeksOfRecovery),
 							GameID:          gID,
 							RecipientUIDs:   uids,
-							SourceEventKey:  fbsvc.BuildSourceEventKey("injury", "cbb", gID, strconv.Itoa(p.ID)),
+							SourceEventKey:  fbsvc.BuildSourceEventKey("injury", "cbb", gID, strconv.Itoa(player.PlayerID)),
 						})
 					}
 				}()
 			}
 		}
 
-		for _, player := range dto.RosterTwo {
-			id := player.ID
-			collegePlayerStats := mapToCBBPlayerStatsObject(player, id, matchID, timestamp.SeasonID, timestamp.CollegeWeekID, uint(timestamp.NBAWeek), matchType)
-			playerStats = append(playerStats, collegePlayerStats)
-			awayPlayerStats = append(awayPlayerStats, collegePlayerStats)
-			cbbPlayerMap[uint(id)] = structs.CollegePlayer{BasePlayer: structs.BasePlayer{
-				FirstName: player.FirstName,
-				LastName:  player.LastName,
-				Position:  player.Position,
-			}}
-			if player.Stats.IsInjured && at.IsUserCoached && at.Coach != "" && !sentCBBInjury[at.ID] {
-				sentCBBInjury[at.ID] = true
-				p, t, gID := player, at, dto.GameID
-				go func() {
-					ctx := context.Background()
-					uids := fbsvc.ResolveUIDsByUsernames(ctx, []string{t.Coach})
-					if len(uids) > 0 {
-						_ = fbsvc.NotifyTeamInjury(ctx, fbsvc.TeamInjuryNotificationInput{
-							League:          "cbb",
-							Domain:          fbsvc.DomainCBB,
-							TeamID:          t.ID,
-							TeamName:        t.Team,
-							PlayerID:        uint(p.ID),
-							PlayerName:      p.FirstName + " " + p.LastName,
-							Position:        p.Position,
-							InjuryType:      p.Stats.InjuryType,
-							WeeksOfRecovery: int(p.Stats.WeeksOfRecovery),
-							GameID:          gID,
-							RecipientUIDs:   uids,
-							SourceEventKey:  fbsvc.BuildSourceEventKey("injury", "cbb", gID, strconv.Itoa(p.ID)),
-						})
-					}
-				}()
+		// Play by Play Data
+		playByPlays := dto.PlayByPlay
+		for _, pbp := range playByPlays {
+			cpbp := structs.CollegePlayByPlay{
+				BasePlayByPlay: structs.BasePlayByPlay{
+					GameID:              pbp.GameID,
+					Quarter:             pbp.Quarter,
+					TimeOnClock:         pbp.TimeOnClock,
+					ShotClock:           pbp.ShotClock,
+					SecondsConsumed:     pbp.SecondsConsumed,
+					HomeTeamScore:       pbp.HomeTeamScore,
+					AwayTeamScore:       pbp.AwayTeamScore,
+					TeamID:              pbp.TeamID,
+					BallCarrierID:       pbp.BallCarrierID,
+					AssistingPlayerID:   pbp.AssistingPlayerID,
+					PassedPlayerID:      pbp.PassedPlayerID,
+					DefenderID:          pbp.DefenderID,
+					BlockingPlayerID:    pbp.BlockingPlayerID,
+					StealingPlayerID:    pbp.StealingPlayerID,
+					FoulingPlayerID:     pbp.FoulingPlayerID,
+					SubstitutePlayerID:  pbp.SubstitutePlayerID,
+					InjuryID:            pbp.InjuryID,
+					InjuryType:          pbp.InjuryType,
+					InjuryDuration:      pbp.InjuryDuration,
+					PenaltyID:           pbp.PenaltyID,
+					HomeOffensiveSystem: getOffensiveSystem(pbp.HomeOffensiveSystem),
+					HomeDefensiveSystem: getDefensiveSystem(pbp.HomeDefensiveSystem),
+					AwayOffensiveSystem: getOffensiveSystem(pbp.AwayOffensiveSystem),
+					AwayDefensiveSystem: getDefensiveSystem(pbp.AwayDefensiveSystem),
+					EventID:             pbp.EventID,
+					OutcomeID:           pbp.OutcomeID,
+					XAxis:               pbp.XAxis,
+					YAxis:               pbp.YAxis,
+					NextXAxis:           pbp.NextXAxis,
+					NextYAxis:           pbp.NextYAxis,
+				},
 			}
+			collegePlayByPlays = append(collegePlayByPlays, cpbp)
 		}
 
 		gameRecord.UpdateScore(dto.TeamOne.Stats.Points, dto.TeamTwo.Stats.Points)
@@ -177,14 +180,18 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 			log.Panicln("Could not save Game " + strconv.Itoa(int(gameRecord.ID)) + "Between " + gameRecord.HomeTeam + " and " + gameRecord.AwayTeam)
 		}
 
-		err = db.CreateInBatches(&playerStats, len(playerStats)).Error
+		err = repository.CreateCollegePlayerStatsBatch(db, homePlayerStats, 100)
 		if err != nil {
-			log.Panicln("Could not save player stats from week " + strconv.Itoa(timestamp.CollegeWeek))
+			log.Panicln("Could not save college player stats from week " + strconv.Itoa(ts.CollegeWeek))
+		}
+		err = repository.CreateCollegePlayerStatsBatch(db, awayPlayerStats, 100)
+		if err != nil {
+			log.Panicln("Could not save college player stats from week " + strconv.Itoa(ts.CollegeWeek))
 		}
 
 		// Create a post-game discussion thread for user-coached games (best-effort).
 		if gameRecord.HomeTeamCoach != "" || gameRecord.AwayTeamCoach != "" {
-			gr, htStats, atStats, hpStats, apStats, pm, sid := gameRecord, homeTeam, awayTeam, homePlayerStats, awayPlayerStats, cbbPlayerMap, timestamp.SeasonID
+			gr, htStats, atStats, hpStats, apStats, pm, sid := gameRecord, homeTeam, awayTeam, homePlayerStats, awayPlayerStats, cbbPlayerMap, ts.SeasonID
 			go CreatePostGameDiscussionThreadForCBBGame(gr, sid, htStats, atStats, hpStats, apStats, pm)
 		}
 
@@ -193,56 +200,38 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 
 	// Import NBA Game Results
 	for _, dto := range Results.NBAResults {
-		record := make(chan structs.NBAMatch)
-		go func() {
-			asyncMatch := GetNBAMatchByMatchId(dto.GameID)
-			record <- asyncMatch
-		}()
-
-		gameRecord := <-record
-		close(record)
+		gameRecord := nbaMatchMap[dto.GameID]
 
 		var playerStats []structs.NBAPlayerStats
 
-		homeTeamChn := make(chan structs.NBATeam)
-		go func() {
-			homeTeam := GetNBATeamByTeamID(strconv.Itoa(dto.TeamOne.ID))
-			homeTeamChn <- homeTeam
-		}()
-
-		ht := <-homeTeamChn
-		close(homeTeamChn)
+		ht := nbaTeamMap[uint(dto.TeamOne.ID)]
 
 		matchID := util.ConvertStringToInt(dto.GameID)
 
-		homeTeam := mapToNBATeamStatsObject(ht.ID, uint(matchID), timestamp.NBAWeekID, uint(timestamp.NBAWeek), timestamp.SeasonID, matchType, dto.TeamOne, dto.TeamTwo)
+		homeTeam := mapToNBATeamStatsObject(ht.ID, uint(matchID), ts.NBAWeekID, uint(ts.NBAWeek), ts.SeasonID, matchType, dto.TeamOne, dto.TeamTwo)
 
 		nbaTeamStats = append(nbaTeamStats, homeTeam)
 
-		awayTeamChn := make(chan structs.NBATeam)
-		go func() {
-			awayTeam := GetNBATeamByTeamID(strconv.Itoa(dto.TeamTwo.ID))
-			awayTeamChn <- awayTeam
-		}()
+		at := nbaTeamMap[uint(dto.TeamTwo.ID)]
 
-		at := <-awayTeamChn
-		close(awayTeamChn)
-
-		awayTeam := mapToNBATeamStatsObject(at.ID, uint(matchID), timestamp.NBAWeekID, uint(timestamp.NBAWeek), timestamp.SeasonID, matchType, dto.TeamTwo, dto.TeamOne)
+		awayTeam := mapToNBATeamStatsObject(at.ID, uint(matchID), ts.NBAWeekID, uint(ts.NBAWeek), ts.SeasonID, matchType, dto.TeamTwo, dto.TeamOne)
 
 		nbaTeamStats = append(nbaTeamStats, awayTeam)
 
 		sentNBAInjury := make(map[uint]bool)
 
-		for _, player := range dto.RosterOne {
-			id := player.ID
-			nbaPlayerStats := mapToNBAPlayerStatsObject(player, id, matchID, timestamp.SeasonID, timestamp.NBAWeekID, uint(timestamp.NBAWeek), matchType)
+		for _, player := range dto.PlayerStats {
+			id := player.PlayerID
+			nbaPlayerRecord := nbaPlayerMap[uint(id)]
+			team := nbaTeamMap[uint(nbaPlayerRecord.TeamID)]
+			nbaPlayerStats := mapToNBAPlayerStatsObject(player, id, int(nbaPlayerRecord.TeamID), matchID, ts.SeasonID, ts.NBAWeekID, uint(ts.NBAWeek), matchType)
 			playerStats = append(playerStats, nbaPlayerStats)
-			if player.Stats.IsInjured && !sentNBAInjury[ht.ID] {
-				usernames := collectNBATeamUsernames(ht)
+			if player.IsInjured && !sentNBAInjury[team.ID] {
+				nbaPlayerRecord.SetInjury(player.InjuryName, player.InjuryType, player.WeeksOfRecovery)
+				usernames := collectNBATeamUsernames(team)
 				if len(usernames) > 0 {
-					sentNBAInjury[ht.ID] = true
-					p, t, gID := player, ht, dto.GameID
+					sentNBAInjury[team.ID] = true
+					p, t, gID := player, team, dto.GameID
 					go func() {
 						ctx := context.Background()
 						uids := fbsvc.ResolveUIDsByUsernames(ctx, usernames)
@@ -252,14 +241,14 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 								Domain:          fbsvc.DomainNBA,
 								TeamID:          t.ID,
 								TeamName:        t.Team,
-								PlayerID:        uint(p.ID),
-								PlayerName:      p.FirstName + " " + p.LastName,
-								Position:        p.Position,
-								InjuryType:      p.Stats.InjuryType,
-								WeeksOfRecovery: int(p.Stats.WeeksOfRecovery),
+								PlayerID:        uint(nbaPlayerRecord.ID),
+								PlayerName:      nbaPlayerRecord.FirstName + " " + nbaPlayerRecord.LastName,
+								Position:        nbaPlayerRecord.Position,
+								InjuryType:      nbaPlayerRecord.InjuryType,
+								WeeksOfRecovery: int(nbaPlayerRecord.WeeksOfRecovery),
 								GameID:          gID,
 								RecipientUIDs:   uids,
-								SourceEventKey:  fbsvc.BuildSourceEventKey("injury", "nba", gID, strconv.Itoa(p.ID)),
+								SourceEventKey:  fbsvc.BuildSourceEventKey("injury", "nba", gID, strconv.Itoa(p.PlayerID)),
 							})
 						}
 					}()
@@ -267,37 +256,43 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 			}
 		}
 
-		for _, player := range dto.RosterTwo {
-			id := player.ID
-			nbaPlayerStats := mapToNBAPlayerStatsObject(player, id, matchID, timestamp.SeasonID, timestamp.NBAWeekID, uint(timestamp.NBAWeek), matchType)
-			playerStats = append(playerStats, nbaPlayerStats)
-			if player.Stats.IsInjured && !sentNBAInjury[at.ID] {
-				usernames := collectNBATeamUsernames(at)
-				if len(usernames) > 0 {
-					sentNBAInjury[at.ID] = true
-					p, t, gID := player, at, dto.GameID
-					go func() {
-						ctx := context.Background()
-						uids := fbsvc.ResolveUIDsByUsernames(ctx, usernames)
-						if len(uids) > 0 {
-							_ = fbsvc.NotifyTeamInjury(ctx, fbsvc.TeamInjuryNotificationInput{
-								League:          "nba",
-								Domain:          fbsvc.DomainNBA,
-								TeamID:          t.ID,
-								TeamName:        t.Team,
-								PlayerID:        uint(p.ID),
-								PlayerName:      p.FirstName + " " + p.LastName,
-								Position:        p.Position,
-								InjuryType:      p.Stats.InjuryType,
-								WeeksOfRecovery: int(p.Stats.WeeksOfRecovery),
-								GameID:          gID,
-								RecipientUIDs:   uids,
-								SourceEventKey:  fbsvc.BuildSourceEventKey("injury", "nba", gID, strconv.Itoa(p.ID)),
-							})
-						}
-					}()
-				}
+		playByPlays := dto.PlayByPlay
+		for _, pbp := range playByPlays {
+			npbp := structs.NBAPlayByPlay{
+				BasePlayByPlay: structs.BasePlayByPlay{
+					GameID:              pbp.GameID,
+					Quarter:             pbp.Quarter,
+					TimeOnClock:         pbp.TimeOnClock,
+					ShotClock:           pbp.ShotClock,
+					SecondsConsumed:     pbp.SecondsConsumed,
+					HomeTeamScore:       pbp.HomeTeamScore,
+					AwayTeamScore:       pbp.AwayTeamScore,
+					TeamID:              pbp.TeamID,
+					BallCarrierID:       pbp.BallCarrierID,
+					AssistingPlayerID:   pbp.AssistingPlayerID,
+					PassedPlayerID:      pbp.PassedPlayerID,
+					DefenderID:          pbp.DefenderID,
+					BlockingPlayerID:    pbp.BlockingPlayerID,
+					StealingPlayerID:    pbp.StealingPlayerID,
+					FoulingPlayerID:     pbp.FoulingPlayerID,
+					SubstitutePlayerID:  pbp.SubstitutePlayerID,
+					InjuryID:            pbp.InjuryID,
+					InjuryType:          pbp.InjuryType,
+					InjuryDuration:      pbp.InjuryDuration,
+					PenaltyID:           pbp.PenaltyID,
+					HomeOffensiveSystem: getOffensiveSystem(pbp.HomeOffensiveSystem),
+					HomeDefensiveSystem: getDefensiveSystem(pbp.HomeDefensiveSystem),
+					AwayOffensiveSystem: getOffensiveSystem(pbp.AwayOffensiveSystem),
+					AwayDefensiveSystem: getDefensiveSystem(pbp.AwayDefensiveSystem),
+					EventID:             pbp.EventID,
+					OutcomeID:           pbp.OutcomeID,
+					XAxis:               pbp.XAxis,
+					YAxis:               pbp.YAxis,
+					NextXAxis:           pbp.NextXAxis,
+					NextYAxis:           pbp.NextYAxis,
+				},
 			}
+			nbaPlayByPlays = append(nbaPlayByPlays, npbp)
 		}
 
 		gameRecord.UpdateScore(dto.TeamOne.Stats.Points, dto.TeamTwo.Stats.Points)
@@ -307,28 +302,24 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 			log.Panicln("Could not save Game " + strconv.Itoa(int(gameRecord.ID)) + "Between " + gameRecord.HomeTeam + " and " + gameRecord.AwayTeam)
 		}
 
-		err = db.CreateInBatches(&playerStats, len(playerStats)).Error
+		err = repository.CreateNBAPlayerStatsBatch(db, playerStats, 100)
 		if err != nil {
-			log.Panicln("Could not save player stats from week " + strconv.Itoa(timestamp.CollegeWeek))
+			log.Panicln("Could not save NBA player stats from week " + strconv.Itoa(ts.NBAWeek))
 		}
 
 		fmt.Println("Finished Game " + strconv.Itoa(int(gameRecord.ID)) + " Between " + gameRecord.HomeTeam + " and " + gameRecord.AwayTeam)
 	}
 
 	// Import all college team stats
-	for _, stats := range teamStats {
-		err := db.Create(&stats).Error
-		if err != nil {
-			log.Panicln("Could not save team stats!")
-		}
-	}
+	repository.CreateCollegeTeamStatsBatch(db, teamStats, 100)
+
 	// Import All nba team stats
-	for _, stats := range nbaTeamStats {
-		err := db.Create(&stats).Error
-		if err != nil {
-			log.Panicln("Could not save team stats!")
-		}
-	}
+	repository.CreateNBATeamStatsBatch(db, nbaTeamStats, 100)
+
+	// Import all college and NBA play-by-play data
+	repository.CreateCollegePlayByPlayBatch(db, collegePlayByPlays, 200)
+	repository.CreateNBAPlayByPlayBatch(db, nbaPlayByPlays, 200)
+
 	fmt.Println("Finished Import for all games")
 }
 
@@ -1606,79 +1597,79 @@ func mapToNBATeamStatsObject(teamID, matchID, weekID, week, seasonID uint, match
 	}
 }
 
-func mapToCBBPlayerStatsObject(player structs.PlayerDTO, id, matchID int, seasonID, weekID, week uint, matchType string) structs.CollegePlayerStats {
+func mapToCBBPlayerStatsObject(player structs.PlayerStatsDTO, id, teamID, matchID int, seasonID, weekID, week uint, matchType string) structs.CollegePlayerStats {
 	return structs.CollegePlayerStats{
-		TeamID:             uint(player.TeamID),
+		TeamID:             uint(teamID),
 		CollegePlayerID:    uint(id),
 		MatchID:            uint(matchID),
 		SeasonID:           seasonID,
 		MatchType:          matchType,
 		WeekID:             weekID,
 		Week:               week,
-		Year:               uint(player.Stats.Year),
-		Minutes:            player.Stats.Minutes,
-		Possessions:        player.Stats.Possessions,
-		FGM:                player.Stats.FGM,
-		FGA:                player.Stats.FGA,
-		FGPercent:          player.Stats.FGPercent,
-		ThreePointsMade:    player.Stats.ThreePointsMade,
-		ThreePointAttempts: player.Stats.ThreePointAttempts,
-		ThreePointPercent:  player.Stats.ThreePointPercent,
-		FTM:                player.Stats.FTM,
-		FTA:                player.Stats.FTA,
-		FTPercent:          player.Stats.FTPercent,
-		Points:             player.Stats.Points,
-		TotalRebounds:      player.Stats.TotalRebounds,
-		OffRebounds:        player.Stats.OffRebounds,
-		DefRebounds:        player.Stats.DefRebounds,
-		Assists:            player.Stats.Assists,
-		Steals:             player.Stats.Steals,
-		Blocks:             player.Stats.Blocks,
-		Turnovers:          player.Stats.Turnovers,
-		Fouls:              player.Stats.Fouls,
-		FouledOut:          player.Stats.FouledOut,
-		IsInjured:          player.Stats.IsInjured,
-		InjuryName:         player.Stats.InjuryName,
-		InjuryType:         player.Stats.InjuryType,
-		WeeksOfRecovery:    player.Stats.WeeksOfRecovery,
+		Year:               uint(player.Year),
+		Minutes:            player.Minutes,
+		Possessions:        player.Possessions,
+		FGM:                player.FGM,
+		FGA:                player.FGA,
+		FGPercent:          player.FGPercent,
+		ThreePointsMade:    player.ThreePointsMade,
+		ThreePointAttempts: player.ThreePointAttempts,
+		ThreePointPercent:  player.ThreePointPercent,
+		FTM:                player.FTM,
+		FTA:                player.FTA,
+		FTPercent:          player.FTPercent,
+		Points:             player.Points,
+		TotalRebounds:      player.TotalRebounds,
+		OffRebounds:        player.OffRebounds,
+		DefRebounds:        player.DefRebounds,
+		Assists:            player.Assists,
+		Steals:             player.Steals,
+		Blocks:             player.Blocks,
+		Turnovers:          player.Turnovers,
+		Fouls:              player.Fouls,
+		FouledOut:          player.FouledOut,
+		IsInjured:          player.IsInjured,
+		InjuryName:         player.InjuryName,
+		InjuryType:         player.InjuryType,
+		WeeksOfRecovery:    player.WeeksOfRecovery,
 	}
 }
 
-func mapToNBAPlayerStatsObject(player structs.PlayerDTO, id, matchID int, seasonID, weekID, week uint, matchType string) structs.NBAPlayerStats {
+func mapToNBAPlayerStatsObject(player structs.PlayerStatsDTO, id, teamID, matchID int, seasonID, weekID, week uint, matchType string) structs.NBAPlayerStats {
 	return structs.NBAPlayerStats{
-		TeamID:             uint(player.TeamID),
+		TeamID:             uint(teamID),
 		NBAPlayerID:        uint(id),
 		MatchID:            uint(matchID),
 		SeasonID:           seasonID,
 		WeekID:             weekID,
 		Week:               week,
-		Year:               uint(player.Stats.Year),
+		Year:               uint(player.Year),
 		MatchType:          matchType,
-		Minutes:            player.Stats.Minutes,
-		Possessions:        player.Stats.Possessions,
-		FGM:                player.Stats.FGM,
-		FGA:                player.Stats.FGA,
-		FGPercent:          player.Stats.FGPercent,
-		ThreePointsMade:    player.Stats.ThreePointsMade,
-		ThreePointAttempts: player.Stats.ThreePointAttempts,
-		ThreePointPercent:  player.Stats.ThreePointPercent,
-		FTM:                player.Stats.FTM,
-		FTA:                player.Stats.FTA,
-		FTPercent:          player.Stats.FTPercent,
-		Points:             player.Stats.Points,
-		TotalRebounds:      player.Stats.TotalRebounds,
-		OffRebounds:        player.Stats.OffRebounds,
-		DefRebounds:        player.Stats.DefRebounds,
-		Assists:            player.Stats.Assists,
-		Steals:             player.Stats.Steals,
-		Blocks:             player.Stats.Blocks,
-		Turnovers:          player.Stats.Turnovers,
-		Fouls:              player.Stats.Fouls,
-		FouledOut:          player.Stats.FouledOut,
-		IsInjured:          player.Stats.IsInjured,
-		InjuryName:         player.Stats.InjuryName,
-		InjuryType:         player.Stats.InjuryType,
-		WeeksOfRecovery:    player.Stats.WeeksOfRecovery,
+		Minutes:            player.Minutes,
+		Possessions:        player.Possessions,
+		FGM:                player.FGM,
+		FGA:                player.FGA,
+		FGPercent:          player.FGPercent,
+		ThreePointsMade:    player.ThreePointsMade,
+		ThreePointAttempts: player.ThreePointAttempts,
+		ThreePointPercent:  player.ThreePointPercent,
+		FTM:                player.FTM,
+		FTA:                player.FTA,
+		FTPercent:          player.FTPercent,
+		Points:             player.Points,
+		TotalRebounds:      player.TotalRebounds,
+		OffRebounds:        player.OffRebounds,
+		DefRebounds:        player.DefRebounds,
+		Assists:            player.Assists,
+		Steals:             player.Steals,
+		Blocks:             player.Blocks,
+		Turnovers:          player.Turnovers,
+		Fouls:              player.Fouls,
+		FouledOut:          player.FouledOut,
+		IsInjured:          player.IsInjured,
+		InjuryName:         player.InjuryName,
+		InjuryType:         player.InjuryType,
+		WeeksOfRecovery:    player.WeeksOfRecovery,
 	}
 }
 
@@ -1882,5 +1873,39 @@ func FixEmptyCountryValues() {
 		country := pickISLCountry()
 		p.ApplyCountry(country)
 		repository.SaveNBAPlayerRecord(p, db)
+	}
+}
+
+func getOffensiveSystem(systemEnum string) uint8 {
+	switch systemEnum {
+	case "Balanced":
+		return 1
+	case "Motion":
+		return 2
+	case "Pick-and-Roll":
+		return 3
+	case "Post-Up":
+		return 4
+	case "Space-and-Post":
+		return 5
+	default:
+		return 0 // Unknown Offense
+	}
+}
+
+func getDefensiveSystem(systemEnum string) uint8 {
+	switch systemEnum {
+	case "Man-to-Man":
+		return 1
+	case "1-3-1 Zone":
+		return 2
+	case "3-2 Zone":
+		return 3
+	case "2-3 Zone":
+		return 4
+	case "Box-and-One Zone":
+		return 5
+	default:
+		return 0 // Unknown Defense
 	}
 }

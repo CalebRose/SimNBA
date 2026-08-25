@@ -6,11 +6,11 @@ type ImportMatchResultsDTO struct {
 }
 
 type MatchResultsDTO struct {
-	GameID    string
-	TeamOne   TeamResultsDTO
-	TeamTwo   TeamResultsDTO
-	RosterOne []PlayerDTO
-	RosterTwo []PlayerDTO
+	GameID      string
+	TeamOne     TeamResultsDTO
+	TeamTwo     TeamResultsDTO
+	PlayerStats []PlayerStatsDTO
+	PlayByPlay  []PlayByPlayDTO
 }
 
 type TeamResultsDTO struct {

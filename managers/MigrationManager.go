@@ -1,7 +1,9 @@
 package managers
 
 import (
+	"fmt"
 	"log"
+	"math/rand"
 	"strconv"
 	"strings"
 
@@ -1234,4 +1236,67 @@ func calculateSpecBasketballIQ(archetype string) bool {
 	}
 
 	return diceRoll > 17
+}
+
+func RefillCBBRosters() {
+	db := dbprovider.GetInstance().GetDB()
+	collegeTeams := GetAllActiveCollegeTeams()
+	collegePlayers := GetAllCollegePlayers()
+	collegePlayerMapByTeamID := MakeCollegePlayerMapByTeamID(collegePlayers, false)
+	unsignedPlayers := collegePlayerMapByTeamID[0]
+
+	rand.Shuffle(len(unsignedPlayers), func(i, j int) {
+		unsignedPlayers[i], unsignedPlayers[j] = unsignedPlayers[j], unsignedPlayers[i]
+	})
+
+	alreadySelectedPlayer := make(map[uint]bool)
+
+	minimumPlayerCountsByPosition := map[string]int{
+		"G": 5,
+		"F": 5,
+		"C": 3,
+	}
+
+	for _, team := range collegeTeams {
+		if team.ID == 75 || team.ID == 27 || team.ID == 278 || team.ID == 129 {
+			fmt.Println("PING!")
+		}
+		teamID := team.ID
+		teamRoster := collegePlayerMapByTeamID[teamID]
+		// Logic to refill the roster with unsigned players
+		if len(teamRoster) > 7 {
+			continue
+		}
+
+		playerCountByPosition := make(map[string]int)
+		for _, player := range teamRoster {
+			playerCountByPosition[player.Position]++
+		}
+		playersSigned := 0
+		for position, minimumCount := range minimumPlayerCountsByPosition {
+			currentCount := playerCountByPosition[position]
+			if currentCount < minimumCount {
+				needed := minimumCount - currentCount
+				for i := 0; i < len(unsignedPlayers); i++ {
+					if playersSigned >= needed {
+						break
+					}
+					if playerCountByPosition[position] >= minimumCount {
+						break
+					}
+					player := unsignedPlayers[i]
+					if alreadySelectedPlayer[player.ID] {
+						continue
+					}
+					if player.Position == position && !alreadySelectedPlayer[player.ID] {
+						teamRoster = append(teamRoster, player)
+						alreadySelectedPlayer[player.ID] = true
+						playerCountByPosition[position]++
+						repository.SaveCollegePlayerRecord(player, db)
+						playersSigned++
+					}
+				}
+			}
+		}
+	}
 }

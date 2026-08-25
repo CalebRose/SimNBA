@@ -217,6 +217,7 @@ func handleRequests() http.Handler {
 	// apiRouter.HandleFunc("/migrate/faces", controller.MigrateFaceData).Methods("GET")
 	apiRouter.HandleFunc("/faces", controller.GetAllFaces).Methods("GET")
 	apiRouter.HandleFunc("/migrate/2026", controller.Migrate2026Data).Methods("GET")
+	// apiRouter.HandleFunc("/migrate/cbb/refill", controller.RefillCBBRosters).Methods("GET")
 
 	// News Controls
 	apiRouter.HandleFunc("/cbb/news/all/", controller.GetAllCBBNewsInASeason).Methods("GET")

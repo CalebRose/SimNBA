@@ -46,6 +46,7 @@ type MatchResponse struct {
 	IsInvitational         bool
 	IsInternational        bool
 	Channel                uint
+	League                 string
 	MatchData              MatchDataResponse
 }
 

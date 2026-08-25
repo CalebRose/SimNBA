@@ -151,16 +151,19 @@ func GetTestMatches(request structs.TestRequest) structs.MatchStateResponse {
 
 func GetMatchesForTimeslot() structs.MatchStateResponse {
 	ts := GetTimestamp()
-	if !ts.RunGames {
-		return structs.MatchStateResponse{
-			Matches:   []structs.MatchResponse{},
-			MatchType: "",
-			Week:      0,
-		}
-	}
-	seasonID := strconv.Itoa(int(ts.SeasonID))
-	weekID := strconv.Itoa(int(ts.CollegeWeekID))
-	nbaWeekID := strconv.Itoa(int(ts.NBAWeekID))
+	// if !ts.RunGames {
+	// 	return structs.MatchStateResponse{
+	// 		Matches:   []structs.MatchResponse{},
+	// 		MatchType: "",
+	// 		Week:      0,
+	// 	}
+	// }
+	// seasonID := strconv.Itoa(int(ts.SeasonID))
+	// weekID := strconv.Itoa(int(ts.CollegeWeekID))
+	// nbaWeekID := strconv.Itoa(int(ts.NBAWeekID))
+	seasonID := "6"
+	weekID := "2601"
+	nbaWeekID := "2601"
 
 	matchType := ""
 
@@ -310,6 +313,7 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 			State:                  c.State,
 			IsNeutralSite:          c.IsNeutralSite,
 			IsNBAMatch:             false,
+			League:                 "CBB",
 			IsConference:           c.IsConference,
 			IsConferenceTournament: c.IsConferenceTournament,
 			IsNITGame:              c.IsNITGame,
@@ -346,6 +350,7 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 				AwayTeamLineup:     atGameLineUp,
 				AwayTeamGameplan:   awayGameplan,
 				HomeCourtAdvantage: hca,
+				League:             "CBB",
 			},
 		}
 		matchesList = append(matchesList, match)
@@ -461,6 +466,7 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 			State:                  m.State,
 			IsNeutralSite:          m.IsNeutralSite,
 			IsNBAMatch:             true,
+			League:                 "NBA",
 			IsConference:           m.IsConference,
 			IsConferenceTournament: m.IsConferenceTournament,
 			IsInternational:        m.IsInternational,
@@ -496,6 +502,7 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 				AwayTeamLineup:     awayGameplanLineup,
 				AwayTeamGameplan:   awayGameplan,
 				HomeCourtAdvantage: hca,
+				League:             "NBA",
 			},
 		}
 		matchesList = append(matchesList, match)

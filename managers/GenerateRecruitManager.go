@@ -2060,18 +2060,18 @@ func GenerateCollegeWalkons() {
 	}
 
 	for _, team := range teams {
-		if !team.IsUserCoached {
-			continue
-		}
+		// if !team.IsUserCoached {
+		// 	continue
+		// }
 
 		roster := collegePlayerMapByTeamID[team.ID]
 
-		if len(roster) > 9 {
+		if len(roster) > 12 {
 			continue
 		}
 
 		count := 0
-		playersNeeded := 10 - len(roster)
+		playersNeeded := 15 - len(roster)
 
 		teamNeedsMap := make(map[string]bool)
 		positionCount := make(map[string]int)

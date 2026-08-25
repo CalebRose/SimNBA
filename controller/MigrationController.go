@@ -24,3 +24,10 @@ func GenerateCollegeAndNBALineupStructs(w http.ResponseWriter, r *http.Request) 
 	fmt.Println("Lineup Generation Complete.")
 	w.WriteHeader(http.StatusOK)
 }
+
+func RefillCBBRosters(w http.ResponseWriter, r *http.Request) {
+	managers.RefillCBBRosters()
+
+	fmt.Println("Refilling CBB Rosters.")
+	w.WriteHeader(http.StatusOK)
+}
