@@ -37,6 +37,7 @@ type ScoutingProfile struct {
 	ShowFreeThrow        bool
 	ShowFinishing        bool
 	ShowAgility          bool
+	ShowBasketballIQ     bool
 	ShowBallwork         bool
 	ShowRebounding       bool
 	ShowStealing         bool
@@ -61,6 +62,8 @@ func (sp *ScoutingProfile) RevealAttribute(attr string) {
 		sp.ShowFinishing = true
 	case "ShowAgility":
 		sp.ShowAgility = true
+	case "ShowBasketballIQ":
+		sp.ShowBasketballIQ = true
 	case "ShowBallwork":
 		sp.ShowBallwork = true
 	case "ShowRebounding":
