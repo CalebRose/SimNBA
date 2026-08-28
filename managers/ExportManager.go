@@ -142,7 +142,7 @@ func ExportCollegePlayers(w http.ResponseWriter) {
 	HeaderRow := []string{
 		"ID", "College", "First Name", "Last Name", "Position", "Year", "Is_Redshirt", "Age",
 		"Stars", "High School", "City", "State", "Country", "Height", "Weight",
-		"Overall", "Inside Shooting", "MidRange Shooting", "Three Point Shooting", "Free Throwing", "Agility",
+		"Overall", "Inside Shooting", "MidRange Shooting", "Three Point Shooting", "Free Throwing", "Basketball IQ", "Agility",
 		"Ballwork", "Stealing", "Blocking", "Rebounding", "InteriorDefense", "PerimeterDefense", "Stamina", "Potential Grade",
 		"Personality", "RecruitingBias", "Work Ethic", "Previous Team",
 	}
@@ -162,6 +162,7 @@ func ExportCollegePlayers(w http.ResponseWriter) {
 		ballworkGrade := util.GetAttributeGrade(player.Ballwork, int(player.Year))
 		interiorDefenseGrade := util.GetAttributeGrade(player.InteriorDefense, int(player.Year))
 		perimeterDefenseGrade := util.GetAttributeGrade(player.PerimeterDefense, int(player.Year))
+		basketballIQGrade := util.GetAttributeGrade(player.BasketballIQ, int(player.Year))
 		agilityGrade := util.GetAttributeGrade(player.Agility, int(player.Year))
 		stealingGrade := util.GetAttributeGrade(player.Stealing, int(player.Year))
 		blockingGrade := util.GetAttributeGrade(player.Blocking, int(player.Year))
@@ -172,7 +173,7 @@ func ExportCollegePlayers(w http.ResponseWriter) {
 		playerRow := []string{
 			strconv.Itoa(int(player.ID)), player.Team, player.FirstName, player.LastName, player.Position, strconv.Itoa(int(player.Year)), strconv.FormatBool(player.IsRedshirt), strconv.Itoa(int(player.Age)),
 			strconv.Itoa(int(player.Stars)), player.HighSchool, player.City, player.State, player.Country, strconv.Itoa(int(player.Height)), strconv.Itoa(int(player.Weight)),
-			overallGrade, finishingGrade, shooting2Grade, shooting3Grade, freeThrowGrade, agilityGrade,
+			overallGrade, finishingGrade, shooting2Grade, shooting3Grade, freeThrowGrade, basketballIQGrade, agilityGrade,
 			ballworkGrade, stealingGrade, blockingGrade, reboundingGrade, interiorDefenseGrade, perimeterDefenseGrade, sta, potentialGrade,
 			player.Personality, player.RecruitingBias, player.WorkEthic, player.PreviousTeam,
 		}
@@ -203,7 +204,7 @@ func ExportTransferPortalToCSV(w http.ResponseWriter) {
 	HeaderRow := []string{
 		"College", "First Name", "Last Name", "Position", "Year", "Is_Redshirt", "Age",
 		"Stars", "State", "Country", "Height",
-		"Overall", "Shooting 2s", "Shooting 3s", "Free Throwing", "Finishing", "Agility",
+		"Overall", "Inside Shooting", "MidRange Shooting", "3pt Shooting", "Free Throwing", "Basketball IQ", "Agility",
 		"Ballwork", "Rebounding", "Stealing", "Blocking", "InteriorDefense", "PerimeterDefense", "Stamina", "Potential Grade",
 		"Personality", "RecruitingBias", "Work Ethic", "Previous Team",
 	}
@@ -222,6 +223,7 @@ func ExportTransferPortalToCSV(w http.ResponseWriter) {
 		ballworkGrade := util.GetAttributeGrade(player.Ballwork, int(player.Year))
 		interiorDefenseGrade := util.GetAttributeGrade(player.InteriorDefense, int(player.Year))
 		perimeterDefenseGrade := util.GetAttributeGrade(player.PerimeterDefense, int(player.Year))
+		basketballIQGrade := util.GetAttributeGrade(player.BasketballIQ, int(player.Year))
 		agilityGrade := util.GetAttributeGrade(player.Agility, int(player.Year))
 		stealingGrade := util.GetAttributeGrade(player.Stealing, int(player.Year))
 		blockingGrade := util.GetAttributeGrade(player.Blocking, int(player.Year))
@@ -232,7 +234,7 @@ func ExportTransferPortalToCSV(w http.ResponseWriter) {
 		playerRow := []string{
 			player.Team, player.FirstName, player.LastName, player.Position, strconv.Itoa(int(player.Year)), strconv.FormatBool(player.IsRedshirt), strconv.Itoa(int(player.Age)),
 			strconv.Itoa(int(player.Stars)), player.State, player.Country, strconv.Itoa(int(player.Height)),
-			overallGrade, shooting2Grade, shooting3Grade, freeThrowGrade, finishingGrade, agilityGrade,
+			overallGrade, finishingGrade, shooting2Grade, shooting3Grade, freeThrowGrade, basketballIQGrade, agilityGrade,
 			ballworkGrade, reboundingGrade, stealingGrade, blockingGrade, interiorDefenseGrade, perimeterDefenseGrade, sta, potentialGrade,
 			player.Personality, player.RecruitingBias, player.WorkEthic, player.PreviousTeam,
 		}
@@ -338,6 +340,7 @@ func ExportCBBRosterToCSV(TeamID string, w http.ResponseWriter) {
 		ballworkGrade := util.GetAttributeGrade(player.Ballwork, int(player.Year))
 		interiorDefenseGrade := util.GetAttributeGrade(player.InteriorDefense, int(player.Year))
 		perimeterDefenseGrade := util.GetAttributeGrade(player.PerimeterDefense, int(player.Year))
+		basketballIQGrade := util.GetAttributeGrade(player.BasketballIQ, int(player.Year))
 		agilityGrade := util.GetAttributeGrade(player.Agility, int(player.Year))
 		stealingGrade := util.GetAttributeGrade(player.Stealing, int(player.Year))
 		blockingGrade := util.GetAttributeGrade(player.Blocking, int(player.Year))
@@ -364,6 +367,7 @@ func ExportCBBRosterToCSV(TeamID string, w http.ResponseWriter) {
 			ReboundingGrade:       reboundingGrade,
 			InteriorDefenseGrade:  interiorDefenseGrade,
 			PerimeterDefenseGrade: perimeterDefenseGrade,
+			BasketballIQGrade:     basketballIQGrade,
 			AgilityGrade:          agilityGrade,
 			StealingGrade:         stealingGrade,
 			BlockingGrade:         blockingGrade,
@@ -388,8 +392,8 @@ func ExportCBBRosterToCSV(TeamID string, w http.ResponseWriter) {
 	HeaderRow := []string{
 		"Team", "First Name", "Last Name", "Position",
 		"Archetype", "Year", "Age", "Stars",
-		"State", "Country", "Height", "Overall", "Finishing",
-		"Shooting2", "Shooting3", "FreeThrow",
+		"State", "Country", "Height", "Overall", "Inside Shooting",
+		"MidRange Shooting", "3pt Shooting", "Free Throwing", "Basketball IQ", "Agility",
 		"Ballwork", "Rebounding", "Interior Defense", "Perimeter Defense",
 		"Playtime Expectations", "Stamina", "Potential",
 		"Personality", "Recruiting Bias", "Work Ethic", "Academic Bias",
@@ -412,7 +416,7 @@ func ExportCBBRosterToCSV(TeamID string, w http.ResponseWriter) {
 			team.Team, csvModel.FirstName, csvModel.LastName, csvModel.Position,
 			csvModel.Archetype, strconv.Itoa(int(csvModel.Year)), strconv.Itoa(int(csvModel.Age)), strconv.Itoa(int(csvModel.Stars)),
 			csvModel.State, csvModel.Country, strconv.Itoa(int(csvModel.Height)), csvModel.OverallGrade, csvModel.FinishingGrade,
-			csvModel.Shooting2Grade, csvModel.Shooting3Grade, csvModel.FreeThrowGrade,
+			csvModel.Shooting2Grade, csvModel.Shooting3Grade, csvModel.FreeThrowGrade, csvModel.BasketballIQGrade, csvModel.AgilityGrade,
 			csvModel.BallworkGrade, csvModel.ReboundingGrade, csvModel.InteriorDefenseGrade, csvModel.PerimeterDefenseGrade,
 			strconv.Itoa(int(csvModel.PlaytimeExpectations)), strconv.Itoa(int(csvModel.Stamina)), csvModel.PotentialGrade, csvModel.Personality,
 			csvModel.RecruitingBias, csvModel.WorkEthic, csvModel.AcademicBias, redshirtStatus,
@@ -463,9 +467,9 @@ func WriteNBAPlayersToCSV(writer *csv.Writer, teamName string, players []structs
 	HeaderRow := []string{
 		"Team", "First Name", "Last Name", "Position",
 		"Archetype", "Year", "Age", "Stars",
-		"State", "Country", "Height", "Overall", "Finishing",
-		"Shooting2", "Shooting3", "FreeThrow",
-		"Ballwork", "Rebounding", "Interior Defense", "Perimeter Defense",
+		"State", "Country", "Height", "Overall", "Inside Shooting",
+		"MidRange Shooting", "3pt Shooting", "Free Throwing", "Basketball IQ", "Agility",
+		"Ballwork", "Stealing", "Blocking", "Rebounding", "Interior Defense", "Perimeter Defense",
 		"Playtime Expectations", "Stamina", "Potential",
 		"Personality", "Free Agency Bias", "Work Ethic", "NBA Status",
 		"Year 1", "Y1 Opt", "Year 2", "Y2 Opt", "Year 3", "Y3 Opt", "Year 4", "Y4 Opt", "Year 5", "Y5 Opt",
@@ -492,8 +496,8 @@ func WriteNBAPlayersToCSV(writer *csv.Writer, teamName string, players []structs
 			teamName, csvModel.FirstName, csvModel.LastName, csvModel.Position,
 			csvModel.Archetype, strconv.Itoa(int(csvModel.Year)), strconv.Itoa(int(csvModel.Age)), strconv.Itoa(int(csvModel.Stars)),
 			csvModel.State, csvModel.Country, strconv.Itoa(int(csvModel.Height)), strconv.Itoa(int(csvModel.Overall)), strconv.Itoa(int(csvModel.InsideShooting)),
-			strconv.Itoa(int(csvModel.MidRangeShooting)), strconv.Itoa(int(csvModel.ThreePointShooting)), strconv.Itoa(int(csvModel.FreeThrow)),
-			strconv.Itoa(int(csvModel.Ballwork)), strconv.Itoa(int(csvModel.Rebounding)), strconv.Itoa(int(csvModel.InteriorDefense)), strconv.Itoa(int(csvModel.PerimeterDefense)),
+			strconv.Itoa(int(csvModel.MidRangeShooting)), strconv.Itoa(int(csvModel.ThreePointShooting)), strconv.Itoa(int(csvModel.FreeThrow)), strconv.Itoa(int(csvModel.BasketballIQ)), strconv.Itoa(int(csvModel.Agility)),
+			strconv.Itoa(int(csvModel.Ballwork)), strconv.Itoa(int(csvModel.Stealing)), strconv.Itoa(int(csvModel.Blocking)), strconv.Itoa(int(csvModel.Rebounding)), strconv.Itoa(int(csvModel.InteriorDefense)), strconv.Itoa(int(csvModel.PerimeterDefense)),
 			strconv.Itoa(int(csvModel.PlaytimeExpectations)), strconv.Itoa(int(csvModel.Stamina)), csvModel.PotentialGrade, csvModel.Personality,
 			csvModel.FreeAgency, csvModel.WorkEthic, nbaStatus,
 			util.ConvertFloatToString(csvModel.Contract.Year1Total), strconv.FormatBool(csvModel.Contract.Year1Opt),

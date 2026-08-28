@@ -13,6 +13,7 @@ type CollegePlayerResponse struct {
 	Height                uint8
 	Weight                uint8
 	PotentialGrade        string
+	BasketballIQGrade     string
 	Shooting2Grade        string
 	Shooting3Grade        string
 	FreeThrowGrade        string
@@ -125,6 +126,7 @@ type TransferPlayerResponse struct {
 	ThreePointShooting   string
 	FreeThrow            string
 	Ballwork             string
+	BasketballIQ         string
 	Agility              string
 	Stealing             string
 	Blocking             string
@@ -169,6 +171,7 @@ func (c *TransferPlayerResponse) Map(r CollegePlayer, ovr string) {
 	c.InsideShooting = attributeMapper(r.InsideShooting, r.Year)
 	c.FreeThrow = attributeMapper(r.FreeThrow, r.Year)
 	c.Ballwork = attributeMapper(r.Ballwork, r.Year)
+	c.BasketballIQ = attributeMapper(r.BasketballIQ, r.Year)
 	c.Agility = attributeMapper(r.Agility, r.Year)
 	c.Stealing = attributeMapper(r.Stealing, r.Year)
 	c.Blocking = attributeMapper(r.Blocking, r.Year)
