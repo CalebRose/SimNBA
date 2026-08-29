@@ -24,7 +24,7 @@ func GetCBBStatsPageData(w http.ResponseWriter, r *http.Request) {
 	if len(seasonID) == 0 {
 		panic("User did not provide TeamID")
 	}
-	response := managers.GetCBBStatsPageData(seasonID, weekID, matchType, viewType)
+	response := managers.SearchCollegeStats(seasonID, weekID, matchType, viewType)
 
 	json.NewEncoder(w).Encode(response)
 }
@@ -45,7 +45,7 @@ func GetNBAStatsPageData(w http.ResponseWriter, r *http.Request) {
 	if len(seasonID) == 0 {
 		panic("User did not provide TeamID")
 	}
-	response := managers.GetNBAStatsPageData(seasonID, weekID, matchType, viewType)
+	response := managers.SearchProStats(seasonID, weekID, matchType, viewType)
 
 	json.NewEncoder(w).Encode(response)
 }
