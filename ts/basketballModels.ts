@@ -82,8 +82,12 @@ export class ScoutingProfile {
     ShowShooting3: boolean;
     ShowFreeThrow: boolean;
     ShowFinishing: boolean;
+    ShowAgility: boolean;
+    ShowBasketballIQ: boolean;
     ShowBallwork: boolean;
     ShowRebounding: boolean;
+    ShowStealing: boolean;
+    ShowBlocking: boolean;
     ShowInteriorDefense: boolean;
     ShowPerimeterDefense: boolean;
     ShowPotential: boolean;
@@ -103,8 +107,12 @@ export class ScoutingProfile {
         this.ShowShooting3 = source["ShowShooting3"];
         this.ShowFreeThrow = source["ShowFreeThrow"];
         this.ShowFinishing = source["ShowFinishing"];
+        this.ShowAgility = source["ShowAgility"];
+        this.ShowBasketballIQ = source["ShowBasketballIQ"];
         this.ShowBallwork = source["ShowBallwork"];
         this.ShowRebounding = source["ShowRebounding"];
+        this.ShowStealing = source["ShowStealing"];
+        this.ShowBlocking = source["ShowBlocking"];
         this.ShowInteriorDefense = source["ShowInteriorDefense"];
         this.ShowPerimeterDefense = source["ShowPerimeterDefense"];
         this.ShowPotential = source["ShowPotential"];
@@ -197,6 +205,8 @@ export class NBADraftee {
     Stars: number;
     Height: number;
     Weight: number;
+    BasketballIQ: number;
+    SpecBasketballIQ: boolean;
     InsideShooting: number;
     SpecInsideShooting: boolean;
     MidRangeShooting: number;
@@ -270,6 +280,7 @@ export class NBADraftee {
     ThreeQuarterSprint: number;
     ShuttleRun: number;
     WingSpan: string;
+    BasketballIQGrade: string;
     MidrangeShootingGrade: string;
     ThreePointShootingGrade: string;
     FreeThrowGrade: string;
@@ -308,6 +319,8 @@ export class NBADraftee {
         this.Stars = source["Stars"];
         this.Height = source["Height"];
         this.Weight = source["Weight"];
+        this.BasketballIQ = source["BasketballIQ"];
+        this.SpecBasketballIQ = source["SpecBasketballIQ"];
         this.InsideShooting = source["InsideShooting"];
         this.SpecInsideShooting = source["SpecInsideShooting"];
         this.MidRangeShooting = source["MidRangeShooting"];
@@ -381,6 +394,7 @@ export class NBADraftee {
         this.ThreeQuarterSprint = source["ThreeQuarterSprint"];
         this.ShuttleRun = source["ShuttleRun"];
         this.WingSpan = source["WingSpan"];
+        this.BasketballIQGrade = source["BasketballIQGrade"];
         this.MidrangeShootingGrade = source["MidrangeShootingGrade"];
         this.ThreePointShootingGrade = source["ThreePointShootingGrade"];
         this.FreeThrowGrade = source["FreeThrowGrade"];
@@ -1201,6 +1215,8 @@ export class NBAPlayer {
     Stars: number;
     Height: number;
     Weight: number;
+    BasketballIQ: number;
+    SpecBasketballIQ: boolean;
     InsideShooting: number;
     SpecInsideShooting: boolean;
     MidRangeShooting: number;
@@ -1318,6 +1334,8 @@ export class NBAPlayer {
         this.Stars = source["Stars"];
         this.Height = source["Height"];
         this.Weight = source["Weight"];
+        this.BasketballIQ = source["BasketballIQ"];
+        this.SpecBasketballIQ = source["SpecBasketballIQ"];
         this.InsideShooting = source["InsideShooting"];
         this.SpecInsideShooting = source["SpecInsideShooting"];
         this.MidRangeShooting = source["MidRangeShooting"];
@@ -2350,6 +2368,17 @@ export class NBAGameplan {
     TogglePD: boolean;
     ToggleP2: boolean;
     ToggleP3: boolean;
+    PreserveTimeouts: boolean;
+    Trigger1Enabled: boolean;
+    Trigger1Type: number;
+    Trigger1Value: number;
+    Trigger2Enabled: boolean;
+    Trigger2Value: number;
+    Trigger3Enabled: boolean;
+    Trigger3Value: number;
+    Trigger3Exhaustion: number;
+    Trigger4Enabled: boolean;
+    Trigger4Value: number;
 
     constructor(source: any = {}) {
         if ('string' === typeof source) source = JSON.parse(source);
@@ -2377,6 +2406,17 @@ export class NBAGameplan {
         this.TogglePD = source["TogglePD"];
         this.ToggleP2 = source["ToggleP2"];
         this.ToggleP3 = source["ToggleP3"];
+        this.PreserveTimeouts = source["PreserveTimeouts"];
+        this.Trigger1Enabled = source["Trigger1Enabled"];
+        this.Trigger1Type = source["Trigger1Type"];
+        this.Trigger1Value = source["Trigger1Value"];
+        this.Trigger2Enabled = source["Trigger2Enabled"];
+        this.Trigger2Value = source["Trigger2Value"];
+        this.Trigger3Enabled = source["Trigger3Enabled"];
+        this.Trigger3Value = source["Trigger3Value"];
+        this.Trigger3Exhaustion = source["Trigger3Exhaustion"];
+        this.Trigger4Enabled = source["Trigger4Enabled"];
+        this.Trigger4Value = source["Trigger4Value"];
     }
 
 	convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -2581,6 +2621,8 @@ export class CollegePlayer {
     Stars: number;
     Height: number;
     Weight: number;
+    BasketballIQ: number;
+    SpecBasketballIQ: boolean;
     InsideShooting: number;
     SpecInsideShooting: boolean;
     MidRangeShooting: number;
@@ -2673,6 +2715,8 @@ export class CollegePlayer {
         this.Stars = source["Stars"];
         this.Height = source["Height"];
         this.Weight = source["Weight"];
+        this.BasketballIQ = source["BasketballIQ"];
+        this.SpecBasketballIQ = source["SpecBasketballIQ"];
         this.InsideShooting = source["InsideShooting"];
         this.SpecInsideShooting = source["SpecInsideShooting"];
         this.MidRangeShooting = source["MidRangeShooting"];
@@ -3287,6 +3331,8 @@ export class RetiredPlayer {
     Stars: number;
     Height: number;
     Weight: number;
+    BasketballIQ: number;
+    SpecBasketballIQ: boolean;
     InsideShooting: number;
     SpecInsideShooting: boolean;
     MidRangeShooting: number;
@@ -3404,6 +3450,8 @@ export class RetiredPlayer {
         this.Stars = source["Stars"];
         this.Height = source["Height"];
         this.Weight = source["Weight"];
+        this.BasketballIQ = source["BasketballIQ"];
+        this.SpecBasketballIQ = source["SpecBasketballIQ"];
         this.InsideShooting = source["InsideShooting"];
         this.SpecInsideShooting = source["SpecInsideShooting"];
         this.MidRangeShooting = source["MidRangeShooting"];
@@ -3539,6 +3587,8 @@ export class HistoricCollegePlayer {
     Stars: number;
     Height: number;
     Weight: number;
+    BasketballIQ: number;
+    SpecBasketballIQ: boolean;
     InsideShooting: number;
     SpecInsideShooting: boolean;
     MidRangeShooting: number;
@@ -3631,6 +3681,8 @@ export class HistoricCollegePlayer {
         this.Stars = source["Stars"];
         this.Height = source["Height"];
         this.Weight = source["Weight"];
+        this.BasketballIQ = source["BasketballIQ"];
+        this.SpecBasketballIQ = source["SpecBasketballIQ"];
         this.InsideShooting = source["InsideShooting"];
         this.SpecInsideShooting = source["SpecInsideShooting"];
         this.MidRangeShooting = source["MidRangeShooting"];
@@ -3975,6 +4027,7 @@ export class TransferPlayerResponse {
     ThreePointShooting: string;
     FreeThrow: string;
     Ballwork: string;
+    BasketballIQ: string;
     Agility: string;
     Stealing: string;
     Blocking: string;
@@ -4025,6 +4078,7 @@ export class TransferPlayerResponse {
         this.ThreePointShooting = source["ThreePointShooting"];
         this.FreeThrow = source["FreeThrow"];
         this.Ballwork = source["Ballwork"];
+        this.BasketballIQ = source["BasketballIQ"];
         this.Agility = source["Agility"];
         this.Stealing = source["Stealing"];
         this.Blocking = source["Blocking"];
@@ -4618,6 +4672,17 @@ export class Gameplan {
     TogglePD: boolean;
     ToggleP2: boolean;
     ToggleP3: boolean;
+    PreserveTimeouts: boolean;
+    Trigger1Enabled: boolean;
+    Trigger1Type: number;
+    Trigger1Value: number;
+    Trigger2Enabled: boolean;
+    Trigger2Value: number;
+    Trigger3Enabled: boolean;
+    Trigger3Value: number;
+    Trigger3Exhaustion: number;
+    Trigger4Enabled: boolean;
+    Trigger4Value: number;
 
     constructor(source: any = {}) {
         if ('string' === typeof source) source = JSON.parse(source);
@@ -4645,6 +4710,17 @@ export class Gameplan {
         this.TogglePD = source["TogglePD"];
         this.ToggleP2 = source["ToggleP2"];
         this.ToggleP3 = source["ToggleP3"];
+        this.PreserveTimeouts = source["PreserveTimeouts"];
+        this.Trigger1Enabled = source["Trigger1Enabled"];
+        this.Trigger1Type = source["Trigger1Type"];
+        this.Trigger1Value = source["Trigger1Value"];
+        this.Trigger2Enabled = source["Trigger2Enabled"];
+        this.Trigger2Value = source["Trigger2Value"];
+        this.Trigger3Enabled = source["Trigger3Enabled"];
+        this.Trigger3Value = source["Trigger3Value"];
+        this.Trigger3Exhaustion = source["Trigger3Exhaustion"];
+        this.Trigger4Enabled = source["Trigger4Enabled"];
+        this.Trigger4Value = source["Trigger4Value"];
     }
 
 	convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -4838,7 +4914,7 @@ export class BootstrapData {
     PollSubmission: CollegePollSubmission;
     NBADraftees: NBADraftee[];
     WarRoomMap: {[key: uint]: NBAWarRoom};
-    ScoutingProfileMap: {[key: uint]: ScoutingProfile};
+    ScoutingProfileMap: {[key: uint]: ScoutingProfile[]};
     TransferPortalProfiles: TransferPortalProfile[];
     CollegeLineupMap: {[key: uint]: CollegeLineup[]};
     ProLineupMap: {[key: uint]: NBALineup[]};
@@ -4895,12 +4971,52 @@ export class BootstrapData {
         this.PollSubmission = this.convertValues(source["PollSubmission"], CollegePollSubmission);
         this.NBADraftees = this.convertValues(source["NBADraftees"], NBADraftee);
         this.WarRoomMap = this.convertValues(source["WarRoomMap"], NBAWarRoom, true);
-        this.ScoutingProfileMap = this.convertValues(source["ScoutingProfileMap"], ScoutingProfile, true);
+        this.ScoutingProfileMap = source["ScoutingProfileMap"];
         this.TransferPortalProfiles = this.convertValues(source["TransferPortalProfiles"], TransferPortalProfile);
         this.CollegeLineupMap = source["CollegeLineupMap"];
         this.ProLineupMap = source["ProLineupMap"];
         this.CollegeGameplanMap = this.convertValues(source["CollegeGameplanMap"], Gameplan, true);
         this.NBAGameplanMap = this.convertValues(source["NBAGameplanMap"], NBAGameplan, true);
+    }
+
+	convertValues(a: any, classs: any, asMap: boolean = false): any {
+	    if (!a) {
+	        return a;
+	    }
+	    if (Array.isArray(a)) {
+	        return (a as any[]).map(elem => this.convertValues(elem, classs));
+	    } else if ("object" === typeof a) {
+	        if (asMap) {
+	            for (const key of Object.keys(a)) {
+	                a[key] = new classs(a[key]);
+	            }
+	            return a;
+	        }
+	        return new classs(a);
+	    }
+	    return a;
+	}
+}
+export class SearchStatsResponse {
+    CBBPlayerGameStats: CollegePlayerStats[];
+    CBBPlayerSeasonStats: CollegePlayerSeasonStats[];
+    CBBTeamGameStats: TeamStats[];
+    CBBTeamSeasonStats: TeamSeasonStats[];
+    NBAPlayerGameStats: NBAPlayerStats[];
+    NBAPlayerSeasonStats: NBAPlayerSeasonStats[];
+    NBATeamGameStats: NBATeamStats[];
+    NBATeamSeasonStats: NBATeamSeasonStats[];
+
+    constructor(source: any = {}) {
+        if ('string' === typeof source) source = JSON.parse(source);
+        this.CBBPlayerGameStats = this.convertValues(source["CBBPlayerGameStats"], CollegePlayerStats);
+        this.CBBPlayerSeasonStats = this.convertValues(source["CBBPlayerSeasonStats"], CollegePlayerSeasonStats);
+        this.CBBTeamGameStats = this.convertValues(source["CBBTeamGameStats"], TeamStats);
+        this.CBBTeamSeasonStats = this.convertValues(source["CBBTeamSeasonStats"], TeamSeasonStats);
+        this.NBAPlayerGameStats = this.convertValues(source["NBAPlayerGameStats"], NBAPlayerStats);
+        this.NBAPlayerSeasonStats = this.convertValues(source["NBAPlayerSeasonStats"], NBAPlayerSeasonStats);
+        this.NBATeamGameStats = this.convertValues(source["NBATeamGameStats"], NBATeamStats);
+        this.NBATeamSeasonStats = this.convertValues(source["NBATeamSeasonStats"], NBATeamSeasonStats);
     }
 
 	convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -4939,6 +5055,8 @@ export class BasePlayer {
     Stars: number;
     Height: number;
     Weight: number;
+    BasketballIQ: number;
+    SpecBasketballIQ: boolean;
     InsideShooting: number;
     SpecInsideShooting: boolean;
     MidRangeShooting: number;
@@ -5017,6 +5135,8 @@ export class BasePlayer {
         this.Stars = source["Stars"];
         this.Height = source["Height"];
         this.Weight = source["Weight"];
+        this.BasketballIQ = source["BasketballIQ"];
+        this.SpecBasketballIQ = source["SpecBasketballIQ"];
         this.InsideShooting = source["InsideShooting"];
         this.SpecInsideShooting = source["SpecInsideShooting"];
         this.MidRangeShooting = source["MidRangeShooting"];
@@ -5150,6 +5270,8 @@ export class Recruit {
     Stars: number;
     Height: number;
     Weight: number;
+    BasketballIQ: number;
+    SpecBasketballIQ: boolean;
     InsideShooting: number;
     SpecInsideShooting: boolean;
     MidRangeShooting: number;
@@ -5249,6 +5371,8 @@ export class Recruit {
         this.Stars = source["Stars"];
         this.Height = source["Height"];
         this.Weight = source["Weight"];
+        this.BasketballIQ = source["BasketballIQ"];
+        this.SpecBasketballIQ = source["SpecBasketballIQ"];
         this.InsideShooting = source["InsideShooting"];
         this.SpecInsideShooting = source["SpecInsideShooting"];
         this.MidRangeShooting = source["MidRangeShooting"];
@@ -5606,6 +5730,7 @@ export class CollegePlayerResponse {
     Height: number;
     Weight: number;
     PotentialGrade: string;
+    BasketballIQGrade: string;
     Shooting2Grade: string;
     Shooting3Grade: string;
     FreeThrowGrade: string;
@@ -5670,6 +5795,7 @@ export class CollegePlayerResponse {
         this.Height = source["Height"];
         this.Weight = source["Weight"];
         this.PotentialGrade = source["PotentialGrade"];
+        this.BasketballIQGrade = source["BasketballIQGrade"];
         this.Shooting2Grade = source["Shooting2Grade"];
         this.Shooting3Grade = source["Shooting3Grade"];
         this.FreeThrowGrade = source["FreeThrowGrade"];
@@ -6415,6 +6541,11 @@ export class NBARequest {
     IsCoach: boolean;
     IsAssistant: boolean;
     IsApproved: boolean;
+    DiscordUsername: string;
+    HowMuchTimeAnswer: string;
+    HowDidYouHearAboutSimSN: string;
+    CommunityReference: string;
+    AboutYourself: string;
 
     constructor(source: any = {}) {
         if ('string' === typeof source) source = JSON.parse(source);
@@ -6431,6 +6562,11 @@ export class NBARequest {
         this.IsCoach = source["IsCoach"];
         this.IsAssistant = source["IsAssistant"];
         this.IsApproved = source["IsApproved"];
+        this.DiscordUsername = source["DiscordUsername"];
+        this.HowMuchTimeAnswer = source["HowMuchTimeAnswer"];
+        this.HowDidYouHearAboutSimSN = source["HowDidYouHearAboutSimSN"];
+        this.CommunityReference = source["CommunityReference"];
+        this.AboutYourself = source["AboutYourself"];
     }
 
 	convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -6459,6 +6595,11 @@ export class Request {
     TeamID: number;
     Username: string;
     IsApproved: boolean;
+    DiscordUsername: string;
+    HowMuchTimeAnswer: string;
+    HowDidYouHearAboutSimSN: string;
+    CommunityReference: string;
+    AboutYourself: string;
 
     constructor(source: any = {}) {
         if ('string' === typeof source) source = JSON.parse(source);
@@ -6469,6 +6610,11 @@ export class Request {
         this.TeamID = source["TeamID"];
         this.Username = source["Username"];
         this.IsApproved = source["IsApproved"];
+        this.DiscordUsername = source["DiscordUsername"];
+        this.HowMuchTimeAnswer = source["HowMuchTimeAnswer"];
+        this.HowDidYouHearAboutSimSN = source["HowDidYouHearAboutSimSN"];
+        this.CommunityReference = source["CommunityReference"];
+        this.AboutYourself = source["AboutYourself"];
     }
 
 	convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -7485,6 +7631,7 @@ export class Timestamp {
     CreatedAt: Time;
     UpdatedAt: Time;
     DeletedAt: Time;
+    Phase: number;
     SeasonID: number;
     Season: number;
     CollegeWeekID: number;
@@ -7528,6 +7675,7 @@ export class Timestamp {
         this.CreatedAt = this.convertValues(source["CreatedAt"], Time);
         this.UpdatedAt = this.convertValues(source["UpdatedAt"], Time);
         this.DeletedAt = this.convertValues(source["DeletedAt"], Time);
+        this.Phase = source["Phase"];
         this.SeasonID = source["SeasonID"];
         this.Season = source["Season"];
         this.CollegeWeekID = source["CollegeWeekID"];

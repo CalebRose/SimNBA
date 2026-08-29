@@ -643,7 +643,7 @@ func ImportNBAGames() {
 		game.AddWeekData((uint(seasonBase)*100 + uint(game.Round)), uint(game.Round), game.Slot)
 		finalUpload = append(finalUpload, game.NBAMatch)
 	}
-	repository.CreateNBARecordsBatch(db, finalUpload, 100)
+	repository.CreateNBAGameRecordsBatch(db, finalUpload, 100)
 }
 
 func ImportISLGames() {
@@ -664,7 +664,7 @@ func ImportISLGames() {
 		game.AddWeekData((uint(seasonBase)*100 + uint(game.Round)), uint(game.Round), game.TimeSlot)
 		finalUpload = append(finalUpload, game.NBAMatch)
 	}
-	repository.CreateNBARecordsBatch(db, finalUpload, 100)
+	repository.CreateNBAGameRecordsBatch(db, finalUpload, 100)
 }
 
 type ScheduledGame struct {

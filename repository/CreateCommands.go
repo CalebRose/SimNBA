@@ -161,7 +161,7 @@ func CreateNotification(noti structs.Notification, db *gorm.DB) {
 	}
 }
 
-func CreateNBARecordsBatch(db *gorm.DB, fds []structs.NBAMatch, batchSize int) error {
+func CreateNBAGameRecordsBatch(db *gorm.DB, fds []structs.NBAMatch, batchSize int) error {
 	total := len(fds)
 	for i := 0; i < total; i += batchSize {
 		end := min(i+batchSize, total)

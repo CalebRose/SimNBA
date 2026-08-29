@@ -82,6 +82,114 @@ func GetNBAStatsPageData(seasonID, weekID, matchType, viewType string) structs.N
 	}
 }
 
+func SearchCollegeStats(seasonID, weekID, viewType, gameType string) structs.SearchStatsResponse {
+	var (
+		playerGameStats   []structs.CollegePlayerStats
+		playerSeasonStats []structs.CollegePlayerSeasonStats
+		teamGameStats     []structs.TeamStats
+		teamSeasonStats   []structs.TeamSeasonStats
+	)
+
+	// Fetch week stats by season... will save time for the player
+	if viewType == "WEEK" {
+		playerGameStatsChan := make(chan []structs.CollegePlayerStats)
+		teamGameStatsChan := make(chan []structs.TeamStats)
+		go func() {
+			pGameStats := repository.FindCollegePlayerGameStatsRecords("", weekID, "", "")
+			playerGameStatsChan <- pGameStats
+		}()
+
+		playerGameStats = <-playerGameStatsChan
+		close(playerGameStatsChan)
+
+		go func() {
+			tGameStats := repository.FindCollegeTeamGameStatsRecords("", weekID, "", "")
+			teamGameStatsChan <- tGameStats
+		}()
+		teamGameStats = <-teamGameStatsChan
+		close(teamGameStatsChan)
+	} else {
+		playerSeasonStatsChan := make(chan []structs.CollegePlayerSeasonStats)
+		teamSeasonStatsChan := make(chan []structs.TeamSeasonStats)
+
+		go func() {
+			pSeasonStats := repository.FindCollegePlayerSeasonStatsRecords(seasonID, gameType)
+			playerSeasonStatsChan <- pSeasonStats
+		}()
+
+		playerSeasonStats = <-playerSeasonStatsChan
+		close(playerSeasonStatsChan)
+
+		go func() {
+			tSeasonStats := repository.FindCollegeTeamSeasonStatsRecords(seasonID, gameType)
+			teamSeasonStatsChan <- tSeasonStats
+		}()
+		teamSeasonStats = <-teamSeasonStatsChan
+		close(teamSeasonStatsChan)
+	}
+
+	return structs.SearchStatsResponse{
+		CBBPlayerGameStats:   playerGameStats,
+		CBBPlayerSeasonStats: playerSeasonStats,
+		CBBTeamGameStats:     teamGameStats,
+		CBBTeamSeasonStats:   teamSeasonStats,
+	}
+}
+
+func SearchProStats(seasonID, weekID, viewType, gameType string) structs.SearchStatsResponse {
+	var (
+		playerGameStats   []structs.NBAPlayerStats
+		playerSeasonStats []structs.NBAPlayerSeasonStats
+		teamGameStats     []structs.NBATeamStats
+		teamSeasonStats   []structs.NBATeamSeasonStats
+	)
+
+	// Fetch week stats by season... will save time for the player
+	if viewType == "WEEK" {
+		playerGameStatsChan := make(chan []structs.NBAPlayerStats)
+		teamGameStatsChan := make(chan []structs.NBATeamStats)
+		go func() {
+			pGameStats := repository.FindProPlayerGameStatsRecords("", weekID, gameType, "")
+			playerGameStatsChan <- pGameStats
+		}()
+
+		playerGameStats = <-playerGameStatsChan
+		close(playerGameStatsChan)
+
+		go func() {
+			tGameStats := repository.FindProTeamGameStatsRecords("", weekID, gameType, "")
+			teamGameStatsChan <- tGameStats
+		}()
+		teamGameStats = <-teamGameStatsChan
+		close(teamGameStatsChan)
+	} else {
+		playerSeasonStatsChan := make(chan []structs.NBAPlayerSeasonStats)
+		teamSeasonStatsChan := make(chan []structs.NBATeamSeasonStats)
+
+		go func() {
+			pSeasonStats := repository.FindProPlayerSeasonStatsRecords(seasonID, gameType)
+			playerSeasonStatsChan <- pSeasonStats
+		}()
+
+		playerSeasonStats = <-playerSeasonStatsChan
+		close(playerSeasonStatsChan)
+
+		go func() {
+			tSeasonStats := repository.FindProTeamSeasonStatsRecords(seasonID, gameType)
+			teamSeasonStatsChan <- tSeasonStats
+		}()
+		teamSeasonStats = <-teamSeasonStatsChan
+		close(teamSeasonStatsChan)
+	}
+
+	return structs.SearchStatsResponse{
+		NBAPlayerGameStats:   playerGameStats,
+		NBAPlayerSeasonStats: playerSeasonStats,
+		NBATeamGameStats:     teamGameStats,
+		NBATeamSeasonStats:   teamSeasonStats,
+	}
+}
+
 func GetPlayerStatsByPlayerId(playerId string) []structs.PlayerStats {
 	db := dbprovider.GetInstance().GetDB()
 

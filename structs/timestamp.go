@@ -5,6 +5,7 @@ import "github.com/jinzhu/gorm"
 // Timestamp - The Global Timestamp for the Season
 type Timestamp struct {
 	gorm.Model
+	Phase                         uint8
 	SeasonID                      uint
 	Season                        int
 	CollegeWeekID                 uint
@@ -43,7 +44,12 @@ type Timestamp struct {
 	TransferPortalRound           uint
 }
 
+func (t *Timestamp) MoveUpPhase() {
+	t.Phase++
+}
+
 func (t *Timestamp) MoveUpASeason() {
+	t.Phase = 1
 	t.SeasonID++
 	t.Season++
 	t.CollegeSeasonOver = false
