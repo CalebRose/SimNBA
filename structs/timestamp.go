@@ -42,6 +42,17 @@ type Timestamp struct {
 	RunGames                      bool
 	TransferPortalPhase           uint
 	TransferPortalRound           uint
+	IsPreseason                   bool
+}
+
+func (t *Timestamp) GetCurrentGameType(isCollege bool) (int, string) {
+	if t.IsPreseason {
+		return 1, "1"
+	}
+	if (t.CollegeWeek > 15 && isCollege) || (t.NBAWeek > 17 && !isCollege) {
+		return 3, "3"
+	}
+	return 2, "2"
 }
 
 func (t *Timestamp) MoveUpPhase() {
@@ -71,14 +82,18 @@ func (t *Timestamp) MoveUpASeason() {
 	t.RunGames = false
 }
 
-func (t *Timestamp) MoveUpWeekCollege() {
+func (t *Timestamp) MoveUpWeek() {
 	t.CollegeWeekID++
 	t.CollegeWeek++
-}
-
-func (t *Timestamp) MoveUpWeekNBA() {
 	t.NBAWeekID++
 	t.NBAWeek++
+	if t.CollegeWeek > 1 && t.IsPreseason {
+		t.CollegeWeek = 1
+		t.IsPreseason = false
+		t.CollegeWeekID -= 1
+		t.NBAWeekID -= 1
+		t.NBAWeek = 1
+	}
 }
 
 func (t *Timestamp) ToggleGames(matchType string) {
@@ -146,11 +161,9 @@ func (t *Timestamp) ToggleProfessionalProgression() {
 }
 
 func (t *Timestamp) SyncToNextWeek() {
-	if t.CollegeWeek < 21 {
-		t.MoveUpWeekCollege()
-	}
+	t.MoveUpWeek()
+
 	if !t.IsNBAOffseason {
-		t.MoveUpWeekNBA()
 		t.GMActionsComplete = false
 	}
 	if !t.IsOffSeason || t.CollegeWeek < 21 {
@@ -187,6 +200,12 @@ func (t *Timestamp) MoveUpFreeAgencyRound() {
 
 func (t *Timestamp) ToggleDraftTime() {
 	t.IsDraftTime = !t.IsDraftTime
+	// t.IsNBAOffseason = false
+}
+
+func (t *Timestamp) EndDraftPhase() {
+	t.IsDraftTime = false
+	t.IsPreseason = true
 	// t.IsNBAOffseason = false
 }
 

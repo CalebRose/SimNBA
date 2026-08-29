@@ -52,4 +52,5 @@ type TeamStats struct {
 	BlocksAllowed             int
 	TurnoversAllowed          int
 	RevealResults             bool
+	GameType                  uint8
 }

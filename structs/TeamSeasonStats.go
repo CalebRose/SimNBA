@@ -73,6 +73,7 @@ type TeamSeasonStats struct {
 	TurnoversAllowedPerGame   float64
 	Fouls                     int
 	FoulsPerGame              float64
+	GameType                  uint8
 }
 
 func (s *TeamSeasonStats) AddStatsToSeasonRecord(stat TeamStats) {

@@ -73,6 +73,7 @@ type NBATeamSeasonStats struct {
 	TurnoversAllowedPerGame   float64
 	Fouls                     int
 	FoulsPerGame              float64
+	GameType                  uint8
 }
 
 type NBATeamStats struct {
@@ -126,10 +127,12 @@ type NBATeamStats struct {
 	BlocksAllowed             int
 	TurnoversAllowed          int
 	RevealResults             bool
+	GameType                  uint8
 }
 
 func (s *NBATeamSeasonStats) AddStatsToSeasonRecord(stat NBATeamStats) {
 	s.TeamID = stat.TeamID
+	s.GameType = stat.GameType
 	s.SeasonID = stat.SeasonID
 	s.GamesPlayed++
 	s.Possessions += stat.Possessions
@@ -390,6 +393,7 @@ type NBAPlayerSeasonStats struct {
 	Fouls                     int
 	FoulOuts                  uint
 	FoulsPerGame              float64
+	GameType                  uint8
 }
 
 type NBAPlayerStats struct {
@@ -428,12 +432,14 @@ type NBAPlayerStats struct {
 	InjuryType         string
 	WeeksOfRecovery    uint8
 	RevealResults      bool
+	GameType           uint8
 }
 
 func (s *NBAPlayerSeasonStats) AddStatsToSeasonRecord(stat NBAPlayerStats) {
 	if stat.Minutes > 0 {
 		s.GamesPlayed++
 	}
+	s.GameType = stat.GameType
 	if s.Year == 0 {
 		s.Year = stat.Year
 	}

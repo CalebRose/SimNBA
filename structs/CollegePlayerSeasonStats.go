@@ -48,6 +48,7 @@ type CollegePlayerSeasonStats struct {
 	Fouls                     int
 	FoulOuts                  uint
 	FoulsPerGame              float64
+	GameType                  uint8
 }
 
 func (s *CollegePlayerSeasonStats) AddStatsToSeasonRecord(stat CollegePlayerStats) {
@@ -56,6 +57,7 @@ func (s *CollegePlayerSeasonStats) AddStatsToSeasonRecord(stat CollegePlayerStat
 	}
 	s.CollegePlayerID = stat.CollegePlayerID
 	s.SeasonID = stat.SeasonID
+	s.GameType = stat.GameType
 	s.Minutes += stat.Minutes
 	s.Possessions += stat.Possessions
 	s.FGM += stat.FGM

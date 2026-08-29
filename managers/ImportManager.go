@@ -46,6 +46,9 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 		matchType = "D"
 	}
 
+	cbbGameType, _ := ts.GetCurrentGameType(true)
+	nbaGameType, _ := ts.GetCurrentGameType(false)
+
 	collegePlayers := GetAllCollegePlayers()
 	collegePlayerMap := MakeCollegePlayerMap(collegePlayers)
 	collegeTeams := GetAllActiveCollegeTeams()
@@ -55,7 +58,7 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 	nbaPlayers := GetAllNBAPlayers()
 	nbaPlayerMap := MakeNBAPlayerMap(nbaPlayers)
 	collegeMatches := GetMatchesByWeekIdAndMatchType(strconv.Itoa(int(ts.CollegeWeekID)), strconv.Itoa(int(ts.SeasonID)), matchType)
-	nbaMatches := GetNBAMatchesByWeekIdAndMatchType(strconv.Itoa(int(ts.CollegeWeekID)), strconv.Itoa(int(ts.SeasonID)), matchType)
+	nbaMatches := GetNBAMatchesByWeekIdAndMatchType(strconv.Itoa(int(ts.NBAWeekID)), strconv.Itoa(int(ts.SeasonID)), matchType)
 	collegePlayByPlays := []structs.CollegePlayByPlay{}
 	nbaPlayByPlays := []structs.NBAPlayByPlay{}
 
@@ -78,13 +81,13 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 			log.Fatalln("Could not convert string to int")
 		}
 
-		homeTeam := mapToCollegeTeamStatsObject(ht.ID, uint(matchID), ts.CollegeWeekID, uint(ts.NBAWeek), ts.SeasonID, matchType, dto.TeamOne, dto.TeamTwo)
+		homeTeam := mapToCollegeTeamStatsObject(ht.ID, uint(matchID), ts.CollegeWeekID, uint(ts.NBAWeek), ts.SeasonID, matchType, dto.TeamOne, dto.TeamTwo, uint8(cbbGameType))
 
 		teamStats = append(teamStats, homeTeam)
 
 		at := collegeTeamMap[uint(dto.TeamTwo.ID)]
 
-		awayTeam := mapToCollegeTeamStatsObject(at.ID, uint(matchID), ts.CollegeWeekID, uint(ts.NBAWeek), ts.SeasonID, matchType, dto.TeamTwo, dto.TeamOne)
+		awayTeam := mapToCollegeTeamStatsObject(at.ID, uint(matchID), ts.CollegeWeekID, uint(ts.NBAWeek), ts.SeasonID, matchType, dto.TeamTwo, dto.TeamOne, uint8(cbbGameType))
 
 		teamStats = append(teamStats, awayTeam)
 
@@ -97,7 +100,7 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 			id := player.PlayerID
 			collegePlayerRecord := collegePlayerMap[uint(id)]
 			collegeTeam := collegeTeamMap[uint(collegePlayerRecord.TeamID)]
-			collegePlayerStats := mapToCBBPlayerStatsObject(player, id, int(collegePlayerRecord.TeamID), matchID, ts.SeasonID, ts.CollegeWeekID, uint(ts.NBAWeek), matchType)
+			collegePlayerStats := mapToCBBPlayerStatsObject(player, id, int(collegePlayerRecord.TeamID), matchID, ts.SeasonID, ts.CollegeWeekID, uint(ts.NBAWeek), matchType, uint8(cbbGameType))
 			playerStats = append(playerStats, collegePlayerStats)
 			if collegeTeam.ID == ht.ID {
 				homePlayerStats = append(homePlayerStats, collegePlayerStats)
@@ -208,13 +211,13 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 
 		matchID := util.ConvertStringToInt(dto.GameID)
 
-		homeTeam := mapToNBATeamStatsObject(ht.ID, uint(matchID), ts.NBAWeekID, uint(ts.NBAWeek), ts.SeasonID, matchType, dto.TeamOne, dto.TeamTwo)
+		homeTeam := mapToNBATeamStatsObject(ht.ID, uint(matchID), ts.NBAWeekID, uint(ts.NBAWeek), ts.SeasonID, matchType, dto.TeamOne, dto.TeamTwo, uint8(nbaGameType))
 
 		nbaTeamStats = append(nbaTeamStats, homeTeam)
 
 		at := nbaTeamMap[uint(dto.TeamTwo.ID)]
 
-		awayTeam := mapToNBATeamStatsObject(at.ID, uint(matchID), ts.NBAWeekID, uint(ts.NBAWeek), ts.SeasonID, matchType, dto.TeamTwo, dto.TeamOne)
+		awayTeam := mapToNBATeamStatsObject(at.ID, uint(matchID), ts.NBAWeekID, uint(ts.NBAWeek), ts.SeasonID, matchType, dto.TeamTwo, dto.TeamOne, uint8(nbaGameType))
 
 		nbaTeamStats = append(nbaTeamStats, awayTeam)
 
@@ -224,7 +227,7 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 			id := player.PlayerID
 			nbaPlayerRecord := nbaPlayerMap[uint(id)]
 			team := nbaTeamMap[uint(nbaPlayerRecord.TeamID)]
-			nbaPlayerStats := mapToNBAPlayerStatsObject(player, id, int(nbaPlayerRecord.TeamID), matchID, ts.SeasonID, ts.NBAWeekID, uint(ts.NBAWeek), matchType)
+			nbaPlayerStats := mapToNBAPlayerStatsObject(player, id, int(nbaPlayerRecord.TeamID), matchID, ts.SeasonID, ts.NBAWeekID, uint(ts.NBAWeek), matchType, uint8(nbaGameType))
 			playerStats = append(playerStats, nbaPlayerStats)
 			if player.IsInjured && !sentNBAInjury[team.ID] {
 				nbaPlayerRecord.SetInjury(player.InjuryName, player.InjuryType, player.WeeksOfRecovery)
@@ -1493,7 +1496,7 @@ func filterLotteryPicks(list []structs.DraftLottery, id uint) []structs.DraftLot
 	return newList
 }
 
-func mapToCollegeTeamStatsObject(teamID, matchID, weekID, week, seasonID uint, matchType string, TeamOne, TeamTwo structs.TeamResultsDTO) structs.TeamStats {
+func mapToCollegeTeamStatsObject(teamID, matchID, weekID, week, seasonID uint, matchType string, TeamOne, TeamTwo structs.TeamResultsDTO, gameType uint8) structs.TeamStats {
 	return structs.TeamStats{
 		TeamID:                    teamID,
 		MatchID:                   matchID,
@@ -1535,6 +1538,7 @@ func mapToCollegeTeamStatsObject(teamID, matchID, weekID, week, seasonID uint, m
 		FTAAgainst:                TeamTwo.Stats.FTA,
 		FTPercentAgainst:          TeamTwo.Stats.FTPercent,
 		ReboundsAllowed:           TeamTwo.Stats.Rebounds,
+		GameType:                  gameType,
 		OffReboundsAllowed:        TeamTwo.Stats.OffRebounds,
 		DefReboundsAllowed:        TeamTwo.Stats.DefRebounds,
 		AssistsAllowed:            TeamTwo.Stats.Assists,
@@ -1544,7 +1548,7 @@ func mapToCollegeTeamStatsObject(teamID, matchID, weekID, week, seasonID uint, m
 	}
 }
 
-func mapToNBATeamStatsObject(teamID, matchID, weekID, week, seasonID uint, matchType string, TeamOne, TeamTwo structs.TeamResultsDTO) structs.NBATeamStats {
+func mapToNBATeamStatsObject(teamID, matchID, weekID, week, seasonID uint, matchType string, TeamOne, TeamTwo structs.TeamResultsDTO, gameType uint8) structs.NBATeamStats {
 	return structs.NBATeamStats{
 		TeamID:                    teamID,
 		MatchID:                   matchID,
@@ -1552,6 +1556,7 @@ func mapToNBATeamStatsObject(teamID, matchID, weekID, week, seasonID uint, match
 		Week:                      week,
 		SeasonID:                  seasonID,
 		MatchType:                 matchType,
+		GameType:                  gameType,
 		Points:                    TeamOne.Stats.Points,
 		Possessions:               TeamOne.Stats.Possessions,
 		FGM:                       TeamOne.Stats.FGM,
@@ -1597,13 +1602,14 @@ func mapToNBATeamStatsObject(teamID, matchID, weekID, week, seasonID uint, match
 	}
 }
 
-func mapToCBBPlayerStatsObject(player structs.PlayerStatsDTO, id, teamID, matchID int, seasonID, weekID, week uint, matchType string) structs.CollegePlayerStats {
+func mapToCBBPlayerStatsObject(player structs.PlayerStatsDTO, id, teamID, matchID int, seasonID, weekID, week uint, matchType string, gameType uint8) structs.CollegePlayerStats {
 	return structs.CollegePlayerStats{
 		TeamID:             uint(teamID),
 		CollegePlayerID:    uint(id),
 		MatchID:            uint(matchID),
 		SeasonID:           seasonID,
 		MatchType:          matchType,
+		GameType:           gameType,
 		WeekID:             weekID,
 		Week:               week,
 		Year:               uint(player.Year),
@@ -1635,7 +1641,7 @@ func mapToCBBPlayerStatsObject(player structs.PlayerStatsDTO, id, teamID, matchI
 	}
 }
 
-func mapToNBAPlayerStatsObject(player structs.PlayerStatsDTO, id, teamID, matchID int, seasonID, weekID, week uint, matchType string) structs.NBAPlayerStats {
+func mapToNBAPlayerStatsObject(player structs.PlayerStatsDTO, id, teamID, matchID int, seasonID, weekID, week uint, matchType string, gameType uint8) structs.NBAPlayerStats {
 	return structs.NBAPlayerStats{
 		TeamID:             uint(teamID),
 		NBAPlayerID:        uint(id),
@@ -1645,6 +1651,7 @@ func mapToNBAPlayerStatsObject(player structs.PlayerStatsDTO, id, teamID, matchI
 		Week:               week,
 		Year:               uint(player.Year),
 		MatchType:          matchType,
+		GameType:           gameType,
 		Minutes:            player.Minutes,
 		Possessions:        player.Possessions,
 		FGM:                player.FGM,
