@@ -741,43 +741,45 @@ func InternationalDeclaration(player structs.NBAPlayer, isEligible bool) bool {
 
 func ExportDraftedPlayers(picks []structs.DraftPick) bool {
 	db := dbprovider.GetInstance().GetDB()
+	draftees := GetAllNBADraftees()
+
+	drafteeMap := MakeNBADrafteeMap(draftees)
 
 	for _, pick := range picks {
-		if pick.SelectedPlayerID == 2445 {
-			continue
-		}
-		playerId := strconv.Itoa(int(pick.SelectedPlayerID))
-		draftee := GetNBADrafteeByID(playerId)
+		playerIdStr := strconv.Itoa(int(pick.DrafteeID))
+		draftee := drafteeMap[pick.DrafteeID]
 		nbaPlayer := structs.NBAPlayer{}
+		draftee.AssignDraftedTeam(strconv.Itoa(int(pick.DraftNumber)), pick.ID, pick.TeamID, pick.Team)
 		if draftee.College == "DRAFT" {
 			// Get International Player Record
-			nbaPlayer = GetNBAPlayerByID(playerId)
+			nbaPlayer = GetNBAPlayerByID(playerIdStr)
 			nbaPlayer.DraftInternationalPlayer(pick.ID, pick.DraftRound, pick.DraftNumber, pick.TeamID, pick.Team)
-			repository.SaveProfessionalPlayerRecord(nbaPlayer, db)
+			// repository.SaveProfessionalPlayerRecord(nbaPlayer, db)
 		} else {
 			nbaPlayer = structs.NBAPlayer{
 				BasePlayer:    draftee.BasePlayer, // Assuming BasePlayer fields are common
 				CollegeID:     draftee.CollegeID,
 				College:       draftee.College,
-				DraftPickID:   draftee.DraftPickID,
+				DraftPickID:   pick.ID,
 				DraftedTeamID: pick.TeamID,
 				DraftedTeam:   pick.Team,
 				DraftedRound:  pick.DraftRound,
 				DraftPick:     pick.DraftNumber,
 				IsNBA:         true,
 			}
+			nbaPlayer.TeamID = pick.TeamID
+			nbaPlayer.Team = pick.Team
 			nbaPlayer.SetID(draftee.PlayerID)
-			repository.CreateProfessionalPlayerRecord(nbaPlayer, db)
+			// repository.CreateProfessionalPlayerRecord(nbaPlayer, db)
 		}
-		draftee.AssignDraftedTeam(strconv.Itoa(int(pick.DraftNumber)), pick.ID, pick.TeamID, pick.Team)
-		db.Save(&draftee)
+		// db.Save(&draftee)
 		year1Salary := util.GetDrafteeSalary(pick.DraftNumber, 1)
 		year2Salary := util.GetDrafteeSalary(pick.DraftNumber, 2)
 		year3Salary := util.GetDrafteeSalary(pick.DraftNumber, 3)
 		year4Salary := util.GetDrafteeSalary(pick.DraftNumber, 4)
 		yearsRemaining := util.GetYearsRemainingForDrafteeContract(pick.DraftNumber)
 		contract := structs.NBAContract{
-			PlayerID:       nbaPlayer.PlayerID,
+			PlayerID:       draftee.ID,
 			TeamID:         nbaPlayer.TeamID,
 			Team:           nbaPlayer.Team,
 			OriginalTeamID: nbaPlayer.TeamID,

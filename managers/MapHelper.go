@@ -17,6 +17,16 @@ func MakeNBAPlayerMap(nbaPlayers []structs.NBAPlayer) map[uint]structs.NBAPlayer
 	return playerMap
 }
 
+func MakeNBADrafteeMap(players []structs.NBADraftee) map[uint]structs.NBADraftee {
+	playerMap := make(map[uint]structs.NBADraftee)
+
+	for _, p := range players {
+		playerMap[p.ID] = p
+	}
+
+	return playerMap
+}
+
 func MakeCollegePlayerMap(players []structs.CollegePlayer) map[uint]structs.CollegePlayer {
 	playerMap := make(map[uint]structs.CollegePlayer)
 

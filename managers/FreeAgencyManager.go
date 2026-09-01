@@ -156,12 +156,12 @@ func CreateFAOffer(offer structs.NBAContractOfferDTO) structs.NBAContractOffer {
 		freeAgentOffer.AssignID(id)
 	}
 
+	nbaTeam := GetNBATeamByTeamID(strconv.Itoa(int(offer.TeamID)))
+
 	freeAgentOffer.CalculateOffer(offer)
+	freeAgentOffer.Team = nbaTeam.Abbr
 
 	db.Save(&freeAgentOffer)
-
-	fmt.Println("Creating offer!")
-
 	return freeAgentOffer
 }
 
@@ -1049,7 +1049,7 @@ func SyncAIOffers() {
 		}
 		freeAgentOfferMap := MakeFreeAgencyOfferMap(offersByTeam)
 		roster := playerMap[team.ID]
-		if len(roster) > 17 {
+		if len(roster) > 15 {
 			continue
 		}
 		cCount := 0

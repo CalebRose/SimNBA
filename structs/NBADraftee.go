@@ -157,4 +157,6 @@ func (n *NBADraftee) AssignDraftedTeam(DraftPick string, PickID, TeamID uint, Te
 	n.DraftPickID = PickID
 	n.DraftedTeamID = TeamID
 	n.DraftedTeam = Team
+	n.TeamID = TeamID
+	n.Team = Team
 }
