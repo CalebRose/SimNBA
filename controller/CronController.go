@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/managers"
@@ -120,6 +121,12 @@ func RunAIGameplansViaCron() {
 
 func SyncFreeAgencyOffersViaCron() {
 	ts := managers.GetTimestamp()
+
+	// If it is before September 8th, 2027 at midnight, return
+	if time.Now().Before(time.Date(2027, 9, 8, 0, 0, 0, 0, time.UTC)) {
+		return
+	}
+
 	if ts.RunCron && !ts.IsFreeAgencyLocked && !ts.IsDraftTime {
 		managers.SyncAIOffers()
 		managers.SyncFreeAgencyOffers()
