@@ -727,7 +727,7 @@ func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *
 	nbaTeamMap := MakeNBATeamMap(nbaTeams)
 	for _, FA := range freeAgents {
 		// Check if still accepting offers
-		if ts.IsNBAOffseason || !FA.IsFreeAgent {
+		if !FA.IsFreeAgent {
 			continue
 		}
 
