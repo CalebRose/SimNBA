@@ -1053,27 +1053,21 @@ func SyncAIOffers() {
 			continue
 		}
 		cCount := 0
-		pfCount := 0
-		sfCount := 0
-		sgCount := 0
-		pgCount := 0
+		fCount := 0
+		gCount := 0
+
 		cBids := 0
-		pfBids := 0
-		sfBids := 0
-		sgBids := 0
-		pgBids := 0
+		fBids := 0
+		gBids := 0
 		for _, p := range roster {
 			switch p.Position {
 			case "C":
 				cCount++
-			case "PF":
-				pfCount++
-			case "SF":
-				sfCount++
-			case "SG":
-				sgCount++
+			case "F":
+				fCount++
+
 			default:
-				pgCount++
+				gCount++
 			}
 		}
 
@@ -1084,14 +1078,10 @@ func SyncAIOffers() {
 				switch fa.Position {
 				case "C":
 					cBids++
-				case "PF":
-					pfBids++
-				case "SF":
-					sfBids++
-				case "SG":
-					sgBids++
+				case "F":
+					fBids++
 				default:
-					pgBids++
+					gBids++
 				}
 			}
 		}
@@ -1104,18 +1094,13 @@ func SyncAIOffers() {
 			if fa.Position == "C" && (cCount > 3 || cBids > 2) {
 				continue
 			}
-			if fa.Position == "PF" && (pfCount > 4 || pfBids > 3) {
+			if fa.Position == "F" && (fCount > 4 || fBids > 3) {
 				continue
 			}
-			if fa.Position == "SF" && (sfCount > 4 || sfBids > 3) {
+			if fa.Position == "G" && (gCount > 4 || gBids > 3) {
 				continue
 			}
-			if fa.Position == "SG" && (sgCount > 4 || sgBids > 3) {
-				continue
-			}
-			if fa.Position == "PG" && (pgCount > 3 || pgBids > 2) {
-				continue
-			}
+
 			coinFlip := util.GenerateIntFromRange(1, 2)
 			if coinFlip == 2 {
 				continue
@@ -1132,9 +1117,9 @@ func SyncAIOffers() {
 			}
 			// Okay, now we found an open player. Send a bid.
 			basePay := 1.0
-			if fa.Age < 25 || fa.Overall < 80 {
+			if fa.Age < 25 || fa.Overall < 26 {
 				basePay = 0.7
-			} else if fa.Overall > 79 {
+			} else if fa.Overall > 25 {
 				rangedPay := util.GenerateFloatFromRange(1, 3.5)
 				if rangedPay < minRequired {
 					rangedPay = util.GenerateFloatFromRange(minRequired, minRequired+3.5)
@@ -1143,7 +1128,7 @@ func SyncAIOffers() {
 			}
 
 			yearsOnContract := 2
-			if fa.Overall > 79 {
+			if fa.Overall > 25 {
 				yearsOnContract = 3
 			} else {
 				yearsOnContract = 1
@@ -1163,14 +1148,10 @@ func SyncAIOffers() {
 			switch fa.Position {
 			case "C":
 				cBids++
-			case "PF":
-				pfBids++
-			case "SF":
-				sfBids++
-			case "SG":
-				sgBids++
+			case "F":
+				fBids++
 			default:
-				pgBids++
+				gBids++
 			}
 			offer := structs.NBAContractOffer{
 				Year1Total:    y1,
