@@ -71,7 +71,13 @@ func AllocateCapsheets() {
 			if contract.IsComplete || !contract.IsActive {
 				continue
 			}
+			if contract.PlayerID == 0 {
+				continue
+			}
 			player := playerMap[contract.PlayerID]
+			if player.ID == 0 {
+				continue
+			}
 			if player.IsGLeague || player.IsTwoWay {
 				continue
 			}
