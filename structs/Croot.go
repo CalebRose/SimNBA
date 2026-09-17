@@ -21,6 +21,7 @@ type Croot struct {
 	FreeThrow          string
 	InsideShooting     string
 	Ballwork           string
+	BasketballIQ       string
 	Agility            string
 	Stealing           string
 	Blocking           string
@@ -79,6 +80,7 @@ func (c *Croot) Map(r Recruit) {
 	c.Height = r.Height
 	c.Weight = r.Weight
 	c.Stars = r.Stars
+	c.BasketballIQ = attributeMapper(r.BasketballIQ, 1)
 	c.MidRangeShooting = attributeMapper(r.MidRangeShooting, 1)
 	c.ThreePointShooting = attributeMapper(r.ThreePointShooting, 1)
 	c.InsideShooting = attributeMapper(r.InsideShooting, 1)

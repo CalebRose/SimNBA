@@ -38,6 +38,7 @@ type RecruitPlayerProfile struct {
 	Blocking              bool
 	InteriorDefense       bool
 	PerimeterDefense      bool
+	BasketballIQ          bool
 	Potential             bool
 	// RecruitPoints          []RecruitPointAllocation `gorm:"foreignKey:RecruitProfileID"`
 }
@@ -121,6 +122,9 @@ func (rp *RecruitPlayerProfile) ApplyScoutingAttribute(attr string) {
 	}
 	if attr == "Blocking" {
 		rp.Blocking = true
+	}
+	if attr == "BasketballIQ" {
+		rp.BasketballIQ = true
 	}
 	if attr == "InteriorDefense" {
 		rp.InteriorDefense = true
