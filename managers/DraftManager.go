@@ -773,10 +773,10 @@ func ExportDraftedPlayers(picks []structs.DraftPick) bool {
 			// repository.CreateProfessionalPlayerRecord(nbaPlayer, db)
 		}
 		// db.Save(&draftee)
-		year1Salary := util.GetDrafteeSalary(pick.DraftNumber, 1)
-		year2Salary := util.GetDrafteeSalary(pick.DraftNumber, 2)
-		year3Salary := util.GetDrafteeSalary(pick.DraftNumber, 3)
-		year4Salary := util.GetDrafteeSalary(pick.DraftNumber, 4)
+		year1Salary := util.GetDrafteeSalary(pick.DraftNumber, pick.DraftRound, 1)
+		year2Salary := util.GetDrafteeSalary(pick.DraftNumber, pick.DraftRound, 2)
+		year3Salary := util.GetDrafteeSalary(pick.DraftNumber, pick.DraftRound, 3)
+		year4Salary := util.GetDrafteeSalary(pick.DraftNumber, pick.DraftRound, 4)
 		yearsRemaining := util.GetYearsRemainingForDrafteeContract(pick.DraftNumber)
 		contract := structs.NBAContract{
 			PlayerID:       draftee.ID,

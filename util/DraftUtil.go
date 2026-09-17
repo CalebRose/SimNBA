@@ -1,11 +1,11 @@
 package util
 
-func GetDrafteeSalary(pick, year uint) float64 {
+func GetDrafteeSalary(pick, year, round uint) float64 {
 	salary := getSalaryMap()
-	if pick >= 1 && pick <= 32 && year >= 1 && year <= 4 {
+	if round == 1 && pick >= 1 && pick <= 32 && year >= 1 && year <= 4 {
 		return salary[pick-1][year-1]
 	}
-	if pick > 32 && (year == 1 || year == 2) {
+	if round > 1 && year < 3 {
 		return 0.9
 	}
 	return 0
