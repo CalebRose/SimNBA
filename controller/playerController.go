@@ -152,6 +152,19 @@ func NewPlayer(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "New Player Successfully Created")
 }
 
+// PlaceNBAPlayerInNBA
+func PlaceNBAPlayerInNBA(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	playerID := vars["playerID"]
+	if len(playerID) == 0 {
+		panic("User did not provide playerID")
+	}
+
+	managers.PlaceNBAPlayerInNBA(playerID)
+
+	json.NewEncoder(w).Encode("Player " + playerID + " NBA designation updated.")
+}
+
 // PlaceNBAPlayerInGLeague
 func PlaceNBAPlayerInGLeague(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -160,9 +173,12 @@ func PlaceNBAPlayerInGLeague(w http.ResponseWriter, r *http.Request) {
 		panic("User did not provide playerID")
 	}
 
-	managers.PlaceNBAPlayerInGLeague(playerID)
+	if err := managers.PlaceNBAPlayerInGLeague(playerID); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
-	json.NewEncoder(w).Encode("Player " + playerID + " placed on trade block.")
+	json.NewEncoder(w).Encode("Player " + playerID + " G-League designation updated.")
 }
 
 // AssignNBAPlayerAsTwoWay
@@ -173,9 +189,12 @@ func AssignNBAPlayerAsTwoWay(w http.ResponseWriter, r *http.Request) {
 		panic("User did not provide playerID")
 	}
 
-	managers.AssignPlayerAsTwoWay(playerID)
+	if err := managers.AssignPlayerAsTwoWay(playerID); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
-	json.NewEncoder(w).Encode("Player " + playerID + " placed on trade block.")
+	json.NewEncoder(w).Encode("Player " + playerID + " Two-Way designation updated.")
 }
 
 // CutPlayerFromNBATeam

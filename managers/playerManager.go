@@ -14,6 +14,28 @@ import (
 	"gorm.io/gorm"
 )
 
+type nbaDesignationRules struct {
+	maxExperience    uint8
+	maxContractYears *uint
+	maxDesignations  int64
+}
+
+var (
+	nbaTwoWayRules = nbaDesignationRules{
+		maxExperience:    4,
+		maxContractYears: uintPointer(2),
+		maxDesignations:  3,
+	}
+	nbaGLeagueRules = nbaDesignationRules{
+		maxExperience:   3,
+		maxDesignations: 12,
+	}
+)
+
+func uintPointer(value uint) *uint {
+	return &value
+}
+
 func GetAllPlayers() []structs.Player {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -1054,24 +1076,78 @@ func GetTradableNBAPlayersByTeamID(TeamID string) []structs.NBAPlayer {
 	return players
 }
 
-func PlaceNBAPlayerInGLeague(playerID string) {
+func PlaceNBAPlayerInNBA(playerID string) {
 	db := dbprovider.GetInstance().GetDB()
 
 	player := GetNBAPlayerRecord(playerID)
-
-	player.ToggleGLeague()
+	player.IsGLeague = false
+	player.IsTwoWay = false
 
 	db.Save(&player)
 }
 
-func AssignPlayerAsTwoWay(playerID string) {
+func canAssignNBADesignation(
+	player structs.NBAPlayer,
+	rules nbaDesignationRules,
+	isTwoWay bool,
+) error {
+	if player.Year > rules.maxExperience {
+		return fmt.Errorf("%s has %d years of experience; the maximum is %d", player.FirstName+" "+player.LastName, player.Year, rules.maxExperience)
+	}
+	if rules.maxContractYears != nil && player.Contract.YearsRemaining > *rules.maxContractYears {
+		return fmt.Errorf("%s has %d contract years remaining; the maximum is %d", player.FirstName+" "+player.LastName, player.Contract.YearsRemaining, *rules.maxContractYears)
+	}
+
+	db := dbprovider.GetInstance().GetDB()
+	var designationCount int64
+	if isTwoWay {
+		db.Model(&structs.NBAPlayer{}).Where("team_id = ? AND is_two_way = ?", player.TeamID, true).Count(&designationCount)
+	} else {
+		db.Model(&structs.NBAPlayer{}).Where("team_id = ? AND is_g_league = ? AND is_two_way = ?", player.TeamID, true, false).Count(&designationCount)
+	}
+	if designationCount >= rules.maxDesignations {
+		return fmt.Errorf("the team already has the maximum of %d %s designations", rules.maxDesignations, map[bool]string{true: "Two-Way", false: "G-League"}[isTwoWay])
+	}
+
+	return nil
+}
+
+func PlaceNBAPlayerInGLeague(playerID string) error {
 	db := dbprovider.GetInstance().GetDB()
 
 	player := GetNBAPlayerRecord(playerID)
 
-	player.ToggleTwoWay()
+	if player.IsGLeague {
+		player.IsGLeague = false
+	} else {
+		if err := canAssignNBADesignation(player, nbaGLeagueRules, false); err != nil {
+			return err
+		}
+		player.IsGLeague = true
+		player.IsTwoWay = false
+	}
 
 	db.Save(&player)
+	return nil
+}
+
+func AssignPlayerAsTwoWay(playerID string) error {
+	db := dbprovider.GetInstance().GetDB()
+
+	player := GetNBAPlayerRecord(playerID)
+
+	if player.IsTwoWay {
+		player.IsTwoWay = false
+	} else {
+		if err := canAssignNBADesignation(player, nbaTwoWayRules, true); err != nil {
+			return err
+		}
+		player.IsTwoWay = true
+		player.IsGLeague = false
+	}
+
+	db.Save(&player)
+	return nil
 }
 
 func ActivateNextYearOption(contractID string) {

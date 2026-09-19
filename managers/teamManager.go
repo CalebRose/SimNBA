@@ -355,6 +355,9 @@ func GetNBATeamByTeamID(teamId string) structs.NBATeam {
 	if err != nil {
 		log.Fatal(err)
 	}
+	teams := []structs.NBATeam{team}
+	populateNBATeamArenaCapacities(teams)
+	team = teams[0]
 	return team
 }
 
@@ -500,7 +503,17 @@ func GetAllActiveNBATeams() []structs.NBATeam {
 	if err != nil {
 		log.Fatal(err)
 	}
+	populateNBATeamArenaCapacities(teams)
 	return teams
+}
+
+func populateNBATeamArenaCapacities(teams []structs.NBATeam) {
+	arenaMap := GetArenaMap()
+	for index := range teams {
+		if arena, found := arenaMap[teams[index].Arena]; found {
+			teams[index].ArenaCapacity = arena.Capacity
+		}
+	}
 }
 
 func GetProfessionalTeamMap() map[uint]structs.NBATeam {
