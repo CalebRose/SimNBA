@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
 	"github.com/jinzhu/gorm"
@@ -456,13 +457,8 @@ func GetCBBTeamByAbbreviation(abbr string) structs.Team {
 }
 
 func GetArenaMap() map[string]structs.Arena {
-	var arenas []structs.Arena
+	arenas := repository.FindAllArenaRecords()
 	arenaMap := make(map[string]structs.Arena)
-	db := dbprovider.GetInstance().GetDB()
-	err := db.Find(&arenas).Error
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	for _, a := range arenas {
 		arenaMap[a.ArenaName] = a

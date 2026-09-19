@@ -12,6 +12,7 @@ import (
 )
 
 type BootstrapData struct {
+	Arenas                 []structs.Arena
 	AllCollegeTeams        []structs.Team
 	CollegeTeam            structs.Team
 	CollegeRosterMap       map[uint][]structs.CollegePlayer
@@ -321,7 +322,14 @@ func GetBootstrapDataTeamRoster(collegeID, proID string) BootstrapData {
 		tradeProposals      structs.NBATeamProposals
 		tradePreferencesMap map[uint]structs.NBATradePreferences
 		draftPicks          []structs.DraftPick
+		arenas              []structs.Arena
 	)
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		arenas = repository.FindAllArenaRecords()
+	}()
 
 	if len(collegeID) > 0 && collegeID != "0" {
 		wg.Add(1)
@@ -367,6 +375,7 @@ func GetBootstrapDataTeamRoster(collegeID, proID string) BootstrapData {
 		TradeProposals:      tradeProposals,
 		TradePreferencesMap: tradePreferencesMap,
 		DraftPicks:          draftPicks,
+		Arenas:              arenas,
 	}
 }
 
