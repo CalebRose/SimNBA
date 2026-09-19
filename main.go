@@ -247,6 +247,7 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/cbb/players/cut/{playerID}", controller.CutPlayerFromCBBTeam).Methods("GET")
 	apiRouter.HandleFunc("/nba/players/cut/{playerID}", controller.CutPlayerFromNBATeam).Methods("GET")
 	apiRouter.HandleFunc("/nba/players/activate/option/{contractID}", controller.ActivateOption).Methods("GET")
+	apiRouter.HandleFunc("/nba/players/place/nba/{playerID}", controller.PlaceNBAPlayerInNBA).Methods("GET")
 	apiRouter.HandleFunc("/nba/players/place/gleague/{playerID}", controller.PlaceNBAPlayerInGLeague).Methods("GET")
 	apiRouter.HandleFunc("/nba/players/place/twoway/{playerID}", controller.AssignNBAPlayerAsTwoWay).Methods("GET")
 

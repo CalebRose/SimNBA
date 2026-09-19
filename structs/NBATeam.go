@@ -22,6 +22,7 @@ type NBATeam struct {
 	Division           string
 	ArenaID            uint
 	Arena              string
+	ArenaCapacity      uint `gorm:"-"`
 	NBAOwnerID         uint
 	NBAOwnerName       string
 	NBACoachID         uint
