@@ -51,6 +51,14 @@ func (g *NBAGameplan) UpdateGameplan(pace, of, df, os, fp string) {
 	g.FocusPlayer = fp
 }
 
+func (g *NBAGameplan) UpdateTimeoutSettings(dto UpdateGameplanDto) {
+	g.PreserveTimeouts = dto.PreserveTimeouts
+	g.Trigger1Enabled, g.Trigger1Type, g.Trigger1Value = dto.Trigger1Enabled, dto.Trigger1Type, dto.Trigger1Value
+	g.Trigger2Enabled, g.Trigger2Value = dto.Trigger2Enabled, dto.Trigger2Value
+	g.Trigger3Enabled, g.Trigger3Value, g.Trigger3Exhaustion = dto.Trigger3Enabled, dto.Trigger3Value, dto.Trigger3Exhaustion
+	g.Trigger4Enabled, g.Trigger4Value = dto.Trigger4Enabled, dto.Trigger4Value
+}
+
 func (g *NBAGameplan) UpdateToggles(tp, thp, fn, ft, bw, rb, id, pd, p2, p3 bool) {
 	g.Toggle2pt = tp
 	g.Toggle3pt = thp

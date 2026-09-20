@@ -1,6 +1,7 @@
 package managers
 
 import (
+	"fmt"
 	"sort"
 	"strconv"
 
@@ -9,6 +10,51 @@ import (
 	"github.com/CalebRose/SimNBA/structs"
 	"gorm.io/gorm"
 )
+
+// ValidateTimeoutSettings rejects invalid trigger values and players outside the team.
+func ValidateTimeoutSettings(dto structs.UpdateGameplanDto, nba bool) error {
+	if !dto.TimeoutSettingsProvided {
+		return nil
+	}
+	if dto.Trigger1Enabled {
+		if dto.Trigger1Type == 1 {
+			if dto.Trigger1Value == 0 {
+				return fmt.Errorf("select a protected player")
+			}
+		} else if dto.Trigger1Type != 2 || dto.Trigger1Value < 1 || dto.Trigger1Value > 5 {
+			return fmt.Errorf("fouls per half must be between 1 and 5")
+		}
+	}
+	if dto.Trigger2Enabled && (dto.Trigger2Value < 1 || dto.Trigger2Value > 99) {
+		return fmt.Errorf("opponent lead must be between 1 and 99")
+	}
+	if dto.Trigger3Enabled && (dto.Trigger3Value == 0 || dto.Trigger3Exhaustion > 100) {
+		return fmt.Errorf("player exhaustion requires a player and threshold from 0 to 100")
+	}
+	if dto.Trigger4Enabled && dto.Trigger4Value > 100 {
+		return fmt.Errorf("team exhaustion must be between 0 and 100")
+	}
+	db := dbprovider.GetInstance().GetDB()
+	playerIDs := []uint{}
+	if dto.Trigger1Enabled && dto.Trigger1Type == 1 {
+		playerIDs = append(playerIDs, dto.Trigger1Value)
+	}
+	if dto.Trigger3Enabled {
+		playerIDs = append(playerIDs, dto.Trigger3Value)
+	}
+	for _, playerID := range playerIDs {
+		var count int64
+		if nba {
+			db.Model(&structs.NBAPlayer{}).Where("id = ? AND team_id = ?", playerID, dto.TeamID).Count(&count)
+		} else {
+			db.Model(&structs.CollegePlayer{}).Where("id = ? AND team_id = ?", playerID, dto.TeamID).Count(&count)
+		}
+		if count != 1 {
+			return fmt.Errorf("trigger player does not belong to this team")
+		}
+	}
+	return nil
+}
 
 // collegeLineupHasChanged returns true if any player slot, minutes, or shot proportion differs.
 func collegeLineupHasChanged(old, updated structs.CollegeLineup) bool {
@@ -78,6 +124,9 @@ func UpdateGameplan(updateGameplanDto structs.UpdateGameplanDto) structs.UpdateG
 
 	gameplan := GetGameplansByTeam(teamID)
 	gameplan.UpdateGameplan(updateGameplanDto.Pace, updateGameplanDto.OffensiveFormation, updateGameplanDto.DefensiveFormation, "", updateGameplanDto.FocusPlayer)
+	if updateGameplanDto.TimeoutSettingsProvided {
+		gameplan.UpdateTimeoutSettings(updateGameplanDto)
+	}
 	repository.SaveCBBGameplanRecord(gameplan, db)
 
 	return updateGameplanDto
@@ -109,6 +158,9 @@ func UpdateNBAGameplan(updateGameplanDto structs.UpdateGameplanDto) structs.Upda
 
 	gameplan := GetNBAGameplanByTeam(teamID)
 	gameplan.UpdateGameplan(updateGameplanDto.Pace, updateGameplanDto.OffensiveFormation, updateGameplanDto.DefensiveFormation, "", updateGameplanDto.FocusPlayer)
+	if updateGameplanDto.TimeoutSettingsProvided {
+		gameplan.UpdateTimeoutSettings(updateGameplanDto)
+	}
 	repository.SaveNBAGameplanRecord(gameplan, db)
 
 	return updateGameplanDto

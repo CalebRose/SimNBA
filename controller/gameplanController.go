@@ -40,6 +40,10 @@ func UpdateGameplan(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	if err := managers.ValidateTimeoutSettings(updateGameplanDto, false); err != nil {
+		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+		return
+	}
 
 	dto := managers.UpdateGameplan(updateGameplanDto)
 	json.NewEncoder(w).Encode(dto)
@@ -73,6 +77,10 @@ func UpdateNBAGameplan(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&updateGameplanDto)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if err := managers.ValidateTimeoutSettings(updateGameplanDto, true); err != nil {
+		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 		return
 	}
 
