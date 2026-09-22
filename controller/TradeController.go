@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/CalebRose/SimNBA/managers"
@@ -49,8 +48,6 @@ func PlaceNBAPlayerOnTradeBlock(w http.ResponseWriter, r *http.Request) {
 	}
 
 	managers.PlaceNBAPlayerOnTradeBlock(playerID)
-
-	json.NewEncoder(w).Encode("Player " + playerID + " placed on trade block.")
 }
 
 // Update Trade Preferences
@@ -64,8 +61,6 @@ func UpdateTradePreferences(w http.ResponseWriter, r *http.Request) {
 	}
 
 	managers.UpdateTradePreferences(tradePreferenceDTO)
-
-	fmt.Fprintf(w, "Trade Preferences Updated")
 }
 
 // Create NBA Trade Proposal
@@ -80,8 +75,6 @@ func CreateNBATradeProposal(w http.ResponseWriter, r *http.Request) {
 
 	managers.CreateTradeProposal(tradeProposalDTO)
 
-	// recruitingProfile := managers.CreateRecruitingProfileForRecruit(tradeProposalDTO)
-	fmt.Fprintf(w, "New Trade Proposal Created")
 }
 
 // Accept Trade Offer
@@ -94,8 +87,6 @@ func AcceptTradeOffer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	managers.AcceptTradeProposal(proposalID)
-
-	json.NewEncoder(w).Encode("Proposal " + proposalID + " has been accepted.")
 }
 
 // Reject Trade Offer
@@ -108,8 +99,6 @@ func RejectTradeOffer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	managers.RejectTradeProposal(proposalID)
-
-	json.NewEncoder(w).Encode("Proposal " + proposalID + " has been accepted.")
 }
 
 // Cancels Trade Offer
@@ -122,8 +111,6 @@ func CancelTradeOffer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	managers.CancelTradeProposal(proposalID)
-
-	json.NewEncoder(w).Encode("Proposal " + proposalID + " has been accepted.")
 }
 
 // SyncAcceptedTrade -- Admin approve a trade
@@ -136,8 +123,6 @@ func SyncAcceptedTrade(w http.ResponseWriter, r *http.Request) {
 	}
 
 	managers.SyncAcceptedTrade(proposalID)
-
-	json.NewEncoder(w).Encode("Proposal " + proposalID + " has been accepted.")
 }
 
 // SyncAcceptedTrade -- Admin approve a trade
@@ -151,13 +136,10 @@ func VetoAcceptedTrade(w http.ResponseWriter, r *http.Request) {
 
 	managers.VetoTrade(proposalID)
 
-	json.NewEncoder(w).Encode("Proposal " + proposalID + " has been accepted.")
 }
 
 // CleanUpRejectedTrades -- Remove all rejected trades from the DB
 func CleanUpRejectedTrades(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	managers.RemoveRejectedTrades()
-
-	json.NewEncoder(w).Encode("Removed all rejected trades from the interface.")
 }
