@@ -30,6 +30,7 @@ type Match struct {
 	HomeTeamScore          int
 	AwayTeamScore          int
 	TimeSlot               string
+	ArenaID                uint
 	Arena                  string
 	City                   string
 	State                  string

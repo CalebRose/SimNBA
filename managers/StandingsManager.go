@@ -206,7 +206,7 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 		nbaGames := GetNBATeamMatchesByMatchType(strconv.Itoa(int(ts.NBAWeekID)), strconv.Itoa(int(ts.SeasonID)), MatchType)
 		nbaTeamMap := GetProfessionalTeamMap()
 		for _, game := range nbaGames {
-			if !game.GameComplete {
+			if !game.GameComplete || game.IsPreseason {
 				continue
 			}
 			HomeID := game.HomeTeamID

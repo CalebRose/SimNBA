@@ -390,12 +390,12 @@ func GetNBATeamStatsBySeasonID(seasonId string) []structs.NBATeamStats {
 	return teamStats
 }
 
-func GetTeamSeasonStatsByTeamID(teamID string, seasonID string) structs.TeamSeasonStats {
+func GetTeamSeasonStatsByTeamID(teamID, seasonID, gameType string) structs.TeamSeasonStats {
 	db := dbprovider.GetInstance().GetDB()
 
 	var seasonStats structs.TeamSeasonStats
 
-	err := db.Where("team_id = ? AND season_id = ?", teamID, seasonID).Find(&seasonStats).Error
+	err := db.Where("team_id = ? AND season_id = ? AND game_type = ?", teamID, seasonID, gameType).Find(&seasonStats).Error
 	if err != nil {
 		fmt.Println("Could not find existing record for team... generating new one.")
 	}
@@ -403,12 +403,12 @@ func GetTeamSeasonStatsByTeamID(teamID string, seasonID string) structs.TeamSeas
 	return seasonStats
 }
 
-func GetNBATeamSeasonStatsByTeamID(teamID string, seasonID string) structs.NBATeamSeasonStats {
+func GetNBATeamSeasonStatsByTeamID(teamID, seasonID, gameType string) structs.NBATeamSeasonStats {
 	db := dbprovider.GetInstance().GetDB()
 
 	var seasonStats structs.NBATeamSeasonStats
 
-	err := db.Where("team_id = ? AND season_id = ?", teamID, seasonID).Find(&seasonStats).Error
+	err := db.Where("team_id = ? AND season_id = ? AND game_type = ?", teamID, seasonID, gameType).Find(&seasonStats).Error
 	if err != nil {
 		fmt.Println("Could not find existing record for team... generating new one.")
 	}
@@ -427,6 +427,9 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 	cbbSeasonStatMap := GetCollegePlayerSeasonStatMap(seasonId)
 	nbaPlayerSeasonStatMap := GetNBAPlayerSeasonStatMap(seasonId)
 
+	_, cbbGameType := ts.GetCurrentGameType(true)
+	_, nbaGameType := ts.GetCurrentGameType(false)
+
 	for _, match := range matches {
 		if !match.GameComplete {
 			continue
@@ -436,7 +439,7 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 
 		homeTeamStats := GetCBBTeamStatsByMatch(strconv.Itoa(int(match.HomeTeamID)), strconv.Itoa(int(match.ID)))
 
-		homeSeasonStats := GetTeamSeasonStatsByTeamID(strconv.Itoa(int(match.HomeTeamID)), seasonId)
+		homeSeasonStats := GetTeamSeasonStatsByTeamID(strconv.Itoa(int(match.HomeTeamID)), seasonId, cbbGameType)
 
 		homeSeasonStats.AddStatsToSeasonRecord(homeTeamStats)
 
@@ -447,7 +450,7 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 
 		awayTeamStats := GetCBBTeamStatsByMatch(strconv.Itoa(int(match.AwayTeamID)), strconv.Itoa(int(match.ID)))
 
-		awaySeasonStats := GetTeamSeasonStatsByTeamID(strconv.Itoa(int(match.AwayTeamID)), seasonId)
+		awaySeasonStats := GetTeamSeasonStatsByTeamID(strconv.Itoa(int(match.AwayTeamID)), seasonId, cbbGameType)
 
 		awaySeasonStats.AddStatsToSeasonRecord(awayTeamStats)
 
@@ -493,7 +496,7 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 
 		homeTeamStats := GetNBATeamStatsByMatch(strconv.Itoa(int(match.HomeTeamID)), strconv.Itoa(int(match.ID)))
 
-		homeSeasonStats := GetNBATeamSeasonStatsByTeamID(strconv.Itoa(int(match.HomeTeamID)), seasonId)
+		homeSeasonStats := GetNBATeamSeasonStatsByTeamID(strconv.Itoa(int(match.HomeTeamID)), seasonId, nbaGameType)
 
 		homeSeasonStats.AddStatsToSeasonRecord(homeTeamStats)
 
@@ -504,7 +507,7 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 
 		awayTeamStats := GetNBATeamStatsByMatch(strconv.Itoa(int(match.AwayTeamID)), strconv.Itoa(int(match.ID)))
 
-		awaySeasonStats := GetNBATeamSeasonStatsByTeamID(strconv.Itoa(int(match.AwayTeamID)), seasonId)
+		awaySeasonStats := GetNBATeamSeasonStatsByTeamID(strconv.Itoa(int(match.AwayTeamID)), seasonId, nbaGameType)
 
 		awaySeasonStats.AddStatsToSeasonRecord(awayTeamStats)
 
@@ -543,6 +546,8 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 func RegressSeasonStats(ts structs.Timestamp, MatchType string) {
 	db := dbprovider.GetInstance().GetDB()
 
+	_, cbbGameType := ts.GetCurrentGameType(true)
+
 	weekId := strconv.Itoa(int(ts.CollegeWeekID))
 	seasonId := strconv.Itoa(int(ts.SeasonID))
 
@@ -551,7 +556,7 @@ func RegressSeasonStats(ts structs.Timestamp, MatchType string) {
 	for _, match := range matches {
 		homeTeamStats := GetCBBTeamStatsByMatch(strconv.Itoa(int(match.HomeTeamID)), strconv.Itoa(int(match.ID)))
 
-		homeSeasonStats := GetTeamSeasonStatsByTeamID(strconv.Itoa(int(match.HomeTeamID)), seasonId)
+		homeSeasonStats := GetTeamSeasonStatsByTeamID(strconv.Itoa(int(match.HomeTeamID)), seasonId, cbbGameType)
 
 		homeSeasonStats.RemoveStatsToSeasonRecord(homeTeamStats)
 
@@ -562,7 +567,7 @@ func RegressSeasonStats(ts structs.Timestamp, MatchType string) {
 
 		awayTeamStats := GetCBBTeamStatsByMatch(strconv.Itoa(int(match.AwayTeamID)), strconv.Itoa(int(match.ID)))
 
-		awaySeasonStats := GetTeamSeasonStatsByTeamID(strconv.Itoa(int(match.AwayTeamID)), seasonId)
+		awaySeasonStats := GetTeamSeasonStatsByTeamID(strconv.Itoa(int(match.AwayTeamID)), seasonId, cbbGameType)
 
 		awaySeasonStats.RemoveStatsToSeasonRecord(awayTeamStats)
 
@@ -617,6 +622,8 @@ func SeasonStatReset() {
 	db := dbprovider.GetInstance().GetDB()
 
 	ts := GetTimestamp()
+	_, cbbGameType := ts.GetCurrentGameType(true)
+	_, nbaGameType := ts.GetCurrentGameType(false)
 	seasonID := strconv.Itoa(int(ts.SeasonID))
 	collegePlayers := GetAllCollegePlayers()
 	collegeTeams := GetAllActiveCollegeTeams()
@@ -638,6 +645,9 @@ func SeasonStatReset() {
 		}
 		seasonStats.ResetSeasonStats()
 		for _, s := range stats {
+			if s.GameType == 1 || s.GameType == 3 {
+				continue
+			}
 			seasonStats.AddStatsToSeasonRecord(s)
 		}
 		repository.SaveCollegePlayerSeasonStatRecord(seasonStats, db)
@@ -665,7 +675,7 @@ func SeasonStatReset() {
 		if len(teamStats) == 0 {
 			continue
 		}
-		seasonStats := GetTeamSeasonStatsByTeamID(id, seasonID)
+		seasonStats := GetTeamSeasonStatsByTeamID(id, seasonID, cbbGameType)
 		seasonStats.ResetSeasonsRecord()
 		for _, s := range teamStats {
 			seasonStats.AddStatsToSeasonRecord(s)
@@ -679,7 +689,7 @@ func SeasonStatReset() {
 		if len(teamStats) == 0 {
 			continue
 		}
-		seasonStats := GetNBATeamSeasonStatsByTeamID(id, seasonID)
+		seasonStats := GetNBATeamSeasonStatsByTeamID(id, seasonID, nbaGameType)
 		seasonStats.ResetSeasonsRecord()
 		for _, s := range teamStats {
 			seasonStats.AddStatsToSeasonRecord(s)

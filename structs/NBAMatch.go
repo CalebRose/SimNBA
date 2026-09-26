@@ -29,6 +29,7 @@ type NBAMatch struct {
 	NextSeriesID           uint
 	NextSeriesHOA          string
 	TimeSlot               string
+	ArenaID                uint
 	Arena                  string
 	City                   string
 	State                  string
@@ -42,6 +43,7 @@ type NBAMatch struct {
 	IsPlayInGame           bool
 	IsTheFinals            bool
 	IsRivalryGame          bool
+	IsPreseason            bool
 	GameComplete           bool
 }
 
@@ -67,8 +69,12 @@ func (m *NBAMatch) UpdateCoach(TeamID int, Username string) {
 func (m *NBAMatch) AddWeekData(id, week uint, timeslot string) {
 	m.WeekID = id
 	m.Week = week
-	m.TimeSlot = timeslot
-	m.MatchOfWeek = timeslot
+	if timeslot != "" {
+		m.TimeSlot = timeslot
+		m.MatchOfWeek = timeslot
+	} else if len(m.TimeSlot) > 0 {
+		m.MatchOfWeek = m.TimeSlot
+	}
 }
 
 func (m *NBAMatch) HideScore() {

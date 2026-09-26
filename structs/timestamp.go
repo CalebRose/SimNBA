@@ -83,16 +83,17 @@ func (t *Timestamp) MoveUpASeason() {
 }
 
 func (t *Timestamp) MoveUpWeek() {
-	t.CollegeWeekID++
-	t.CollegeWeek++
-	t.NBAWeekID++
-	t.NBAWeek++
-	if t.CollegeWeek > 1 && t.IsPreseason {
-		t.CollegeWeek = 1
+	if t.Phase == 10 {
+		t.IsPreseason = true
+	}
+	if t.Phase > 10 {
+		t.CollegeWeekID++
+		t.CollegeWeek++
+		t.NBAWeekID++
+		t.NBAWeek++
+	}
+	if t.CollegeWeek > 0 && t.IsPreseason {
 		t.IsPreseason = false
-		t.CollegeWeekID -= 1
-		t.NBAWeekID -= 1
-		t.NBAWeek = 1
 	}
 }
 

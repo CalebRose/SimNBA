@@ -75,17 +75,20 @@ func SyncRecruitingViaCron() {
 
 func SyncToNextWeekViaCron() {
 	ts := managers.GetTimestamp()
+	if !ts.RunCron {
+		return
+	}
 
-	if ts.RunCron && ts.IsNBAOffseason {
+	if ts.IsNBAOffseason {
 		// managers.SyncISLYouthDevelopment()
 	}
 
-	if ts.RunCron && ((!ts.IsOffSeason || !ts.IsNBAOffseason) || (ts.CollegeSeasonOver && ts.NBASeasonOver && ts.FreeAgencyRound > 2)) {
+	if (!ts.IsOffSeason || !ts.IsNBAOffseason) || (ts.CollegeSeasonOver && ts.NBASeasonOver && ts.FreeAgencyRound > 2) {
 		managers.ProcessRecovery()
 		managers.SyncToNextWeek()
 	}
 
-	if ts.RunCron && ts.IsNBAOffseason && ts.IsFreeAgencyLocked {
+	if ts.IsNBAOffseason && ts.IsFreeAgencyLocked {
 		// If NBA Progression Wasn't Ran, Run Progression
 		if !ts.ProgressedProfessionalPlayers {
 			// managers.ProgressNBAPlayers()
@@ -102,14 +105,20 @@ func CheckUserGameplansViaCron() {
 
 func ShowGamesViaCron() {
 	ts := managers.GetTimestamp()
-	if ts.RunCron && ts.RunGames && (!ts.IsOffSeason || !ts.IsNBAOffseason) {
+	if !ts.RunCron {
+		return
+	}
+	if ts.Phase > 9 && ts.RunGames && (!ts.IsOffSeason || !ts.IsNBAOffseason) {
 		managers.ShowGames()
 	}
 }
 
 func RunAIGameplansViaCron() {
 	ts := managers.GetTimestamp()
-	if ts.RunCron && (!ts.IsOffSeason || !ts.IsNBAOffseason) {
+	if !ts.RunCron {
+		return
+	}
+	if ts.Phase > 9 && (!ts.IsOffSeason || !ts.IsNBAOffseason) {
 		managers.ProcessRecovery()
 		val := managers.SetAIGameplans()
 		if val {
@@ -120,12 +129,15 @@ func RunAIGameplansViaCron() {
 
 func SyncFreeAgencyOffersViaCron() {
 	ts := managers.GetTimestamp()
+	if !ts.RunCron {
+		return
+	}
 
-	if ts.RunCron && !ts.IsFreeAgencyLocked && !ts.IsDraftTime {
+	if !ts.IsFreeAgencyLocked && !ts.IsDraftTime {
 		managers.SyncAIOffers()
 		managers.SyncFreeAgencyOffers()
 	}
-	if ts.RunCron && ts.NBASeasonOver {
+	if ts.NBASeasonOver {
 		managers.RunExtensionsAlgorithm()
 	}
 	managers.AllocateCapsheets()

@@ -51,13 +51,13 @@ func SyncToNextWeek() {
 	ts := GetTimestamp()
 	ts.MoveUpPhase()
 
-	if ts.CollegeWeek < 21 || !ts.IsOffSeason {
+	if ts.CollegeWeek > 0 && ts.CollegeWeek < 21 || !ts.IsOffSeason {
 		ResetCollegeStandingsRanks()
 	}
 
 	ts.SyncToNextWeek()
 
-	if ts.CollegeWeek < 21 || !ts.CollegeSeasonOver {
+	if ts.CollegeWeek > 0 && ts.CollegeWeek < 21 && !ts.CollegeSeasonOver {
 		SyncCollegePollSubmissionForCurrentWeek(uint(ts.CollegeWeek), ts.CollegeWeekID, ts.SeasonID)
 		ts.TogglePollRan()
 	}

@@ -990,6 +990,7 @@ func GetAttributeNew(position, attribute string, spec, isWalkon bool) int {
 
 func GetWeekIDBySeasonAndWeek(season uint, week uint) uint {
 	// Format should be SSWW where SS is the last two digits of the season and WW is the week number with leading zeros if necessary
+	// Example: 2027 season, week 3 would be 2703
 	seasonPart := season % 100
 	weekPart := week
 	if week < 10 {

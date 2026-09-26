@@ -635,7 +635,7 @@ func ImportNBAGames() {
 	ts := GetTimestamp()
 
 	nbaTeams := GetOnlyNBATeams()
-	schedule, err := GenerateNBASeasonSchedule(nbaTeams, ts.SeasonID, 5000, 68)
+	schedule, err := GenerateNBASeasonSchedule(nbaTeams, ts.SeasonID, 10000, 68)
 	if err != nil {
 		log.Println("Generation Failed: ", err)
 		return
@@ -927,10 +927,10 @@ func ImportNBAGamesOLD() {
 	professionalMatches := util.ReadCSV(path)
 
 	professionalTeams := GetAllActiveNBATeams()
-	teamMap := make(map[string]structs.NBATeam)
+	teamMap := make(map[uint]structs.NBATeam)
 
 	for _, t := range professionalTeams {
-		teamMap[t.Team+" "+t.Nickname] = t
+		teamMap[t.ID] = t
 	}
 
 	for idx, row := range professionalMatches {
@@ -938,22 +938,23 @@ func ImportNBAGamesOLD() {
 			continue
 		}
 
-		id := util.ConvertStringToInt(row[0])
+		// id := util.ConvertStringToInt(row[0])
 		season := util.ConvertStringToInt(row[1])
 		seasonID := season - 2020
 		week := util.ConvertStringToInt(row[2])
-		weekID := week
-		timeSlot := row[3]
-		homeTeamStr := row[6]
-		awayTeamStr := row[7]
-		homeTeam := teamMap[homeTeamStr]
-		awayTeam := teamMap[awayTeamStr]
+		weekID := util.GetWeekIDBySeasonAndWeek(uint(season), uint(week))
+		homeTeamID := util.ConvertStringToInt(row[3])
+		awayTeamID := util.ConvertStringToInt(row[4])
+		timeSlot := row[5]
+		homeTeam := teamMap[uint(homeTeamID)]
+		awayTeam := teamMap[uint(awayTeamID)]
 		gameTitle := ""
 		nextGameID := 0
 		hoA := ""
-		conference := util.ConvertStringToBool(row[12])
-		divisional := util.ConvertStringToBool(row[13])
-		international := util.ConvertStringToBool(row[14])
+		conference := homeTeam.ConferenceID == awayTeam.ConferenceID && homeTeam.ConferenceID > 0
+		divisional := homeTeam.DivisionID == awayTeam.DivisionID && homeTeam.DivisionID > 0
+		international := homeTeam.LeagueID > 1 && awayTeam.LeagueID > 1
+		arenaID := homeTeam.ArenaID
 		arena := homeTeam.Arena
 		city := homeTeam.City
 		state := homeTeam.State
@@ -974,30 +975,31 @@ func ImportNBAGamesOLD() {
 		}
 
 		match := structs.NBAMatch{
-			Model:           gorm.Model{ID: uint(id)},
 			SeasonID:        uint(seasonID),
 			WeekID:          uint(weekID),
 			Week:            uint(week),
 			MatchOfWeek:     timeSlot,
 			IsConference:    conference,
 			IsDivisional:    divisional,
-			HomeTeam:        homeTeamStr,
+			HomeTeam:        homeTeam.Team + " " + homeTeam.Nickname,
 			HomeTeamID:      homeTeam.ID,
 			AwayTeamID:      awayTeam.ID,
 			HomeTeamCoach:   homeCoach,
-			AwayTeam:        awayTeamStr,
+			AwayTeam:        awayTeam.Team + " " + awayTeam.Nickname,
 			AwayTeamCoach:   awayCoach,
 			MatchName:       gameTitle,
 			NextGameID:      uint(nextGameID),
 			NextGameHOA:     hoA,
 			IsNeutralSite:   conference,
-			IsPlayoffGame:   true,
+			IsPlayoffGame:   false,
 			IsTheFinals:     false,
 			IsInternational: international,
+			ArenaID:         arenaID,
 			Arena:           arena,
 			City:            city,
 			State:           state,
 			Country:         country,
+			IsPreseason:     util.ConvertStringToBool(row[6]),
 		}
 
 		db.Create(&match)

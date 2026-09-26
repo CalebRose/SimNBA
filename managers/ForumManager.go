@@ -305,9 +305,10 @@ func buildDraftLotteryNodes(season int, draftPicks []structs.DraftPick) []map[st
 	// Separate and sort picks by round then pick number.
 	var r1, r2 []structs.DraftPick
 	for _, p := range draftPicks {
-		if p.DraftRound == 1 {
+		switch p.DraftRound {
+		case 1:
 			r1 = append(r1, p)
-		} else if p.DraftRound == 2 {
+		case 2:
 			r2 = append(r2, p)
 		}
 	}

@@ -689,6 +689,8 @@ func FormISLRosters() {
 
 func GetDashboardByTeamID(isCBB bool, teamID string) structs.DashboardResponseData {
 	ts := GetTimestamp()
+	_, cbbGameType := ts.GetCurrentGameType(true)
+	_, nbaGameType := ts.GetCurrentGameType(false)
 	seasonID := strconv.Itoa(int(ts.SeasonID))
 	collegeTeam := structs.Team{}
 	nbaTeam := structs.NBATeam{}
@@ -805,7 +807,7 @@ func GetDashboardByTeamID(isCBB bool, teamID string) structs.DashboardResponseDa
 			if ts.IsOffSeason {
 				seasonKey -= 1
 			}
-			stats = GetTeamSeasonStatsByTeamID(teamID, strconv.Itoa(int(seasonKey)))
+			stats = GetTeamSeasonStatsByTeamID(teamID, strconv.Itoa(int(seasonKey)), cbbGameType)
 		}
 		cfbTeamStatsChan <- stats
 	}()
@@ -818,7 +820,7 @@ func GetDashboardByTeamID(isCBB bool, teamID string) structs.DashboardResponseDa
 			if ts.IsNBAOffseason {
 				seasonKey -= 1
 			}
-			stats = GetNBATeamSeasonStatsByTeamID(teamID, strconv.Itoa(int(seasonKey)))
+			stats = GetNBATeamSeasonStatsByTeamID(teamID, strconv.Itoa(int(seasonKey)), nbaGameType)
 		}
 		nflTeamStatsChan <- stats
 	}()
