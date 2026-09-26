@@ -60,6 +60,7 @@ func (t *Timestamp) MoveUpPhase() {
 }
 
 func (t *Timestamp) MoveUpASeason() {
+	t.RunGames = false
 	t.Phase = 1
 	t.SeasonID++
 	t.Season++
@@ -85,6 +86,7 @@ func (t *Timestamp) MoveUpASeason() {
 func (t *Timestamp) MoveUpWeek() {
 	if t.Phase == 10 {
 		t.IsPreseason = true
+		t.RunGames = true
 	}
 	if t.Phase > 10 {
 		t.CollegeWeekID++
