@@ -151,19 +151,19 @@ func GetTestMatches(request structs.TestRequest) structs.MatchStateResponse {
 
 func GetMatchesForTimeslot() structs.MatchStateResponse {
 	ts := GetTimestamp()
-	// if !ts.RunGames {
-	// 	return structs.MatchStateResponse{
-	// 		Matches:   []structs.MatchResponse{},
-	// 		MatchType: "",
-	// 		Week:      0,
-	// 	}
-	// }
-	// seasonID := strconv.Itoa(int(ts.SeasonID))
-	// weekID := strconv.Itoa(int(ts.CollegeWeekID))
-	// nbaWeekID := strconv.Itoa(int(ts.NBAWeekID))
-	seasonID := "6"
-	weekID := "2601"
-	nbaWeekID := "2601"
+	if !ts.RunGames {
+		return structs.MatchStateResponse{
+			Matches:   []structs.MatchResponse{},
+			MatchType: "",
+			Week:      0,
+		}
+	}
+	seasonID := strconv.Itoa(int(ts.SeasonID))
+	weekID := strconv.Itoa(int(ts.CollegeWeekID))
+	nbaWeekID := strconv.Itoa(int(ts.NBAWeekID))
+	// seasonID := "6"
+	// weekID := "2601"
+	// nbaWeekID := "2601"
 
 	matchType := ""
 
