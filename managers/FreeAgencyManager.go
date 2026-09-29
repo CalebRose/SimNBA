@@ -782,6 +782,14 @@ func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *
 				nbaTeam := nbaTeamMap[Offer.TeamID]
 				isAi := nbaTeam.NBAOwnerName == "" || nbaTeam.NBAOwnerName == "AI"
 				withinRosterLimit := len(roster) < 18
+				rosterCount := 0
+				for _, p := range roster {
+					if p.IsGLeague || p.IsTwoWay {
+						continue
+					}
+					rosterCount++
+				}
+				withinRosterLimit = rosterCount < 18
 				// Get the Contract with the best value for the FA
 				if Offer.IsActive && WinningOffer.ID == 0 && validOffer && belowCap {
 					if isAi && !withinRosterLimit {
