@@ -912,14 +912,34 @@ func GetCollegePlayerByPlayerId(playerId string) structs.CollegePlayer {
 	return player
 }
 
-func SetRedshirtStatusForPlayer(playerId string) structs.CollegePlayer {
+func SetRedshirtStatusForPlayer(playerId string) (structs.CollegePlayer, error) {
+	db := dbprovider.GetInstance().GetDB()
 	player := GetCollegePlayerByPlayerId(playerId)
 
 	player.SetRedshirtingStatus()
 
-	UpdatePlayer(player)
+	err := db.Transaction(func(tx *gorm.DB) error {
+		var lineups []structs.CollegeLineup
+		if err := tx.Where("team_id = ?", player.TeamID).Find(&lineups).Error; err != nil {
+			return err
+		}
 
-	return player
+		for _, lineup := range lineups {
+			if !lineup.ClearPlayer(player.ID) {
+				continue
+			}
+			if err := tx.Save(&lineup).Error; err != nil {
+				return err
+			}
+		}
+
+		return tx.Save(&player).Error
+	})
+	if err != nil {
+		return structs.CollegePlayer{}, err
+	}
+
+	return player, nil
 }
 
 func UpdatePlayer(p structs.CollegePlayer) {
@@ -1125,10 +1145,27 @@ func PlaceNBAPlayerInGLeague(playerID string) error {
 		}
 		player.IsGLeague = true
 		player.IsTwoWay = false
+
+		return db.Transaction(func(tx *gorm.DB) error {
+			var lineups []structs.NBALineup
+			if err := tx.Where("team_id = ?", player.TeamID).Find(&lineups).Error; err != nil {
+				return err
+			}
+
+			for _, lineup := range lineups {
+				if !lineup.ClearPlayer(player.ID) {
+					continue
+				}
+				if err := tx.Save(&lineup).Error; err != nil {
+					return err
+				}
+			}
+
+			return tx.Save(&player).Error
+		})
 	}
 
-	db.Save(&player)
-	return nil
+	return db.Save(&player).Error
 }
 
 func AssignPlayerAsTwoWay(playerID string) error {
