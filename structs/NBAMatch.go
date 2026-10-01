@@ -47,6 +47,7 @@ type NBAMatch struct {
 	IsPreseason            bool
 	IsRevealed             bool
 	GameComplete           bool
+	AttendanceCount        uint
 }
 
 func (m *NBAMatch) AssignMVP(playerID uint) {

@@ -35,6 +35,8 @@ type Match struct {
 	Arena                  string
 	City                   string
 	State                  string
+	Country                string
+	AttendanceCount        uint
 	NextGameID             uint
 	NextGameHOA            string // Home or Away Slot for the next game
 	IsNeutralSite          bool

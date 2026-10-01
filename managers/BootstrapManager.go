@@ -461,11 +461,13 @@ func GetBootstrapDataFreeAgency(proID string) BootstrapData {
 func GetBootstrapDataScheduling(username, collegeID, proID string) BootstrapData {
 	var wg sync.WaitGroup
 	var (
-		officialPolls  []structs.CollegePollOfficial
-		pollSubmission structs.CollegePollSubmission
+		officialPolls     []structs.CollegePollOfficial
+		pollSubmission    structs.CollegePollSubmission
+		allCollegeMatches []structs.Match
+		allProMatches     []structs.NBAMatch
 	)
 	if len(collegeID) > 0 && collegeID != "0" {
-		wg.Add(2)
+		wg.Add(3)
 		go func() {
 			defer wg.Done()
 			officialPolls = GetAllCollegePolls()
@@ -474,12 +476,25 @@ func GetBootstrapDataScheduling(username, collegeID, proID string) BootstrapData
 			defer wg.Done()
 			pollSubmission = GetPollSubmissionByUsernameWeekAndSeason(username)
 		}()
+		go func() {
+			defer wg.Done()
+			allCollegeMatches = repository.FindCollegeMatchRecords(repository.GameQuery{})
+		}()
+	}
+	if len(proID) > 0 && proID != "0" {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			allProMatches = repository.FindProMatchRecords(repository.GameQuery{})
+		}()
 	}
 
 	wg.Wait()
 	return BootstrapData{
-		PollSubmission: pollSubmission,
-		CollegePolls:   officialPolls,
+		PollSubmission:  pollSubmission,
+		CollegePolls:    officialPolls,
+		AllCollegeGames: allCollegeMatches,
+		AllProGames:     allProMatches,
 	}
 }
 
