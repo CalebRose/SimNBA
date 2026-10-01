@@ -111,11 +111,13 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 	if !ts.IsOffSeason {
 		games := GetMatchesByWeekIdAndMatchType(strconv.Itoa(int(ts.CollegeWeekID)), strconv.Itoa(int(ts.SeasonID)), MatchType)
 		teamMap := GetCollegeTeamMap()
+		gameIDs := []uint{}
 		for i := 0; i < len(games); i++ {
 			game := games[i]
 			if !game.GameComplete {
 				continue
 			}
+			gameIDs = append(gameIDs, game.ID)
 			HomeID := game.HomeTeamID
 			AwayID := game.AwayTeamID
 			homeID := strconv.Itoa(int(HomeID))
@@ -200,15 +202,19 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 			// 	}
 			// }
 		}
+
+		db.Model(&structs.Match{}).Where("id IN ?", gameIDs).Update("is_revealed", true)
 	}
 
 	if !ts.IsNBAOffseason {
 		nbaGames := GetNBATeamMatchesByMatchType(strconv.Itoa(int(ts.NBAWeekID)), strconv.Itoa(int(ts.SeasonID)), MatchType)
 		nbaTeamMap := GetProfessionalTeamMap()
+		gameIDs := []uint{}
 		for _, game := range nbaGames {
 			if !game.GameComplete || game.IsPreseason {
 				continue
 			}
+			gameIDs = append(gameIDs, game.ID)
 			HomeID := game.HomeTeamID
 			AwayID := game.AwayTeamID
 
@@ -353,6 +359,8 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 				db.Save(&series)
 			}
 		}
+
+		db.Model(&structs.NBAMatch{}).Where("id IN ?", gameIDs).Update("is_revealed", true)
 	}
 
 }

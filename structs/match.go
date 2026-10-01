@@ -30,6 +30,7 @@ type Match struct {
 	HomeTeamScore          int
 	AwayTeamScore          int
 	TimeSlot               string
+	MVP                    uint
 	ArenaID                uint
 	Arena                  string
 	City                   string
@@ -47,6 +48,7 @@ type Match struct {
 	IsRivalryGame          bool
 	IsInvitational         bool
 	GameComplete           bool
+	IsRevealed             bool
 }
 
 func (m *Match) HideScore() {
@@ -54,6 +56,14 @@ func (m *Match) HideScore() {
 	m.AwayTeamScore = 0
 	m.HomeTeamWin = false
 	m.AwayTeamWin = false
+}
+
+func (m *Match) AssignMVP(playerID uint) {
+	m.MVP = playerID
+}
+
+func (m *Match) Reveal() {
+	m.IsRevealed = true
 }
 
 func (m *Match) UpdateScore(homeTeamScore int, awayTeamScore int) {

@@ -593,12 +593,9 @@ func SetAIGameplans() bool {
 	gameplanMap := MakeCollegeGameplanMap(gameplans)
 
 	for _, team := range teams {
-		// if team.ID < 365 {
-		// 	continue
-		// }
-		// if team.IsUserCoached {
-		// 	continue
-		// }
+		if team.IsUserCoached {
+			continue
+		}
 		gameplan := gameplanMap[team.ID]
 		if gameplan.ID == 0 {
 			gameplan = structs.Gameplan{
@@ -633,9 +630,9 @@ func SetAIGameplans() bool {
 		// 	continue
 		// }
 
-		// if len(team.NBAOwnerName) > 0 && team.NBAOwnerName != "AI" {
-		// 	continue
-		// }
+		if len(team.NBAOwnerName) > 0 && team.NBAOwnerName != "AI" {
+			continue
+		}
 
 		SetNBAMinutesAndShotProportions(db, team.ID, nbaLineupMap, nbaPlayerMapByTeamID)
 	}

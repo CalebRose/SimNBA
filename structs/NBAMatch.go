@@ -29,6 +29,7 @@ type NBAMatch struct {
 	NextSeriesID           uint
 	NextSeriesHOA          string
 	TimeSlot               string
+	MVP                    uint
 	ArenaID                uint
 	Arena                  string
 	City                   string
@@ -44,7 +45,16 @@ type NBAMatch struct {
 	IsTheFinals            bool
 	IsRivalryGame          bool
 	IsPreseason            bool
+	IsRevealed             bool
 	GameComplete           bool
+}
+
+func (m *NBAMatch) AssignMVP(playerID uint) {
+	m.MVP = playerID
+}
+
+func (m *NBAMatch) Reveal() {
+	m.IsRevealed = true
 }
 
 func (m *NBAMatch) UpdateScore(homeTeamScore int, awayTeamScore int) {
