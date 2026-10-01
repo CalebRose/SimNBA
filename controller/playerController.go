@@ -117,7 +117,11 @@ func RedshirtCBBPlayer(w http.ResponseWriter, r *http.Request) {
 		panic("User did not provide playerID")
 	}
 
-	var player = managers.SetRedshirtStatusForPlayer(playerID)
+	player, err := managers.SetRedshirtStatusForPlayer(playerID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	json.NewEncoder(w).Encode(player)
 }
@@ -131,7 +135,11 @@ func AssignRedshirtForCollegePlayer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var player = managers.SetRedshirtStatusForPlayer(strconv.Itoa(redshirtDTO.PlayerID))
+	player, err := managers.SetRedshirtStatusForPlayer(strconv.Itoa(redshirtDTO.PlayerID))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	json.NewEncoder(w).Encode(player)
 }

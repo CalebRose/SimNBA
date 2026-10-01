@@ -130,6 +130,38 @@ func (gl *GameplanLineup) MapLineupData(updated GameplanLineup) {
 	gl.TSThreeProportion = updated.TSThreeProportion
 }
 
+// ClearPlayer removes a player from every string in this lineup and clears the
+// associated minutes and shot allocations. It reports whether the lineup
+// contained the player.
+func (gl *GameplanLineup) ClearPlayer(playerID uint) bool {
+	cleared := false
+	if gl.FirstStringID == playerID {
+		gl.FirstStringID = 0
+		gl.FSMinutes = 0
+		gl.FSInsideProportion = 0
+		gl.FSMidProportion = 0
+		gl.FSThreeProportion = 0
+		cleared = true
+	}
+	if gl.SecondStringID == playerID {
+		gl.SecondStringID = 0
+		gl.SSMinutes = 0
+		gl.SSInsideProportion = 0
+		gl.SSMidProportion = 0
+		gl.SSThreeProportion = 0
+		cleared = true
+	}
+	if gl.ThirdStringID == playerID {
+		gl.ThirdStringID = 0
+		gl.TSMinutes = 0
+		gl.TSInsideProportion = 0
+		gl.TSMidProportion = 0
+		gl.TSThreeProportion = 0
+		cleared = true
+	}
+	return cleared
+}
+
 type CollegeLineup struct {
 	GameplanLineup
 }
