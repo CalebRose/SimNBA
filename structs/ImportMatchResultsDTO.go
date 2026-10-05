@@ -6,7 +6,7 @@ type ImportMatchResultsDTO struct {
 }
 
 type MatchResultsDTO struct {
-	GameID      string
+	GameID      uint
 	TeamOne     TeamResultsDTO
 	TeamTwo     TeamResultsDTO
 	PlayerStats []PlayerStatsDTO

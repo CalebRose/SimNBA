@@ -1,8 +1,6 @@
 package managers
 
 import (
-	"strconv"
-
 	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 )
@@ -292,21 +290,21 @@ func MakeNBACombineMapByPlayerID(records []structs.NBACombineResults) map[uint]s
 	return combineMap
 }
 
-func MakeCollegeMatchMap(matches []structs.Match) map[string]structs.Match {
-	matchMap := make(map[string]structs.Match)
+func MakeCollegeMatchMap(matches []structs.Match) map[uint]structs.Match {
+	matchMap := make(map[uint]structs.Match)
 
 	for _, match := range matches {
-		matchMap[strconv.Itoa(int(match.ID))] = match
+		matchMap[match.ID] = match
 	}
 
 	return matchMap
 }
 
-func MakeNBAMatchMap(matches []structs.NBAMatch) map[string]structs.NBAMatch {
-	matchMap := make(map[string]structs.NBAMatch)
+func MakeNBAMatchMap(matches []structs.NBAMatch) map[uint]structs.NBAMatch {
+	matchMap := make(map[uint]structs.NBAMatch)
 
 	for _, match := range matches {
-		matchMap[strconv.Itoa(int(match.ID))] = match
+		matchMap[match.ID] = match
 	}
 
 	return matchMap

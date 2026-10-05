@@ -232,3 +232,43 @@ func FindProTeamGameStatsRecords(SeasonID, WeekID, GameType, GameID string) []st
 
 	return teamStats
 }
+
+func FindCBBPlayByPlaysRecordsByGameID(id string) []structs.CollegePlayByPlay {
+	db := dbprovider.GetInstance().GetDB()
+
+	plays := []structs.CollegePlayByPlay{}
+
+	db.Where("game_id = ?", id).Find(&plays)
+
+	return plays
+}
+
+func FindCBBPlayByPlaysRecordsByGameIDs(ids []string) []structs.CollegePlayByPlay {
+	db := dbprovider.GetInstance().GetDB()
+
+	plays := []structs.CollegePlayByPlay{}
+
+	db.Where("game_id IN ?", ids).Find(&plays)
+
+	return plays
+}
+
+func FindNBAPlayByPlaysRecordsByGameID(id string) []structs.NBAPlayByPlay {
+	db := dbprovider.GetInstance().GetDB()
+
+	plays := []structs.NBAPlayByPlay{}
+
+	db.Where("game_id = ?", id).Find(&plays)
+
+	return plays
+}
+
+func FindNBAPlayByPlaysRecordsByGameIDs(ids []string) []structs.NBAPlayByPlay {
+	db := dbprovider.GetInstance().GetDB()
+
+	plays := []structs.NBAPlayByPlay{}
+
+	db.Where("game_id IN ?", ids).Find(&plays)
+
+	return plays
+}

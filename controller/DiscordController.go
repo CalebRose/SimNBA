@@ -225,3 +225,23 @@ func CompareNFLTeams(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(res)
 }
+
+func GetCBBGameStreams(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	streamType := vars["streamType"]
+	if len(streamType) == 0 {
+		panic("User did not provide timeslot")
+	}
+	streams := managers.GetCBBPlayByPlayStreamData(streamType)
+	json.NewEncoder(w).Encode(streams)
+}
+
+func GetNBAGameStreams(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	streamType := vars["streamType"]
+	if len(streamType) == 0 {
+		panic("User did not provide timeslot")
+	}
+	streams := managers.GetNBAPlayByPlayStreamData(streamType)
+	json.NewEncoder(w).Encode(streams)
+}

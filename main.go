@@ -70,18 +70,20 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/admin/lock/recruiting", controller.LockRecruiting).Methods("GET")
 	apiRouter.HandleFunc("/admin/recruit/create", controller.CreateRecruit).Methods("POST")
 	apiRouter.HandleFunc("/admin/ai/gameplans/", controller.SetAIGameplans).Methods("GET")
-	apiRouter.HandleFunc("/admin/results/import/", controller.ImportMatchResults).Methods("POST")
 	apiRouter.HandleFunc("/admin/show/results", controller.ShowGames).Methods("GET")
 	// apiRouter.HandleFunc("/admin/show/b", controller.ShowBGames).Methods("GET")
 	// apiRouter.HandleFunc("/admin/regress/a", controller.RegressAGamesByOneWeek).Methods("GET")
 	// apiRouter.HandleFunc("/admin/regress/b", controller.RegressBGamesByOneWeek).Methods("GET")
 	apiRouter.HandleFunc("/admin/week/sync", controller.SyncToNextWeek).Methods("GET")
 	apiRouter.HandleFunc("/admin/sync/contract/values", controller.SyncContractValues).Methods("GET")
-	apiRouter.HandleFunc("/simbba/matches/simulation", controller.GetMatchesForSimulation).Methods("GET")
 	apiRouter.HandleFunc("/simcbb/user/gameplans/fix", controller.CheckUserGameplans).Methods("GET")
 
-	// TEST MATCHES
+	// Engine Endpoints
+	apiRouter.HandleFunc("/simbba/matches/simulation", controller.GetMatchesForSimulation).Methods("GET")
 	apiRouter.HandleFunc("/admin/test/matches", controller.GetTestMatches).Methods("POST")
+	apiRouter.HandleFunc("/admin/results/import/", controller.ImportMatchResults).Methods("POST")
+
+	// TEST MATCHES
 	// apiRouter.HandleFunc("/admin/generateGlobalPlayers", controller.GenerateGlobalPlayerRecords).Methods("GET")
 	// apiRouter.HandleFunc("/admin/generate/gameplans", controller.GenerateGameplans).Methods("GET")
 	// apiRouter.HandleFunc("/admin/generate/new/teams", controller.GeneratePlayers).Methods("GET")
@@ -384,6 +386,10 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/ds/nba/flex/{teamOneID}/{teamTwoID}/", controller.CompareNFLTeams).Methods("GET")
 	apiRouter.HandleFunc("/ds/cbb/assign/discord/{teamID}/{discordID}", controller.AssignDiscordIDtoCollegeTeam).Methods("GET")
 	apiRouter.HandleFunc("/ds/nba/assign/discord/{teamID}/{discordID}/{username}", controller.AssignDiscordIDtoNBATeam).Methods("GET")
+	apiRouter.HandleFunc("/ds/cbb/stream/{streamType}/", controller.GetCBBGameStreams).Methods("GET")
+	apiRouter.HandleFunc("/ds/nba/stream/{streamType}/", controller.GetNBAGameStreams).Methods("GET")
+	// apiRouter.HandleFunc("/ds/chl/reveal/results/{gameID}/", controllers.RevealCHLGameResults).Methods("GET")
+	// apiRouter.HandleFunc("/ds/phl/reveal/results/{gameID}/", controllers.RevealPHLGameResults).Methods("GET")
 
 	// Scheduler Controls (CBB)
 	apiRouter.HandleFunc("/cbb/scheduler/game/request/create", controller.CreateCBBGameRequest).Methods("POST")

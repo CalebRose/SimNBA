@@ -45,6 +45,19 @@ type Timestamp struct {
 	IsPreseason                   bool
 }
 
+func (t *Timestamp) GetGameDay() string {
+	if !t.GamesARan {
+		return "A"
+	}
+	if !t.GamesBRan {
+		return "B"
+	}
+	if !t.GamesCRan {
+		return "C"
+	}
+	return "D"
+}
+
 func (t *Timestamp) GetCurrentGameType(isCollege bool) (int, string) {
 	if t.IsPreseason {
 		return 1, "1"

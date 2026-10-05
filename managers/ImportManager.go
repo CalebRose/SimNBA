@@ -76,24 +76,21 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 
 		ht := collegeTeamMap[uint(dto.TeamOne.ID)]
 
-		matchID, err := strconv.Atoi(dto.GameID)
-		if err != nil {
-			log.Fatalln("Could not convert string to int")
-		}
+		matchID := dto.GameID
 
-		homeTeam := mapToCollegeTeamStatsObject(ht.ID, uint(matchID), ts.CollegeWeekID, uint(ts.NBAWeek), ts.SeasonID, matchType, dto.TeamOne, dto.TeamTwo, uint8(cbbGameType))
+		homeTeam := mapToCollegeTeamStatsObject(ht.ID, matchID, ts.CollegeWeekID, uint(ts.NBAWeek), ts.SeasonID, matchType, dto.TeamOne, dto.TeamTwo, uint8(cbbGameType))
 
 		teamStats = append(teamStats, homeTeam)
 
 		at := collegeTeamMap[uint(dto.TeamTwo.ID)]
 
-		awayTeam := mapToCollegeTeamStatsObject(at.ID, uint(matchID), ts.CollegeWeekID, uint(ts.NBAWeek), ts.SeasonID, matchType, dto.TeamTwo, dto.TeamOne, uint8(cbbGameType))
+		awayTeam := mapToCollegeTeamStatsObject(at.ID, matchID, ts.CollegeWeekID, uint(ts.NBAWeek), ts.SeasonID, matchType, dto.TeamTwo, dto.TeamOne, uint8(cbbGameType))
 
 		teamStats = append(teamStats, awayTeam)
 
 		var homePlayerStats []structs.CollegePlayerStats
 		var awayPlayerStats []structs.CollegePlayerStats
-		cbbPlayerMap := make(map[uint]structs.CollegePlayer)
+		// cbbPlayerMap := make(map[uint]structs.CollegePlayer)
 		sentCBBInjury := make(map[uint]bool)
 
 		for _, player := range dto.PlayerStats {
@@ -129,7 +126,7 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 							WeeksOfRecovery: int(player.WeeksOfRecovery),
 							GameID:          gID,
 							RecipientUIDs:   uids,
-							SourceEventKey:  fbsvc.BuildSourceEventKey("injury", "cbb", gID, strconv.Itoa(player.PlayerID)),
+							SourceEventKey:  fbsvc.BuildSourceEventKey("injury", "cbb", strconv.Itoa(int(gID)), strconv.Itoa(player.PlayerID)),
 						})
 					}
 				}()
@@ -173,12 +170,16 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 					NextYAxis:           pbp.NextYAxis,
 				},
 			}
+			// If this is an AI only game and teams are ranked outside of the top 25 (so rank == 0), do not record play by play results
+			if !ht.IsUserCoached && !at.IsUserCoached && (gameRecord.HomeTeamRank == 0 && gameRecord.AwayTeamRank == 0) {
+				continue
+			}
 			collegePlayByPlays = append(collegePlayByPlays, cpbp)
 		}
 
 		gameRecord.UpdateScore(dto.TeamOne.Stats.Points, dto.TeamTwo.Stats.Points)
 
-		err = db.Save(&gameRecord).Error
+		err := db.Save(&gameRecord).Error
 		if err != nil {
 			log.Panicln("Could not save Game " + strconv.Itoa(int(gameRecord.ID)) + "Between " + gameRecord.HomeTeam + " and " + gameRecord.AwayTeam)
 		}
@@ -193,10 +194,10 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 		}
 
 		// Create a post-game discussion thread for user-coached games (best-effort).
-		if gameRecord.HomeTeamCoach != "" || gameRecord.AwayTeamCoach != "" {
-			gr, htStats, atStats, hpStats, apStats, pm, sid := gameRecord, homeTeam, awayTeam, homePlayerStats, awayPlayerStats, cbbPlayerMap, ts.SeasonID
-			go CreatePostGameDiscussionThreadForCBBGame(gr, sid, htStats, atStats, hpStats, apStats, pm)
-		}
+		// if gameRecord.HomeTeamCoach != "" || gameRecord.AwayTeamCoach != "" {
+		// 	gr, htStats, atStats, hpStats, apStats, pm, sid := gameRecord, homeTeam, awayTeam, homePlayerStats, awayPlayerStats, cbbPlayerMap, ts.SeasonID
+		// 	go CreatePostGameDiscussionThreadForCBBGame(gr, sid, htStats, atStats, hpStats, apStats, pm)
+		// }
 
 		fmt.Println("Finished Game " + strconv.Itoa(int(gameRecord.ID)) + " Between " + gameRecord.HomeTeam + " and " + gameRecord.AwayTeam)
 	}
@@ -209,7 +210,7 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 
 		ht := nbaTeamMap[uint(dto.TeamOne.ID)]
 
-		matchID := util.ConvertStringToInt(dto.GameID)
+		matchID := dto.GameID
 
 		homeTeam := mapToNBATeamStatsObject(ht.ID, uint(matchID), ts.NBAWeekID, uint(ts.NBAWeek), ts.SeasonID, matchType, dto.TeamOne, dto.TeamTwo, uint8(nbaGameType))
 
@@ -251,7 +252,7 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 								WeeksOfRecovery: int(nbaPlayerRecord.WeeksOfRecovery),
 								GameID:          gID,
 								RecipientUIDs:   uids,
-								SourceEventKey:  fbsvc.BuildSourceEventKey("injury", "nba", gID, strconv.Itoa(p.PlayerID)),
+								SourceEventKey:  fbsvc.BuildSourceEventKey("injury", "nba", strconv.Itoa(int(gID)), strconv.Itoa(p.PlayerID)),
 							})
 						}
 					}()
@@ -294,6 +295,9 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 					NextXAxis:           pbp.NextXAxis,
 					NextYAxis:           pbp.NextYAxis,
 				},
+			}
+			if gameRecord.IsInternational && ts.NBAWeek < 20 {
+				continue
 			}
 			nbaPlayByPlays = append(nbaPlayByPlays, npbp)
 		}
@@ -1604,11 +1608,11 @@ func mapToNBATeamStatsObject(teamID, matchID, weekID, week, seasonID uint, match
 	}
 }
 
-func mapToCBBPlayerStatsObject(player structs.PlayerStatsDTO, id, teamID, matchID int, seasonID, weekID, week uint, matchType string, gameType uint8) structs.CollegePlayerStats {
+func mapToCBBPlayerStatsObject(player structs.PlayerStatsDTO, id, teamID int, matchID, seasonID, weekID, week uint, matchType string, gameType uint8) structs.CollegePlayerStats {
 	return structs.CollegePlayerStats{
 		TeamID:             uint(teamID),
 		CollegePlayerID:    uint(id),
-		MatchID:            uint(matchID),
+		MatchID:            matchID,
 		SeasonID:           seasonID,
 		MatchType:          matchType,
 		GameType:           gameType,
@@ -1643,11 +1647,11 @@ func mapToCBBPlayerStatsObject(player structs.PlayerStatsDTO, id, teamID, matchI
 	}
 }
 
-func mapToNBAPlayerStatsObject(player structs.PlayerStatsDTO, id, teamID, matchID int, seasonID, weekID, week uint, matchType string, gameType uint8) structs.NBAPlayerStats {
+func mapToNBAPlayerStatsObject(player structs.PlayerStatsDTO, id, teamID int, matchID, seasonID, weekID, week uint, matchType string, gameType uint8) structs.NBAPlayerStats {
 	return structs.NBAPlayerStats{
 		TeamID:             uint(teamID),
 		NBAPlayerID:        uint(id),
-		MatchID:            uint(matchID),
+		MatchID:            matchID,
 		SeasonID:           seasonID,
 		WeekID:             weekID,
 		Week:               week,

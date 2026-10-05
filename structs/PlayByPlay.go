@@ -79,8 +79,11 @@ type NBAPlayByPlay struct {
 }
 
 type PlayByPlayResponse struct {
+	PlayNumber          uint
 	GameID              uint
 	Quarter             uint8
+	HomeTeamID          uint
+	AwayTeamID          uint
 	TimeOnClock         string
 	ShotClock           uint16
 	SecondsConsumed     uint16

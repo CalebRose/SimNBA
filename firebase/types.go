@@ -189,7 +189,7 @@ type TeamInjuryNotificationInput struct {
 	Position        string
 	InjuryType      string
 	WeeksOfRecovery int
-	GameID          string
+	GameID          uint
 	RecipientUIDs   []string
 	SourceEventKey  string
 }
