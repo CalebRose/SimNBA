@@ -232,6 +232,7 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 			playerStats = append(playerStats, nbaPlayerStats)
 			if player.IsInjured && !sentNBAInjury[team.ID] {
 				nbaPlayerRecord.SetInjury(player.InjuryName, player.InjuryType, player.WeeksOfRecovery)
+				repository.SaveNBAPlayerRecord(nbaPlayerRecord, db)
 				usernames := collectNBATeamUsernames(team)
 				if len(usernames) > 0 {
 					sentNBAInjury[team.ID] = true
