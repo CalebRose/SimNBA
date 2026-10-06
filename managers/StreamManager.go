@@ -30,27 +30,41 @@ func GetCBBPlayByPlayStreamData(streamType string) []structs.StreamResponse {
 		homeTeam := teamMap[uint(game.HomeTeamID)]
 		awayTeam := teamMap[uint(game.AwayTeamID)]
 
-		if streamType == "1" {
+		if streamType == "tnt" {
 			if !homeTeam.IsUserCoached && !awayTeam.IsUserCoached {
 				continue
 			}
-			mod := game.ID % 2
-			if mod == 0 {
-				continue
-			}
-		}
-		if streamType == "2" {
-			if !homeTeam.IsUserCoached && !awayTeam.IsUserCoached {
-				continue
-			}
-			mod := game.ID % 2
+			mod := game.ID % 4
 			if mod == 1 {
 				continue
 			}
 		}
+		if streamType == "nbatv" {
+			if !homeTeam.IsUserCoached && !awayTeam.IsUserCoached {
+				continue
+			}
+			mod := game.ID % 4
+			if mod == 0 {
+				continue
+			}
+		}
 
-		if streamType == "3" {
-			if homeTeam.IsUserCoached || awayTeam.IsUserCoached {
+		if streamType == "prime" {
+			if !homeTeam.IsUserCoached && !awayTeam.IsUserCoached {
+				continue
+			}
+			mod := game.ID % 4
+			if mod == 2 {
+				continue
+			}
+		}
+
+		if streamType == "hbo" {
+			if !homeTeam.IsUserCoached && !awayTeam.IsUserCoached {
+				continue
+			}
+			mod := game.ID % 4
+			if mod == 3 {
 				continue
 			}
 		}
@@ -135,34 +149,63 @@ func GetNBAPlayByPlayStreamData(streamType string) []structs.StreamResponse {
 	rosterMap := MakeNBAPlayerMapByTeamID(nbaPlayers, true)
 	streams := []structs.StreamResponse{}
 
+	nbaGameplans := GetAllNBAGameplans()
+	gameplanMap := MakeNBAGameplanMap(nbaGameplans)
+
 	for _, game := range games {
+		if game.ID == 25533 {
+			continue
+		}
 		if !game.GameComplete || game.IsRevealed {
 			continue
 		}
 
 		homeTeam := teamMap[uint(game.HomeTeamID)]
 		awayTeam := teamMap[uint(game.AwayTeamID)]
-		if streamType == "1" {
-			if homeTeam.NBAOwnerName == "" && awayTeam.NBAOwnerName == "" {
+		if streamType == "tnt" {
+			if homeTeam.ID > 32 && awayTeam.ID > 32 {
 				continue
 			}
-			mod := game.ID % 2
+			mod := game.ID % 4
 			if mod == 1 {
 				continue
 			}
 		}
-		if streamType == "2" {
-			if homeTeam.NBAOwnerName == "" && awayTeam.NBAOwnerName == "" {
+		if streamType == "nbatv" {
+			if homeTeam.ID > 32 && awayTeam.ID > 32 {
 				continue
 			}
-			mod := game.ID % 2
+			mod := game.ID % 4
 			if mod == 0 {
 				continue
 			}
 		}
 
-		if streamType == "3" {
-			if homeTeam.NBAOwnerName != "" || awayTeam.NBAOwnerName != "" {
+		if streamType == "prime" {
+			if homeTeam.ID > 32 && awayTeam.ID > 32 {
+				continue
+			}
+			mod := game.ID % 4
+			if mod == 2 {
+				continue
+			}
+		}
+
+		if streamType == "hbo" {
+			if homeTeam.ID > 32 && awayTeam.ID > 32 {
+				continue
+			}
+			mod := game.ID % 4
+			if mod == 3 {
+				continue
+			}
+		}
+
+		if streamType == "int" {
+			if homeTeam.ID <= 32 && awayTeam.ID <= 32 {
+				continue
+			}
+			if !game.IsPlayoffGame {
 				continue
 			}
 		}
@@ -176,6 +219,8 @@ func GetNBAPlayByPlayStreamData(streamType string) []structs.StreamResponse {
 		)
 		homePlayers := rosterMap[game.HomeTeamID]
 		awayPlayers := rosterMap[game.AwayTeamID]
+		homeGameplan := gameplanMap[uint(game.HomeTeamID)]
+		awayGameplan := gameplanMap[uint(game.AwayTeamID)]
 
 		wg.Add(2)
 
@@ -206,20 +251,26 @@ func GetNBAPlayByPlayStreamData(streamType string) []structs.StreamResponse {
 		playbyPlayResponse := GenerateNBAPlayByPlayResponse(playByPlays, teamMap, participantMap, true, game.HomeTeamID, game.AwayTeamID)
 
 		stream := structs.StreamResponse{
-			GameID:            game.ID,
-			HomeTeamID:        uint(game.HomeTeamID),
-			HomeTeam:          game.HomeTeam,
-			HomeTeamCoach:     game.HomeTeamCoach,
-			HomeTeamDiscordID: homeTeam.OwnerDiscordID,
-			HomeLabel:         game.HomeTeam,
-			AwayTeamID:        uint(game.AwayTeamID),
-			AwayTeam:          game.AwayTeam,
-			AwayTeamCoach:     game.AwayTeamCoach,
-			AwayLabel:         game.AwayTeam,
-			AwayTeamDiscordID: awayTeam.OwnerDiscordID,
-			Streams:           playbyPlayResponse,
-			City:              game.City,
-			State:             game.State,
+			GameID:                 game.ID,
+			HomeTeamID:             uint(game.HomeTeamID),
+			HomeTeam:               game.HomeTeam,
+			HomeTeamCoach:          game.HomeTeamCoach,
+			HomeTeamDiscordID:      homeTeam.OwnerDiscordID,
+			HomeLabel:              game.HomeTeam,
+			HomePace:               homeGameplan.Pace,
+			HomeOffensiveFormation: homeGameplan.OffensiveFormation,
+			HomeDefensiveFormation: homeGameplan.DefensiveFormation,
+			AwayTeamID:             uint(game.AwayTeamID),
+			AwayTeam:               game.AwayTeam,
+			AwayTeamCoach:          game.AwayTeamCoach,
+			AwayLabel:              game.AwayTeam,
+			AwayPace:               awayGameplan.Pace,
+			AwayOffensiveFormation: awayGameplan.OffensiveFormation,
+			AwayDefensiveFormation: awayGameplan.DefensiveFormation,
+			AwayTeamDiscordID:      awayTeam.OwnerDiscordID,
+			Streams:                playbyPlayResponse,
+			City:                   game.City,
+			State:                  game.State,
 		}
 
 		streams = append(streams, stream)
@@ -238,7 +289,7 @@ func GenerateCBBPlayByPlayResponse(playByPlays []structs.CollegePlayByPlay, team
 		event := util.ReturnStringFromEventIDPBPID(play.EventID)
 		outcome := util.ReturnStringFromOutcomeIDPBPID(play.OutcomeID)
 		possessingTeam := teamMap[uint(play.TeamID)]
-				result := generateCollegeResultsString(play.BasePlayByPlay, playerMap, possessingTeam)
+		result := generateCollegeResultsString(play.BasePlayByPlay, playerMap, possessingTeam)
 
 		res := structs.PlayByPlayResponse{
 			GameID:              play.GameID,
@@ -292,7 +343,7 @@ func GenerateNBAPlayByPlayResponse(playByPlays []structs.NBAPlayByPlay, teamMap 
 		outcome := util.ReturnStringFromOutcomeIDPBPID(play.OutcomeID)
 		possessingTeam := teamMap[uint(play.TeamID)]
 
-				result := generateProResultsString(play.BasePlayByPlay, playerMap, possessingTeam)
+		result := generateProResultsString(play.BasePlayByPlay, playerMap, possessingTeam)
 
 		res := structs.PlayByPlayResponse{
 			GameID:              play.GameID,
@@ -348,7 +399,6 @@ func getPlayerLabel(player structs.BasePlayer) string {
 	}
 	return player.Team + " " + player.Position + " " + player.FirstName + " " + player.LastName
 }
-
 
 func generateCollegeResultsString(play structs.BasePlayByPlay, playerMap map[uint]structs.CollegePlayer, possessingTeam structs.Team) string {
 	labelFor := func(id uint) string {
