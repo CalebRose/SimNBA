@@ -127,7 +127,7 @@ func FindCollegePlayerGameStatsRecords(SeasonID, WeekID, GameType, GameID string
 	}
 
 	if len(GameID) > 0 {
-		query = query.Where("game_id = ?", GameID)
+		query = query.Where("match_id = ?", GameID)
 	}
 
 	query.Order("points desc").Find(&playerStats)
@@ -153,7 +153,7 @@ func FindProPlayerGameStatsRecords(SeasonID, WeekID, GameType, GameID string) []
 	}
 
 	if len(GameID) > 0 {
-		query = query.Where("game_id = ?", GameID)
+		query = query.Where("match_id = ?", GameID)
 	}
 
 	query.Order("points desc").Find(&playerStats)
