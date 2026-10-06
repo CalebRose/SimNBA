@@ -31,40 +31,40 @@ func GetCBBPlayByPlayStreamData(streamType string) []structs.StreamResponse {
 		awayTeam := teamMap[uint(game.AwayTeamID)]
 
 		if streamType == "tnt" {
-			if !homeTeam.IsUserCoached && !awayTeam.IsUserCoached {
+			if homeTeam.ID > 32 && awayTeam.ID > 32 {
 				continue
 			}
 			mod := game.ID % 4
-			if mod == 1 {
+			if mod != 0 {
 				continue
 			}
 		}
 		if streamType == "nbatv" {
-			if !homeTeam.IsUserCoached && !awayTeam.IsUserCoached {
+			if homeTeam.ID > 32 && awayTeam.ID > 32 {
 				continue
 			}
 			mod := game.ID % 4
-			if mod == 0 {
+			if mod != 1 {
 				continue
 			}
 		}
 
 		if streamType == "prime" {
-			if !homeTeam.IsUserCoached && !awayTeam.IsUserCoached {
+			if homeTeam.ID > 32 && awayTeam.ID > 32 {
 				continue
 			}
 			mod := game.ID % 4
-			if mod == 2 {
+			if mod != 2 {
 				continue
 			}
 		}
 
 		if streamType == "hbo" {
-			if !homeTeam.IsUserCoached && !awayTeam.IsUserCoached {
+			if homeTeam.ID > 32 && awayTeam.ID > 32 {
 				continue
 			}
 			mod := game.ID % 4
-			if mod == 3 {
+			if mod != 3 {
 				continue
 			}
 		}
