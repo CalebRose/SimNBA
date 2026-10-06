@@ -448,6 +448,8 @@ func generatePlayStatement(play structs.BasePlayByPlay, labelFor func(uint) stri
 	blocker := labelOrDefault(labelFor(play.BlockingPlayerID), defender)
 	stealer := labelOrDefault(labelFor(play.StealingPlayerID), defender)
 	fouler := labelOrDefault(labelFor(play.FoulingPlayerID), defender)
+	rebounder := labelOrDefault(labelFor(play.ReboundingPlayerID), "the rebounder")
+	reboundTeam := labelOrDefault(labelFor(play.ReboundTeamID), "the team")
 	team := labelOrDefault(teamLabel, "the offense")
 
 	statement := ""
@@ -555,7 +557,12 @@ func generatePlayStatement(play structs.BasePlayByPlay, labelFor func(uint) stri
 		}
 
 	case util.Timeout:
-		statement = team + " calls a timeout."
+		switch play.OutcomeID {
+		case util.MediaTimeout:
+			statement = " We're going to head to a media timeout, folks. Be back in a few seconds."
+		case util.TeamTimeout:
+			statement = team + " calls a team timeout. We'll be right back to the action soon."
+		}
 	case util.QuarterOver:
 		statement = "End of quarter " + strconv.Itoa(int(play.Quarter)) + "."
 	case util.HalfOver:
@@ -566,6 +573,15 @@ func generatePlayStatement(play structs.BasePlayByPlay, labelFor func(uint) stri
 		statement = "End of overtime."
 	case util.GameOver:
 		statement = "That's the end of the game!"
+	}
+
+	if play.ReboundingPlayerID > 0 {
+		switch play.ReboundOutcomeID {
+		case util.Offensive_rebound:
+			statement += " " + rebounder + " grabs the offensive rebound for " + reboundTeam + "!"
+		case util.Defensive_rebound:
+			statement += " " + rebounder + " secures the defensive rebound for " + reboundTeam + "."
+		}
 	}
 
 	return statement

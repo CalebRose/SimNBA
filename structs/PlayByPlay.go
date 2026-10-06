@@ -66,6 +66,9 @@ type BasePlayByPlay struct {
 	YAxis               int8
 	NextXAxis           int8
 	NextYAxis           int8
+	ReboundingPlayerID  uint
+	ReboundTeamID       uint
+	ReboundOutcomeID    uint8
 }
 
 type CollegePlayByPlay struct {

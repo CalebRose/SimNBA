@@ -23,6 +23,7 @@ var EventIDMap = map[uint8]string{
 	Timeout:           "Timeout",
 	Rebound:           "Rebound",
 	Inbound:           "Inbound",
+	Substitution:      "Substitution",
 }
 
 func ReturnStringFromEventIDPBPID(id uint8) string {
@@ -63,6 +64,8 @@ var OutcomeIDMap = map[uint8]string{
 	Offensive_rebound:      "Offensive_rebound",
 	Defensive_rebound:      "Defensive_rebound",
 	Inbound_success:        "Inbound_success",
+	MediaTimeout:           "MediaTimeout",
+	TeamTimeout:            "TeamTimeout",
 }
 
 func ReturnStringFromOutcomeIDPBPID(id uint8) string {

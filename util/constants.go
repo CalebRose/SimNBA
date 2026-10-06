@@ -23,6 +23,7 @@ const (
 	Timeout           uint8 = 19
 	Rebound           uint8 = 20
 	Inbound           uint8 = 21
+	Substitution      uint8 = 22
 
 	// OutcomeIDs
 	No_outcome             uint8 = 0
@@ -54,4 +55,6 @@ const (
 	Offensive_rebound      uint8 = 26
 	Defensive_rebound      uint8 = 27
 	Inbound_success        uint8 = 28
+	MediaTimeout           uint8 = 29
+	TeamTimeout            uint8 = 30
 )
