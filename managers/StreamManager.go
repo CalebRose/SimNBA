@@ -167,7 +167,7 @@ func GetNBAPlayByPlayStreamData(streamType string) []structs.StreamResponse {
 				continue
 			}
 			mod := game.ID % 4
-			if mod == 1 {
+			if mod == 0 {
 				continue
 			}
 		}
@@ -176,7 +176,7 @@ func GetNBAPlayByPlayStreamData(streamType string) []structs.StreamResponse {
 				continue
 			}
 			mod := game.ID % 4
-			if mod == 0 {
+			if mod == 1 {
 				continue
 			}
 		}
