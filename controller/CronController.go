@@ -74,7 +74,10 @@ func SyncRecruitingViaCron() {
 }
 
 func SyncToNextWeekViaCron() {
+	db := dbprovider.GetInstance().GetDB()
 	ts := managers.GetTimestamp()
+	ts.MoveUpPhase()
+	repository.SaveTimeStamp(ts, db)
 	if !ts.RunCron {
 		return
 	}

@@ -49,7 +49,6 @@ func SyncToNextWeek() {
 	db := dbprovider.GetInstance().GetDB()
 
 	ts := GetTimestamp()
-	ts.MoveUpPhase()
 
 	if ts.CollegeWeek > 0 && ts.CollegeWeek < 21 || !ts.IsOffSeason {
 		ResetCollegeStandingsRanks()
