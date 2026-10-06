@@ -282,9 +282,6 @@ func GetNBAPlayByPlayStreamData(streamType string) []structs.StreamResponse {
 func GenerateCBBPlayByPlayResponse(playByPlays []structs.CollegePlayByPlay, teamMap map[uint]structs.Team, playerMap map[uint]structs.CollegePlayer, isStream bool, ht, at uint) []structs.PlayByPlayResponse {
 	results := []structs.PlayByPlayResponse{}
 	for idx, play := range playByPlays {
-		if play.OutcomeID == util.No_outcome {
-			continue
-		}
 		timeOnClock := FormatTimeToClock(play.TimeOnClock)
 		event := util.ReturnStringFromEventIDPBPID(play.EventID)
 		outcome := util.ReturnStringFromOutcomeIDPBPID(play.OutcomeID)
@@ -335,9 +332,6 @@ func GenerateCBBPlayByPlayResponse(playByPlays []structs.CollegePlayByPlay, team
 func GenerateNBAPlayByPlayResponse(playByPlays []structs.NBAPlayByPlay, teamMap map[uint]structs.NBATeam, playerMap map[uint]structs.NBAPlayer, isStream bool, ht, at uint) []structs.PlayByPlayResponse {
 	results := []structs.PlayByPlayResponse{}
 	for idx, play := range playByPlays {
-		if play.OutcomeID == util.No_outcome {
-			continue
-		}
 		timeOnClock := FormatTimeToClock(play.TimeOnClock)
 		event := util.ReturnStringFromEventIDPBPID(play.EventID)
 		outcome := util.ReturnStringFromOutcomeIDPBPID(play.OutcomeID)
