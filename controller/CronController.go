@@ -111,7 +111,7 @@ func ShowGamesViaCron() {
 	if !ts.RunCron {
 		return
 	}
-	if ts.Phase > 9 && ts.RunGames && (!ts.IsOffSeason || !ts.IsNBAOffseason) {
+	if ts.Phase > 9 && ts.RunGames {
 		managers.ShowGames()
 	}
 }
