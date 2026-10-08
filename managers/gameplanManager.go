@@ -65,16 +65,19 @@ func collegeLineupHasChanged(old, updated structs.CollegeLineup) bool {
 		o.FSInsideProportion != u.FSInsideProportion ||
 		o.FSMidProportion != u.FSMidProportion ||
 		o.FSThreeProportion != u.FSThreeProportion ||
+		o.FSShotVolume != u.FSShotVolume ||
 		o.SecondStringID != u.SecondStringID ||
 		o.SSMinutes != u.SSMinutes ||
 		o.SSInsideProportion != u.SSInsideProportion ||
 		o.SSMidProportion != u.SSMidProportion ||
 		o.SSThreeProportion != u.SSThreeProportion ||
+		o.SSShotVolume != u.SSShotVolume ||
 		o.ThirdStringID != u.ThirdStringID ||
 		o.TSMinutes != u.TSMinutes ||
 		o.TSInsideProportion != u.TSInsideProportion ||
 		o.TSMidProportion != u.TSMidProportion ||
-		o.TSThreeProportion != u.TSThreeProportion
+		o.TSThreeProportion != u.TSThreeProportion ||
+		o.TSShotVolume != u.TSShotVolume
 }
 
 // nbaLineupHasChanged returns true if any player slot, minutes, or shot proportion differs.
@@ -86,16 +89,19 @@ func nbaLineupHasChanged(old, updated structs.NBALineup) bool {
 		o.FSInsideProportion != u.FSInsideProportion ||
 		o.FSMidProportion != u.FSMidProportion ||
 		o.FSThreeProportion != u.FSThreeProportion ||
+		o.FSShotVolume != u.FSShotVolume ||
 		o.SecondStringID != u.SecondStringID ||
 		o.SSMinutes != u.SSMinutes ||
 		o.SSInsideProportion != u.SSInsideProportion ||
 		o.SSMidProportion != u.SSMidProportion ||
 		o.SSThreeProportion != u.SSThreeProportion ||
+		o.SSShotVolume != u.SSShotVolume ||
 		o.ThirdStringID != u.ThirdStringID ||
 		o.TSMinutes != u.TSMinutes ||
 		o.TSInsideProportion != u.TSInsideProportion ||
 		o.TSMidProportion != u.TSMidProportion ||
-		o.TSThreeProportion != u.TSThreeProportion
+		o.TSThreeProportion != u.TSThreeProportion ||
+		o.TSShotVolume != u.TSShotVolume
 }
 
 // UpdateGameplan saves changed college lineup records for a team.
@@ -348,16 +354,19 @@ func fillCollegeLineupSlots(slots []*structs.CollegeLineup, players []structs.Co
 		slot.FSInsideProportion = 0
 		slot.FSMidProportion = 0
 		slot.FSThreeProportion = 0
+		slot.FSShotVolume = 0
 		slot.SecondStringID = 0
 		slot.SSMinutes = 0
 		slot.SSInsideProportion = 0
 		slot.SSMidProportion = 0
 		slot.SSThreeProportion = 0
+		slot.SSShotVolume = 0
 		slot.ThirdStringID = 0
 		slot.TSMinutes = 0
 		slot.TSInsideProportion = 0
 		slot.TSMidProportion = 0
 		slot.TSThreeProportion = 0
+		slot.TSShotVolume = 0
 	}
 
 	// Slot fill order: process most-constrained (C) first, then G, then F.
@@ -472,16 +481,19 @@ func fillNBALineupSlots(slots []*structs.NBALineup, players []structs.NBAPlayer)
 		slot.FSInsideProportion = 0
 		slot.FSMidProportion = 0
 		slot.FSThreeProportion = 0
+		slot.FSShotVolume = 0
 		slot.SecondStringID = 0
 		slot.SSMinutes = 0
 		slot.SSInsideProportion = 0
 		slot.SSMidProportion = 0
 		slot.SSThreeProportion = 0
+		slot.SSShotVolume = 0
 		slot.ThirdStringID = 0
 		slot.TSMinutes = 0
 		slot.TSInsideProportion = 0
 		slot.TSMidProportion = 0
 		slot.TSThreeProportion = 0
+		slot.TSShotVolume = 0
 	}
 
 	type indexedSlot struct {
