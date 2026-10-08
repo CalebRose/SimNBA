@@ -91,6 +91,9 @@ func (g *Gameplan) UpdatePaintProportion(ratio int) {
 	g.PaintProportion = ratio
 }
 
+// ShotVolumeNormal is the neutral Shot Volume preset. A stored 0 (rows created before the field existed) is also treated as Normal by the simulator.
+const ShotVolumeNormal uint8 = 3
+
 type GameplanLineup struct {
 	gorm.Model         // Just ignore this, it's for GORM (primary ID).
 	TeamID             uint

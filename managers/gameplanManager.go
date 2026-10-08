@@ -354,19 +354,19 @@ func fillCollegeLineupSlots(slots []*structs.CollegeLineup, players []structs.Co
 		slot.FSInsideProportion = 0
 		slot.FSMidProportion = 0
 		slot.FSThreeProportion = 0
-		slot.FSShotVolume = 0
+		slot.FSShotVolume = structs.ShotVolumeNormal
 		slot.SecondStringID = 0
 		slot.SSMinutes = 0
 		slot.SSInsideProportion = 0
 		slot.SSMidProportion = 0
 		slot.SSThreeProportion = 0
-		slot.SSShotVolume = 0
+		slot.SSShotVolume = structs.ShotVolumeNormal
 		slot.ThirdStringID = 0
 		slot.TSMinutes = 0
 		slot.TSInsideProportion = 0
 		slot.TSMidProportion = 0
 		slot.TSThreeProportion = 0
-		slot.TSShotVolume = 0
+		slot.TSShotVolume = structs.ShotVolumeNormal
 	}
 
 	// Slot fill order: process most-constrained (C) first, then G, then F.
@@ -481,19 +481,19 @@ func fillNBALineupSlots(slots []*structs.NBALineup, players []structs.NBAPlayer)
 		slot.FSInsideProportion = 0
 		slot.FSMidProportion = 0
 		slot.FSThreeProportion = 0
-		slot.FSShotVolume = 0
+		slot.FSShotVolume = structs.ShotVolumeNormal
 		slot.SecondStringID = 0
 		slot.SSMinutes = 0
 		slot.SSInsideProportion = 0
 		slot.SSMidProportion = 0
 		slot.SSThreeProportion = 0
-		slot.SSShotVolume = 0
+		slot.SSShotVolume = structs.ShotVolumeNormal
 		slot.ThirdStringID = 0
 		slot.TSMinutes = 0
 		slot.TSInsideProportion = 0
 		slot.TSMidProportion = 0
 		slot.TSThreeProportion = 0
-		slot.TSShotVolume = 0
+		slot.TSShotVolume = structs.ShotVolumeNormal
 	}
 
 	type indexedSlot struct {
