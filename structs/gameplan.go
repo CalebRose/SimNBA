@@ -91,6 +91,9 @@ func (g *Gameplan) UpdatePaintProportion(ratio int) {
 	g.PaintProportion = ratio
 }
 
+// ShotVolumeNormal is the neutral Shot Volume preset. A stored 0 (rows created before the field existed) is also treated as Normal by the simulator.
+const ShotVolumeNormal uint8 = 3
+
 type GameplanLineup struct {
 	gorm.Model         // Just ignore this, it's for GORM (primary ID).
 	TeamID             uint
@@ -100,16 +103,19 @@ type GameplanLineup struct {
 	FSInsideProportion uint8 // Proportion towards shooting inside shots
 	FSMidProportion    uint8 // Proportion towards shooting midrange shots
 	FSThreeProportion  uint8 // Proportion towards shooting three point shots
+	FSShotVolume       uint8 // Shot volume preset: 0 or 3 = Normal, 1 = Rarely, 2 = Reduced, 4 = Aggressive, 5 = Green Light
 	SecondStringID     uint  // PlayerID at second string
 	SSMinutes          uint8
 	SSInsideProportion uint8
 	SSMidProportion    uint8
 	SSThreeProportion  uint8
+	SSShotVolume       uint8
 	ThirdStringID      uint // PlayerID at third string
 	TSMinutes          uint8
 	TSInsideProportion uint8
 	TSMidProportion    uint8
 	TSThreeProportion  uint8
+	TSShotVolume       uint8
 }
 
 func (gl *GameplanLineup) MapLineupData(updated GameplanLineup) {
@@ -118,16 +124,19 @@ func (gl *GameplanLineup) MapLineupData(updated GameplanLineup) {
 	gl.FSInsideProportion = updated.FSInsideProportion
 	gl.FSMidProportion = updated.FSMidProportion
 	gl.FSThreeProportion = updated.FSThreeProportion
+	gl.FSShotVolume = updated.FSShotVolume
 	gl.SecondStringID = updated.SecondStringID
 	gl.SSMinutes = updated.SSMinutes
 	gl.SSInsideProportion = updated.SSInsideProportion
 	gl.SSMidProportion = updated.SSMidProportion
 	gl.SSThreeProportion = updated.SSThreeProportion
+	gl.SSShotVolume = updated.SSShotVolume
 	gl.ThirdStringID = updated.ThirdStringID
 	gl.TSMinutes = updated.TSMinutes
 	gl.TSInsideProportion = updated.TSInsideProportion
 	gl.TSMidProportion = updated.TSMidProportion
 	gl.TSThreeProportion = updated.TSThreeProportion
+	gl.TSShotVolume = updated.TSShotVolume
 }
 
 // ClearPlayer removes a player from every string in this lineup and clears the
@@ -141,6 +150,7 @@ func (gl *GameplanLineup) ClearPlayer(playerID uint) bool {
 		gl.FSInsideProportion = 0
 		gl.FSMidProportion = 0
 		gl.FSThreeProportion = 0
+		gl.FSShotVolume = 0
 		cleared = true
 	}
 	if gl.SecondStringID == playerID {
@@ -149,6 +159,7 @@ func (gl *GameplanLineup) ClearPlayer(playerID uint) bool {
 		gl.SSInsideProportion = 0
 		gl.SSMidProportion = 0
 		gl.SSThreeProportion = 0
+		gl.SSShotVolume = 0
 		cleared = true
 	}
 	if gl.ThirdStringID == playerID {
@@ -157,6 +168,7 @@ func (gl *GameplanLineup) ClearPlayer(playerID uint) bool {
 		gl.TSInsideProportion = 0
 		gl.TSMidProportion = 0
 		gl.TSThreeProportion = 0
+		gl.TSShotVolume = 0
 		cleared = true
 	}
 	return cleared
