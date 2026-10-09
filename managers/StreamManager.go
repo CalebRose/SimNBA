@@ -314,6 +314,10 @@ func GenerateCBBPlayByPlayResponse(playByPlays []structs.CollegePlayByPlay, team
 			StealingPlayerID:    play.StealingPlayerID,
 			FoulingPlayerID:     play.FoulingPlayerID,
 			SubstitutePlayerID:  play.SubstitutePlayerID,
+			SubstitutedPlayerID: play.SubstitutedPlayerID,
+			SubstitutePlayer:    getPlayerNameLabel(playerMap[play.SubstitutePlayerID].BasePlayer),
+			SubstitutedPlayer:   getPlayerNameLabel(playerMap[play.SubstitutedPlayerID].BasePlayer),
+			TeamAbbr:            possessingTeam.Abbr,
 			InjuryID:            play.InjuryID,
 			InjuryType:          play.InjuryType,
 			InjuryDuration:      play.InjuryDuration,
@@ -366,6 +370,10 @@ func GenerateNBAPlayByPlayResponse(playByPlays []structs.NBAPlayByPlay, teamMap 
 			StealingPlayerID:    play.StealingPlayerID,
 			FoulingPlayerID:     play.FoulingPlayerID,
 			SubstitutePlayerID:  play.SubstitutePlayerID,
+			SubstitutedPlayerID: play.SubstitutedPlayerID,
+			SubstitutePlayer:    getPlayerNameLabel(playerMap[play.SubstitutePlayerID].BasePlayer),
+			SubstitutedPlayer:   getPlayerNameLabel(playerMap[play.SubstitutedPlayerID].BasePlayer),
+			TeamAbbr:            possessingTeam.Abbr,
 			InjuryID:            play.InjuryID,
 			InjuryType:          play.InjuryType,
 			InjuryDuration:      play.InjuryDuration,
@@ -387,6 +395,13 @@ func FormatTimeToClock(timeInSeconds uint16) string {
 	seconds := timeInSeconds % 60
 	formatted := fmt.Sprintf("%02d:%02d", minutes, seconds)
 	return formatted
+}
+
+func getPlayerNameLabel(player structs.BasePlayer) string {
+	if len(player.FirstName) == 0 {
+		return ""
+	}
+	return player.Position + " " + player.FirstName + " " + player.LastName
 }
 
 func getPlayerLabel(player structs.BasePlayer, teamAbbr string) string {
@@ -452,6 +467,8 @@ func generatePlayStatement(play structs.BasePlayByPlay, labelFor func(uint) stri
 	fouler := labelOrDefault(labelFor(play.FoulingPlayerID), defender)
 	rebounder := labelOrDefault(labelFor(play.ReboundingPlayerID), "the rebounder")
 	reboundTeam := labelOrDefault(reboundTeamLabel, "the team")
+	substitute := labelOrDefault(labelFor(play.SubstitutePlayerID), "A substitute")
+	substituted := labelFor(play.SubstitutedPlayerID)
 	team := labelOrDefault(teamLabel, "the offense")
 
 	statement := ""
@@ -557,6 +574,13 @@ func generatePlayStatement(play structs.BasePlayByPlay, labelFor func(uint) stri
 		default:
 			statement = "Turnover, " + team + "."
 		}
+
+	case util.Substitution:
+		statement = team + " substitution: " + substitute + " enters the game"
+		if substituted != "" {
+			statement += " for " + substituted
+		}
+		statement += "."
 
 	case util.Timeout:
 		switch play.OutcomeID {

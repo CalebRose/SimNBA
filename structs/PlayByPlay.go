@@ -19,6 +19,7 @@ type PlayByPlayDTO struct {
 	StealingPlayerID    uint
 	FoulingPlayerID     uint
 	SubstitutePlayerID  uint
+	SubstitutedPlayerID uint
 	InjuryID            uint8
 	InjuryType          uint8
 	InjuryDuration      uint8
@@ -55,6 +56,7 @@ type BasePlayByPlay struct {
 	StealingPlayerID    uint
 	FoulingPlayerID     uint
 	SubstitutePlayerID  uint
+	SubstitutedPlayerID uint
 	InjuryID            uint8
 	InjuryType          uint8
 	InjuryDuration      uint8
@@ -104,6 +106,7 @@ type PlayByPlayResponse struct {
 	StealingPlayerID    uint
 	FoulingPlayerID     uint
 	SubstitutePlayerID  uint
+	SubstitutedPlayerID uint
 	InjuryID            uint8
 	InjuryType          uint8
 	InjuryDuration      uint8
@@ -120,6 +123,9 @@ type PlayByPlayResponse struct {
 	NextYAxis           int8
 	Result              string
 	StreamResult        []string
+	SubstitutePlayer    string
+	SubstitutedPlayer   string
+	TeamAbbr            string
 }
 
 func (p *PlayByPlayResponse) AddPlayInformation(toc, event, outcome string, xAxis, yAxis, nextXAxis, nextYAxis int8) {
