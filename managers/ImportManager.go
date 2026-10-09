@@ -168,6 +168,9 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 					YAxis:               pbp.YAxis,
 					NextXAxis:           pbp.NextXAxis,
 					NextYAxis:           pbp.NextYAxis,
+					ReboundingPlayerID:  pbp.ReboundingPlayerID,
+					ReboundTeamID:       pbp.ReboundTeamID,
+					ReboundOutcomeID:    pbp.ReboundOutcomeID,
 				},
 			}
 			// If this is an AI only game and teams are ranked outside of the top 25 (so rank == 0), do not record play by play results
@@ -295,6 +298,9 @@ func ImportMatchResultsToDB(Results structs.ImportMatchResultsDTO) {
 					YAxis:               pbp.YAxis,
 					NextXAxis:           pbp.NextXAxis,
 					NextYAxis:           pbp.NextYAxis,
+					ReboundingPlayerID:  pbp.ReboundingPlayerID,
+					ReboundTeamID:       pbp.ReboundTeamID,
+					ReboundOutcomeID:    pbp.ReboundOutcomeID,
 				},
 			}
 			if gameRecord.IsInternational && ts.NBAWeek < 20 {

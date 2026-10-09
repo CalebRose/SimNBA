@@ -404,7 +404,7 @@ func generateCollegeResultsString(play structs.BasePlayByPlay, playerMap map[uin
 		}
 		return getPlayerLabel(player.BasePlayer, teamMap[player.TeamID].Abbr)
 	}
-	return generatePlayStatement(play, labelFor, possessingTeam.Team)
+	return generatePlayStatement(play, labelFor, possessingTeam.Team, teamMap[play.ReboundTeamID].Team)
 }
 
 func generateProResultsString(play structs.BasePlayByPlay, playerMap map[uint]structs.NBAPlayer, teamMap map[uint]structs.NBATeam, possessingTeam structs.NBATeam) string {
@@ -415,7 +415,7 @@ func generateProResultsString(play structs.BasePlayByPlay, playerMap map[uint]st
 		}
 		return getPlayerLabel(player.BasePlayer, teamMap[player.TeamID].Abbr)
 	}
-	return generatePlayStatement(play, labelFor, possessingTeam.Team)
+	return generatePlayStatement(play, labelFor, possessingTeam.Team, teamMap[play.ReboundTeamID].Team)
 }
 
 func labelOrDefault(label, fallback string) string {
@@ -442,7 +442,7 @@ func shotDescription(eventID uint8) string {
 }
 
 // generatePlayStatement builds the play-by-play sentence for a single basketball play.
-func generatePlayStatement(play structs.BasePlayByPlay, labelFor func(uint) string, teamLabel string) string {
+func generatePlayStatement(play structs.BasePlayByPlay, labelFor func(uint) string, teamLabel string, reboundTeamLabel string) string {
 	carrier := labelOrDefault(labelFor(play.BallCarrierID), "The ball handler")
 	defender := labelOrDefault(labelFor(play.DefenderID), "the defender")
 	receiver := labelOrDefault(labelFor(play.PassedPlayerID), "a teammate")
@@ -451,7 +451,7 @@ func generatePlayStatement(play structs.BasePlayByPlay, labelFor func(uint) stri
 	stealer := labelOrDefault(labelFor(play.StealingPlayerID), defender)
 	fouler := labelOrDefault(labelFor(play.FoulingPlayerID), defender)
 	rebounder := labelOrDefault(labelFor(play.ReboundingPlayerID), "the rebounder")
-	reboundTeam := labelOrDefault(labelFor(play.ReboundTeamID), "the team")
+	reboundTeam := labelOrDefault(reboundTeamLabel, "the team")
 	team := labelOrDefault(teamLabel, "the offense")
 
 	statement := ""
