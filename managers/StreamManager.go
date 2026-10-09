@@ -286,7 +286,7 @@ func GenerateCBBPlayByPlayResponse(playByPlays []structs.CollegePlayByPlay, team
 		event := util.ReturnStringFromEventIDPBPID(play.EventID)
 		outcome := util.ReturnStringFromOutcomeIDPBPID(play.OutcomeID)
 		possessingTeam := teamMap[uint(play.TeamID)]
-		result := generateCollegeResultsString(play.BasePlayByPlay, playerMap, possessingTeam)
+		result := generateCollegeResultsString(play.BasePlayByPlay, playerMap, teamMap, possessingTeam)
 
 		res := structs.PlayByPlayResponse{
 			GameID:              play.GameID,
@@ -338,7 +338,7 @@ func GenerateNBAPlayByPlayResponse(playByPlays []structs.NBAPlayByPlay, teamMap 
 		outcome := util.ReturnStringFromOutcomeIDPBPID(play.OutcomeID)
 		possessingTeam := teamMap[uint(play.TeamID)]
 
-		result := generateProResultsString(play.BasePlayByPlay, playerMap, possessingTeam)
+		result := generateProResultsString(play.BasePlayByPlay, playerMap, teamMap, possessingTeam)
 
 		res := structs.PlayByPlayResponse{
 			GameID:              play.GameID,
@@ -389,31 +389,31 @@ func FormatTimeToClock(timeInSeconds uint16) string {
 	return formatted
 }
 
-func getPlayerLabel(player structs.BasePlayer) string {
+func getPlayerLabel(player structs.BasePlayer, teamAbbr string) string {
 	if len(player.FirstName) == 0 {
 		return ""
 	}
-	return player.Team + " " + player.Position + " " + player.FirstName + " " + player.LastName
+	return labelOrDefault(teamAbbr, player.Team) + " " + player.Position + " " + player.FirstName + " " + player.LastName
 }
 
-func generateCollegeResultsString(play structs.BasePlayByPlay, playerMap map[uint]structs.CollegePlayer, possessingTeam structs.Team) string {
+func generateCollegeResultsString(play structs.BasePlayByPlay, playerMap map[uint]structs.CollegePlayer, teamMap map[uint]structs.Team, possessingTeam structs.Team) string {
 	labelFor := func(id uint) string {
 		player, ok := playerMap[id]
 		if !ok {
 			return ""
 		}
-		return getPlayerLabel(player.BasePlayer)
+		return getPlayerLabel(player.BasePlayer, teamMap[player.TeamID].Abbr)
 	}
 	return generatePlayStatement(play, labelFor, possessingTeam.Team)
 }
 
-func generateProResultsString(play structs.BasePlayByPlay, playerMap map[uint]structs.NBAPlayer, possessingTeam structs.NBATeam) string {
+func generateProResultsString(play structs.BasePlayByPlay, playerMap map[uint]structs.NBAPlayer, teamMap map[uint]structs.NBATeam, possessingTeam structs.NBATeam) string {
 	labelFor := func(id uint) string {
 		player, ok := playerMap[id]
 		if !ok {
 			return ""
 		}
-		return getPlayerLabel(player.BasePlayer)
+		return getPlayerLabel(player.BasePlayer, teamMap[player.TeamID].Abbr)
 	}
 	return generatePlayStatement(play, labelFor, possessingTeam.Team)
 }
