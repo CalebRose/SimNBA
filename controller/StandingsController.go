@@ -67,3 +67,9 @@ func ResetSeasonStandings(w http.ResponseWriter, r *http.Request) {
 	managers.SeasonStatReset()
 	json.NewEncoder(w).Encode("Standings reset for season.")
 }
+
+func GeneratePreseasonCollegeRankings(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	managers.CreatePreseasonRanking()
+	json.NewEncoder(w).Encode("Preseason college rankings generated.")
+}

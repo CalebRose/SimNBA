@@ -56,6 +56,8 @@ func SyncToNextWeek() {
 
 	ts.SyncToNextWeek()
 
+	UpdateCollegeRankings(ts)
+
 	if ts.CollegeWeek > 0 && ts.CollegeWeek < 21 && !ts.CollegeSeasonOver {
 		SyncCollegePollSubmissionForCurrentWeek(uint(ts.CollegeWeek), ts.CollegeWeekID, ts.SeasonID)
 		ts.TogglePollRan()

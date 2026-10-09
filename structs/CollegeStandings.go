@@ -1,6 +1,7 @@
 package structs
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/jinzhu/gorm"
@@ -21,6 +22,24 @@ type CollegeStandings struct {
 	Invitational            string
 	InvitationalChampion    bool
 	Rank                    uint
+	PreseasonRank           uint16
+	ToucanRank              uint16
+	KenPomRank              uint16
+	KenPomRating            float32
+	RPIRank                 uint16
+	RPIRating               float32
+	SOS                     float32
+	SOR                     float32
+	Q1Wins                  uint8
+	Q2Wins                  uint8
+	Q3Wins                  uint8
+	Q4Wins                  uint8
+	Q1Losses                uint8
+	Q2Losses                uint8
+	Q3Losses                uint8
+	Q4Losses                uint8
+	QuadrantRating          float32
+	ConferenceStrengthAdj   float32
 	BaseStandings
 }
 
@@ -131,4 +150,39 @@ func (cs *BaseStandings) MaskGames(wins, losses, confWins, confLosses int) {
 	cs.TotalLosses = losses
 	cs.ConferenceWins = confWins
 	cs.ConferenceLosses = confLosses
+}
+
+func (cs *CollegeStandings) GetWinPercentage() float32 {
+	totalGames := cs.TotalWins + cs.TotalLosses
+	if totalGames == 0 {
+		return 0.0
+	}
+	adjustedWins := float32(cs.TotalWins) * 0.5
+	return adjustedWins / float32(totalGames)
+}
+
+// GetRPIDisplay returns RPI as a decimal for display purposes
+func (cs *CollegeStandings) GetRPIDisplay() string {
+	return fmt.Sprintf("%.3f", cs.RPIRating)
+}
+
+// GetSOSDisplay returns SOS as a decimal for display purposes
+func (cs *CollegeStandings) GetSOSDisplay() string {
+	return fmt.Sprintf("%.3f", cs.SOS)
+}
+
+// GetSORDisplay returns SOR as a decimal for display purposes
+func (cs *CollegeStandings) GetSORDisplay() string {
+	return fmt.Sprintf("%.3f", cs.SOR)
+}
+
+// GetQualityRecord returns a formatted string showing quality wins
+// Q1W-Q1L, Q2W-Q2L, Q3W-Q3L, Q4W-Q4L
+func (cs *CollegeStandings) GetQualityRecord() string {
+	return fmt.Sprintf("Q1: %d-%d, Q2: %d-%d, Q3: %d-%d, Q4: %d-%d", cs.Q1Wins, cs.Q1Losses, cs.Q2Wins, cs.Q2Losses, cs.Q3Wins, cs.Q3Losses, cs.Q4Wins, cs.Q4Losses)
+}
+
+// IsRanked returns true if the team is in the top 25 Toucan rankings
+func (cs *CollegeStandings) IsRanked() bool {
+	return cs.ToucanRank <= 25 && cs.ToucanRank > 0
 }
