@@ -77,7 +77,7 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/admin/week/sync", controller.SyncToNextWeek).Methods("GET")
 	apiRouter.HandleFunc("/admin/sync/contract/values", controller.SyncContractValues).Methods("GET")
 	apiRouter.HandleFunc("/simcbb/user/gameplans/fix", controller.CheckUserGameplans).Methods("GET")
-
+	// apiRouter.HandleFunc("/admin/generate/preseason/rankings", controller.GeneratePreseasonCollegeRankings).Methods("GET")
 	// Engine Endpoints
 	apiRouter.HandleFunc("/simbba/matches/simulation", controller.GetMatchesForSimulation).Methods("GET")
 	apiRouter.HandleFunc("/admin/test/matches", controller.GetTestMatches).Methods("POST")

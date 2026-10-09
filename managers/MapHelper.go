@@ -309,3 +309,41 @@ func MakeNBAMatchMap(matches []structs.NBAMatch) map[uint]structs.NBAMatch {
 
 	return matchMap
 }
+
+func MakeCollegeMatchMapByTeamID(matches []structs.Match) map[uint][]structs.Match {
+	matchMap := make(map[uint][]structs.Match)
+
+	for _, match := range matches {
+		if len(matchMap[match.HomeTeamID]) > 0 {
+			matchMap[match.HomeTeamID] = append(matchMap[match.HomeTeamID], match)
+		} else {
+			matchMap[match.HomeTeamID] = []structs.Match{match}
+		}
+		if len(matchMap[match.AwayTeamID]) > 0 {
+			matchMap[match.AwayTeamID] = append(matchMap[match.AwayTeamID], match)
+		} else {
+			matchMap[match.AwayTeamID] = []structs.Match{match}
+		}
+	}
+
+	return matchMap
+}
+
+func MakeNBAMatchMapByTeamID(matches []structs.NBAMatch) map[uint][]structs.NBAMatch {
+	matchMap := make(map[uint][]structs.NBAMatch)
+
+	for _, match := range matches {
+		if len(matchMap[match.HomeTeamID]) > 0 {
+			matchMap[match.HomeTeamID] = append(matchMap[match.HomeTeamID], match)
+		} else {
+			matchMap[match.HomeTeamID] = []structs.NBAMatch{match}
+		}
+		if len(matchMap[match.AwayTeamID]) > 0 {
+			matchMap[match.AwayTeamID] = append(matchMap[match.AwayTeamID], match)
+		} else {
+			matchMap[match.AwayTeamID] = []structs.NBAMatch{match}
+		}
+	}
+
+	return matchMap
+}
