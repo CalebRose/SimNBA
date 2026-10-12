@@ -70,6 +70,17 @@ func (t *Timestamp) GetCurrentGameType(isCollege bool) (int, string) {
 
 func (t *Timestamp) MoveUpPhase() {
 	t.Phase++
+	if t.Phase == 9 {
+		t.IsOffSeason = false
+		t.IsNBAOffseason = false
+		t.IsDraftTime = false
+	}
+	if t.Phase == 10 {
+		t.RunGames = true
+	}
+	if t.Phase < 10 && t.RunGames == true {
+		t.RunGames = false
+	}
 }
 
 func (t *Timestamp) MoveUpASeason() {

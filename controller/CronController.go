@@ -86,7 +86,8 @@ func SyncToNextWeekViaCron() {
 		// managers.SyncISLYouthDevelopment()
 	}
 
-	if (!ts.IsOffSeason || !ts.IsNBAOffseason) || (ts.CollegeSeasonOver && ts.NBASeasonOver && ts.FreeAgencyRound > 2) {
+	// if (!ts.IsOffSeason || !ts.IsNBAOffseason) || (ts.CollegeSeasonOver && ts.NBASeasonOver && ts.FreeAgencyRound > 2) {
+	if ts.Phase > 9 {
 		managers.ProcessRecovery()
 		managers.SyncToNextWeek()
 	}
