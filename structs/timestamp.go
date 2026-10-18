@@ -199,7 +199,7 @@ func (t *Timestamp) SyncToNextWeek() {
 		t.TogglePollRan()
 	}
 
-	if !t.IsOffSeason || !t.IsNBAOffseason {
+	if t.Phase > 9 {
 		// Reset Toggles
 		t.GamesARan = false
 		t.GamesBRan = false
