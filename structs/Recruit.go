@@ -22,6 +22,7 @@ type PlayerPreferences struct {
 	CoachPref          uint8
 	SeasonMomentumPref uint8
 	CampusLifePref     uint8
+	MediaPref          uint8
 }
 
 type Recruit struct {

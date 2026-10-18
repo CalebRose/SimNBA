@@ -815,6 +815,7 @@ func createRecruit(position, fName, lName, state, country, cit, hs string, year 
 	coachPref := util.GenerateNormalizedIntFromRange(1, 9)
 	seasonMomentumPref := util.GenerateNormalizedIntFromRange(1, 9)
 	campusLife := util.GenerateNormalizedIntFromRange(1, 9)
+	media := util.GenerateNormalizedIntFromRange(1, 9)
 
 	// Attributes
 	insideShooting := getAttributeValue(position, archetype, stars, "InsideShooting", blob)
@@ -904,6 +905,7 @@ func createRecruit(position, fName, lName, state, country, cit, hs string, year 
 			CoachPref:          uint8(coachPref),
 			SeasonMomentumPref: uint8(seasonMomentumPref),
 			CampusLifePref:     uint8(campusLife),
+			MediaPref:          uint8(media),
 		},
 	}
 
@@ -924,6 +926,209 @@ func createRecruit(position, fName, lName, state, country, cit, hs string, year 
 	croot.SetID(id)
 
 	return croot
+}
+
+func createCustomCroot(croot []string, id uint, blob map[string]map[string]map[string]map[string]interface{}, faceDataBlob map[string][]string) (structs.Recruit, structs.FaceData) {
+	age := 18
+	firstName := croot[0]
+	lastName := croot[1]
+	position := croot[2]
+	archetype := croot[3]
+	archetypeOdds := util.GenerateIntFromRange(1, 20)
+	if archetypeOdds == 20 {
+		archetype = "All-Around"
+	}
+	height := util.ConvertStringToInt(croot[4])
+	weight := util.ConvertStringToInt(croot[5])
+	city := croot[6]
+	highSchool := croot[7]
+	state := croot[8]
+	country := croot[9]
+	preferenceOne := croot[10]
+	preferenceTwo := croot[11]
+	crootFor := croot[12]
+	relativeID := util.ConvertStringToInt(croot[13])
+	relativeType := util.ConvertStringToInt(croot[14])
+	ethnicity := croot[15]
+	if ethnicity == "" {
+		ethnicity = pickEthnicity()
+	}
+	stars := getCustomCrootStarRating()
+	potential := util.GeneratePotential()
+	potentialGrade := util.GetWeightedPotentialGrade(potential)
+	proPotential := util.GeneratePotential()
+	stamina := util.GenerateIntFromRange(25, 38)
+	discipline := util.GenerateNormalizedIntFromRange(1, 20)
+	injuryRating := util.GenerateNormalizedIntFromRange(1, 20)
+	personality := util.GetPersonality()
+	academicBias := util.GetAcademicBias()
+	workEthic := util.GetWorkEthic()
+	recruitingBias := util.GetRecruitingBias()
+	freeAgency := util.GetFreeAgencyBias(0, 0)
+
+	// Preferences
+	program := util.GenerateNormalizedIntFromRange(1, 9)
+	profDevelopment := util.GenerateNormalizedIntFromRange(1, 9)
+	traditions := util.GenerateNormalizedIntFromRange(1, 9)
+	facilities := util.GenerateNormalizedIntFromRange(1, 9)
+	atmosphere := util.GenerateNormalizedIntFromRange(1, 9)
+	academics := util.GenerateNormalizedIntFromRange(1, 9)
+	conferencePrestige := util.GenerateNormalizedIntFromRange(1, 9)
+	coachPref := util.GenerateNormalizedIntFromRange(1, 9)
+	seasonMomentumPref := util.GenerateNormalizedIntFromRange(1, 9)
+	campusLife := util.GenerateNormalizedIntFromRange(1, 9)
+	media := util.GenerateNormalizedIntFromRange(1, 9)
+	if preferenceOne == "Program Development" || preferenceTwo == "Program Development" {
+		program = 1
+	}
+	if preferenceOne == "Professional Development" || preferenceTwo == "Professional Development" {
+		profDevelopment = 1
+	}
+	if preferenceOne == "Traditions" || preferenceTwo == "Traditions" {
+		traditions = 1
+	}
+	if preferenceOne == "Facilities" || preferenceTwo == "Facilities" {
+		facilities = 1
+	}
+	if preferenceOne == "Atmosphere" || preferenceTwo == "Atmosphere" {
+		atmosphere = 1
+	}
+	if preferenceOne == "Academics" || preferenceTwo == "Academics" {
+		academics = 1
+	}
+	if preferenceOne == "Conference Prestige" || preferenceTwo == "Conference Prestige" {
+		conferencePrestige = 1
+	}
+	if preferenceOne == "Coach" || preferenceTwo == "Coach" {
+		coachPref = 1
+	}
+	if preferenceOne == "Season Momentum" || preferenceTwo == "Season Momentum" {
+		seasonMomentumPref = 1
+	}
+	if preferenceOne == "Campus Life" || preferenceTwo == "Campus Life" {
+		campusLife = 1
+	}
+	if preferenceOne == "Media" || preferenceTwo == "Media" {
+		media = 1
+	}
+
+	// Attributes
+	insideShooting := getAttributeValue(position, archetype, stars, "InsideShooting", blob)
+	midRangeShooting := getAttributeValue(position, archetype, stars, "MidRangeShooting", blob)
+	threePointShooting := getAttributeValue(position, archetype, stars, "ThreePointShooting", blob)
+	freeThrow := getAttributeValue(position, archetype, stars, "FreeThrow", blob)
+	ballwork := getAttributeValue(position, archetype, stars, "Ballwork", blob)
+	rebounding := getAttributeValue(position, archetype, stars, "Rebounding", blob)
+	interiorDefense := getAttributeValue(position, archetype, stars, "InteriorDefense", blob)
+	perimeterDefense := getAttributeValue(position, archetype, stars, "PerimeterDefense", blob)
+	agility := getAttributeValue(position, archetype, stars, "Agility", blob)
+	stealing := getAttributeValue(position, archetype, stars, "Stealing", blob)
+	blocking := getAttributeValue(position, archetype, stars, "Blocking", blob)
+	// Specialties
+	specInsideShooting := util.GenerateSpecialty(position, archetype, "InsideShooting")
+	specMidRangeShooting := util.GenerateSpecialty(position, archetype, "MidRangeShooting")
+	specThreePointShooting := util.GenerateSpecialty(position, archetype, "ThreePointShooting")
+	specFreeThrow := util.GenerateSpecialty(position, archetype, "FreeThrow")
+	specBallwork := util.GenerateSpecialty(position, archetype, "Ballwork")
+	specAgility := util.GenerateSpecialty(position, archetype, "Agility")
+	specStealing := util.GenerateSpecialty(position, archetype, "Stealing")
+	specBlocking := util.GenerateSpecialty(position, archetype, "Blocking")
+	specRebounding := util.GenerateSpecialty(position, archetype, "Rebounding")
+	specInteriorDefense := util.GenerateSpecialty(position, archetype, "InteriorDefense")
+	specPerimeterDefense := util.GenerateSpecialty(position, archetype, "PerimeterDefense")
+
+	starRating := stars
+	if starRating > 5 {
+		starRating = 5
+	}
+
+	var basePlayer = structs.BasePlayer{
+		FirstName:              firstName,
+		LastName:               lastName,
+		Position:               position,
+		Archetype:              archetype,
+		Age:                    uint8(age),
+		Year:                   1,
+		Stars:                  uint8(starRating),
+		City:                   city,
+		HighSchool:             highSchool,
+		State:                  state,
+		Country:                country,
+		Height:                 uint8(height),
+		Weight:                 uint16(weight),
+		Agility:                uint8(agility),
+		InsideShooting:         uint8(insideShooting),
+		MidRangeShooting:       uint8(midRangeShooting),
+		ThreePointShooting:     uint8(threePointShooting),
+		FreeThrow:              uint8(freeThrow),
+		Ballwork:               uint8(ballwork),
+		Stealing:               uint8(stealing),
+		Blocking:               uint8(blocking),
+		Rebounding:             uint8(rebounding),
+		InteriorDefense:        uint8(interiorDefense),
+		PerimeterDefense:       uint8(perimeterDefense),
+		SpecInsideShooting:     specInsideShooting,
+		SpecMidRangeShooting:   specMidRangeShooting,
+		SpecThreePointShooting: specThreePointShooting,
+		SpecFreeThrow:          specFreeThrow,
+		SpecBallwork:           specBallwork,
+		SpecAgility:            specAgility,
+		SpecStealing:           specStealing,
+		SpecBlocking:           specBlocking,
+		SpecRebounding:         specRebounding,
+		SpecInteriorDefense:    specInteriorDefense,
+		SpecPerimeterDefense:   specPerimeterDefense,
+		Potential:              potential,
+		PotentialGrade:         potentialGrade,
+		ProPotentialGrade:      proPotential,
+		Stamina:                uint8(stamina),
+		Personality:            personality,
+		FreeAgency:             freeAgency,
+		RecruitingBias:         recruitingBias,
+		WorkEthic:              workEthic,
+		AcademicBias:           academicBias,
+		InjuryRating:           uint8(injuryRating),
+		Discipline:             uint8(discipline),
+		RelativeID:             uint8(relativeID),
+		RelativeType:           uint8(relativeType),
+		PlayerPreferences: structs.PlayerPreferences{
+			ProgramPref:        uint8(program),
+			ProfDevPref:        uint8(profDevelopment),
+			TraditionsPref:     uint8(traditions),
+			FacilitiesPref:     uint8(facilities),
+			AtmospherePref:     uint8(atmosphere),
+			AcademicsPref:      uint8(academics),
+			ConferencePref:     uint8(conferencePrestige),
+			CoachPref:          uint8(coachPref),
+			SeasonMomentumPref: uint8(seasonMomentumPref),
+			CampusLifePref:     uint8(campusLife),
+			MediaPref:          uint8(media),
+		},
+	}
+
+	var recruit = structs.Recruit{
+		BasePlayer:    basePlayer,
+		PlayerID:      id,
+		IsSigned:      false,
+		IsTransfer:    false,
+		CreatedFor:    crootFor,
+		IsCustomCroot: true,
+	}
+
+	recruit.GetOverall()
+
+	recruitModifier := GetRecruitModifier(uint8(starRating))
+	expectations := util.GetPlaytimeExpectations(starRating, 1, int(recruit.Overall))
+	recruit.SetExpectations(uint8(expectations))
+	recruit.SetID(id)
+	recruit.AssignRecruitModifier(recruitModifier)
+	recruit.SetID(id)
+
+	skinColor := getSkinColorByEthnicity(ethnicity)
+
+	face := getFace(id, weight, skinColor, faceDataBlob)
+
+	return recruit, face
 }
 
 func createInternationalPlayer(teamID uint, team, country, ethnicity, position string, year int, firstNameList, lastNameList []string, id uint, blob map[string]map[string]map[string]map[string]interface{}) structs.NBAPlayer {
@@ -2172,16 +2377,17 @@ func GenerateCollegeWalkons() {
 
 func CreateCustomCroots() {
 	db := dbprovider.GetInstance().GetDB()
-	path := "C:\\Users\\ctros\\go\\src\\github.com\\CalebRose\\SimNBA\\data\\2025\\2025_Custom_Croot_Class.csv"
+	path := "C:\\Users\\ctros\\go\\src\\github.com\\CalebRose\\SimNBA\\data\\2026\\2026_Custom_Croot_Class.csv"
 	crootCSV := util.ReadCSV(path)
 	latestID := getLatestRecord(db)
 
 	generator := CrootGenerator{
-		attributeBlob:    getAttributeBlob(),
-		usCrootLocations: getCrootLocations("HS"),
+		attributeBlob: getAttributeBlob(),
 	}
 
 	crootList := []structs.Recruit{}
+	faceData := []structs.FaceData{}
+	faceDataBlob := getFaceDataBlob()
 
 	for idx, row := range crootCSV {
 		if idx < 1 {
@@ -2190,24 +2396,11 @@ func CreateCustomCroots() {
 		if row[0] == "" {
 			break
 		}
-		firstName := row[0]
-		lastName := row[1]
-		position := row[2]
-		state := row[4]
-		country := row[5]
-		attr1 := row[6]
-		attr2 := row[7]
-		crootFor := row[8]
-		star := util.GetStarRating(true, false)
-		croot := createRecruit(position, firstName, lastName, state, country, "", "", 1, star, latestID, generator.attributeBlob, generator.usCrootLocations[state])
+		croot, face := createCustomCroot(row, latestID, generator.attributeBlob, faceDataBlob)
 		croot.SetID(latestID)
-		croot.SetCustomCroot(crootFor)
-		croot.SetCustomAttribute(attr1)
-		croot.SetCustomAttribute(attr2)
-		croot.GetOverall()
-		croot.Stars = uint8(star)
 		latestID++
 		crootList = append(crootList, croot)
+		faceData = append(faceData, face)
 	}
 
 	for _, croot := range crootList {
@@ -2222,6 +2415,7 @@ func CreateCustomCroots() {
 		repository.CreateRecruitRecord(croot, db)
 		repository.CreateGlobalPlayerRecord(gp, db)
 	}
+	repository.CreateFaceRecordsBatch(db, faceData, 500)
 	AssignAllRecruitRanks()
 }
 
@@ -2431,4 +2625,33 @@ func getValueFromInterfaceRange(star string, starMap map[string]interface{}) int
 
 	// Generate a random value in the range [min, max]
 	return util.GenerateIntFromRange(int(min), int(max))
+}
+
+func getCustomCrootStarRating() int {
+	weightedRoll := util.GenerateIntFromRange(1, 100)
+
+	if weightedRoll < 45 {
+		return 3
+	} else if weightedRoll < 80 {
+		return 4
+	} else if weightedRoll == 100 {
+		return 6
+	}
+	return 5
+}
+
+func getSkinColorByEthnicity(ethn string) string {
+	if ethn == "Caucasian" || ethn == "caucasian" {
+		return "white"
+	}
+	if ethn == "Asian" || ethn == "asian" {
+		return "asian"
+	}
+	if ethn == "African" || ethn == "african" {
+		return "black"
+	}
+	if ethn == "Hispanic" || ethn == "hispanic" {
+		return "brown"
+	}
+	return "brown"
 }

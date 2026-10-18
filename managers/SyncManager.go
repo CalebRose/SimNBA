@@ -25,7 +25,8 @@ func SyncRecruiting() {
 	timestamp := GetTimestamp()
 
 	if timestamp.RecruitingSynced {
-		log.Fatalln("Recruiting already ran for this week. Please wait until next week to sync recruiting again.")
+		log.Println("Recruiting already ran for this week. Please wait until next week to sync recruiting again.")
+		return
 	}
 
 	if !timestamp.IsRecruitingLocked {
@@ -248,7 +249,12 @@ func FillAIRecruitingBoards() {
 		AITeams[i], AITeams[j] = AITeams[j], AITeams[i]
 	})
 
-	UnsignedRecruits := GetAllUnsignedRecruits()
+	unsignedRecruits := GetAllUnsignedRecruits()
+	// sort unsigned Recruits by star rating in descending order
+	sort.Slice(unsignedRecruits, func(i, j int) bool {
+		return unsignedRecruits[i].Stars > unsignedRecruits[j].Stars
+	})
+
 	profiles := GetAllRecruitPlayerProfiles()
 	recruitProfileMapByRecruit := MakeRecruitProfileMapByRecruitID(profiles)
 	recruitProfileMapByProfile := MakeRecruitProfileMapByProfileID(profiles)
@@ -277,33 +283,21 @@ func FillAIRecruitingBoards() {
 		teamNeedsMap := make(map[string]bool)
 		positionCount := make(map[string]int)
 
-		if _, ok := teamNeedsMap["PG"]; !ok {
-			teamNeedsMap["PG"] = true
+		if _, ok := teamNeedsMap["G"]; !ok {
+			teamNeedsMap["G"] = true
 		}
-		if _, ok := teamNeedsMap["SG"]; !ok {
-			teamNeedsMap["SG"] = true
-		}
-		if _, ok := teamNeedsMap["SF"]; !ok {
-			teamNeedsMap["SF"] = true
-		}
-		if _, ok := teamNeedsMap["PF"]; !ok {
-			teamNeedsMap["PF"] = true
+		if _, ok := teamNeedsMap["F"]; !ok {
+			teamNeedsMap["F"] = true
 		}
 		if _, ok := teamNeedsMap["C"]; !ok {
 			teamNeedsMap["C"] = true
 		}
 
-		if _, ok := positionCount["PG"]; !ok {
-			positionCount["PG"] = 0
+		if _, ok := positionCount["G"]; !ok {
+			positionCount["G"] = 0
 		}
-		if _, ok := positionCount["SG"]; !ok {
-			positionCount["SG"] = 0
-		}
-		if _, ok := positionCount["SF"]; !ok {
-			positionCount["SF"] = 0
-		}
-		if _, ok := positionCount["PF"]; !ok {
-			positionCount["PF"] = 0
+		if _, ok := positionCount["F"]; !ok {
+			positionCount["F"] = 0
 		}
 		if _, ok := positionCount["C"]; !ok {
 			positionCount["C"] = 0
@@ -316,19 +310,15 @@ func FillAIRecruitingBoards() {
 			positionCount[r.Position] += 1
 		}
 
-		if positionCount["PG"] >= 3 {
-			teamNeedsMap["PG"] = false
-		} else if positionCount["SG"] >= 4 {
-			teamNeedsMap["SG"] = false
-		} else if positionCount["SF"] >= 4 {
-			teamNeedsMap["SF"] = false
-		} else if positionCount["PF"] >= 4 {
-			teamNeedsMap["PF"] = false
+		if positionCount["G"] >= 7 {
+			teamNeedsMap["G"] = false
+		} else if positionCount["F"] >= 8 {
+			teamNeedsMap["F"] = false
 		} else if positionCount["C"] >= 3 {
 			teamNeedsMap["C"] = false
 		}
 
-		for _, croot := range UnsignedRecruits {
+		for _, croot := range unsignedRecruits {
 			if count == boardCount || (ts.CollegeWeek > 12 && lateSeasonCount > 12) {
 				break
 			}
@@ -395,6 +385,9 @@ func FillAIRecruitingBoards() {
 				odds += getOddsIncrementByTalent(croot.Rebounding, croot.Stars, croot.SpecRebounding, team.AIAttribute1 == "Rebounding" || team.AIAttribute2 == "Rebounding", team.AIQuality == "Mid-Major", team.IsUserTeam)
 				odds += getOddsIncrementByTalent(croot.InteriorDefense, croot.Stars, croot.SpecInteriorDefense, team.AIAttribute1 == "InteriorDefense" || team.AIAttribute2 == "InteriorDefense", team.AIQuality == "Mid-Major", team.IsUserTeam)
 				odds += getOddsIncrementByTalent(croot.PerimeterDefense, croot.Stars, croot.SpecPerimeterDefense, team.AIAttribute1 == "PerimeterDefense" || team.AIAttribute2 == "PerimeterDefense", team.AIQuality == "Mid-Major", team.IsUserTeam)
+				odds += getOddsIncrementByTalent(croot.Agility, croot.Stars, croot.SpecAgility, team.AIAttribute1 == "Agility" || team.AIAttribute2 == "Agility", team.AIQuality == "Mid-Major", team.IsUserTeam)
+				odds += getOddsIncrementByTalent(croot.Stealing, croot.Stars, croot.SpecStealing, team.AIAttribute1 == "Stealing" || team.AIAttribute2 == "Stealing", team.AIQuality == "Mid-Major", team.IsUserTeam)
+				odds += getOddsIncrementByTalent(croot.Blocking, croot.Stars, croot.SpecBlocking, team.AIAttribute1 == "Blocking" || team.AIAttribute2 == "Blocking", team.AIQuality == "Mid-Major", team.IsUserTeam)
 			}
 
 			chance := util.GenerateIntFromRange(1, 100)
@@ -435,6 +428,16 @@ func FillAIRecruitingBoards() {
 				recruitProfileMapByRecruit[croot.ID] = crootProfiles
 				profileBatch = append(profileBatch, playerProfile)
 				count++
+				positionCount[croot.Position] += 1
+				if positionCount["G"] >= 7 {
+					teamNeedsMap["G"] = false
+				}
+				if positionCount["F"] >= 8 {
+					teamNeedsMap["F"] = false
+				}
+				if positionCount["C"] >= 3 {
+					teamNeedsMap["C"] = false
+				}
 			}
 		}
 	}
@@ -467,33 +470,21 @@ func AllocatePointsToAIBoards() {
 		teamNeedsMap := make(map[string]bool)
 		positionCount := make(map[string]int)
 
-		if _, ok := teamNeedsMap["PG"]; !ok {
-			teamNeedsMap["PG"] = true
+		if _, ok := teamNeedsMap["G"]; !ok {
+			teamNeedsMap["G"] = true
 		}
-		if _, ok := teamNeedsMap["SG"]; !ok {
-			teamNeedsMap["SG"] = true
-		}
-		if _, ok := teamNeedsMap["SF"]; !ok {
-			teamNeedsMap["SF"] = true
-		}
-		if _, ok := teamNeedsMap["PF"]; !ok {
-			teamNeedsMap["PF"] = true
+		if _, ok := teamNeedsMap["F"]; !ok {
+			teamNeedsMap["F"] = true
 		}
 		if _, ok := teamNeedsMap["C"]; !ok {
 			teamNeedsMap["C"] = true
 		}
 
-		if _, ok := positionCount["PG"]; !ok {
-			positionCount["PG"] = 0
+		if _, ok := positionCount["G"]; !ok {
+			positionCount["G"] = 0
 		}
-		if _, ok := positionCount["SG"]; !ok {
-			positionCount["SG"] = 0
-		}
-		if _, ok := positionCount["SF"]; !ok {
-			positionCount["SF"] = 0
-		}
-		if _, ok := positionCount["PF"]; !ok {
-			positionCount["PF"] = 0
+		if _, ok := positionCount["F"]; !ok {
+			positionCount["F"] = 0
 		}
 		if _, ok := positionCount["C"]; !ok {
 			positionCount["C"] = 0
@@ -510,15 +501,13 @@ func AllocatePointsToAIBoards() {
 			positionCount[r.Position] += 1
 		}
 
-		if positionCount["PG"] >= 3 {
-			teamNeedsMap["PG"] = false
-		} else if positionCount["SG"] >= 4 {
-			teamNeedsMap["SG"] = false
-		} else if positionCount["SF"] >= 4 {
-			teamNeedsMap["SF"] = false
-		} else if positionCount["PF"] >= 4 {
-			teamNeedsMap["PF"] = false
-		} else if positionCount["C"] >= 3 {
+		if positionCount["G"] >= 7 {
+			teamNeedsMap["G"] = false
+		}
+		if positionCount["F"] >= 8 {
+			teamNeedsMap["F"] = false
+		}
+		if positionCount["C"] >= 3 {
 			teamNeedsMap["C"] = false
 		}
 
@@ -648,15 +637,13 @@ func AllocatePointsToAIBoards() {
 			fmt.Println(team.TeamAbbr + " allocating " + strconv.Itoa(num) + " points to " + croot.FirstName + " " + croot.LastName)
 
 			positionCount[croot.Position] += 1
-			if positionCount["PG"] >= 3 {
-				teamNeedsMap["PG"] = false
-			} else if positionCount["SG"] >= 4 {
-				teamNeedsMap["SG"] = false
-			} else if positionCount["SF"] >= 4 {
-				teamNeedsMap["SF"] = false
-			} else if positionCount["PF"] >= 4 {
-				teamNeedsMap["PF"] = false
-			} else if positionCount["C"] >= 3 {
+			if positionCount["G"] >= 7 {
+				teamNeedsMap["G"] = false
+			}
+			if positionCount["F"] >= 8 {
+				teamNeedsMap["F"] = false
+			}
+			if positionCount["C"] >= 3 {
 				teamNeedsMap["C"] = false
 			}
 		}
