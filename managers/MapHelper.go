@@ -347,3 +347,59 @@ func MakeNBAMatchMapByTeamID(matches []structs.NBAMatch) map[uint][]structs.NBAM
 
 	return matchMap
 }
+
+func MakeRecruitProfileMapByRecruitID(profiles []structs.RecruitPlayerProfile) map[uint][]structs.RecruitPlayerProfile {
+	recruitProfileMap := make(map[uint][]structs.RecruitPlayerProfile)
+
+	for _, profile := range profiles {
+		if profile.RemovedFromBoard {
+			continue
+		}
+		if len(recruitProfileMap[profile.RecruitID]) == 0 {
+			recruitProfileMap[profile.RecruitID] = []structs.RecruitPlayerProfile{profile}
+		} else {
+			recruitProfileMap[profile.RecruitID] = append(recruitProfileMap[profile.RecruitID], profile)
+		}
+	}
+
+	return recruitProfileMap
+}
+
+func MakeRecruitMap(croots []structs.Recruit) map[uint]structs.Recruit {
+	recruitMap := make(map[uint]structs.Recruit)
+
+	for _, croot := range croots {
+		recruitMap[croot.ID] = croot
+
+	}
+
+	return recruitMap
+}
+
+func MakeSignedRecruitMapByTeamID(croots []structs.Recruit) map[uint][]structs.Recruit {
+	recruitMap := make(map[uint][]structs.Recruit)
+
+	for _, croot := range croots {
+		recruitMap[croot.TeamID] = append(recruitMap[croot.TeamID], croot)
+
+	}
+
+	return recruitMap
+}
+
+func MakeRecruitProfileMapByProfileID(profiles []structs.RecruitPlayerProfile) map[uint][]structs.RecruitPlayerProfile {
+	recruitProfileMap := make(map[uint][]structs.RecruitPlayerProfile)
+
+	for _, profile := range profiles {
+		if profile.RemovedFromBoard {
+			continue
+		}
+		if len(recruitProfileMap[profile.ProfileID]) == 0 {
+			recruitProfileMap[profile.ProfileID] = []structs.RecruitPlayerProfile{profile}
+		} else {
+			recruitProfileMap[profile.ProfileID] = append(recruitProfileMap[profile.ProfileID], profile)
+		}
+	}
+
+	return recruitProfileMap
+}

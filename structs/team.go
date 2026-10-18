@@ -57,6 +57,7 @@ func (t *Team) GetTeam(w http.ResponseWriter, r *http.Request) {
 func (t *Team) AssignUserToTeam(username string) {
 	t.AssignCoach(username)
 	t.IsUserCoached = true
+	t.UpdateLatestInstance()
 }
 
 func (t *Team) AssignCoach(username string) {
@@ -66,6 +67,7 @@ func (t *Team) AssignCoach(username string) {
 func (t *Team) RemoveUser() {
 	t.Coach = ""
 	t.IsUserCoached = false
+	t.UpdateLatestInstance()
 }
 
 func (t *Team) ToggleUserCoach() {

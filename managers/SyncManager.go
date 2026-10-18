@@ -244,9 +244,26 @@ func FillAIRecruitingBoards() {
 	ts := GetTimestamp()
 
 	AITeams := GetOnlyAITeamRecruitingProfiles()
-	// Shuffles the list of AI teams so that it's not always iterating from A-Z. Gives the teams at the lower end of the list a chance to recruit other croots
-	rand.Shuffle(len(AITeams), func(i, j int) {
-		AITeams[i], AITeams[j] = AITeams[j], AITeams[i]
+
+	getAIQuality := func(quality string) int {
+		switch quality {
+		case "Blue Blood":
+			return 4
+		case "P6":
+			return 3
+		case "Cinderella":
+			return 2
+		case "Mid-Major":
+			return 1
+		default:
+			return 0
+		}
+	}
+
+	// Sort AI teams by AI Quality (Blue Blood, P6, Cinderella, Mid-Major)
+	sort.Slice(AITeams, func(i, j int) bool {
+		// AIQuality is a string
+		return getAIQuality(AITeams[i].AIQuality) > getAIQuality(AITeams[j].AIQuality)
 	})
 
 	unsignedRecruits := GetAllUnsignedRecruits()
@@ -451,9 +468,14 @@ func AllocatePointsToAIBoards() {
 	ts := GetTimestamp()
 
 	AITeams := GetOnlyAITeamRecruitingProfiles()
+	collegePlayers := GetAllCollegePlayers()
+	collegePlayerMapByTeamID := MakeCollegePlayerMapByTeamID(collegePlayers, true)
 
 	recruits := GetAllRecruitRecords()
 	recruitMap := MakeRecruitMap(recruits)
+	signedRecruitMap := MakeSignedRecruitMapByTeamID(recruits)
+	recruitProfiles := repository.FindRecruitPlayerProfileRecords(repository.RecruitProfileClauses{RemoveFromBoard: true})
+	recruitProfileMapByTeamID := MakeRecruitProfileMapByProfileID(recruitProfiles)
 
 	// Shuffles the list of AI teams so that it's not always iterating from A-Z. Gives the teams at the lower end of the list a chance to recruit other croots
 	rand.Shuffle(len(AITeams), func(i, j int) {
@@ -464,9 +486,8 @@ func AllocatePointsToAIBoards() {
 		if team.SpentPoints >= team.WeeklyPoints || team.TotalCommitments >= team.RecruitClassSize {
 			continue
 		}
-		id := strconv.Itoa(int(team.ID))
-		currentRoster := GetCollegePlayersByTeamId(id)
-		signedCroots := GetSignedRecruitsByTeamProfileID(id)
+		currentRoster := collegePlayerMapByTeamID[team.ID]
+		signedCroots := signedRecruitMap[team.ID]
 		teamNeedsMap := make(map[string]bool)
 		positionCount := make(map[string]int)
 
@@ -511,7 +532,7 @@ func AllocatePointsToAIBoards() {
 			teamNeedsMap["C"] = false
 		}
 
-		teamRecruits := GetAllRecruitsByProfileID(strconv.Itoa(int(team.ID)))
+		teamRecruits := recruitProfileMapByTeamID[team.ID]
 
 		for _, crootProfile := range teamRecruits {
 			// If a team has no more points to spend, break the loop
@@ -519,7 +540,7 @@ func AllocatePointsToAIBoards() {
 			if team.SpentPoints >= team.WeeklyPoints || pointsRemaining <= 0 || (pointsRemaining < 1 && pointsRemaining > 0) {
 				break
 			}
-			croot := recruitMap[crootProfile.ID]
+			croot := recruitMap[crootProfile.RecruitID]
 			recruitingNeed := teamNeedsMap[croot.Position]
 			// If a croot was signed OR has points already placed on the croot, move on to the next croot
 			if croot.IsSigned || crootProfile.CurrentWeeksPoints > 0 || crootProfile.ScholarshipRevoked || !recruitingNeed {
@@ -657,12 +678,14 @@ func ResetAIBoardsForCompletedTeams() {
 	db := dbprovider.GetInstance().GetDB()
 
 	AITeams := GetTeamRecruitingProfilesForRecruitSync()
+	recruitProfiles := repository.FindRecruitPlayerProfileRecords(repository.RecruitProfileClauses{RemoveFromBoard: true})
+	recruitProfileMapByTeamID := MakeRecruitProfileMapByProfileID(recruitProfiles)
 	for _, team := range AITeams {
 		// If a team already has the maximum allowed for their recruiting class, take all Recruit Profiles for that team where the recruit hasn't signed, and reset their total points.
 		// This is so that these unsigned recruits can be recruited for and will allow the AI to put points onto those recruits.
 
 		if team.TotalCommitments >= team.RecruitClassSize {
-			teamRecruits := GetAllRecruitsByProfileID(strconv.Itoa(int(team.ID)))
+			teamRecruits := recruitProfileMapByTeamID[team.ID]
 
 			for _, croot := range teamRecruits {
 				if croot.IsSigned || croot.IsLocked || croot.TotalPoints == 0 {
@@ -829,49 +852,4 @@ func updateTeamRankings(teamRecruitingProfiles []structs.TeamRecruitingProfile, 
 		repository.SaveTeamRecruitingProfileRecord(rp, db)
 		fmt.Println("Saved Rank Scores for Team " + rp.TeamAbbr)
 	}
-}
-
-func MakeRecruitProfileMapByRecruitID(profiles []structs.RecruitPlayerProfile) map[uint][]structs.RecruitPlayerProfile {
-	recruitProfileMap := make(map[uint][]structs.RecruitPlayerProfile)
-
-	for _, profile := range profiles {
-		if profile.RemovedFromBoard {
-			continue
-		}
-		if len(recruitProfileMap[profile.RecruitID]) == 0 {
-			recruitProfileMap[profile.RecruitID] = []structs.RecruitPlayerProfile{profile}
-		} else {
-			recruitProfileMap[profile.RecruitID] = append(recruitProfileMap[profile.RecruitID], profile)
-		}
-	}
-
-	return recruitProfileMap
-}
-
-func MakeRecruitMap(croots []structs.Recruit) map[uint]structs.Recruit {
-	recruitMap := make(map[uint]structs.Recruit)
-
-	for _, croot := range croots {
-		recruitMap[croot.ID] = croot
-
-	}
-
-	return recruitMap
-}
-
-func MakeRecruitProfileMapByProfileID(profiles []structs.RecruitPlayerProfile) map[uint][]structs.RecruitPlayerProfile {
-	recruitProfileMap := make(map[uint][]structs.RecruitPlayerProfile)
-
-	for _, profile := range profiles {
-		if profile.RemovedFromBoard {
-			continue
-		}
-		if len(recruitProfileMap[profile.ProfileID]) == 0 {
-			recruitProfileMap[profile.ProfileID] = []structs.RecruitPlayerProfile{profile}
-		} else {
-			recruitProfileMap[profile.ProfileID] = append(recruitProfileMap[profile.ProfileID], profile)
-		}
-	}
-
-	return recruitProfileMap
 }
