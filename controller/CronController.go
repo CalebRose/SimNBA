@@ -137,7 +137,7 @@ func SyncFreeAgencyOffersViaCron() {
 		return
 	}
 
-	if !ts.IsFreeAgencyLocked && !ts.IsDraftTime {
+	if !ts.IsFreeAgencyLocked && ts.Phase > 3 {
 		managers.SyncAIOffers()
 		managers.SyncFreeAgencyOffers()
 	}

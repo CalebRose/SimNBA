@@ -781,7 +781,6 @@ func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *
 				belowCap := Offer.Year1Total+teamCapsheet.Year1Total+teamCapsheet.Year1Cap+teamCapsheet.Year1CashTransferred-teamCapsheet.Year1CashReceived <= ts.Y1Capspace
 				nbaTeam := nbaTeamMap[Offer.TeamID]
 				isAi := nbaTeam.NBAOwnerName == "" || nbaTeam.NBAOwnerName == "AI"
-				withinRosterLimit := len(roster) < 18
 				rosterCount := 0
 				for _, p := range roster {
 					if p.IsGLeague || p.IsTwoWay {
@@ -789,7 +788,7 @@ func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *
 					}
 					rosterCount++
 				}
-				withinRosterLimit = rosterCount < 18
+				withinRosterLimit := rosterCount < 18
 				// Get the Contract with the best value for the FA
 				if Offer.IsActive && WinningOffer.ID == 0 && validOffer && belowCap {
 					if isAi && !withinRosterLimit {
