@@ -153,61 +153,14 @@ func GetNBAPlayByPlayStreamData(streamType string) []structs.StreamResponse {
 	gameplanMap := MakeNBAGameplanMap(nbaGameplans)
 
 	for _, game := range games {
-		if game.ID == 25533 || game.ID == 25534 || game.ID == 25535 || game.ID == 25536 || game.ID == 25537 {
-			continue
-		}
 		if !game.GameComplete || game.IsRevealed {
 			continue
 		}
 
 		homeTeam := teamMap[uint(game.HomeTeamID)]
 		awayTeam := teamMap[uint(game.AwayTeamID)]
-		if streamType == "tnt" {
-			if homeTeam.ID > 32 && awayTeam.ID > 32 {
-				continue
-			}
-			mod := game.ID % 4
-			if mod != 0 {
-				continue
-			}
-		}
-		if streamType == "nbatv" {
-			if homeTeam.ID > 32 && awayTeam.ID > 32 {
-				continue
-			}
-			mod := game.ID % 4
-			if mod != 1 {
-				continue
-			}
-		}
-
-		if streamType == "prime" {
-			if homeTeam.ID > 32 && awayTeam.ID > 32 {
-				continue
-			}
-			mod := game.ID % 4
-			if mod != 2 {
-				continue
-			}
-		}
-
-		if streamType == "hbo" {
-			if homeTeam.ID > 32 && awayTeam.ID > 32 {
-				continue
-			}
-			mod := game.ID % 4
-			if mod != 3 {
-				continue
-			}
-		}
-
-		if streamType == "int" {
-			if homeTeam.ID <= 32 && awayTeam.ID <= 32 {
-				continue
-			}
-			if !game.IsPlayoffGame {
-				continue
-			}
+		if structs.GetNBAStreamChannel(game, game.HomeTeamID, game.AwayTeamID) != streamType {
+			continue
 		}
 
 		gameID := strconv.Itoa(int(game.ID))
