@@ -232,6 +232,8 @@ type NBAFreeAgentSignedNotificationInput struct {
 	TotalYears     uint
 	RecipientUIDs  []string
 	SourceEventKey string
+	RosterSize     uint
+	CapDifference  float64
 }
 
 // ScheduleEventNotificationInput carries the context needed to notify a coach

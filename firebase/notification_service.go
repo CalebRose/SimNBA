@@ -130,6 +130,31 @@ func NotifyNBAFreeAgentSigned(ctx context.Context, in NBAFreeAgentSignedNotifica
 	return writeNotificationsIfNew(ctx, in.RecipientUIDs, notification)
 }
 
+// NotifyNBAFreeAgentOfSigningSkipped sends a push notification to an NBA team's staff
+// when a free agent's signing is skipped due to either the roster limit or being over the cap.
+func NotifyNBAFreeAgentOfSigningSkipped(ctx context.Context, in NBAFreeAgentSignedNotificationInput) error {
+	if len(in.RecipientUIDs) == 0 {
+		return nil
+	}
+
+	message := fmt.Sprintf(
+		"%s (%s) could not be signed by %s due to roster limit (%d players signed) or cap restrictions on a %d-year deal worth $%.1fM per year (Cap Difference: $%.1fM).",
+		in.PlayerName, in.Position, in.TeamName, in.RosterSize, in.TotalYears, in.ContractValue, in.CapDifference,
+	)
+
+	notification := ForumNotification{
+		Type:           NotificationTypeFreeAgency,
+		Domain:         DomainNBA,
+		Message:        message,
+		LinkTo:         BuildTeamRosterRoute("nba", in.TeamID),
+		IsRead:         false,
+		CreatedAt:      time.Now(),
+		SourceEventKey: in.SourceEventKey,
+	}
+
+	return writeNotificationsIfNew(ctx, in.RecipientUIDs, notification)
+}
+
 // ─────────────────────────────────────────────
 // Internal helpers
 // ─────────────────────────────────────────────
