@@ -234,7 +234,7 @@ func ShowGames() {
 	}
 	UpdateStandings(ts, matchType)
 	UpdateSeasonStats(ts, matchType)
-	ts.ToggleGames(matchType)
+	// ts.ToggleGames(matchType)
 	repository.SaveTimeStamp(ts, db)
 }
 

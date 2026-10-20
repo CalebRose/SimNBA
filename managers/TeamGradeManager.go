@@ -12,6 +12,7 @@ func GenerateTeamRatings() {
 	db := dbprovider.GetInstance().GetDB()
 	collegeTeams := GetAllActiveCollegeTeams()
 	nbaTeams := GetAllActiveNBATeams()
+	islTeams := GetInternationalTeams()
 
 	collegePlayers := GetAllCollegePlayers()
 	nbaPlayers := GetAllNBAPlayers()
@@ -21,6 +22,7 @@ func GenerateTeamRatings() {
 
 	var collegeTeamGrades []structs.TeamGrade
 	var nbaTeamGrades []structs.TeamGrade
+	var islTeamGrades []structs.TeamGrade
 	for _, team := range collegeTeams {
 		players := collegePlayerMap[team.ID]
 
@@ -51,7 +53,11 @@ func GenerateTeamRatings() {
 		repository.SaveCollegeTeamRecord(teamToUpdate, db)
 	}
 
+	// NBA First
 	for _, team := range nbaTeams {
+		if team.ID > 32 {
+			continue
+		}
 		players := nbaPlayerMap[team.ID]
 
 		basePlayers := MakeBasePlayerList([]structs.CollegePlayer{}, players)
@@ -72,10 +78,47 @@ func GenerateTeamRatings() {
 	nbaOverallMean, nbaOverallStdDev := calculateMeanAndStdDev(nbaTeamGrades, "overall")
 
 	for i, team := range nbaTeams {
+		if team.ID > 32 {
+			continue
+		}
 		tg := nbaTeamGrades[i]
 		offenseLetter := assignLetterGrade(tg.OffenseGradeNumber, nbaOffenseMean, nbaOffenseStdDev)
 		defenseLetter := assignLetterGrade(tg.DefenseGradeNumber, nbaDefenseMean, nbaDefenseStdDev)
 		overallLetter := assignLetterGrade(tg.OverallGradeNumber, nbaOverallMean, nbaOverallStdDev)
+		teamToUpdate := team
+		teamToUpdate.AssignRatings(offenseLetter, defenseLetter, overallLetter)
+		repository.SaveNBATeamRecord(teamToUpdate, db)
+	}
+
+	// ISL Second
+	for _, team := range islTeams {
+		if team.ID <= 32 {
+			continue
+		}
+		players := nbaPlayerMap[team.ID]
+
+		basePlayers := MakeBasePlayerList([]structs.CollegePlayer{}, players)
+
+		offenseGrade := calculateOffenseGrade(basePlayers)
+		defenseGrade := calculateDefenseGrade(basePlayers)
+		overallGrade := calculateOverallGrade(offenseGrade, defenseGrade)
+
+		tg := structs.TeamGrade{}
+		tg.SetOffenseGradeNumber(offenseGrade)
+		tg.SetDefenseGradeNumber(defenseGrade)
+		tg.SetOverallGradeNumber(overallGrade)
+
+		islTeamGrades = append(islTeamGrades, tg)
+	}
+	islOffenseMean, islOffenseStdDev := calculateMeanAndStdDev(islTeamGrades, "offense")
+	islDefenseMean, islDefenseStdDev := calculateMeanAndStdDev(islTeamGrades, "defense")
+	islOverallMean, islOverallStdDev := calculateMeanAndStdDev(islTeamGrades, "overall")
+
+	for i, team := range islTeams {
+		tg := islTeamGrades[i]
+		offenseLetter := assignLetterGrade(tg.OffenseGradeNumber, islOffenseMean, islOffenseStdDev)
+		defenseLetter := assignLetterGrade(tg.DefenseGradeNumber, islDefenseMean, islDefenseStdDev)
+		overallLetter := assignLetterGrade(tg.OverallGradeNumber, islOverallMean, islOverallStdDev)
 		teamToUpdate := team
 		teamToUpdate.AssignRatings(offenseLetter, defenseLetter, overallLetter)
 		repository.SaveNBATeamRecord(teamToUpdate, db)

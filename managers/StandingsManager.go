@@ -111,7 +111,7 @@ func GetNBAStandingsBySeasonID(seasonID string) []structs.NBAStandings {
 func UpdateStandings(ts structs.Timestamp, MatchType string) {
 	db := dbprovider.GetInstance().GetDB()
 
-	if !ts.IsOffSeason {
+	if !ts.IsOffSeason || ts.Phase > 10 {
 		games := GetMatchesByWeekIdAndMatchType(strconv.Itoa(int(ts.CollegeWeekID)), strconv.Itoa(int(ts.SeasonID)), MatchType)
 		teamMap := GetCollegeTeamMap()
 		gameIDs := []uint{}
@@ -209,7 +209,7 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 		db.Model(&structs.Match{}).Where("id IN ?", gameIDs).Update("is_revealed", true)
 	}
 
-	if !ts.IsNBAOffseason {
+	if !ts.IsNBAOffseason || ts.Phase > 10 {
 		nbaGames := GetNBATeamMatchesByMatchType(strconv.Itoa(int(ts.NBAWeekID)), strconv.Itoa(int(ts.SeasonID)), MatchType)
 		nbaTeamMap := GetProfessionalTeamMap()
 		gameIDs := []uint{}

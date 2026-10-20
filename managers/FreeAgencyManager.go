@@ -778,7 +778,8 @@ func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *
 				validOffer := validateOffer(Offer, contractStatus, minimumValue)
 				teamCapsheet := capsheetMap[Offer.TeamID]
 				// Check to make sure that
-				belowCap := Offer.Year1Total+teamCapsheet.Year1Total+teamCapsheet.Year1Cap+teamCapsheet.Year1CashTransferred-teamCapsheet.Year1CashReceived <= ts.Y1Capspace
+				speculatedCap := Offer.Year1Total + teamCapsheet.Year1Total
+				belowCap := speculatedCap <= ts.Y1Capspace
 				nbaTeam := nbaTeamMap[Offer.TeamID]
 				isAi := nbaTeam.NBAOwnerName == "" || nbaTeam.NBAOwnerName == "AI"
 				rosterCount := 0
