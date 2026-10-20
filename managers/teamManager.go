@@ -385,8 +385,8 @@ func GetTeamRatings(t structs.Team) {
 		if idx > 9 {
 			break
 		}
-		offenseSum += int(player.MidRangeShooting) + int(player.ThreePointShooting) + int(player.InsideShooting)
-		defenseSum += int(player.Ballwork) + int(player.Rebounding) + int(player.InteriorDefense) + int(player.PerimeterDefense)
+		offenseSum += int(player.MidRangeShooting) + int(player.ThreePointShooting) + int(player.InsideShooting) + int(player.FreeThrow) + int(player.Ballwork) + int(player.Agility)
+		defenseSum += int(player.Stealing) + int(player.Blocking) + int(player.Rebounding) + int(player.InteriorDefense) + int(player.PerimeterDefense)
 	}
 
 	offenseRating = offenseSum / 9

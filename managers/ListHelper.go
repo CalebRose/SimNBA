@@ -175,3 +175,14 @@ func makeHistoricPlayerList(hcp []structs.HistoricCollegePlayer) []structs.Colle
 	}
 	return cpList
 }
+
+func MakeBasePlayerList(collegePlayers []structs.CollegePlayer, proPlayers []structs.NBAPlayer) []structs.BasePlayer {
+	players := []structs.BasePlayer{}
+	for _, player := range collegePlayers {
+		players = append(players, player.BasePlayer)
+	}
+	for _, player := range proPlayers {
+		players = append(players, player.BasePlayer)
+	}
+	return players
+}

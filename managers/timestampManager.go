@@ -74,6 +74,7 @@ func SyncToNextWeek() {
 	if ts.NBASeasonOver && ts.CollegeSeasonOver && ts.FreeAgencyRound > 2 {
 		ts.MoveUpASeason()
 	}
+	GenerateTeamRatings()
 	repository.SaveTimeStamp(ts, db)
 }
 

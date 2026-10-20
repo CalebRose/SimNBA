@@ -98,6 +98,7 @@ func handleRequests() http.Handler {
 	// apiRouter.HandleFunc("/admin/migrate/nba/players", controller.MigrateNBAPlayersToTables).Methods("GET")
 	// apiRouter.HandleFunc("/admin/progress/nba/players", controller.ProgressNBAPlayers).Methods("GET")
 	// apiRouter.HandleFunc("/admin/clean/nba/tables", controller.CleanNBAPlayerTables).Methods("GET")
+	// apiRouter.HandleFunc("/admin/letter/grades", controller.SyncTeamLetterGrades).Methods("GET")
 
 	// Bootstrap
 	apiRouter.HandleFunc("/bootstrap/teams/", controller.BootstrapTeamData).Methods("GET")

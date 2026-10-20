@@ -96,3 +96,36 @@ func (t *Team) CheckUserActivity() {
 		t.NoLongerActiveUser = true
 	}
 }
+
+type TeamGrade struct {
+	OffenseGradeNumber float64
+	DefenseGradeNumber float64
+	OverallGradeNumber float64
+	OffenseGradeLetter string
+	DefenseGradeLetter string
+	OverallGradeLetter string
+}
+
+func (tg *TeamGrade) SetOffenseGradeNumber(grade float64) {
+	tg.OffenseGradeNumber = grade
+}
+
+func (tg *TeamGrade) SetDefenseGradeNumber(grade float64) {
+	tg.DefenseGradeNumber = grade
+}
+
+func (tg *TeamGrade) SetOverallGradeNumber(grade float64) {
+	tg.OverallGradeNumber = grade
+}
+
+func (tg *TeamGrade) SetOffenseGradeLetter(grade string) {
+	tg.OffenseGradeLetter = grade
+}
+
+func (tg *TeamGrade) SetDefenseGradeLetter(grade string) {
+	tg.DefenseGradeLetter = grade
+}
+
+func (tg *TeamGrade) SetOverallGradeLetter(grade string) {
+	tg.OverallGradeLetter = grade
+}

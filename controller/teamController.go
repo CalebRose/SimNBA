@@ -174,3 +174,9 @@ func GetNBADashboardByTeamID(w http.ResponseWriter, r *http.Request) {
 	dashboard := managers.GetDashboardByTeamID(false, teamID)
 	json.NewEncoder(w).Encode(dashboard)
 }
+
+func SyncTeamLetterGrades(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	managers.GenerateTeamRatings()
+	json.NewEncoder(w).Encode("Team Ratings Sync Done!")
+}
