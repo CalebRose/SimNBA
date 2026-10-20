@@ -74,7 +74,21 @@ func CreateNBALineupsRecordsBatch(db *gorm.DB, fds []structs.NBALineup, batchSiz
 func SaveCollegeLineupRecord(lineup structs.CollegeLineup, db *gorm.DB) {
 	err := db.Save(&lineup).Error
 	if err != nil {
-		log.Panicln("Could not save gameplan record!")
+		log.Panicln("Could not save college lineup record!")
+	}
+}
+
+func SaveCBBMatchRecord(match structs.Match, db *gorm.DB) {
+	err := db.Save(&match).Error
+	if err != nil {
+		log.Panicln("Could not save match record!")
+	}
+}
+
+func SaveNBAMatchRecord(match structs.NBAMatch, db *gorm.DB) {
+	err := db.Save(&match).Error
+	if err != nil {
+		log.Panicln("Could not save match record!")
 	}
 }
 
@@ -89,13 +103,13 @@ func SaveCBBGameplanRecord(gameplan structs.Gameplan, db *gorm.DB) {
 func SaveNBALineupRecord(lineup structs.NBALineup, db *gorm.DB) {
 	err := db.Save(&lineup).Error
 	if err != nil {
-		log.Panicln("Could not save gameplan record!")
+		log.Panicln("Could not save NBA lineup record!")
 	}
 }
 
 func SaveNBAGameplanRecord(team structs.NBAGameplan, db *gorm.DB) {
 	err := db.Save(&team).Error
 	if err != nil {
-		log.Panicln("Could not save gameplan record!")
+		log.Panicln("Could not save NBA gameplan record!")
 	}
 }

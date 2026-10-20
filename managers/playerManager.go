@@ -464,6 +464,19 @@ func GetTransferPortalPlayersForPage() []structs.TransferPlayerResponse {
 	return playerList
 }
 
+func GetNBAPlayerMap() map[uint]structs.NBAPlayer {
+
+	portalMap := make(map[uint]structs.NBAPlayer)
+
+	players := GetAllNBAPlayers()
+
+	for _, p := range players {
+		portalMap[p.ID] = p
+	}
+
+	return portalMap
+}
+
 func GetCollegePlayerMap() map[uint]structs.CollegePlayer {
 
 	portalMap := make(map[uint]structs.CollegePlayer)

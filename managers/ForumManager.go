@@ -18,6 +18,7 @@ import (
 
 const (
 	cbbPostGameForumID = "postgame-discussions-simcbb"
+	nbaPostGameForumID = "postgame-discussions-simnba"
 	cbbMediaForumID    = "media-simcbb"
 	nbaMediaForumID    = "media-simnba"
 )
@@ -211,6 +212,233 @@ func appendCBBPlayerStatTable(
 	rows := make([]row, 0, len(playerStats))
 	for _, s := range playerStats {
 		p, ok := playerMap[uint(s.CollegePlayerID)]
+		if !ok {
+			continue
+		}
+		label := fmt.Sprintf("%s %s (%s)", p.FirstName, p.LastName, p.Position)
+		rows = append(rows, row{label: label, stats: s})
+	}
+
+	// Sort by points descending.
+	sort.Slice(rows, func(i, j int) bool {
+		return rows[i].stats.Points > rows[j].stats.Points
+	})
+
+	if len(rows) == 0 {
+		return nodes
+	}
+
+	nodes = append(nodes, rtHeading(3, teamName+" — Player Stats"))
+	tableRows := make([][]string, 0, len(rows))
+	for _, r := range rows {
+		s := r.stats
+		tableRows = append(tableRows, []string{
+			r.label,
+			fmt.Sprintf("%d", s.Minutes),
+			fmt.Sprintf("%d", s.Points),
+			fmt.Sprintf("%d", s.TotalRebounds),
+			fmt.Sprintf("%d", s.Assists),
+			fmt.Sprintf("%d", s.Steals),
+			fmt.Sprintf("%d", s.Blocks),
+			fmt.Sprintf("%d", s.Turnovers),
+			fmt.Sprintf("%d/%d", s.FGM, s.FGA),
+			fmt.Sprintf("%d/%d", s.ThreePointsMade, s.ThreePointAttempts),
+			fmt.Sprintf("%d/%d", s.FTM, s.FTA),
+		})
+	}
+
+	nodes = append(nodes, rtTableNode(
+		[]string{"Player", "MIN", "PTS", "REB", "AST", "STL", "BLK", "TO", "FG", "3PT", "FT"},
+		tableRows,
+	))
+	return nodes
+}
+
+// CreatePostGameDiscussionThreadForCBBGame creates a system-generated post-game
+// discussion thread for a completed (and user-coached) college basketball game.
+// Intended to be called in a goroutine after the game record is saved.
+// The operation is idempotent: calling it twice for the same game has no effect.
+func CreatePostGameDiscussionThreadForNBAGame(
+	game structs.NBAMatch,
+	seasonID uint,
+	homeTeamStats structs.NBATeamStats,
+	awayTeamStats structs.NBATeamStats,
+	homePlayerStats []structs.NBAPlayerStats,
+	awayPlayerStats []structs.NBAPlayerStats,
+	proPlayersMap map[uint]structs.NBAPlayer,
+) {
+	ctx := context.Background()
+
+	gameID := strconv.Itoa(int(game.ID))
+	eventKey := fmt.Sprintf("postgame_thread:nba:season%d:game%s", seasonID, gameID)
+
+	title := buildNBAPostGameThreadTitle(game)
+	nodes := buildNBAPostGameNodes(game, homeTeamStats, awayTeamStats, homePlayerStats, awayPlayerStats, proPlayersMap)
+	bodyText := nodesToPlainText(nodes)
+	richBody := buildRichDoc(nodes)
+
+	input := fbsvc.CreateForumThreadInput{
+		ForumID:           nbaPostGameForumID,
+		ForumPath:         []string{"postgame-discussions", "simnba"},
+		Title:             title,
+		AuthorUID:         "system",
+		AuthorUsername:    "SimSN",
+		AuthorDisplayName: "SimSN System",
+		CreatedByType:     fbsvc.CreatedBySystem,
+		ThreadType:        fbsvc.ThreadTypeGameReference,
+		FirstPostBodyText: bodyText,
+		FirstPostBody:     richBody,
+		ReferencedGameID:  gameID,
+		ReferencedLeague:  "nba",
+		ExternalEventKey:  eventKey,
+	}
+
+	thread, err := fbsvc.CreateThread(ctx, input)
+	if err != nil {
+		log.Printf("ForumManager: failed to create NBA post-game thread for game %s: %v", gameID, err)
+		return
+	}
+
+	log.Printf("ForumManager: created NBA post-game thread %s for game %s (%s)", thread.ID, gameID, title)
+}
+
+// buildNBAPostGameThreadTitle returns a forum-ready title for an NBA game.
+func buildNBAPostGameThreadTitle(game structs.NBAMatch) string {
+	season := game.SeasonID + 2024
+	if game.MatchName != "" {
+		return fmt.Sprintf("[%d] Week %d: %s: %s vs %s", season, game.Week, game.MatchName, game.AwayTeam, game.HomeTeam)
+	}
+	return fmt.Sprintf("[%d] Week %d: %s at %s", season, game.Week, game.AwayTeam, game.HomeTeam)
+}
+
+// buildNBAPostGameNodes builds the rich-text node list for an NBA post-game thread.
+func buildNBAPostGameNodes(
+	game structs.NBAMatch,
+	homeTeamStats structs.NBATeamStats,
+	awayTeamStats structs.NBATeamStats,
+	homePlayerStats []structs.NBAPlayerStats,
+	awayPlayerStats []structs.NBAPlayerStats,
+	proPlayersMap map[uint]structs.NBAPlayer,
+) []map[string]interface{} {
+	nodes := []map[string]interface{}{}
+	homeTeam := game.HomeTeam
+	awayTeam := game.AwayTeam
+
+	// ── Final score ──────────────────────────────────────────────────────────
+	nodes = append(nodes, rtBoldParagraph(fmt.Sprintf(
+		"FINAL: %s %d, %s %d",
+		awayTeam, game.AwayTeamScore, homeTeam, game.HomeTeamScore,
+	)))
+
+	// ── Scoring by half ───────────────────────────────────────────────────────
+	nodes = append(nodes, rtHeading(3, "Scoring by Half"))
+	hasOT := awayTeamStats.OvertimeScore > 0 || homeTeamStats.OvertimeScore > 0
+	if hasOT {
+		nodes = append(nodes, rtTableNode(
+			[]string{"Team", "H1", "H2", "OT", "Total"},
+			[][]string{
+				{awayTeam,
+					fmt.Sprintf("%d", awayTeamStats.FirstHalfScore),
+					fmt.Sprintf("%d", awayTeamStats.SecondHalfScore),
+					fmt.Sprintf("%d", awayTeamStats.OvertimeScore),
+					fmt.Sprintf("%d", game.AwayTeamScore)},
+				{homeTeam,
+					fmt.Sprintf("%d", homeTeamStats.FirstHalfScore),
+					fmt.Sprintf("%d", homeTeamStats.SecondHalfScore),
+					fmt.Sprintf("%d", homeTeamStats.OvertimeScore),
+					fmt.Sprintf("%d", game.HomeTeamScore)},
+			},
+		))
+	} else {
+		nodes = append(nodes, rtTableNode(
+			[]string{"Team", "H1", "H2", "Total"},
+			[][]string{
+				{awayTeam,
+					fmt.Sprintf("%d", awayTeamStats.FirstHalfScore),
+					fmt.Sprintf("%d", awayTeamStats.SecondHalfScore),
+					fmt.Sprintf("%d", game.AwayTeamScore)},
+				{homeTeam,
+					fmt.Sprintf("%d", homeTeamStats.FirstHalfScore),
+					fmt.Sprintf("%d", homeTeamStats.SecondHalfScore),
+					fmt.Sprintf("%d", game.HomeTeamScore)},
+			},
+		))
+	}
+
+	// ── Venue ─────────────────────────────────────────────────────────────────
+	venueStr := game.Arena
+	if game.City != "" || game.State != "" {
+		loc := game.City
+		if game.State != "" {
+			if loc != "" {
+				loc += ", " + game.State
+			} else {
+				loc = game.State
+			}
+		}
+		if loc != "" {
+			venueStr += " — " + loc
+		}
+	}
+	if venueStr != "" {
+		nodes = append(nodes, rtParagraph("Venue: "+venueStr))
+	}
+
+	// ── Team stats ────────────────────────────────────────────────────────────
+	nodes = append(nodes, rtHeading(3, "Team Stats"))
+	nodes = append(nodes, rtTableNode(
+		[]string{"Team", "FG", "FG%", "3PT", "3PT%", "FT", "FT%", "REB", "AST", "STL", "BLK", "TO"},
+		[][]string{
+			{awayTeam,
+				fmt.Sprintf("%d/%d", awayTeamStats.FGM, awayTeamStats.FGA),
+				fmt.Sprintf("%.1f%%", awayTeamStats.FGPercent),
+				fmt.Sprintf("%d/%d", awayTeamStats.ThreePointsMade, awayTeamStats.ThreePointAttempts),
+				fmt.Sprintf("%.1f%%", awayTeamStats.ThreePointPercent),
+				fmt.Sprintf("%d/%d", awayTeamStats.FTM, awayTeamStats.FTA),
+				fmt.Sprintf("%.1f%%", awayTeamStats.FTPercent),
+				fmt.Sprintf("%d", awayTeamStats.Rebounds),
+				fmt.Sprintf("%d", awayTeamStats.Assists),
+				fmt.Sprintf("%d", awayTeamStats.Steals),
+				fmt.Sprintf("%d", awayTeamStats.Blocks),
+				fmt.Sprintf("%d", awayTeamStats.TotalTurnovers)},
+			{homeTeam,
+				fmt.Sprintf("%d/%d", homeTeamStats.FGM, homeTeamStats.FGA),
+				fmt.Sprintf("%.1f%%", homeTeamStats.FGPercent),
+				fmt.Sprintf("%d/%d", homeTeamStats.ThreePointsMade, homeTeamStats.ThreePointAttempts),
+				fmt.Sprintf("%.1f%%", homeTeamStats.ThreePointPercent),
+				fmt.Sprintf("%d/%d", homeTeamStats.FTM, homeTeamStats.FTA),
+				fmt.Sprintf("%.1f%%", homeTeamStats.FTPercent),
+				fmt.Sprintf("%d", homeTeamStats.Rebounds),
+				fmt.Sprintf("%d", homeTeamStats.Assists),
+				fmt.Sprintf("%d", homeTeamStats.Steals),
+				fmt.Sprintf("%d", homeTeamStats.Blocks),
+				fmt.Sprintf("%d", homeTeamStats.TotalTurnovers)},
+		},
+	))
+
+	// ── Player stats ──────────────────────────────────────────────────────────
+	nodes = appendNBAPlayerStatTable(nodes, awayTeam, awayPlayerStats, proPlayersMap)
+	nodes = appendNBAPlayerStatTable(nodes, homeTeam, homePlayerStats, proPlayersMap)
+
+	nodes = append(nodes, rtParagraph("Postgame discussion is open. Share your reactions below."))
+	return nodes
+}
+
+// appendNBAPlayerStatTable appends a per-player stats section for one team.
+func appendNBAPlayerStatTable(
+	nodes []map[string]interface{},
+	teamName string,
+	playerStats []structs.NBAPlayerStats,
+	playerMap map[uint]structs.NBAPlayer,
+) []map[string]interface{} {
+	type row struct {
+		label string
+		stats structs.NBAPlayerStats
+	}
+
+	rows := make([]row, 0, len(playerStats))
+	for _, s := range playerStats {
+		p, ok := playerMap[uint(s.NBAPlayerID)]
 		if !ok {
 			continue
 		}

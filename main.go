@@ -388,8 +388,8 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/ds/nba/assign/discord/{teamID}/{discordID}/{username}", controller.AssignDiscordIDtoNBATeam).Methods("GET")
 	apiRouter.HandleFunc("/ds/cbb/stream/{streamType}/", controller.GetCBBGameStreams).Methods("GET")
 	apiRouter.HandleFunc("/ds/nba/stream/{streamType}/", controller.GetNBAGameStreams).Methods("GET")
-	// apiRouter.HandleFunc("/ds/chl/reveal/results/{gameID}/", controllers.RevealCHLGameResults).Methods("GET")
-	// apiRouter.HandleFunc("/ds/phl/reveal/results/{gameID}/", controllers.RevealPHLGameResults).Methods("GET")
+	apiRouter.HandleFunc("/ds/cbb/reveal/results/{gameID}/", controller.RevealCBBGameResults).Methods("GET")
+	apiRouter.HandleFunc("/ds/nba/reveal/results/{gameID}/", controller.RevealNBAGameResults).Methods("GET")
 
 	// Scheduler Controls (CBB)
 	apiRouter.HandleFunc("/cbb/scheduler/game/request/create", controller.CreateCBBGameRequest).Methods("POST")

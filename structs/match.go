@@ -123,6 +123,10 @@ func (m *Match) Reset() {
 	m.AwayTeamWin = false
 }
 
+func (m *Match) RevealResultsOnInterface() {
+	m.IsRevealed = true
+}
+
 type GameRequest struct {
 	gorm.Model
 	HomeTeamID       uint

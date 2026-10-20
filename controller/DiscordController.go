@@ -245,3 +245,25 @@ func GetNBAGameStreams(w http.ResponseWriter, r *http.Request) {
 	streams := managers.GetNBAPlayByPlayStreamData(streamType)
 	json.NewEncoder(w).Encode(streams)
 }
+
+func RevealCBBGameResults(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	gameID := vars["gameID"]
+	if len(gameID) == 0 {
+		panic("User did not provide gameID")
+	}
+
+	managers.RevealCBBGameOnInterface(gameID)
+	json.NewEncoder(w).Encode(true)
+}
+
+func RevealNBAGameResults(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	gameID := vars["gameID"]
+	if len(gameID) == 0 {
+		panic("User did not provide gameID")
+	}
+
+	managers.RevealNBAGameOnInterface(gameID)
+	json.NewEncoder(w).Encode(true)
+}

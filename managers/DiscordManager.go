@@ -692,3 +692,103 @@ func CompareTwoNBATeams(t1ID, t2ID string) structs.FlexComparisonModel {
 		LatestWin:      latestWin,
 	}
 }
+
+func RevealCBBGameOnInterface(gameID string) {
+	db := dbprovider.GetInstance().GetDB()
+
+	ts := GetTimestamp()
+
+	// Fetch game record and player map concurrently
+	gameChan := make(chan structs.Match, 1)
+	playerMapChan := make(chan map[uint]structs.CollegePlayer, 1)
+
+	go func() { gameChan <- GetMatchByMatchId(gameID) }()
+	go func() { playerMapChan <- GetCollegePlayerMap() }()
+
+	game := <-gameChan
+
+	// Fetch home and away team stats concurrently, while player map finishes
+	teamStatsChan := make(chan []structs.TeamStats, 2)
+	playerStatsChan := make(chan []structs.CollegePlayerStats, 100)
+
+	go func() { teamStatsChan <- repository.FindCollegeTeamGameStatsRecords("", "", "", gameID) }()
+	go func() { playerStatsChan <- repository.FindCollegePlayerGameStatsRecords("", "", "", gameID) }()
+
+	collegePlayersMap := <-playerMapChan
+	teamStats := <-teamStatsChan
+	playerStats := <-playerStatsChan
+	homeTeamStats := structs.TeamStats{}
+	awayTeamStats := structs.TeamStats{}
+	for _, ts := range teamStats {
+		switch ts.TeamID {
+		case game.HomeTeamID:
+			homeTeamStats = ts
+		case game.AwayTeamID:
+			awayTeamStats = ts
+		}
+	}
+	homePlayerStats := []structs.CollegePlayerStats{}
+	awayPlayerStats := []structs.CollegePlayerStats{}
+	for _, ps := range playerStats {
+		switch ps.TeamID {
+		case game.HomeTeamID:
+			homePlayerStats = append(homePlayerStats, ps)
+		case game.AwayTeamID:
+			awayPlayerStats = append(awayPlayerStats, ps)
+		}
+	}
+	game.RevealResultsOnInterface()
+	repository.SaveCBBMatchRecord(game, db)
+
+	go CreatePostGameDiscussionThreadForCBBGame(game, ts.SeasonID, homeTeamStats, awayTeamStats, homePlayerStats, awayPlayerStats, collegePlayersMap)
+}
+
+func RevealNBAGameOnInterface(gameID string) {
+	db := dbprovider.GetInstance().GetDB()
+	ts := GetTimestamp()
+
+	// Fetch game record and player map concurrently
+	gameChan := make(chan structs.NBAMatch, 1)
+	proPlayerMapChan := make(chan map[uint]structs.NBAPlayer, 1)
+
+	go func() { gameChan <- GetNBAMatchByMatchId(gameID) }()
+	go func() { proPlayerMapChan <- GetNBAPlayerMap() }()
+
+	game := <-gameChan
+
+	// Fetch home and away team stats concurrently, while player map finishes
+	teamStatsChan := make(chan []structs.NBATeamStats, 2)
+	playerStatsChan := make(chan []structs.NBAPlayerStats, 100)
+
+	go func() { teamStatsChan <- repository.FindProTeamGameStatsRecords("", "", "", gameID) }()
+	go func() { playerStatsChan <- repository.FindProPlayerGameStatsRecords("", "", "", gameID) }()
+	proPlayersMap := <-proPlayerMapChan
+	teamStats := <-teamStatsChan
+	playerStats := <-playerStatsChan
+	homeTeamStats := structs.NBATeamStats{}
+	awayTeamStats := structs.NBATeamStats{}
+	for _, ts := range teamStats {
+		switch ts.TeamID {
+		case game.HomeTeamID:
+			homeTeamStats = ts
+		case game.AwayTeamID:
+			awayTeamStats = ts
+		}
+	}
+	homePlayerStats := []structs.NBAPlayerStats{}
+	awayPlayerStats := []structs.NBAPlayerStats{}
+	for _, ps := range playerStats {
+		switch ps.TeamID {
+		case game.HomeTeamID:
+			homePlayerStats = append(homePlayerStats, ps)
+		case game.AwayTeamID:
+			awayPlayerStats = append(awayPlayerStats, ps)
+		}
+	}
+
+	game.Reveal()
+	repository.SaveNBAMatchRecord(game, db)
+
+	go CreatePostGameDiscussionThreadForNBAGame(game, ts.SeasonID, homeTeamStats, awayTeamStats, homePlayerStats, awayPlayerStats, proPlayersMap)
+
+}
