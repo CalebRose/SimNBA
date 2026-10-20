@@ -829,6 +829,7 @@ func createRecruit(position, fName, lName, state, country, cit, hs string, year 
 	agility := getAttributeValue(position, archetype, stars, "Agility", blob)
 	stealing := getAttributeValue(position, archetype, stars, "Stealing", blob)
 	blocking := getAttributeValue(position, archetype, stars, "Blocking", blob)
+	basketballIQ := getAttributeValue(position, archetype, stars, "Basketball IQ", blob)
 	// Specialties
 	specInsideShooting := util.GenerateSpecialty(position, archetype, "InsideShooting")
 	specMidRangeShooting := util.GenerateSpecialty(position, archetype, "MidRangeShooting")
@@ -838,6 +839,7 @@ func createRecruit(position, fName, lName, state, country, cit, hs string, year 
 	specAgility := util.GenerateSpecialty(position, archetype, "Agility")
 	specStealing := util.GenerateSpecialty(position, archetype, "Stealing")
 	specBlocking := util.GenerateSpecialty(position, archetype, "Blocking")
+	specBasketballIQ := util.GenerateSpecialty(position, archetype, "Basketball IQ")
 	specRebounding := util.GenerateSpecialty(position, archetype, "Rebounding")
 	specInteriorDefense := util.GenerateSpecialty(position, archetype, "InteriorDefense")
 	specPerimeterDefense := util.GenerateSpecialty(position, archetype, "PerimeterDefense")
@@ -866,6 +868,7 @@ func createRecruit(position, fName, lName, state, country, cit, hs string, year 
 		MidRangeShooting:       uint8(midRangeShooting),
 		ThreePointShooting:     uint8(threePointShooting),
 		FreeThrow:              uint8(freeThrow),
+		BasketballIQ:           uint8(basketballIQ),
 		Ballwork:               uint8(ballwork),
 		Stealing:               uint8(stealing),
 		Blocking:               uint8(blocking),
@@ -878,6 +881,7 @@ func createRecruit(position, fName, lName, state, country, cit, hs string, year 
 		SpecFreeThrow:          specFreeThrow,
 		SpecBallwork:           specBallwork,
 		SpecAgility:            specAgility,
+		SpecBasketballIQ:       specBasketballIQ,
 		SpecStealing:           specStealing,
 		SpecBlocking:           specBlocking,
 		SpecRebounding:         specRebounding,
@@ -1024,6 +1028,7 @@ func createCustomCroot(croot []string, id uint, blob map[string]map[string]map[s
 	agility := getAttributeValue(position, archetype, stars, "Agility", blob)
 	stealing := getAttributeValue(position, archetype, stars, "Stealing", blob)
 	blocking := getAttributeValue(position, archetype, stars, "Blocking", blob)
+	basketballIQ := getAttributeValue(position, archetype, stars, "Basketball IQ", blob)
 	// Specialties
 	specInsideShooting := util.GenerateSpecialty(position, archetype, "InsideShooting")
 	specMidRangeShooting := util.GenerateSpecialty(position, archetype, "MidRangeShooting")
@@ -1033,6 +1038,7 @@ func createCustomCroot(croot []string, id uint, blob map[string]map[string]map[s
 	specAgility := util.GenerateSpecialty(position, archetype, "Agility")
 	specStealing := util.GenerateSpecialty(position, archetype, "Stealing")
 	specBlocking := util.GenerateSpecialty(position, archetype, "Blocking")
+	specBasketballIQ := util.GenerateSpecialty(position, archetype, "Basketball IQ")
 	specRebounding := util.GenerateSpecialty(position, archetype, "Rebounding")
 	specInteriorDefense := util.GenerateSpecialty(position, archetype, "InteriorDefense")
 	specPerimeterDefense := util.GenerateSpecialty(position, archetype, "PerimeterDefense")
@@ -1067,6 +1073,7 @@ func createCustomCroot(croot []string, id uint, blob map[string]map[string]map[s
 		Rebounding:             uint8(rebounding),
 		InteriorDefense:        uint8(interiorDefense),
 		PerimeterDefense:       uint8(perimeterDefense),
+		BasketballIQ:           uint8(basketballIQ),
 		SpecInsideShooting:     specInsideShooting,
 		SpecMidRangeShooting:   specMidRangeShooting,
 		SpecThreePointShooting: specThreePointShooting,
@@ -1076,6 +1083,7 @@ func createCustomCroot(croot []string, id uint, blob map[string]map[string]map[s
 		SpecStealing:           specStealing,
 		SpecBlocking:           specBlocking,
 		SpecRebounding:         specRebounding,
+		SpecBasketballIQ:       specBasketballIQ,
 		SpecInteriorDefense:    specInteriorDefense,
 		SpecPerimeterDefense:   specPerimeterDefense,
 		Potential:              potential,
