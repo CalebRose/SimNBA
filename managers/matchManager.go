@@ -531,6 +531,8 @@ func GetMatchesByTeamIdAndSeasonId(teamId string, seasonId string) []structs.Mat
 
 	db.Where("(home_team_id = ? OR away_team_id = ?) AND season_id = ?", teamId, teamId, seasonId).Find(&teamMatches)
 
+	AssignCBBStreamChannels(teamMatches)
+
 	return teamMatches
 }
 
@@ -650,6 +652,8 @@ func GetCBBMatchesBySeasonID(seasonId string) []structs.Match {
 	var teamMatches []structs.Match
 
 	db.Order("week_id asc").Order("match_of_week asc").Where("season_id = ?", seasonId).Find(&teamMatches)
+
+	AssignCBBStreamChannels(teamMatches)
 
 	return teamMatches
 }
@@ -811,6 +815,8 @@ func GetCollegeTeamMatchesBySeasonId(seasonID, teamID string) []structs.Match {
 	var teamMatches []structs.Match
 
 	db.Where("season_id = ?  AND (home_team_id = ? OR away_team_id = ?)", seasonID, teamID, teamID).Find(&teamMatches)
+
+	AssignCBBStreamChannels(teamMatches)
 
 	return teamMatches
 }
@@ -1030,5 +1036,24 @@ func getAttendancePercent(wins, losses int) float64 {
 		return util.GenerateFloatFromRange(0.65, 0.84)
 	default:
 		return util.GenerateFloatFromRange(0.4, 0.64)
+	}
+}
+
+// AssignCBBStreamChannels fills the projected StreamChannel on each match. It uses the same
+// structs.GetCBBStreamChannel as the stream endpoint so the label and the stream cannot drift.
+func AssignCBBStreamChannels(matches []structs.Match) {
+	if len(matches) == 0 {
+		return
+	}
+	db := dbprovider.GetInstance().GetDB()
+	var userCoachedIDs []uint
+	db.Model(&structs.Team{}).Where("is_active = ? AND is_user_coached = ?", true, true).Pluck("id", &userCoachedIDs)
+	userCoached := make(map[uint]bool, len(userCoachedIDs))
+	for _, id := range userCoachedIDs {
+		userCoached[id] = true
+	}
+	for i := range matches {
+		m := &matches[i]
+		m.StreamChannel = structs.GetCBBStreamChannel(*m, userCoached[uint(m.HomeTeamID)], userCoached[uint(m.AwayTeamID)])
 	}
 }

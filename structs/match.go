@@ -37,6 +37,8 @@ type Match struct {
 	State                  string
 	Country                string
 	AttendanceCount        uint
+	// Projected stream channel; derived from the game, never persisted.
+	StreamChannel string `gorm:"-" json:"StreamChannel"`
 	NextGameID             uint
 	NextGameHOA            string // Home or Away Slot for the next game
 	IsNeutralSite          bool
@@ -163,4 +165,23 @@ func (g *GameRequest) UpdateRequest(arenaID uint, arena string, isNeutralSite bo
 
 type CBBGameRequest struct {
 	GameRequest
+}
+
+// GetCBBStreamChannel returns the channel a CBB game streams on ("cbs", "tbs", "espn", "ytv"),
+// or "" when it has none. Only games involving a user-coached team stream. It is a projection and
+// does not depend on GameComplete / IsRevealed.
+func GetCBBStreamChannel(game Match, homeUserCoached, awayUserCoached bool) string {
+	if !homeUserCoached && !awayUserCoached {
+		return ""
+	}
+	switch game.ID % 4 {
+	case 0:
+		return "cbs"
+	case 1:
+		return "tbs"
+	case 2:
+		return "espn"
+	default:
+		return "ytv"
+	}
 }

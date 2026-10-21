@@ -48,6 +48,8 @@ type NBAMatch struct {
 	IsRevealed             bool
 	GameComplete           bool
 	AttendanceCount        uint
+	// Projected stream channel; derived from the game, never persisted.
+	StreamChannel string `gorm:"-" json:"StreamChannel"`
 }
 
 func (m *NBAMatch) AssignMVP(playerID uint) {
@@ -225,4 +227,36 @@ func (s *NBASeries) UpdateWinCount(id int) {
 		s.SeriesComplete = true
 	}
 
+}
+
+// AfterFind populates the derived StreamChannel on every NBAMatch loaded from the database.
+func (m *NBAMatch) AfterFind(tx *gorm.DB) error {
+	m.StreamChannel = GetNBAStreamChannel(*m, m.HomeTeamID, m.AwayTeamID)
+	return nil
+}
+
+// GetNBAStreamChannel returns the channel a game streams on ("tnt", "nbatv", "prime", "hbo", "int"),
+// or "" when it has none. It is a projection and does not depend on GameComplete / IsRevealed.
+func GetNBAStreamChannel(game NBAMatch, homeTeamID, awayTeamID uint) string {
+	if game.ID >= 25533 && game.ID <= 25537 {
+		return ""
+	}
+	bothNonNBA := homeTeamID > 32 && awayTeamID > 32
+	anyNonNBA := homeTeamID > 32 || awayTeamID > 32
+	if anyNonNBA && game.IsPlayoffGame {
+		return "int"
+	}
+	if bothNonNBA {
+		return ""
+	}
+	switch game.ID % 4 {
+	case 0:
+		return "tnt"
+	case 1:
+		return "nbatv"
+	case 2:
+		return "prime"
+	default:
+		return "hbo"
+	}
 }
