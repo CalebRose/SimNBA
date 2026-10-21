@@ -47,6 +47,7 @@ type MatchResponse struct {
 	IsInternational        bool
 	Channel                uint
 	League                 string
+	PlayByPlayEnabled      bool
 	MatchData              MatchDataResponse
 }
 

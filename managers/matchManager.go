@@ -296,6 +296,10 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 			livestreamChannel = 4
 		}
 
+		playByPlayEnabled := ht.IsUserCoached || at.IsUserCoached
+		if ts.Phase > 25 {
+			playByPlayEnabled = true
+		}
 		match := structs.MatchResponse{
 			MatchName:              c.MatchName,
 			ID:                     c.ID,
@@ -322,6 +326,7 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 			IsRivalryGame:          c.IsRivalryGame,
 			IsInvitational:         c.IsInvitational,
 			Channel:                uint(livestreamChannel),
+			PlayByPlayEnabled:      playByPlayEnabled,
 			MatchData: structs.MatchDataResponse{
 				HomeTeam: structs.MatchTeamResponse{
 					ID:           ht.ID,
@@ -449,7 +454,10 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 			// gamePlayer.CalculateModifiers(false, hca)
 			awayGamePlayerRoster = append(awayGamePlayerRoster, gamePlayer)
 		}
-
+		playByPlayEnabled := ht.ID < 33 || at.ID < 33
+		if ts.Phase > 27 {
+			playByPlayEnabled = true
+		}
 		match := structs.MatchResponse{
 			MatchName:              m.MatchName,
 			ID:                     m.ID,
@@ -474,6 +482,7 @@ func GetMatchesForTimeslot() structs.MatchStateResponse {
 			IsNationalChampionship: m.IsTheFinals,
 			IsRivalryGame:          m.IsRivalryGame,
 			Channel:                uint(livestreamChannel),
+			PlayByPlayEnabled:      playByPlayEnabled,
 			MatchData: structs.MatchDataResponse{
 				HomeTeam: structs.MatchTeamResponse{
 					ID:           ht.ID,
