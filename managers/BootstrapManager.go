@@ -481,6 +481,7 @@ func GetBootstrapDataScheduling(username, collegeID, proID string) BootstrapData
 		go func() {
 			defer wg.Done()
 			allCollegeMatches = repository.FindCollegeMatchRecords(repository.GameQuery{})
+			AssignCBBStreamChannels(allCollegeMatches)
 		}()
 		go func() {
 			defer wg.Done()

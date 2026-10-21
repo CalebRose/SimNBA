@@ -30,43 +30,8 @@ func GetCBBPlayByPlayStreamData(streamType string) []structs.StreamResponse {
 		homeTeam := teamMap[uint(game.HomeTeamID)]
 		awayTeam := teamMap[uint(game.AwayTeamID)]
 
-		if streamType == "cbs" {
-			if !homeTeam.IsUserCoached && !awayTeam.IsUserCoached {
-				continue
-			}
-			mod := game.ID % 4
-			if mod != 0 {
-				continue
-			}
-		}
-		if streamType == "tbs" {
-			if !homeTeam.IsUserCoached && !awayTeam.IsUserCoached {
-				continue
-			}
-			mod := game.ID % 4
-			if mod != 1 {
-				continue
-			}
-		}
-
-		if streamType == "espn" {
-			if !homeTeam.IsUserCoached && !awayTeam.IsUserCoached {
-				continue
-			}
-			mod := game.ID % 4
-			if mod != 2 {
-				continue
-			}
-		}
-
-		if streamType == "ytv" {
-			if !homeTeam.IsUserCoached && !awayTeam.IsUserCoached {
-				continue
-			}
-			mod := game.ID % 4
-			if mod != 3 {
-				continue
-			}
+		if structs.GetCBBStreamChannel(game, homeTeam.IsUserCoached, awayTeam.IsUserCoached) != streamType {
+			continue
 		}
 
 		gameID := strconv.Itoa(int(game.ID))
