@@ -77,7 +77,7 @@ func SyncRecruiting() {
 		var eligiblePointThreshold float64 = 0
 		var signThreshold float64
 
-		allocatePointsToRecruit(recruit, &recruitProfiles, teamMap, &pointsPlaced, timestamp, &recruitProfilePointsMap, db)
+		allocatePointsToRecruit(&recruitProfiles, &pointsPlaced, timestamp, &recruitProfilePointsMap, db)
 
 		if !pointsPlaced {
 			continue
@@ -225,7 +225,7 @@ func SyncRecruiting() {
 		repository.SaveRecruitRecord(recruit, db)
 	}
 
-	updateTeamRankings(teamRecruitingProfiles, teamMap, recruitProfilePointsMap, db)
+	updateTeamRankings(teamRecruitingProfiles, recruitProfilePointsMap, db)
 
 	if timestamp.IsRecruitingLocked {
 		timestamp.ToggleLockRecruiting()
@@ -727,14 +727,12 @@ func getOddsIncrementByTalent(attr, stars uint8, attrspec, attrMatch bool, isMid
 	return 0
 }
 
-func allocatePointsToRecruit(recruit structs.Recruit, recruitProfiles *[]structs.RecruitPlayerProfile, teamMap map[string]*structs.TeamRecruitingProfile, pointsPlaced *bool, timestamp structs.Timestamp, recruitProfilePointsMap *map[string]float64, db *gorm.DB) {
+func allocatePointsToRecruit(recruitProfiles *[]structs.RecruitPlayerProfile, pointsPlaced *bool, timestamp structs.Timestamp, recruitProfilePointsMap *map[string]float64, db *gorm.DB) {
 	for i := 0; i < len(*recruitProfiles); i++ {
 		if (*recruitProfiles)[i].CurrentWeeksPoints == 0 {
 			continue
 		}
-		abbr := (*recruitProfiles)[i].ProfileID
-		bonus := teamMap[strconv.Itoa(int(abbr))].BonusPoints
-		err := processRecruitProfile(i, recruit, recruitProfiles, float64(bonus), pointsPlaced, timestamp, recruitProfilePointsMap, db)
+		err := processRecruitProfile(i, recruitProfiles, pointsPlaced, timestamp, recruitProfilePointsMap, db)
 		if err != nil {
 			fmt.Println(err)
 			log.Fatalf("Could not process recruit profile: %v", err)
@@ -742,9 +740,7 @@ func allocatePointsToRecruit(recruit structs.Recruit, recruitProfiles *[]structs
 	}
 }
 
-func processRecruitProfile(i int, recruit structs.Recruit, recruitProfiles *[]structs.RecruitPlayerProfile, bonus float64, pointsPlaced *bool, timestamp structs.Timestamp, recruitProfilePointsMap *map[string]float64, db *gorm.DB) error {
-	regionBonus := 0.05
-	stateBonus := 0.1
+func processRecruitProfile(i int, recruitProfiles *[]structs.RecruitPlayerProfile, pointsPlaced *bool, timestamp structs.Timestamp, recruitProfilePointsMap *map[string]float64, db *gorm.DB) error {
 	*pointsPlaced = true
 
 	rpa := structs.RecruitPointAllocation{
@@ -755,21 +751,10 @@ func processRecruitProfile(i int, recruit structs.Recruit, recruitProfiles *[]st
 	}
 
 	var curr float64 = float64((*recruitProfiles)[i].CurrentWeeksPoints)
-	var modifier float64 = 1
+	var modifier float64 = (float64((*recruitProfiles)[i].Modifier))
 
-	// Region / State bonus
-	if (*recruitProfiles)[i].HasRegionBonus && recruit.Stars != 5 {
-		modifier += regionBonus
-	} else if (*recruitProfiles)[i].HasStateBonus && recruit.Stars != 5 {
-		modifier += stateBonus
-	}
 	// Apply modifier
 	curr = curr * modifier * float64((*recruitProfiles)[i].Modifier)
-
-	// Bonus Points value when saving
-	if curr > 0 {
-		curr += bonus
-	}
 
 	if (*recruitProfiles)[i].CurrentWeeksPoints > 20 {
 		curr = 0
@@ -786,7 +771,7 @@ func processRecruitProfile(i int, recruit structs.Recruit, recruitProfiles *[]st
 	return nil
 }
 
-func updateTeamRankings(teamRecruitingProfiles []structs.TeamRecruitingProfile, teamMap map[string]*structs.TeamRecruitingProfile, recruitProfilePointsMap map[string]float64, db *gorm.DB) {
+func updateTeamRankings(teamRecruitingProfiles []structs.TeamRecruitingProfile, recruitProfilePointsMap map[string]float64, db *gorm.DB) {
 	// Update rank system for all teams
 	var maxESPNScore float64 = 0
 	var minESPNScore float64 = 100000

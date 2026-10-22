@@ -196,6 +196,11 @@ func AddRecruitToTeamBoard(recruitProfileDto structs.CreateRecruitProfileDto) st
 		return recruitProfile
 	}
 
+	croot := GetRecruitByRecruitID(strconv.Itoa(recruitProfileDto.PlayerId))
+	teamProfile := GetOnlyTeamRecruitingProfileByTeamID(strconv.Itoa(recruitProfileDto.ProfileId))
+
+	modifier := CalculateModifierTowardsRecruit(croot.PlayerPreferences, teamProfile, recruitProfileDto.HasStateBonus, recruitProfileDto.HasRegionBonus)
+
 	newProfileForRecruit := structs.RecruitPlayerProfile{
 		SeasonID:           uint(recruitProfileDto.SeasonId),
 		RecruitID:          uint(recruitProfileDto.PlayerId),
@@ -209,6 +214,7 @@ func AddRecruitToTeamBoard(recruitProfileDto structs.CreateRecruitProfileDto) st
 		RemovedFromBoard:   false,
 		HasStateBonus:      recruitProfileDto.HasStateBonus,
 		HasRegionBonus:     recruitProfileDto.HasRegionBonus,
+		Modifier:           modifier,
 	}
 
 	db.Create(&newProfileForRecruit)
@@ -230,7 +236,7 @@ func AddRecruitToTeamBoardV2(recruitProfileDto structs.CreateRecruitProfileDtoV2
 		return recruitProfile
 	}
 
-	modifier := CalculateModifierTowardsRecruit(recruitProfileDto.Recruit.PlayerPreferences, teamRecruitingProfile)
+	modifier := CalculateModifierTowardsRecruit(recruitProfileDto.Recruit.PlayerPreferences, teamRecruitingProfile, recruitProfileDto.HasStateBonus, recruitProfileDto.HasRegionBonus)
 
 	state := recruitProfileDto.HasStateBonus
 	region := recruitProfileDto.HasRegionBonus
@@ -642,7 +648,7 @@ func GetTeamProfileMap() map[string]*structs.TeamRecruitingProfile {
 	return teamMap
 }
 
-func CalculateModifierTowardsRecruit(prefs structs.PlayerPreferences, team structs.TeamRecruitingProfile) float32 {
+func CalculateModifierTowardsRecruit(prefs structs.PlayerPreferences, team structs.TeamRecruitingProfile, hasStateBonus bool, hasRegionBonus bool) float32 {
 	programMod := calculateMultiplier(uint(team.ProgramPrestige), uint(prefs.ProgramPref))
 	professionalDevMod := calculateMultiplier(uint(team.ProfessionalPrestige), uint(prefs.ProfDevPref))
 	traditionsMod := calculateMultiplier(uint(team.Traditions), uint(prefs.TraditionsPref))
@@ -653,8 +659,18 @@ func CalculateModifierTowardsRecruit(prefs structs.PlayerPreferences, team struc
 	coachMod := calculateMultiplier(uint(team.CoachRating), uint(prefs.CoachPref))
 	seasonMod := calculateMultiplier(uint(team.SeasonMomentum), uint(prefs.SeasonMomentumPref))
 	collegeLifeMod := calculateMultiplier(uint(team.CampusLife), uint(prefs.CampusLifePref))
+	mediaSpotlightMod := calculateMultiplier(uint(team.MediaSpotlight), uint(prefs.MediaPref))
 
-	return (programMod + professionalDevMod + traditionsMod + facilitiesMod + atmosphereMod + academicsMod + conferenceMod + coachMod + seasonMod + collegeLifeMod) / 10
+	regionMod := 0.0
+	if hasRegionBonus {
+		regionMod = 0.1
+	} else if hasStateBonus {
+		regionMod = 0.2
+	}
+
+	largeMod := (programMod + professionalDevMod + traditionsMod + facilitiesMod + atmosphereMod + academicsMod + conferenceMod + coachMod + seasonMod + collegeLifeMod + mediaSpotlightMod)
+	finalMod := largeMod / 15.7
+	return finalMod + float32(regionMod)
 }
 
 func calculateBaseModifier(attr int) float32 {
