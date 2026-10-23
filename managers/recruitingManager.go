@@ -236,10 +236,12 @@ func AddRecruitToTeamBoardV2(recruitProfileDto structs.CreateRecruitProfileDtoV2
 		return recruitProfile
 	}
 
-	modifier := CalculateModifierTowardsRecruit(recruitProfileDto.Recruit.PlayerPreferences, teamRecruitingProfile, recruitProfileDto.HasStateBonus, recruitProfileDto.HasRegionBonus)
+	recruit := GetRecruitByRecruitID(strconv.Itoa(int(recruitProfileDto.PlayerID)))
 
-	state := recruitProfileDto.HasStateBonus
-	region := recruitProfileDto.HasRegionBonus
+	state := CheckStateBonus(recruit.State, teamRecruitingProfile.State)
+	region := CheckRegionBonus(recruit.Country, recruit.State, teamRecruitingProfile.Region)
+
+	modifier := CalculateModifierTowardsRecruit(recruitProfileDto.Recruit.PlayerPreferences, teamRecruitingProfile, state, region)
 
 	newProfileForRecruit := structs.RecruitPlayerProfile{
 		SeasonID:           recruitProfileDto.SeasonID,
@@ -669,20 +671,48 @@ func CalculateModifierTowardsRecruit(prefs structs.PlayerPreferences, team struc
 	}
 
 	largeMod := (programMod + professionalDevMod + traditionsMod + facilitiesMod + atmosphereMod + academicsMod + conferenceMod + coachMod + seasonMod + collegeLifeMod + mediaSpotlightMod)
-	finalMod := largeMod / 15.7
+	finalMod := largeMod / 10.5
 	return finalMod + float32(regionMod)
 }
 
 func calculateBaseModifier(attr int) float32 {
-	return 1 + float32(attr-5)/5
+	return 1 + float32(attr-5)/9
 }
 
 func calculateAdjustmentFactor(teamAttr, playerPref int) float32 {
-	return 1 + float32((teamAttr-playerPref)/10)
+	return 1 + float32((teamAttr-playerPref)/9)
 }
 
 func calculateMultiplier(teamAttr uint, playerPref uint) float32 {
 	baseMod := calculateBaseModifier(int(teamAttr))
 	adjFactor := calculateAdjustmentFactor(int(teamAttr), int(playerPref))
 	return baseMod * adjFactor
+}
+
+func CheckStateBonus(recruitState, teamState string) bool {
+	teamStateKey := util.GetStateKey(teamState)
+	return recruitState == teamStateKey
+}
+
+func CheckRegionBonus(country, recruitState, teamRegion string) bool {
+	if country != "USA" {
+		return false
+	}
+	switch teamRegion {
+	case "Mid-Atlantic":
+		return recruitState == "NY" || recruitState == "NJ" || recruitState == "PA" || recruitState == "DE" || recruitState == "MD" || recruitState == "DC" || recruitState == "VA" || recruitState == "WV"
+	case "Northeast":
+		return recruitState == "ME" || recruitState == "NH" || recruitState == "VT" || recruitState == "MA" || recruitState == "RI" || recruitState == "CT"
+	case "Southeast":
+		return recruitState == "FL" || recruitState == "GA" || recruitState == "SC" || recruitState == "NC" || recruitState == "AL" || recruitState == "MS" || recruitState == "TN" || recruitState == "PR" || recruitState == "LA"
+	case "Midwest":
+		return recruitState == "OH" || recruitState == "MI" || recruitState == "IN" || recruitState == "IL" || recruitState == "WI" || recruitState == "MN" || recruitState == "IA" || recruitState == "MO" || recruitState == "KY"
+	case "Southwest":
+		return recruitState == "TX" || recruitState == "OK" || recruitState == "AR" || recruitState == "NM" || recruitState == "AZ"
+	case "Pacific":
+		return recruitState == "CA" || recruitState == "OR" || recruitState == "WA" || recruitState == "NV" || recruitState == "ID" || recruitState == "UT" || recruitState == "MT" || recruitState == "AK" || recruitState == "HI"
+	case "Plains":
+		return recruitState == "ND" || recruitState == "SD" || recruitState == "NE" || recruitState == "KS" || recruitState == "CO" || recruitState == "WY"
+	}
+	return false
 }
