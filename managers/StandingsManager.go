@@ -400,12 +400,13 @@ func ResetStandings() {
 	ts := GetTimestamp()
 	seasonID := strconv.Itoa(int(ts.SeasonID))
 	standings := GetAllConferenceStandingsBySeasonID(seasonID)
+	cbbMatches := repository.FindCollegeMatchRecords(repository.GameQuery{SeasonID: seasonID})
+	cbbMatchesMap := MakeCollegeMatchMapByTeamID(cbbMatches)
 
 	// College Standings
 	for _, s := range standings {
 		s.ResetStandings()
-		teamID := strconv.Itoa(int(s.TeamID))
-		matches := GetMatchesByTeamIdAndSeasonId(teamID, seasonID)
+		matches := cbbMatchesMap[s.TeamID]
 
 		for _, m := range matches {
 			if !m.GameComplete {
@@ -419,11 +420,12 @@ func ResetStandings() {
 	}
 
 	nbaStandings := GetAllNBAConferenceStandingsBySeasonID(seasonID)
+	nbaMatches := repository.FindProMatchRecords(repository.GameQuery{SeasonID: seasonID})
+	nbaMatchesMap := MakeNBAMatchMapByTeamID(nbaMatches)
 	for _, s := range nbaStandings {
 		s.ResetStandings()
-		teamID := strconv.Itoa(int(s.TeamID))
 
-		matches := GetNBATeamMatchesBySeasonId(seasonID, teamID)
+		matches := nbaMatchesMap[s.TeamID]
 
 		for _, m := range matches {
 			if !m.GameComplete {
