@@ -720,7 +720,7 @@ func checkMarketCity(city string) bool {
 }
 
 func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *gorm.DB) {
-	seasonID := strconv.Itoa(int(ts.SeasonID))
+	// seasonID := strconv.Itoa(int(ts.SeasonID))
 	rosterMap := GetFullRosterNBAMap()
 	capsheetMap := GetPointedCapsheetMap()
 	nbaTeams := GetAllActiveNBATeams()
@@ -729,6 +729,10 @@ func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *
 		// Check if still accepting offers
 		if !FA.IsFreeAgent {
 			continue
+		}
+
+		if FA.ID == 3441 {
+			fmt.Println("Processing free agent with ID 3441")
 		}
 
 		// Is Ready to Sign, Get All Offers on the Free Agent
@@ -762,18 +766,18 @@ func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *
 			if FA.IsSuperMaxQualified {
 				contractStatus = "SuperMax"
 			}
-			for idx, Offer := range Offers {
+			for _, Offer := range Offers {
 				minimumValueMultiplier := 1.0
 				team := GetNBATeamByTeamID(strconv.Itoa(int(Offer.TeamID)))
 				roster := rosterMap[Offer.TeamID]
-				validation := validateFreeAgencyPref(FA, roster, team, seasonID, int(Offer.TotalYears), idx)
-				// If the offer is valid and meets the player's free agency bias, reduce the minimum value required by 15%
-				if validation && FA.FreeAgency != "Average" && FA.Year > 2 {
-					minimumValueMultiplier = 0.85
-					// If the offer does not meet the player's free agency bias, increase the minimum value required by 15%
-				} else if !validation && FA.FreeAgency != "Average" && FA.Year > 2 {
-					minimumValueMultiplier = 1.15
-				}
+				// validation := validateFreeAgencyPref(FA, roster, team, seasonID, int(Offer.TotalYears), idx)
+				// // If the offer is valid and meets the player's free agency bias, reduce the minimum value required by 15%
+				// if validation && FA.FreeAgency != "Average" && FA.Year > 2 {
+				// 	minimumValueMultiplier = 0.85
+				// 	// If the offer does not meet the player's free agency bias, increase the minimum value required by 15%
+				// } else if !validation && FA.FreeAgency != "Average" && FA.Year > 2 {
+				// 	minimumValueMultiplier = 1.15
+				// }
 				minimumValue = minimumValue * minimumValueMultiplier
 				validOffer := validateOffer(Offer, contractStatus, minimumValue)
 				teamCapsheet := capsheetMap[Offer.TeamID]
