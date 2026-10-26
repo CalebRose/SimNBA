@@ -725,18 +725,16 @@ func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *
 	capsheetMap := GetPointedCapsheetMap()
 	nbaTeams := GetAllActiveNBATeams()
 	nbaTeamMap := MakeNBATeamMap(nbaTeams)
+	freeAgencyOffers := repository.FindAllFreeAgentOffers(repository.FreeAgencyQuery{IsActive: true})
+	freeAgencyOfferMap := MakeFreeAgencyOfferMap(freeAgencyOffers)
 	for _, FA := range freeAgents {
 		// Check if still accepting offers
 		if !FA.IsFreeAgent {
 			continue
 		}
 
-		if FA.ID == 3441 {
-			fmt.Println("Processing free agent with ID 3441")
-		}
-
 		// Is Ready to Sign, Get All Offers on the Free Agent
-		Offers := GetFreeAgentOffersByPlayerID(strconv.Itoa(int(FA.ID)))
+		Offers := freeAgencyOfferMap[FA.ID]
 
 		if len(Offers) == 0 {
 			continue
@@ -768,7 +766,7 @@ func faSyncFreeAgents(freeAgents []structs.NBAPlayer, ts structs.Timestamp, db *
 			}
 			for _, Offer := range Offers {
 				minimumValueMultiplier := 1.0
-				team := GetNBATeamByTeamID(strconv.Itoa(int(Offer.TeamID)))
+				team := nbaTeamMap[Offer.TeamID]
 				roster := rosterMap[Offer.TeamID]
 				// validation := validateFreeAgencyPref(FA, roster, team, seasonID, int(Offer.TotalYears), idx)
 				// // If the offer is valid and meets the player's free agency bias, reduce the minimum value required by 15%

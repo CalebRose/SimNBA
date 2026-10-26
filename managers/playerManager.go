@@ -1275,28 +1275,8 @@ func GetFullTeamRosterWithCrootsMap() map[uint][]structs.CollegePlayer {
 }
 
 func GetFullRosterNBAMap() map[uint][]structs.NBAPlayer {
-	m := &sync.Mutex{}
-	var wg sync.WaitGroup
-	nbaTeams := GetAllActiveNBATeams()
-	fullMap := make(map[uint][]structs.NBAPlayer)
-	wg.Add(len(nbaTeams))
-	semaphore := make(chan struct{}, 10)
-	for _, team := range nbaTeams {
-		semaphore <- struct{}{}
-		go func(t structs.NBATeam) {
-			defer wg.Done()
-			id := strconv.Itoa(int(t.ID))
-			nbaPlayers := GetOnlyNBAPlayersByTeamID(id)
-
-			m.Lock()
-			fullMap[t.ID] = nbaPlayers
-			m.Unlock()
-			<-semaphore
-		}(team)
-	}
-
-	wg.Wait()
-	close(semaphore)
+	players := GetAllNBAPlayers()
+	fullMap := MakeNBAPlayerMapByTeamID(players, true)
 	return fullMap
 }
 
