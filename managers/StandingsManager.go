@@ -820,30 +820,23 @@ func UpdateCollegeRankings(ts structs.Timestamp) {
 
 func GenerateCollegeRankings(seasonID string) {
 	db := dbprovider.GetInstance().GetDB()
-	collegeTeams := GetAllActiveCollegeTeams()
-	collegeTeamMap := MakeCollegeTeamMap(collegeTeams)
 	collegeStandings := repository.FindAllCollegeStandingsRecords(repository.StandingsQuery{SeasonID: seasonID})
 	collegeGames := repository.FindCollegeMatchRecords(repository.GameQuery{
 		SeasonID: seasonID,
 	})
 
-	preSeasonCFBSeasonStats := repository.FindCollegeTeamSeasonStatsRecords(seasonID, "1")
-	regularSeasonCFBSeasonStats := repository.FindCollegeTeamSeasonStatsRecords(seasonID, "2")
-	postSeasonCFBSeasonStats := repository.FindCollegeTeamSeasonStatsRecords(seasonID, "3")
-
-	_ = collegeTeamMap
-	_ = preSeasonCFBSeasonStats
-	_ = regularSeasonCFBSeasonStats
-	_ = postSeasonCFBSeasonStats
+	preSeasonCBBSeasonStats := repository.FindCollegeTeamSeasonStatsRecords(seasonID, "1")
+	regularSeasonCBBSeasonStats := repository.FindCollegeTeamSeasonStatsRecords(seasonID, "2")
+	postSeasonCBBSeasonStats := repository.FindCollegeTeamSeasonStatsRecords(seasonID, "3")
 
 	seasonStatsMap := make(map[uint][]structs.TeamSeasonStats)
-	for _, stats := range preSeasonCFBSeasonStats {
+	for _, stats := range preSeasonCBBSeasonStats {
 		seasonStatsMap[stats.TeamID] = append(seasonStatsMap[stats.TeamID], stats)
 	}
-	for _, stats := range regularSeasonCFBSeasonStats {
+	for _, stats := range regularSeasonCBBSeasonStats {
 		seasonStatsMap[stats.TeamID] = append(seasonStatsMap[stats.TeamID], stats)
 	}
-	for _, stats := range postSeasonCFBSeasonStats {
+	for _, stats := range postSeasonCBBSeasonStats {
 		seasonStatsMap[stats.TeamID] = append(seasonStatsMap[stats.TeamID], stats)
 	}
 
@@ -1012,7 +1005,7 @@ func GenerateCollegeRankings(seasonID string) {
 		points, pointsAgainst, possessions float64
 	}
 	totalsMap := make(map[uint]*efficiencyTotals, len(collegeStandings))
-	for _, statSet := range [][]structs.TeamSeasonStats{regularSeasonCFBSeasonStats, postSeasonCFBSeasonStats} {
+	for _, statSet := range [][]structs.TeamSeasonStats{regularSeasonCBBSeasonStats, postSeasonCBBSeasonStats} {
 		for _, st := range statSet {
 			t, ok := totalsMap[st.TeamID]
 			if !ok {
@@ -1046,7 +1039,7 @@ func GenerateCollegeRankings(seasonID string) {
 	// Average possessions per game, used to convert efficiency margin to points
 	avgTempo := 70.0
 	gamesPlayed := 0.0
-	for _, statSet := range [][]structs.TeamSeasonStats{regularSeasonCFBSeasonStats, postSeasonCFBSeasonStats} {
+	for _, statSet := range [][]structs.TeamSeasonStats{regularSeasonCBBSeasonStats, postSeasonCBBSeasonStats} {
 		for _, st := range statSet {
 			gamesPlayed += float64(st.GamesPlayed)
 		}
