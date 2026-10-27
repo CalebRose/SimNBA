@@ -12,33 +12,33 @@ type MatchPageResponse struct {
 // Match - The Data Structure for a Game
 type Match struct {
 	gorm.Model
-	MatchName              string // For Post-Season matchups
-	WeekID                 uint
-	Week                   uint
-	SeasonID               uint
-	HomeTeamID             uint
-	HomeTeam               string
-	HomeTeamCoach          string
-	HomeTeamWin            bool
-	HomeTeamRank           uint
-	AwayTeamID             uint
-	AwayTeam               string
-	AwayTeamCoach          string
-	AwayTeamWin            bool
-	AwayTeamRank           uint
-	MatchOfWeek            string
-	HomeTeamScore          int
-	AwayTeamScore          int
-	TimeSlot               string
-	MVP                    uint
-	ArenaID                uint
-	Arena                  string
-	City                   string
-	State                  string
-	Country                string
-	AttendanceCount        uint
+	MatchName       string // For Post-Season matchups
+	WeekID          uint
+	Week            uint
+	SeasonID        uint
+	HomeTeamID      uint
+	HomeTeam        string
+	HomeTeamCoach   string
+	HomeTeamWin     bool
+	HomeTeamRank    uint
+	AwayTeamID      uint
+	AwayTeam        string
+	AwayTeamCoach   string
+	AwayTeamWin     bool
+	AwayTeamRank    uint
+	MatchOfWeek     string
+	HomeTeamScore   int
+	AwayTeamScore   int
+	TimeSlot        string
+	MVP             uint
+	ArenaID         uint
+	Arena           string
+	City            string
+	State           string
+	Country         string
+	AttendanceCount uint
 	// Projected stream channel; derived from the game, never persisted.
-	StreamChannel string `gorm:"-" json:"StreamChannel"`
+	StreamChannel          string `gorm:"-" json:"StreamChannel"`
 	NextGameID             uint
 	NextGameHOA            string // Home or Away Slot for the next game
 	IsNeutralSite          bool
@@ -181,7 +181,8 @@ func GetCBBStreamChannel(game Match, homeUserCoached, awayUserCoached bool) stri
 		return "tbs"
 	case 2:
 		return "espn"
-	default:
+	case 3:
 		return "ytv"
 	}
+	return ""
 }
