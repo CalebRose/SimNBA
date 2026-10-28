@@ -2,6 +2,7 @@ package repository
 
 import (
 	"log"
+	"strconv"
 
 	"github.com/CalebRose/SimNBA/structs"
 	"gorm.io/gorm"
@@ -84,6 +85,35 @@ func SaveCollegeStandingsRecord(s structs.CollegeStandings, db *gorm.DB) {
 	err := db.Save(&s).Error
 	if err != nil {
 		log.Panicln("Could not save nba player season stats record")
+	}
+}
+
+// SaveCollegeStandingsRankingsRecord explicitly writes the advanced ranking
+// columns (and win percentages) so they are persisted even when zero-valued.
+func SaveCollegeStandingsRankingsRecord(s structs.CollegeStandings, db *gorm.DB) {
+	err := db.Model(&structs.CollegeStandings{}).Where("id = ?", s.ID).Updates(map[string]interface{}{
+		"total_win_percentage":    s.TotalWinPercentage,
+		"conf_win_percentage":     s.ConfWinPercentage,
+		"toucan_rank":             s.ToucanRank,
+		"ken_pom_rank":            s.KenPomRank,
+		"ken_pom_rating":          s.KenPomRating,
+		"rpi_rank":                s.RPIRank,
+		"rpi_rating":              s.RPIRating,
+		"sos":                     s.SOS,
+		"sor":                     s.SOR,
+		"q1_wins":                 s.Q1Wins,
+		"q2_wins":                 s.Q2Wins,
+		"q3_wins":                 s.Q3Wins,
+		"q4_wins":                 s.Q4Wins,
+		"q1_losses":               s.Q1Losses,
+		"q2_losses":               s.Q2Losses,
+		"q3_losses":               s.Q3Losses,
+		"q4_losses":               s.Q4Losses,
+		"quadrant_rating":         s.QuadrantRating,
+		"conference_strength_adj": s.ConferenceStrengthAdj,
+	}).Error
+	if err != nil {
+		log.Panicln("Could not save college standings rankings for standings " + strconv.Itoa(int(s.ID)) + ": " + err.Error())
 	}
 }
 

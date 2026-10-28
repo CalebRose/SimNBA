@@ -138,7 +138,9 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/export/nba/freeagents", controller.ExportNBAFreeAgentsToCSV).Methods("GET")
 
 	// Fixes
-	apiRouter.HandleFunc("/fix/recruiting/modifiers", controller.FixRecruitingProfileModifiers).Methods("GET")
+	// apiRouter.HandleFunc("/fix/recruiting/modifiers", controller.FixRecruitingProfileModifiers).Methods("GET")
+	// apiRouter.HandleFunc("/fix/cbb/rankings", controller.FixCBBRankings).Methods("GET")
+	// apiRouter.HandleFunc("/fix/team/season/stats", controller.FixTeamSeasonStats).Methods("GET")
 
 	// Free Agency Controls
 	apiRouter.HandleFunc("/nba/freeagency/available/{teamID}", controller.FreeAgencyAvailablePlayers).Methods("GET")

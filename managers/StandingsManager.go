@@ -904,10 +904,13 @@ func GenerateCollegeRankings(seasonID string) {
 				adjOppWinPct = float64(adjOppWins) / float64(adjOppGames)
 			}
 
-			adjOppWinPcts = append(adjOppWinPcts, adjOppWinPct)
-
-			if game.IsConference {
-				adjConfOppWinPcts = append(adjConfOppWinPcts, adjOppWinPct)
+			// An opponent whose only game was this one has no adjusted record;
+			// counting it as 0 would drag SOS to 0 early in the season.
+			if adjOppGames > 0 {
+				adjOppWinPcts = append(adjOppWinPcts, adjOppWinPct)
+				if game.IsConference {
+					adjConfOppWinPcts = append(adjConfOppWinPcts, adjOppWinPct)
+				}
 			}
 
 			// Opponents' opponents win% (RPI third component) — unadjusted
@@ -1005,7 +1008,14 @@ func GenerateCollegeRankings(seasonID string) {
 		points, pointsAgainst, possessions float64
 	}
 	totalsMap := make(map[uint]*efficiencyTotals, len(collegeStandings))
-	for _, statSet := range [][]structs.TeamSeasonStats{regularSeasonCBBSeasonStats, postSeasonCBBSeasonStats} {
+
+	// Preseason stats are only used when no regular/postseason stats exist yet,
+	// otherwise every rating (and everything derived from it) would be zero.
+	ratingStatSets := [][]structs.TeamSeasonStats{regularSeasonCBBSeasonStats, postSeasonCBBSeasonStats}
+	if len(regularSeasonCBBSeasonStats) == 0 && len(postSeasonCBBSeasonStats) == 0 {
+		ratingStatSets = [][]structs.TeamSeasonStats{preSeasonCBBSeasonStats}
+	}
+	for _, statSet := range ratingStatSets {
 		for _, st := range statSet {
 			t, ok := totalsMap[st.TeamID]
 			if !ok {
@@ -1039,7 +1049,7 @@ func GenerateCollegeRankings(seasonID string) {
 	// Average possessions per game, used to convert efficiency margin to points
 	avgTempo := 70.0
 	gamesPlayed := 0.0
-	for _, statSet := range [][]structs.TeamSeasonStats{regularSeasonCBBSeasonStats, postSeasonCBBSeasonStats} {
+	for _, statSet := range ratingStatSets {
 		for _, st := range statSet {
 			gamesPlayed += float64(st.GamesPlayed)
 		}
@@ -1336,7 +1346,7 @@ func GenerateCollegeRankings(seasonID string) {
 	// Persist all updated standings
 	for idx := range collegeStandings {
 		collegeStandings[idx].CalculatePercentages()
-		repository.SaveCollegeStandingsRecord(collegeStandings[idx], db)
+		repository.SaveCollegeStandingsRankingsRecord(collegeStandings[idx], db)
 	}
 }
 

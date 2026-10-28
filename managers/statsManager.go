@@ -427,8 +427,8 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 	cbbSeasonStatMap := GetCollegePlayerSeasonStatMap(seasonId)
 	nbaPlayerSeasonStatMap := GetNBAPlayerSeasonStatMap(seasonId)
 
-	_, cbbGameType := ts.GetCurrentGameType(true)
-	_, nbaGameType := ts.GetCurrentGameType(false)
+	cGameType, cbbGameType := ts.GetCurrentGameType(true)
+	nGameType, nbaGameType := ts.GetCurrentGameType(false)
 
 	for _, match := range matches {
 		if !match.GameComplete {
@@ -440,6 +440,9 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 		homeTeamStats := GetCBBTeamStatsByMatch(strconv.Itoa(int(match.HomeTeamID)), strconv.Itoa(int(match.ID)))
 
 		homeSeasonStats := GetTeamSeasonStatsByTeamID(strconv.Itoa(int(match.HomeTeamID)), seasonId, cbbGameType)
+		if homeSeasonStats.ID == 0 {
+			homeSeasonStats.GameType = uint8(cGameType)
+		}
 
 		homeSeasonStats.AddStatsToSeasonRecord(homeTeamStats)
 
@@ -451,6 +454,9 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 		awayTeamStats := GetCBBTeamStatsByMatch(strconv.Itoa(int(match.AwayTeamID)), strconv.Itoa(int(match.ID)))
 
 		awaySeasonStats := GetTeamSeasonStatsByTeamID(strconv.Itoa(int(match.AwayTeamID)), seasonId, cbbGameType)
+		if awaySeasonStats.ID == 0 {
+			awaySeasonStats.GameType = uint8(cGameType)
+		}
 
 		awaySeasonStats.AddStatsToSeasonRecord(awayTeamStats)
 
@@ -497,6 +503,9 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 		homeTeamStats := GetNBATeamStatsByMatch(strconv.Itoa(int(match.HomeTeamID)), strconv.Itoa(int(match.ID)))
 
 		homeSeasonStats := GetNBATeamSeasonStatsByTeamID(strconv.Itoa(int(match.HomeTeamID)), seasonId, nbaGameType)
+		if homeSeasonStats.ID == 0 {
+			homeSeasonStats.GameType = uint8(nGameType)
+		}
 
 		homeSeasonStats.AddStatsToSeasonRecord(homeTeamStats)
 
@@ -508,6 +517,9 @@ func UpdateSeasonStats(ts structs.Timestamp, MatchType string) {
 		awayTeamStats := GetNBATeamStatsByMatch(strconv.Itoa(int(match.AwayTeamID)), strconv.Itoa(int(match.ID)))
 
 		awaySeasonStats := GetNBATeamSeasonStatsByTeamID(strconv.Itoa(int(match.AwayTeamID)), seasonId, nbaGameType)
+		if awaySeasonStats.ID == 0 {
+			awaySeasonStats.GameType = uint8(nGameType)
+		}
 
 		awaySeasonStats.AddStatsToSeasonRecord(awayTeamStats)
 

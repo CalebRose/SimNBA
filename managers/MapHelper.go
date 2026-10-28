@@ -403,3 +403,43 @@ func MakeRecruitProfileMapByProfileID(profiles []structs.RecruitPlayerProfile) m
 
 	return recruitProfileMap
 }
+
+func MakeCBBTeamStatsMap(stats []structs.TeamStats) map[uint][]structs.TeamStats {
+	statsMap := make(map[uint][]structs.TeamStats)
+
+	for _, stat := range stats {
+		statsMap[stat.TeamID] = append(statsMap[stat.TeamID], stat)
+	}
+
+	return statsMap
+}
+
+func MakeNBATeamStatsMap(stats []structs.NBATeamStats) map[uint][]structs.NBATeamStats {
+	statsMap := make(map[uint][]structs.NBATeamStats)
+
+	for _, stat := range stats {
+		statsMap[stat.TeamID] = append(statsMap[stat.TeamID], stat)
+	}
+
+	return statsMap
+}
+
+func MakeCBBTeamSeasonStatsMap(stats []structs.TeamSeasonStats) map[uint]structs.TeamSeasonStats {
+	statsMap := make(map[uint]structs.TeamSeasonStats)
+
+	for _, stat := range stats {
+		statsMap[stat.TeamID] = stat
+	}
+
+	return statsMap
+}
+
+func MakeNBATeamSeasonStatsMap(stats []structs.NBATeamSeasonStats) map[uint]structs.NBATeamSeasonStats {
+	statsMap := make(map[uint]structs.NBATeamSeasonStats)
+
+	for _, stat := range stats {
+		statsMap[stat.TeamID] = stat
+	}
+
+	return statsMap
+}
