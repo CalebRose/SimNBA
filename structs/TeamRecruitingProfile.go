@@ -29,6 +29,7 @@ type TeamRecruitingProfile struct {
 	BonusPoints             int
 	SpentPoints             int
 	TotalCommitments        int
+	WeeksMissed             uint8
 	RecruitClassSize        int
 	PortalReputation        int // A value between 1-100 signifying the coach's reputation and behavior in the transfer portal.
 	IsAI                    bool
@@ -60,6 +61,14 @@ type TeamRecruitingProfile struct {
 }
 
 func (r *TeamRecruitingProfile) ResetSpentPoints() {
+	if r.SpentPoints == 0 && r.TotalCommitments < r.RecruitClassSize {
+		r.WeeksMissed += 1
+	} else {
+		r.WeeksMissed = 0
+	}
+	if r.TotalCommitments >= r.RecruitClassSize {
+		r.WeeksMissed = 0
+	}
 	r.SpentPoints = 0
 	r.WeeklyScoutingPoints = 25
 }
