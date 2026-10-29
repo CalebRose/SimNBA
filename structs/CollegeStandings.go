@@ -9,37 +9,38 @@ import (
 
 type CollegeStandings struct {
 	gorm.Model
-	TeamID                  uint
-	TeamName                string
-	TeamAbbr                string
-	SeasonID                uint
-	Season                  int
-	ConferenceID            uint
-	ConferenceName          string
-	PostSeasonStatus        string
-	IsConferenceChampion    bool
-	InvitationalParticipant bool
-	Invitational            string
-	InvitationalChampion    bool
-	Rank                    uint
-	PreseasonRank           uint16
-	ToucanRank              uint16
-	KenPomRank              uint16
-	KenPomRating            float32
-	RPIRank                 uint16
-	RPIRating               float32
-	SOS                     float32
-	SOR                     float32
-	Q1Wins                  uint8
-	Q2Wins                  uint8
-	Q3Wins                  uint8
-	Q4Wins                  uint8
-	Q1Losses                uint8
-	Q2Losses                uint8
-	Q3Losses                uint8
-	Q4Losses                uint8
-	QuadrantRating          float32
-	ConferenceStrengthAdj   float32
+	TeamID                   uint
+	TeamName                 string
+	TeamAbbr                 string
+	SeasonID                 uint
+	Season                   int
+	ConferenceID             uint
+	ConferenceName           string
+	PostSeasonStatus         string
+	IsConferenceChampion     bool
+	IsConfTournamentChampion bool
+	InvitationalParticipant  bool
+	Invitational             string
+	InvitationalChampion     bool
+	Rank                     uint
+	PreseasonRank            uint16
+	ToucanRank               uint16
+	KenPomRank               uint16
+	KenPomRating             float32
+	RPIRank                  uint16
+	RPIRating                float32
+	SOS                      float32
+	SOR                      float32
+	Q1Wins                   uint8
+	Q2Wins                   uint8
+	Q3Wins                   uint8
+	Q4Wins                   uint8
+	Q1Losses                 uint8
+	Q2Losses                 uint8
+	Q3Losses                 uint8
+	Q4Losses                 uint8
+	QuadrantRating           float32
+	ConferenceStrengthAdj    float32
 	BaseStandings
 }
 
@@ -64,8 +65,8 @@ func (cs *CollegeStandings) UpdateCollegeStandings(game Match) {
 			cs.InvitationalChampion = true
 		}
 		if game.IsConferenceTournament && strings.Contains(game.MatchName, "Finals") && !strings.Contains(game.MatchName, "Semifinals") {
-			cs.PostSeasonStatus = "Conference Champion"
-			cs.IsConferenceChampion = true
+			cs.PostSeasonStatus = "Conf. Tournament Champion"
+			cs.IsConfTournamentChampion = true
 		}
 		if game.IsPlayoffGame {
 			cs.PostSeasonStatus = game.MatchName
