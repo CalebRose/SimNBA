@@ -133,15 +133,9 @@ func UpdateStandings(ts structs.Timestamp, MatchType string) {
 			homeStandings.UpdateCollegeStandings(game)
 			awayStandings.UpdateCollegeStandings(game)
 
-			err := db.Save(&homeStandings).Error
-			if err != nil {
-				log.Panicln("Could not save standings for team " + homeID)
-			}
+			repository.SaveCollegeStandingsRecord(homeStandings, db)
 
-			err = db.Save(&awayStandings).Error
-			if err != nil {
-				log.Panicln("Could not save standings for team " + awayID)
-			}
+			repository.SaveCollegeStandingsRecord(awayStandings, db)
 
 			if game.NextGameID > 0 {
 
