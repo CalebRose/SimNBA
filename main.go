@@ -68,7 +68,6 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/admin/recruiting/sync", controller.SyncRecruiting).Methods("GET")
 	// apiRouter.HandleFunc("/admin/transferportal/sync", controller.SyncTransferPortal).Methods("GET")
 	apiRouter.HandleFunc("/admin/lock/recruiting", controller.LockRecruiting).Methods("GET")
-	apiRouter.HandleFunc("/admin/recruit/create", controller.CreateRecruit).Methods("POST")
 	apiRouter.HandleFunc("/admin/ai/gameplans/", controller.SetAIGameplans).Methods("GET")
 	apiRouter.HandleFunc("/admin/show/results", controller.ShowGames).Methods("GET")
 	// apiRouter.HandleFunc("/admin/show/b", controller.ShowBGames).Methods("GET")
@@ -141,6 +140,7 @@ func handleRequests() http.Handler {
 	// apiRouter.HandleFunc("/fix/recruiting/modifiers", controller.FixRecruitingProfileModifiers).Methods("GET")
 	// apiRouter.HandleFunc("/fix/cbb/rankings", controller.FixCBBRankings).Methods("GET")
 	// apiRouter.HandleFunc("/fix/team/season/stats", controller.FixTeamSeasonStats).Methods("GET")
+	// apiRouter.HandleFunc("/fix/season/standings", controller.FixSeasonStandings).Methods("GET")
 
 	// Free Agency Controls
 	apiRouter.HandleFunc("/nba/freeagency/available/{teamID}", controller.FreeAgencyAvailablePlayers).Methods("GET")
@@ -266,6 +266,7 @@ func handleRequests() http.Handler {
 	apiRouter.HandleFunc("/college/poll/submission/{username}", controller.GetPollSubmission).Methods("GET")
 
 	// Recruit Controls
+	apiRouter.HandleFunc("/recruiting/custom/croot/", controller.CreateCustomCroot).Methods("POST")
 	apiRouter.HandleFunc("/recruiting/dashboard/{teamID}/", controller.GetRecruitingDataForOverviewPage).Methods("GET")
 	apiRouter.HandleFunc("/recruiting/profile/teamboard/{teamID}", controller.GetRecruitingDataForTeamBoardPage).Methods("GET")
 	apiRouter.HandleFunc("/recruiting/profile/all/", controller.GetAllRecruitingProfiles).Methods("GET")

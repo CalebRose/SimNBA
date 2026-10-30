@@ -710,7 +710,7 @@ func GenerateAdditionalWorldCupPlayers() {
 
 	// var playerList []structs.CollegePlayer
 
-	blob := getAttributeBlob()
+	blob := GetAttributeBlob()
 	newID := lastPlayerRecord.ID + 1
 
 	nameMap := getInternationalNameMap()

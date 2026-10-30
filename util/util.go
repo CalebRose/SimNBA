@@ -1118,10 +1118,13 @@ func PickState() string {
 	return PickFromStringList([]string{"MN", "MI", "NY", "MA"})
 }
 
-func GetArchetype(pos string) string {
+func GetArchetype(pos, arch string) string {
 	diceRoll := GenerateIntFromRange(1, 1000)
 	if diceRoll > 998 {
 		return "All-Around"
+	}
+	if arch != "" {
+		return arch
 	}
 	switch pos {
 	case "C":

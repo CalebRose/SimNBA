@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"math/rand"
 	"sort"
 	"strconv"
 
@@ -565,40 +564,6 @@ func SaveAIBehavior(profile structs.TeamRecruitingProfile) {
 	repository.SaveTeamRecruitingProfileRecord(recruitingProfile, db)
 }
 
-func CreateRecruit(dto structs.CreateRecruitDTO) {
-	db := dbprovider.GetInstance().GetDB()
-
-	var lastPlayerRecord structs.GlobalPlayer
-
-	err := db.Last(&lastPlayerRecord).Error
-	if err != nil {
-		log.Fatalln("Could not grab last player record from players table...")
-	}
-
-	newID := lastPlayerRecord.ID + 1
-	threshold := GetRecruitModifier(dto.Stars)
-	expectations := util.GetPlaytimeExpectations(int(dto.Stars), 1, 0)
-	rankMod := 0.95 + rand.Float64()*(1.05-0.95)
-
-	collegeRecruit := &structs.Recruit{
-		PlayerID:        newID,
-		RecruitModifier: threshold,
-		TopRankModifier: rankMod,
-	}
-	collegeRecruit.Map(dto, newID, expectations)
-
-	playerRecord := structs.GlobalPlayer{
-		RecruitID:       newID,
-		CollegePlayerID: newID,
-		NBAPlayerID:     newID,
-	}
-	playerRecord.SetID(newID)
-	// Create Player Record
-	db.Create(&playerRecord)
-	// Save Recruit
-	db.Create(&collegeRecruit)
-}
-
 func GetRecruitingClassByTeamID(id string) []structs.Croot {
 	db := dbprovider.GetInstance().GetDB()
 
@@ -715,4 +680,36 @@ func CheckRegionBonus(country, recruitState, teamRegion string) bool {
 		return recruitState == "ND" || recruitState == "SD" || recruitState == "NE" || recruitState == "KS" || recruitState == "CO" || recruitState == "WY"
 	}
 	return false
+}
+
+func CreateCustomCroot(dto structs.CustomRecruitDTO) structs.Recruit {
+	db := dbprovider.GetInstance().GetDB()
+	latestID := GetLatestRecord(db)
+	attributeBlob := GetAttributeBlob()
+	// Generate Recruit
+	stars := util.GetStarRating(true, false)
+	recruit := createRecruit(dto.Position, dto.Archetype, dto.FirstName, dto.LastName, dto.State, dto.Country, dto.City, dto.HighSchool, 1, stars, latestID, attributeBlob, []structs.CrootLocation{})
+	recruit.ID = latestID
+
+	// Generate Face Data
+	faceDataResponse := dto.FaceData
+
+	face := ConvertFaceDataResponseToFaceData(faceDataResponse)
+	face.PlayerID = recruit.ID
+
+	globalPlayer := structs.GlobalPlayer{
+		Model: gorm.Model{
+			ID: recruit.ID,
+		},
+		RecruitID:       latestID,
+		CollegePlayerID: latestID,
+		NBAPlayerID:     latestID,
+	}
+	repository.CreateGlobalRecordsBatch(db, []structs.GlobalPlayer{globalPlayer}, 1)
+	repository.CreateRecruitRecordsBatch(db, []structs.Recruit{recruit}, 1)
+	repository.CreateFaceRecordsBatch(db, []structs.FaceData{face}, 1)
+
+	CreateCustomCrootForumThread(recruit.ID, dto)
+
+	return recruit
 }

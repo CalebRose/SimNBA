@@ -111,3 +111,43 @@ func FixTeamSeasonStats() {
 		}
 	}
 }
+
+func FixSeasonStandings() {
+	db := dbprovider.GetInstance().GetDB()
+	ts := GetTimestamp()
+	seasonID := strconv.Itoa(int(ts.SeasonID))
+	collegeMatches := repository.FindCollegeMatchRecords(repository.GameQuery{SeasonID: seasonID})
+	nbaMatches := repository.FindProMatchRecords(repository.GameQuery{SeasonID: seasonID})
+	collegeStandings := repository.FindAllCollegeStandingsRecords(repository.StandingsQuery{SeasonID: seasonID})
+	nbaStandings := repository.FindAllNBAStandingsRecords(repository.StandingsQuery{SeasonID: seasonID})
+	collegeMatchesMap := MakeCollegeMatchMapByTeamID(collegeMatches)
+	nbaMatchesMap := MakeNBAMatchMapByTeamID(nbaMatches)
+
+	for _, standings := range collegeStandings {
+		teamID := standings.TeamID
+		matches := collegeMatchesMap[teamID]
+		// Logic to fix college standings based on matches goes here
+		standings.ResetStandings()
+		for _, match := range matches {
+			if !match.GameComplete {
+				continue
+			}
+			standings.UpdateCollegeStandings(match)
+		}
+		repository.SaveCollegeStandingsRecord(standings, db)
+	}
+
+	for _, standings := range nbaStandings {
+		teamID := standings.TeamID
+		matches := nbaMatchesMap[teamID]
+		// Logic to fix NBA standings based on matches goes here
+		standings.ResetStandings()
+		for _, match := range matches {
+			if !match.GameComplete || match.IsPreseason {
+				continue
+			}
+			standings.UpdateNBAStandings(match)
+		}
+		repository.SaveNBAStandingsRecord(standings, db)
+	}
+}

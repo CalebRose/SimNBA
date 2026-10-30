@@ -21,3 +21,8 @@ func FixTeamSeasonStats(w http.ResponseWriter, r *http.Request) {
 	managers.FixTeamSeasonStats()
 	json.NewEncoder(w).Encode("DONE")
 }
+
+func FixSeasonStandings(w http.ResponseWriter, r *http.Request) {
+	managers.FixSeasonStandings()
+	json.NewEncoder(w).Encode("DONE")
+}

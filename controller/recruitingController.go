@@ -3,7 +3,6 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/CalebRose/SimNBA/managers"
@@ -71,23 +70,6 @@ func GetAllRecruitingProfiles(w http.ResponseWriter, r *http.Request) {
 	recruitingProfiles := managers.GetRecruitingProfileForRecruitSync()
 
 	json.NewEncoder(w).Encode(recruitingProfiles)
-}
-
-func CreateRecruit(w http.ResponseWriter, r *http.Request) {
-	EnableCors(&w)
-	var dto structs.CreateRecruitDTO
-	err := json.NewDecoder(r.Body).Decode(&dto)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	// validate info from DTO
-	if len(dto.FirstName) == 0 || len(dto.LastName) == 0 || dto.Overall == 0 {
-		log.Fatalln("ERROR: Did not provide all information for recruit.")
-	}
-
-	managers.CreateRecruit(dto)
-	fmt.Println(w, "New Recruit Created")
 }
 
 func AddRecruitToBoard(w http.ResponseWriter, r *http.Request) {
@@ -254,4 +236,17 @@ func DetermineRecruitingClassSize(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	managers.DetermineRecruitingClassSize()
 	json.NewEncoder(w).Encode("CLASS SIZE COMPLETE")
+}
+
+func CreateCustomCroot(w http.ResponseWriter, r *http.Request) {
+	var customCrootDto structs.CustomRecruitDTO
+	err := json.NewDecoder(r.Body).Decode(&customCrootDto)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	profile := managers.CreateCustomCroot(customCrootDto)
+
+	json.NewEncoder(w).Encode(profile)
 }
