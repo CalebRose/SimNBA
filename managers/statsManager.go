@@ -95,7 +95,7 @@ func SearchCollegeStats(seasonID, weekID, viewType, gameType string) structs.Sea
 		playerGameStatsChan := make(chan []structs.CollegePlayerStats)
 		teamGameStatsChan := make(chan []structs.TeamStats)
 		go func() {
-			pGameStats := repository.FindCollegePlayerGameStatsRecords("", weekID, "", "")
+			pGameStats := repository.FindCollegePlayerGameStatsRecords("", weekID, gameType, "")
 			playerGameStatsChan <- pGameStats
 		}()
 
@@ -103,7 +103,7 @@ func SearchCollegeStats(seasonID, weekID, viewType, gameType string) structs.Sea
 		close(playerGameStatsChan)
 
 		go func() {
-			tGameStats := repository.FindCollegeTeamGameStatsRecords("", weekID, "", "")
+			tGameStats := repository.FindCollegeTeamGameStatsRecords("", weekID, gameType, "")
 			teamGameStatsChan <- tGameStats
 		}()
 		teamGameStats = <-teamGameStatsChan
