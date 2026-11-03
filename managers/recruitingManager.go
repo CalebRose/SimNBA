@@ -469,7 +469,8 @@ func RemoveRecruitFromBoardV2(updateRecruitPointsDto structs.UpdateRecruitPoints
 	)
 
 	if recruitingPointsProfile.RemovedFromBoard {
-		panic("Recruit already removed from board")
+		log.Println("Recruit already removed from board")
+		return recruitingPointsProfile
 	}
 
 	recruitingPointsProfile.RemoveRecruitFromBoard()
