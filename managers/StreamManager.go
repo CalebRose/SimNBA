@@ -15,6 +15,7 @@ func GetCBBPlayByPlayStreamData(streamType string) []structs.StreamResponse {
 	teamMap := GetCollegeTeamMap()
 	collegePlayers := GetAllCollegePlayers()
 	rosterMap := MakeCollegePlayerMapByTeamID(collegePlayers, true)
+	gameplanMap := MakeCollegeGameplanMap(GetAllCollegeGameplans())
 	weekID := strconv.Itoa(int(ts.CollegeWeekID))
 	seasonID := strconv.Itoa(int(ts.SeasonID))
 	gameDay := ts.GetGameDay()
@@ -45,6 +46,8 @@ func GetCBBPlayByPlayStreamData(streamType string) []structs.StreamResponse {
 		)
 		homePlayers = rosterMap[game.HomeTeamID]
 		awayPlayers = rosterMap[game.AwayTeamID]
+		homeGameplan := gameplanMap[uint(game.HomeTeamID)]
+		awayGameplan := gameplanMap[uint(game.AwayTeamID)]
 		wg.Add(2)
 
 		go func() {
@@ -74,26 +77,32 @@ func GetCBBPlayByPlayStreamData(streamType string) []structs.StreamResponse {
 		playbyPlayResponse := GenerateCBBPlayByPlayResponse(playByPlays, teamMap, participantMap, true, game.HomeTeamID, game.AwayTeamID)
 
 		stream := structs.StreamResponse{
-			GameID:            game.ID,
-			HomeTeamID:        uint(game.HomeTeamID),
-			HomeTeam:          game.HomeTeam,
-			HomeTeamCoach:     homeTeam.Coach,
-			HomeTeamRank:      game.HomeTeamRank,
-			HomeLabel:         homeTeam.Team + " " + homeTeam.Nickname,
-			HomeTeamDiscordID: homeTeam.DiscordID,
-			AwayTeamID:        uint(game.AwayTeamID),
-			AwayTeam:          game.AwayTeam,
-			AwayTeamCoach:     awayTeam.Coach,
-			AwayTeamRank:      game.AwayTeamRank,
-			AwayTeamDiscordID: awayTeam.DiscordID,
-			AwayLabel:         awayTeam.Team + " " + awayTeam.Nickname,
-			Streams:           playbyPlayResponse,
-			City:              game.City,
-			State:             game.State,
-			Country:           game.Country,
-			ArenaID:           game.ArenaID,
-			Arena:             game.Arena,
-			Attendance:        uint(game.AttendanceCount),
+			GameID:                 game.ID,
+			HomeTeamID:             uint(game.HomeTeamID),
+			HomeTeam:               game.HomeTeam,
+			HomeTeamCoach:          homeTeam.Coach,
+			HomeTeamRank:           game.HomeTeamRank,
+			HomeLabel:              homeTeam.Team + " " + homeTeam.Nickname,
+			HomeTeamDiscordID:      homeTeam.DiscordID,
+			HomePace:               homeGameplan.Pace,
+			HomeOffensiveFormation: homeGameplan.OffensiveFormation,
+			HomeDefensiveFormation: homeGameplan.DefensiveFormation,
+			AwayTeamID:             uint(game.AwayTeamID),
+			AwayTeam:               game.AwayTeam,
+			AwayTeamCoach:          awayTeam.Coach,
+			AwayTeamRank:           game.AwayTeamRank,
+			AwayTeamDiscordID:      awayTeam.DiscordID,
+			AwayLabel:              awayTeam.Team + " " + awayTeam.Nickname,
+			AwayPace:               awayGameplan.Pace,
+			AwayOffensiveFormation: awayGameplan.OffensiveFormation,
+			AwayDefensiveFormation: awayGameplan.DefensiveFormation,
+			Streams:                playbyPlayResponse,
+			City:                   game.City,
+			State:                  game.State,
+			Country:                game.Country,
+			ArenaID:                game.ArenaID,
+			Arena:                  game.Arena,
+			Attendance:             uint(game.AttendanceCount),
 		}
 
 		streams = append(streams, stream)
@@ -189,6 +198,7 @@ func GetNBAPlayByPlayStreamData(streamType string) []structs.StreamResponse {
 			Streams:                playbyPlayResponse,
 			City:                   game.City,
 			State:                  game.State,
+			Arena:                  game.Arena,
 		}
 
 		streams = append(streams, stream)
@@ -199,12 +209,16 @@ func GetNBAPlayByPlayStreamData(streamType string) []structs.StreamResponse {
 
 func GenerateCBBPlayByPlayResponse(playByPlays []structs.CollegePlayByPlay, teamMap map[uint]structs.Team, playerMap map[uint]structs.CollegePlayer, isStream bool, ht, at uint) []structs.PlayByPlayResponse {
 	results := []structs.PlayByPlayResponse{}
+	basePlays := make([]structs.BasePlayByPlay, len(playByPlays))
+	for i, p := range playByPlays {
+		basePlays[i] = p.BasePlayByPlay
+	}
 	for idx, play := range playByPlays {
 		timeOnClock := FormatTimeToClock(play.TimeOnClock)
 		event := util.ReturnStringFromEventIDPBPID(play.EventID)
 		outcome := util.ReturnStringFromOutcomeIDPBPID(play.OutcomeID)
 		possessingTeam := teamMap[uint(play.TeamID)]
-		result := generateCollegeResultsString(play.BasePlayByPlay, playerMap, teamMap, possessingTeam)
+		result := generateCollegeResultsString(play.BasePlayByPlay, freeThrowNote(basePlays, idx), playerMap, teamMap, possessingTeam)
 
 		res := structs.PlayByPlayResponse{
 			GameID:              play.GameID,
@@ -254,13 +268,17 @@ func GenerateCBBPlayByPlayResponse(playByPlays []structs.CollegePlayByPlay, team
 
 func GenerateNBAPlayByPlayResponse(playByPlays []structs.NBAPlayByPlay, teamMap map[uint]structs.NBATeam, playerMap map[uint]structs.NBAPlayer, isStream bool, ht, at uint) []structs.PlayByPlayResponse {
 	results := []structs.PlayByPlayResponse{}
+	basePlays := make([]structs.BasePlayByPlay, len(playByPlays))
+	for i, p := range playByPlays {
+		basePlays[i] = p.BasePlayByPlay
+	}
 	for idx, play := range playByPlays {
 		timeOnClock := FormatTimeToClock(play.TimeOnClock)
 		event := util.ReturnStringFromEventIDPBPID(play.EventID)
 		outcome := util.ReturnStringFromOutcomeIDPBPID(play.OutcomeID)
 		possessingTeam := teamMap[uint(play.TeamID)]
 
-		result := generateProResultsString(play.BasePlayByPlay, playerMap, teamMap, possessingTeam)
+		result := generateProResultsString(play.BasePlayByPlay, freeThrowNote(basePlays, idx), playerMap, teamMap, possessingTeam)
 
 		res := structs.PlayByPlayResponse{
 			GameID:              play.GameID,
@@ -329,7 +347,7 @@ func getPlayerLabel(player structs.BasePlayer, teamAbbr string) string {
 	return labelOrDefault(teamAbbr, player.Team) + " " + player.Position + " " + player.FirstName + " " + player.LastName
 }
 
-func generateCollegeResultsString(play structs.BasePlayByPlay, playerMap map[uint]structs.CollegePlayer, teamMap map[uint]structs.Team, possessingTeam structs.Team) string {
+func generateCollegeResultsString(play structs.BasePlayByPlay, freeThrowNote string, playerMap map[uint]structs.CollegePlayer, teamMap map[uint]structs.Team, possessingTeam structs.Team) string {
 	labelFor := func(id uint) string {
 		player, ok := playerMap[id]
 		if !ok {
@@ -337,10 +355,10 @@ func generateCollegeResultsString(play structs.BasePlayByPlay, playerMap map[uin
 		}
 		return getPlayerLabel(player.BasePlayer, teamMap[player.TeamID].Abbr)
 	}
-	return generatePlayStatement(play, labelFor, possessingTeam.Team, teamMap[play.ReboundTeamID].Team)
+	return generatePlayStatement(play, freeThrowNote, labelFor, possessingTeam.Team, teamMap[play.ReboundTeamID].Team)
 }
 
-func generateProResultsString(play structs.BasePlayByPlay, playerMap map[uint]structs.NBAPlayer, teamMap map[uint]structs.NBATeam, possessingTeam structs.NBATeam) string {
+func generateProResultsString(play structs.BasePlayByPlay, freeThrowNote string, playerMap map[uint]structs.NBAPlayer, teamMap map[uint]structs.NBATeam, possessingTeam structs.NBATeam) string {
 	labelFor := func(id uint) string {
 		player, ok := playerMap[id]
 		if !ok {
@@ -348,7 +366,7 @@ func generateProResultsString(play structs.BasePlayByPlay, playerMap map[uint]st
 		}
 		return getPlayerLabel(player.BasePlayer, teamMap[player.TeamID].Abbr)
 	}
-	return generatePlayStatement(play, labelFor, possessingTeam.Team, teamMap[play.ReboundTeamID].Team)
+	return generatePlayStatement(play, freeThrowNote, labelFor, possessingTeam.Team, teamMap[play.ReboundTeamID].Team)
 }
 
 func labelOrDefault(label, fallback string) string {
@@ -374,8 +392,67 @@ func shotDescription(eventID uint8) string {
 	return "a shot"
 }
 
+// shotFoulFreeThrowsLabel is how many free throws the engine awards for a missed shot that drew a
+// shooting foul: three behind the arc, two from anywhere else.
+func shotFoulFreeThrowsLabel(eventID uint8) string {
+	if eventID == util.Shot_three || eventID == util.Shot_corner_three {
+		return "three"
+	}
+	return "two"
+}
+
+// freeThrowNote describes which attempt a Free_throw play is within its trip to the line, e.g.
+// " for free throw 2 of 3". The engine writes one row per attempt, so the trip is the run of
+// Free_throw rows by the same shooter; substitutions and timeouts can land between attempts and
+// are skipped over. Returns "" for any other play.
+func freeThrowNote(plays []structs.BasePlayByPlay, idx int) string {
+	if idx < 0 || idx >= len(plays) || plays[idx].EventID != util.Free_throw {
+		return ""
+	}
+	shooter := plays[idx].BallCarrierID
+	isStoppage := func(p structs.BasePlayByPlay) bool {
+		return p.EventID == util.Substitution || p.EventID == util.Timeout
+	}
+
+	before := 0
+	var trigger *structs.BasePlayByPlay
+	for i := idx - 1; i >= 0; i-- {
+		p := plays[i]
+		if p.EventID == util.Free_throw && p.BallCarrierID == shooter {
+			before++
+		} else if !isStoppage(p) {
+			trigger = &plays[i]
+			break
+		}
+	}
+	after := 0
+	for i := idx + 1; i < len(plays); i++ {
+		p := plays[i]
+		if p.EventID == util.Free_throw && p.BallCarrierID == shooter {
+			after++
+		} else if !isStoppage(p) {
+			break
+		}
+	}
+
+	attempt := before + 1
+	total := before + 1 + after
+	shootingFoul := trigger != nil && (trigger.OutcomeID == util.Shot_foul_made ||
+		trigger.OutcomeID == util.Shot_foul_missed || trigger.OutcomeID == util.Shot_foul_blocked)
+	switch {
+	case trigger != nil && trigger.OutcomeID == util.Shot_foul_made:
+		return " for the and-one"
+	case !shootingFoul && total == 1:
+		// A bonus trip that ends after one shot is a missed front end of a one-and-one.
+		return " for the front end of a one-and-one"
+	case total == 1:
+		return ""
+	}
+	return fmt.Sprintf(" for free throw %d of %d", attempt, total)
+}
+
 // generatePlayStatement builds the play-by-play sentence for a single basketball play.
-func generatePlayStatement(play structs.BasePlayByPlay, labelFor func(uint) string, teamLabel string, reboundTeamLabel string) string {
+func generatePlayStatement(play structs.BasePlayByPlay, freeThrowNote string, labelFor func(uint) string, teamLabel string, reboundTeamLabel string) string {
 	carrier := labelOrDefault(labelFor(play.BallCarrierID), "The ball handler")
 	defender := labelOrDefault(labelFor(play.DefenderID), "the defender")
 	receiver := labelOrDefault(labelFor(play.PassedPlayerID), "a teammate")
@@ -412,11 +489,11 @@ func generatePlayStatement(play structs.BasePlayByPlay, labelFor func(uint) stri
 				statement += " Assisted by " + assister + "."
 			}
 		case util.Shot_foul_made:
-			statement += " GOOD, and " + fouler + " is called for the foul! " + carrier + " will go to the line for a bonus free throw."
+			statement += " GOOD, and " + fouler + " is called for the foul! " + carrier + " will go to the line for the and-one."
 		case util.Shot_missed:
 			statement += " MISSED!"
 		case util.Shot_foul_missed:
-			statement += " MISSED, but " + fouler + " is called for a shooting foul! " + carrier + " heads to the line for three free throws."
+			statement += " MISSED, but " + fouler + " is called for a shooting foul! " + carrier + " heads to the line for " + shotFoulFreeThrowsLabel(play.EventID) + " free throws."
 		case util.Shot_blocked:
 			statement += " BLOCKED by " + blocker + "!"
 		case util.Shot_foul_blocked:
@@ -433,7 +510,7 @@ func generatePlayStatement(play structs.BasePlayByPlay, labelFor func(uint) stri
 		}
 
 	case util.Free_throw:
-		statement = carrier + " steps to the line..."
+		statement = carrier + " steps to the line" + freeThrowNote + "..."
 		switch play.OutcomeID {
 		case util.Ft_made:
 			statement += " and sinks the free throw!"

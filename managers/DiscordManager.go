@@ -70,6 +70,7 @@ func GetCollegePlayerByID(id string) structs.CollegePlayerResponse {
 		Team:                  player.Team,
 		IsRedshirting:         player.IsRedshirting,
 		IsRedshirt:            player.IsRedshirt,
+		SeasonStats:           GetPlayerSeasonStatsByPlayerID(strconv.Itoa(int(player.ID)), strconv.Itoa(int(GetTimestamp().SeasonID))),
 	}
 }
 
@@ -132,6 +133,7 @@ func GetCollegePlayerByNameAndAbbr(firstName, lastName, abbr string) structs.Col
 		Team:                  player.Team,
 		IsRedshirting:         player.IsRedshirting,
 		IsRedshirt:            player.IsRedshirt,
+		SeasonStats:           GetPlayerSeasonStatsByPlayerID(strconv.Itoa(int(player.ID)), strconv.Itoa(int(GetTimestamp().SeasonID))),
 	}
 }
 
@@ -192,6 +194,7 @@ func GetNBAPlayerByID(id string) structs.NBAPlayer {
 	if err != nil {
 		log.Fatal(err)
 	}
+	player.AddSeasonStats(GetNBAPlayerSeasonStatsByPlayerID(strconv.Itoa(int(player.ID)), strconv.Itoa(int(GetTimestamp().SeasonID))))
 
 	return player
 }
@@ -205,6 +208,7 @@ func GetNBAPlayerByNameAndAbbr(firstName, lastName, abbr string) structs.NBAPlay
 	if err != nil {
 		log.Fatal(err)
 	}
+	player.AddSeasonStats(GetNBAPlayerSeasonStatsByPlayerID(strconv.Itoa(int(player.ID)), strconv.Itoa(int(GetTimestamp().SeasonID))))
 
 	return player
 }
