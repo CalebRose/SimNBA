@@ -70,7 +70,9 @@ func (r *TeamRecruitingProfile) ResetSpentPoints() {
 		r.WeeksMissed = 0
 	}
 	r.SpentPoints = 0
-	r.WeeklyScoutingPoints = 25
+	if r.WeeklyScoutingPoints < 30 {
+		r.WeeklyScoutingPoints = 30
+	}
 }
 
 func (r *TeamRecruitingProfile) SubtractScholarshipsAvailable() {
