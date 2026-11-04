@@ -77,7 +77,34 @@ func SyncRecruiting() {
 		var eligiblePointThreshold float64 = 0
 		var signThreshold float64
 
-		allocatePointsToRecruit(&recruitProfiles, &pointsPlaced, timestamp, &recruitProfilePointsMap, db)
+		for i := range recruitProfiles {
+			profile := &recruitProfiles[i]
+			if profile.CurrentWeeksPoints == 0 {
+				continue
+			}
+
+			pointsPlaced = true
+			rpa := structs.RecruitPointAllocation{
+				RecruitID:        profile.RecruitID,
+				TeamProfileID:    profile.ProfileID,
+				RecruitProfileID: profile.ID,
+				WeekID:           timestamp.CollegeWeekID,
+			}
+
+			curr := float64(profile.CurrentWeeksPoints)
+			modifier := float64(profile.Modifier)
+			curr = curr * modifier * float64(profile.Modifier)
+
+			if profile.CurrentWeeksPoints > 20 {
+				curr = 0
+				rpa.ApplyCaughtCheating()
+			}
+
+			rpa.UpdatePointsSpent(float64(profile.CurrentWeeksPoints), curr)
+			profile.AllocateTotalPoints(curr)
+			recruitProfilePointsMap[profile.TeamAbbreviation] += float64(profile.CurrentWeeksPoints)
+			repository.CreateRecruitPointAllocationRecord(rpa, db)
+		}
 
 		if !pointsPlaced {
 			continue
@@ -725,50 +752,6 @@ func getOddsIncrementByTalent(attr, stars uint8, attrspec, attrMatch bool, isMid
 		return 25
 	}
 	return 0
-}
-
-func allocatePointsToRecruit(recruitProfiles *[]structs.RecruitPlayerProfile, pointsPlaced *bool, timestamp structs.Timestamp, recruitProfilePointsMap *map[string]float64, db *gorm.DB) {
-	for i := 0; i < len(*recruitProfiles); i++ {
-		if (*recruitProfiles)[i].CurrentWeeksPoints == 0 {
-			continue
-		}
-		err := processRecruitProfile(i, recruitProfiles, pointsPlaced, timestamp, recruitProfilePointsMap, db)
-		if err != nil {
-			fmt.Println(err)
-			log.Fatalf("Could not process recruit profile: %v", err)
-		}
-	}
-}
-
-func processRecruitProfile(i int, recruitProfiles *[]structs.RecruitPlayerProfile, pointsPlaced *bool, timestamp structs.Timestamp, recruitProfilePointsMap *map[string]float64, db *gorm.DB) error {
-	*pointsPlaced = true
-
-	rpa := structs.RecruitPointAllocation{
-		RecruitID:        (*recruitProfiles)[i].RecruitID,
-		TeamProfileID:    (*recruitProfiles)[i].ProfileID,
-		RecruitProfileID: (*recruitProfiles)[i].ID,
-		WeekID:           timestamp.CollegeWeekID,
-	}
-
-	var curr float64 = float64((*recruitProfiles)[i].CurrentWeeksPoints)
-	var modifier float64 = (float64((*recruitProfiles)[i].Modifier))
-
-	// Apply modifier
-	curr = curr * modifier * float64((*recruitProfiles)[i].Modifier)
-
-	if (*recruitProfiles)[i].CurrentWeeksPoints > 20 {
-		curr = 0
-		rpa.ApplyCaughtCheating()
-	}
-
-	rpa.UpdatePointsSpent(float64((*recruitProfiles)[i].CurrentWeeksPoints), curr)
-	(*recruitProfiles)[i].AllocateTotalPoints(curr)
-
-	(*recruitProfilePointsMap)[(*recruitProfiles)[i].TeamAbbreviation] += float64((*recruitProfiles)[i].CurrentWeeksPoints)
-
-	// Add RPA to point allocations list
-	repository.CreateRecruitPointAllocationRecord(rpa, db)
-	return nil
 }
 
 func updateTeamRankings(teamRecruitingProfiles []structs.TeamRecruitingProfile, recruitProfilePointsMap map[string]float64, db *gorm.DB) {
