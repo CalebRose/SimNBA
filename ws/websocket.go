@@ -39,13 +39,15 @@ var (
 )
 
 // checkOrigin allows requests with no Origin header (non-browser clients)
-// and origins listed in ORIGIN_ALLOWED (comma-separated, or "*").
+// and origins listed in ORIGIN_ALLOWED (comma-separated, or "*"). When
+// ORIGIN_ALLOWED is unset, all origins are allowed, matching the HTTP CORS policy.
 func checkOrigin(r *http.Request) bool {
 	origin := r.Header.Get("Origin")
-	if origin == "" {
+	configured := strings.TrimSpace(os.Getenv("ORIGIN_ALLOWED"))
+	if origin == "" || configured == "" {
 		return true
 	}
-	for _, allowed := range strings.Split(os.Getenv("ORIGIN_ALLOWED"), ",") {
+	for _, allowed := range strings.Split(configured, ",") {
 		allowed = strings.TrimSpace(allowed)
 		if allowed == "*" || strings.EqualFold(allowed, origin) {
 			return true
