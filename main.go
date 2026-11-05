@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+	_ "time/tzdata"
 
 	"github.com/CalebRose/SimNBA/controller"
 	"github.com/CalebRose/SimNBA/dbprovider"
