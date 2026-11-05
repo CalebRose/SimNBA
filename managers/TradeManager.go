@@ -418,6 +418,7 @@ func syncAcceptedOptions(db *gorm.DB, options []structs.NBATradeOption, senderID
 		if option.NBAPlayerID > 0 {
 			playerRecord := GetNBAPlayerRecord(strconv.Itoa(int(option.NBAPlayerID)))
 			contract := playerRecord.Contract
+			fromTeamID := playerRecord.TeamID
 			if playerRecord.TeamID == senderID {
 				SendersCapsheet.SubtractFromCapsheetViaTrade(contract)
 				SendersCapsheet.NegotiateSalaryDifference(option.CashTransfer)
@@ -434,6 +435,11 @@ func syncAcceptedOptions(db *gorm.DB, options []structs.NBATradeOption, senderID
 
 			db.Save(&playerRecord)
 			db.Save(&contract)
+
+			// The player has left fromTeamID, so take them out of that team's lineups.
+			if err := clearNBAPlayerFromTeamLineups(db, fromTeamID, playerRecord.ID); err != nil {
+				log.Printf("Could not clear traded player %d from team %d lineups: %v", playerRecord.ID, fromTeamID, err)
+			}
 
 		} else if option.NBADraftPickID > 0 {
 			draftPick := GetDraftPickByDraftPickID(strconv.Itoa(int(option.NBADraftPickID)))
