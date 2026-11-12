@@ -43,56 +43,69 @@ type RecruitPlayerProfile struct {
 	// RecruitPoints          []RecruitPointAllocation `gorm:"foreignKey:RecruitProfileID"`
 }
 
-func (r *RecruitPlayerProfile) AllocatePoints(points int) {
-	r.CurrentWeeksPoints = uint8(points)
+func (rp *RecruitPlayerProfile) AllocatePoints(points int) {
+	rp.CurrentWeeksPoints = uint8(points)
 }
 
-func (r *RecruitPlayerProfile) SignPlayer() {
-	if r.Scholarship {
-		r.IsSigned = true
+func (rp *RecruitPlayerProfile) SignPlayer() {
+	if rp.Scholarship {
+		rp.IsSigned = true
 	}
 }
 
-func (r *RecruitPlayerProfile) LockPlayer() {
-	r.IsLocked = true
+func (rp *RecruitPlayerProfile) LockPlayer() {
+	rp.IsLocked = true
 }
 
-func (r *RecruitPlayerProfile) AllocateTotalPoints(points float64) {
-	r.TotalPoints += points
-	r.PreviouslySpentPoints = r.CurrentWeeksPoints
-	r.CurrentWeeksPoints = 0
+func (rp *RecruitPlayerProfile) AllocateTotalPoints(points float64) {
+	// If user spends points on a recruit
+	if points > 0 {
+		rp.TotalPoints += points
+		if rp.SpendingCount < 5 && points >= 1 {
+			rp.SpendingCount++
+			// In the event that someone tries to exploit the consistency system with a value between 0.00001 and 0.99999
+		} else if points > 0 && points < 1 {
+			rp.SpendingCount = 0
+		}
+	} else {
+		rp.TotalPoints = 0
+
+		rp.SpendingCount = 0
+	}
+	rp.PreviouslySpentPoints = rp.CurrentWeeksPoints
+	rp.CurrentWeeksPoints = 0
 }
 
-func (r *RecruitPlayerProfile) ResetTotalPoints() {
-	r.TotalPoints = 0
+func (rp *RecruitPlayerProfile) ResetTotalPoints() {
+	rp.TotalPoints = 0
 }
 
-func (r *RecruitPlayerProfile) ToggleTotalMax() {
-	r.TeamReachedMax = true
+func (rp *RecruitPlayerProfile) ToggleTotalMax() {
+	rp.TeamReachedMax = true
 }
 
-func (r *RecruitPlayerProfile) ToggleScholarship(reward bool, revoke bool) {
-	if r.Scholarship {
-		r.RevokeScholarship()
+func (rp *RecruitPlayerProfile) ToggleScholarship(reward bool, revoke bool) {
+	if rp.Scholarship {
+		rp.RevokeScholarship()
 		return
 	}
-	if !r.ScholarshipRevoked {
-		r.Scholarship = true
+	if !rp.ScholarshipRevoked {
+		rp.Scholarship = true
 	}
 }
 
-func (r *RecruitPlayerProfile) RevokeScholarship() {
-	r.Scholarship = false
-	r.ScholarshipRevoked = true
+func (rp *RecruitPlayerProfile) RevokeScholarship() {
+	rp.Scholarship = false
+	rp.ScholarshipRevoked = true
 }
 
-func (r *RecruitPlayerProfile) RemoveRecruitFromBoard() {
-	r.RemovedFromBoard = true
-	r.CurrentWeeksPoints = 0
+func (rp *RecruitPlayerProfile) RemoveRecruitFromBoard() {
+	rp.RemovedFromBoard = true
+	rp.CurrentWeeksPoints = 0
 }
 
-func (r *RecruitPlayerProfile) ReplaceRecruitToBoard() {
-	r.RemovedFromBoard = false
+func (rp *RecruitPlayerProfile) ReplaceRecruitToBoard() {
+	rp.RemovedFromBoard = false
 }
 
 func (rp *RecruitPlayerProfile) ApplyScoutingAttribute(attr string) {
