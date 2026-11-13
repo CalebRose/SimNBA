@@ -1,11 +1,16 @@
 package managers
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"sort"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	fbsvc "github.com/CalebRose/SimNBA/firebase"
 	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
 	"gorm.io/gorm"
@@ -591,6 +596,96 @@ func fillNBALineupSlots(slots []*structs.NBALineup, players []structs.NBAPlayer)
 			slot.TSThreeProportion = tp
 		}
 	}
+}
+
+type lineupPlayerInfo struct {
+	name    string
+	teamID  uint
+	injured bool
+}
+
+// lineupIssues lists every invalid player (injured or on another team) found in a team's lineups.
+func lineupIssues(teamID uint, lineups []structs.GameplanLineup, players map[uint]lineupPlayerInfo) []string {
+	issues := []string{}
+	seen := map[uint]bool{}
+	for _, lineup := range lineups {
+		for _, id := range []uint{lineup.FirstStringID, lineup.SecondStringID, lineup.ThirdStringID} {
+			if id == 0 || seen[id] {
+				continue
+			}
+			seen[id] = true
+			p, ok := players[id]
+			switch {
+			case !ok:
+				issues = append(issues, fmt.Sprintf("%s lineup: player %d no longer exists", lineup.Position, id))
+			case p.teamID != teamID:
+				issues = append(issues, fmt.Sprintf("%s lineup: %s (player %d) is not on the team", lineup.Position, p.name, id))
+			case p.injured:
+				issues = append(issues, fmt.Sprintf("%s lineup: %s (player %d) is injured", lineup.Position, p.name, id))
+			}
+		}
+	}
+	return issues
+}
+
+func reportLineupIssues(league, abbr string, teamID, weekID uint, phase uint8, issues []string) {
+	if len(issues) == 0 {
+		return
+	}
+	message := fmt.Sprintf("%s has invalid players in their lineups:\n%s", abbr, strings.Join(issues, "\n"))
+	report, err := fbsvc.BrokenLineupReport(league, teamID, message, weekID, phase)
+	if err != nil {
+		log.Printf("GameplanManager: cannot report lineup for team %d: %v", teamID, err)
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	id := fmt.Sprintf("lineup-%s-%d-%d", league, teamID, weekID)
+	if err := fbsvc.CreateAdminReport(ctx, id, report); err != nil {
+		log.Printf("GameplanManager: failed to create lineup report for team %d: %v", teamID, err)
+	}
+}
+
+// CheckAllTeamLineupsAndGameplans creates an admin report for every user-controlled team
+// whose lineups contain an injured player or a player who is not on the team.
+func CheckAllTeamLineupsAndGameplans() bool {
+	ts := GetTimestamp()
+
+	collegePlayers := map[uint]lineupPlayerInfo{}
+	for _, p := range GetAllCollegePlayers() {
+		collegePlayers[p.ID] = lineupPlayerInfo{name: p.FirstName + " " + p.LastName, teamID: p.TeamID, injured: p.IsInjured}
+	}
+	collegeLineupMap := MakeCollegeLineupMapByTeamID(GetAllCollegeLineups())
+
+	for _, team := range GetAllActiveCollegeTeams() {
+		if !team.IsUserCoached {
+			continue
+		}
+		lineups := []structs.GameplanLineup{}
+		for _, l := range collegeLineupMap[team.ID] {
+			lineups = append(lineups, l.GameplanLineup)
+		}
+		reportLineupIssues("cbb", team.Abbr, team.ID, ts.CollegeWeekID, ts.Phase, lineupIssues(team.ID, lineups, collegePlayers))
+	}
+
+	nbaPlayers := map[uint]lineupPlayerInfo{}
+	for _, p := range GetAllNBAPlayers() {
+		nbaPlayers[p.ID] = lineupPlayerInfo{name: p.FirstName + " " + p.LastName, teamID: p.TeamID, injured: p.IsInjured}
+	}
+	nbaLineupMap := MakeNBALineupMapByTeamID(GetAllNBALineups())
+
+	for _, team := range GetAllActiveNBATeams() {
+		if len(team.NBAOwnerName) == 0 || team.NBAOwnerName == "AI" {
+			continue
+		}
+		lineups := []structs.GameplanLineup{}
+		for _, l := range nbaLineupMap[team.ID] {
+			lineups = append(lineups, l.GameplanLineup)
+		}
+		reportLineupIssues("nba", team.Abbr, team.ID, ts.NBAWeekID, ts.Phase, lineupIssues(team.ID, lineups, nbaPlayers))
+	}
+
+	return true
 }
 
 func SetAIGameplans() bool {

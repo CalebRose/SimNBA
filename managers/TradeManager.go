@@ -1,12 +1,17 @@
 package managers
 
 import (
+	"context"
 	"errors"
+	"fmt"
 	"log"
 	"strconv"
+	"strings"
 	"sync"
+	"time"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	fbsvc "github.com/CalebRose/SimNBA/firebase"
 	"github.com/CalebRose/SimNBA/structs"
 	"github.com/CalebRose/SimNBA/util"
 	"gorm.io/gorm"
@@ -401,30 +406,54 @@ func SyncAcceptedTrade(proposalID string) {
 	proposal := GetOnlyTradeProposalByProposalID(proposalID)
 	SentOptions := proposal.NBATeamTradeOptions
 
-	syncAcceptedOptions(db, SentOptions, proposal.NBATeamID, proposal.NBATeam, proposal.RecepientTeamID, proposal.RecepientTeam)
+	details := syncAcceptedOptions(db, SentOptions, proposal.NBATeamID, proposal.NBATeam, proposal.RecepientTeamID, proposal.RecepientTeam)
 
 	proposal.ToggleSyncStatus()
 
 	db.Save(&proposal)
+	reportProcessedTrade(proposal, details)
 }
 
-func syncAcceptedOptions(db *gorm.DB, options []structs.NBATradeOption, senderID uint, senderTeam string, recepientID uint, recepientTeam string) {
+func reportProcessedTrade(proposal structs.NBATradeProposal, details []string) {
+	ts := GetTimestamp()
+	if ts.ID == 0 {
+		log.Printf("TradeManager: cannot report trade %d: timestamp unavailable", proposal.ID)
+		return
+	}
+	message := fmt.Sprintf("Trade proposal #%d processed between %s (team %d) and %s (team %d).\n%s",
+		proposal.ID, proposal.NBATeam, proposal.NBATeamID, proposal.RecepientTeam, proposal.RecepientTeamID, strings.Join(details, "\n"))
+	report, err := fbsvc.TradeTransactionReport(proposal.NBATeamID, message, ts)
+	if err != nil {
+		log.Printf("TradeManager: cannot report trade %d: %v", proposal.ID, err)
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := fbsvc.CreateAdminReport(ctx, fmt.Sprintf("trade-proposal-%d", proposal.ID), report); err != nil {
+		log.Printf("TradeManager: failed to create report for trade %d: %v", proposal.ID, err)
+	}
+}
+
+func syncAcceptedOptions(db *gorm.DB, options []structs.NBATradeOption, senderID uint, senderTeam string, recepientID uint, recepientTeam string) []string {
 	sendingTeam := GetNBATeamByTeamID(strconv.Itoa(int(senderID)))
 	receivingTeam := GetNBATeamByTeamID(strconv.Itoa(int(recepientID)))
 	SendersCapsheet := GetCapsheetByTeamID(strconv.Itoa(int(senderID)))
 	recepientCapsheet := GetCapsheetByTeamID(strconv.Itoa(int(recepientID)))
+	details := make([]string, 0, len(options))
 	for _, option := range options {
 		// Contract
 		if option.NBAPlayerID > 0 {
 			playerRecord := GetNBAPlayerRecord(strconv.Itoa(int(option.NBAPlayerID)))
 			contract := playerRecord.Contract
 			if playerRecord.TeamID == senderID {
+				details = append(details, fmt.Sprintf("%s %s (player %d): %s to %s (cash transfer %.2f)", playerRecord.FirstName, playerRecord.LastName, option.NBAPlayerID, senderTeam, recepientTeam, option.CashTransfer))
 				SendersCapsheet.SubtractFromCapsheetViaTrade(contract)
 				SendersCapsheet.NegotiateSalaryDifference(option.CashTransfer)
 				recepientCapsheet.AddContractViaTrade(contract, option.CashTransfer)
 				playerRecord.TradePlayer(recepientID, receivingTeam.Abbr)
 				contract.TradePlayer(recepientID, receivingTeam.Abbr)
 			} else {
+				details = append(details, fmt.Sprintf("%s %s (player %d): %s to %s (cash transfer %.2f)", playerRecord.FirstName, playerRecord.LastName, option.NBAPlayerID, recepientTeam, senderTeam, option.CashTransfer))
 				recepientCapsheet.SubtractFromCapsheetViaTrade(contract)
 				recepientCapsheet.NegotiateSalaryDifference(option.CashTransfer)
 				SendersCapsheet.AddContractViaTrade(contract, option.CashTransfer)
@@ -438,8 +467,10 @@ func syncAcceptedOptions(db *gorm.DB, options []structs.NBATradeOption, senderID
 		} else if option.NBADraftPickID > 0 {
 			draftPick := GetDraftPickByDraftPickID(strconv.Itoa(int(option.NBADraftPickID)))
 			if draftPick.TeamID == senderID {
+				details = append(details, fmt.Sprintf("%d round %d pick (pick %d): %s to %s", draftPick.Season, draftPick.DraftRound, option.NBADraftPickID, senderTeam, recepientTeam))
 				draftPick.TradePick(recepientID, recepientTeam)
 			} else {
+				details = append(details, fmt.Sprintf("%d round %d pick (pick %d): %s to %s", draftPick.Season, draftPick.DraftRound, option.NBADraftPickID, recepientTeam, senderTeam))
 				draftPick.TradePick(senderID, senderTeam)
 			}
 
@@ -450,6 +481,7 @@ func syncAcceptedOptions(db *gorm.DB, options []structs.NBATradeOption, senderID
 	}
 	db.Save(&SendersCapsheet)
 	db.Save(&recepientCapsheet)
+	return details
 }
 
 func VetoTrade(proposalID string) {

@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/CalebRose/SimNBA/dbprovider"
+	"github.com/CalebRose/SimNBA/firebase"
 	fbsvc "github.com/CalebRose/SimNBA/firebase"
 	"github.com/CalebRose/SimNBA/repository"
 	"github.com/CalebRose/SimNBA/structs"
@@ -250,6 +251,17 @@ func SyncRecruiting() {
 
 		// Save Recruit
 		repository.SaveRecruitRecord(recruit, db)
+	}
+
+	// Admin Reports for teams that missed recruiting
+	for _, report := range firebase.MissedRecruitingReports(teamRecruitingProfiles, timestamp) {
+		id := fmt.Sprintf("missed-recruiting-cbb-%d-%d-%d", report.TeamID, report.WeekID, report.Phase)
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		err := fbsvc.CreateAdminReport(ctx, id, report)
+		cancel()
+		if err != nil {
+			log.Printf("RecruitingSyncManager: failed to create missed recruiting report for team %d: %v", report.TeamID, err)
+		}
 	}
 
 	updateTeamRankings(teamRecruitingProfiles, recruitProfilePointsMap, db)
