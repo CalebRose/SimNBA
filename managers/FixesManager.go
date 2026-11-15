@@ -5,14 +5,22 @@ import (
 
 	"github.com/CalebRose/SimNBA/dbprovider"
 	"github.com/CalebRose/SimNBA/repository"
+	"github.com/CalebRose/SimNBA/structs"
 )
 
 func FixExistingModifiersForRecruits() {
 	db := dbprovider.GetInstance().GetDB()
 	recruits := GetAllRecruitRecords()
-	recruitMap := MakeRecruitMap(recruits)
 	recruitProfiles := repository.FindRecruitPlayerProfileRecords(repository.RecruitProfileClauses{})
 	teamProfiles := GetRecruitingProfileForRecruitSync()
+
+	fixExistingModifiersForRecruits(recruits, recruitProfiles, teamProfiles, func(profile structs.RecruitPlayerProfile) {
+		repository.SaveRecruitProfileRecord(profile, db)
+	})
+}
+
+func fixExistingModifiersForRecruits(recruits []structs.Recruit, recruitProfiles []structs.RecruitPlayerProfile, teamProfiles []structs.TeamRecruitingProfile, save func(structs.RecruitPlayerProfile)) {
+	recruitMap := MakeRecruitMap(recruits)
 	teamProfileMap := MakeTeamRecruitingProfileMapByTeamID(teamProfiles)
 
 	for _, profile := range recruitProfiles {
@@ -27,7 +35,7 @@ func FixExistingModifiersForRecruits() {
 		profile.Modifier = modifier
 		totalPoints := profile.Modifier * float32(profile.PreviouslySpentPoints)
 		profile.TotalPoints = float64(totalPoints)
-		repository.SaveRecruitProfileRecord(profile, db)
+		save(profile)
 	}
 }
 

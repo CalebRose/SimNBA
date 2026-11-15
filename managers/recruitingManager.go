@@ -646,7 +646,7 @@ func calculateBaseModifier(attr int) float32 {
 }
 
 func calculateAdjustmentFactor(teamAttr, playerPref int) float32 {
-	return 1 + float32((teamAttr-playerPref)/9)
+	return 1 + float32(teamAttr-playerPref)/9
 }
 
 func calculateMultiplier(teamAttr uint, playerPref uint) float32 {
@@ -691,6 +691,8 @@ func CreateCustomCroot(dto structs.CustomRecruitDTO) structs.Recruit {
 	stars := util.GetStarRating(true, false)
 	recruit := createRecruit(dto.Position, dto.Archetype, dto.FirstName, dto.LastName, dto.State, dto.Country, dto.City, dto.HighSchool, 1, stars, latestID, attributeBlob, []structs.CrootLocation{})
 	recruit.ID = latestID
+	recruit.IsCustomCroot = true
+	recruit.CreatedFor = dto.CustomCrootFor
 
 	// Generate Face Data
 	faceDataResponse := dto.FaceData
