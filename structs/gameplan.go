@@ -181,3 +181,18 @@ type CollegeLineup struct {
 type NBALineup struct {
 	GameplanLineup
 }
+
+// ClearPlayerFromNBALineups clears the player from every lineup in the slice and
+// returns only the lineups that contained them, so callers know which rows to save.
+func ClearPlayerFromNBALineups(lineups []NBALineup, playerID uint) []NBALineup {
+	changed := []NBALineup{}
+	if playerID == 0 {
+		return changed
+	}
+	for i := range lineups {
+		if lineups[i].ClearPlayer(playerID) {
+			changed = append(changed, lineups[i])
+		}
+	}
+	return changed
+}

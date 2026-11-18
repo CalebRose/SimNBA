@@ -1234,10 +1234,42 @@ func CutNBAPlayer(playerID string) {
 	db := dbprovider.GetInstance().GetDB()
 
 	player := GetNBAPlayerRecord(playerID)
+	fromTeamID := player.TeamID
 
 	player.WaivePlayer()
 
 	db.Save(&player)
+
+	if err := clearNBAPlayerFromTeamLineups(db, fromTeamID, player.ID); err != nil {
+		log.Printf("Could not clear waived player %d from team %d lineups: %v", player.ID, fromTeamID, err)
+	}
+}
+
+// clearNBAPlayerFromTeamLineups removes a player from every lineup of the team they are
+// leaving, so a lineup never keeps naming someone who is no longer on the roster.
+func clearNBAPlayerFromTeamLineups(db *gorm.DB, teamID, playerID uint) error {
+	if teamID == 0 || playerID == 0 {
+		return nil
+	}
+
+	var lineups []structs.NBALineup
+	if err := db.Where("team_id = ?", teamID).Find(&lineups).Error; err != nil {
+		return err
+	}
+
+	changed := structs.ClearPlayerFromNBALineups(lineups, playerID)
+	if len(changed) == 0 {
+		return nil
+	}
+
+	return db.Transaction(func(tx *gorm.DB) error {
+		for i := range changed {
+			if err := tx.Save(&changed[i]).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
 
 func GetFullTeamRosterWithCrootsMap() map[uint][]structs.CollegePlayer {
