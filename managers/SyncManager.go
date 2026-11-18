@@ -19,6 +19,37 @@ import (
 	"gorm.io/gorm"
 )
 
+func allocateRecruitProfilePoints(profiles []structs.RecruitPlayerProfile, weekID uint, teamPoints map[string]float64, saveAllocation func(structs.RecruitPointAllocation)) bool {
+	pointsPlaced := false
+	for i := range profiles {
+		profile := &profiles[i]
+		if profile.CurrentWeeksPoints == 0 {
+			continue
+		}
+
+		pointsPlaced = true
+		rpa := structs.RecruitPointAllocation{
+			RecruitID:        profile.RecruitID,
+			TeamProfileID:    profile.ProfileID,
+			RecruitProfileID: profile.ID,
+			WeekID:           weekID,
+		}
+		points := float64(profile.CurrentWeeksPoints)
+		modifier := float64(profile.Modifier)
+		curr := points * modifier * modifier
+		if profile.CurrentWeeksPoints > 20 {
+			curr = 0
+			rpa.ApplyCaughtCheating()
+		}
+
+		rpa.UpdatePointsSpent(points, curr)
+		teamPoints[profile.TeamAbbreviation] += points
+		profile.AllocateTotalPoints(curr)
+		saveAllocation(rpa)
+	}
+	return pointsPlaced
+}
+
 func SyncRecruiting() {
 	db := dbprovider.GetInstance().GetDB()
 	fmt.Println(time.Now().UnixNano())
@@ -69,34 +100,9 @@ func SyncRecruiting() {
 		var eligiblePointThreshold float64 = 0
 		var signThreshold float64
 
-		for i := range recruitProfiles {
-			profile := recruitProfiles[i]
-			if profile.CurrentWeeksPoints == 0 {
-				continue
-			}
-
-			pointsPlaced = true
-			rpa := structs.RecruitPointAllocation{
-				RecruitID:        profile.RecruitID,
-				TeamProfileID:    profile.ProfileID,
-				RecruitProfileID: profile.ID,
-				WeekID:           timestamp.CollegeWeekID,
-			}
-
-			curr := float64(profile.CurrentWeeksPoints)
-			modifier := float64(profile.Modifier)
-			curr = curr * modifier * float64(profile.Modifier)
-
-			if profile.CurrentWeeksPoints > 20 {
-				curr = 0
-				rpa.ApplyCaughtCheating()
-			}
-
-			rpa.UpdatePointsSpent(float64(profile.CurrentWeeksPoints), curr)
-			profile.AllocateTotalPoints(curr)
-			recruitProfilePointsMap[profile.TeamAbbreviation] += float64(profile.CurrentWeeksPoints)
+		pointsPlaced = allocateRecruitProfilePoints(recruitProfiles, timestamp.CollegeWeekID, recruitProfilePointsMap, func(rpa structs.RecruitPointAllocation) {
 			repository.CreateRecruitPointAllocationRecord(rpa, db)
-		}
+		})
 
 		if !pointsPlaced {
 			continue
