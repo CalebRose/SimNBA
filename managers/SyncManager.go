@@ -54,17 +54,8 @@ func SyncRecruiting() {
 	// Get every recruit
 	recruits := GetAllUnsignedRecruits()
 
-	// Iterate through every recruit
-	skipOver := []int{1, 2}
-
-	sort.Ints(skipOver)
-
 	for _, recruit := range recruits {
 		id := recruit.ID
-		i := sort.SearchInts(skipOver, int(id))
-		if i < len(skipOver) && skipOver[i] == int(id) {
-			continue
-		}
 		recruitProfiles := recruitProfileMap[id]
 
 		if len(recruitProfiles) == 0 {
@@ -79,7 +70,7 @@ func SyncRecruiting() {
 		var signThreshold float64
 
 		for i := range recruitProfiles {
-			profile := &recruitProfiles[i]
+			profile := recruitProfiles[i]
 			if profile.CurrentWeeksPoints == 0 {
 				continue
 			}
