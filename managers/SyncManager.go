@@ -36,7 +36,7 @@ func allocateRecruitProfilePoints(profiles []structs.RecruitPlayerProfile, weekI
 		}
 		points := float64(profile.CurrentWeeksPoints)
 		modifier := float64(profile.Modifier)
-		curr := points * modifier * modifier
+		curr := points * modifier
 		if profile.CurrentWeeksPoints > 20 {
 			curr = 0
 			rpa.ApplyCaughtCheating()
