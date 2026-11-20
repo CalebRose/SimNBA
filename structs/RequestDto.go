@@ -1,5 +1,7 @@
 package structs
 
+import "time"
+
 // Request - A player request to sign for a team
 type RequestDTO struct {
 	ID         int
@@ -10,4 +12,5 @@ type RequestDTO struct {
 	Conference string
 	IsNBA      bool
 	IsApproved bool
+	CreatedAt  time.Time
 }
